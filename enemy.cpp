@@ -16,20 +16,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include <Urho3D/Urho3D.h>
-#include <Urho3D/Scene/Scene.h>
-#include <Urho3D/Scene/SceneEvents.h>
-#include <Urho3D/Graphics/Model.h>
-#include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Physics/RigidBody.h>
-#include <Urho3D/Physics/CollisionShape.h>
-#include <Urho3D/Physics/PhysicsEvents.h>
-#include <Urho3D/Graphics/ParticleEmitter.h>
-
 #include "enemy.h"
-#include "explosion.h"
-#include "tilemaster.h"
 #include "player.h"
 
 Enemy::Enemy(Context *context, MasterControl *masterControl, Vector3 position):
@@ -46,14 +33,14 @@ Enemy::Enemy(Context *context, MasterControl *masterControl, Vector3 position):
     rootNode_->SetPosition(position);
     //Generate random color
     int randomizer = Random(6);
-    color_ = Color(0.5f + (randomizer * 0.075f), 0.9f - (randomizer * 0.075f), 0.5+Max(randomizer-3.0, 3.0)/6.0, 0.23f);
+    color_ = Color(0.5f + (randomizer * 0.075f), 0.9f - (randomizer * 0.075f), 0.5+Max(randomizer-3.0, 3.0)/6.0, 1.0f);
 
     particleNode_ = rootNode_->CreateChild("SmokeTrail");
     ParticleEmitter* particleEmitter = particleNode_->CreateComponent<ParticleEmitter>();
     particleEffect_ = masterControl_->cache_->GetTempResource<ParticleEffect>("Resources/Particles/Enemy.xml");
     Vector<ColorFrame> colorFrames;
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
-    colorFrames.Push(ColorFrame(color_, 0.1f));
+    colorFrames.Push(ColorFrame(Color(color_.r_*0.666f, color_.g_*0.666f, color_.b_*0.666f, 0.5f), 0.1f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 1.0f));
     particleEffect_->SetColorFrames(colorFrames);
     particleEmitter->SetEffect(particleEffect_);
@@ -116,7 +103,7 @@ void Enemy::Hit(float damage, int ownerID) {
     lastHitBy_ = ownerID;
     health_ -= damage;
     panic_ = (initialHealth_-health_)/initialHealth_;
-    particleEffect_->SetMinEmissionRate(30.0f-(20.0f*(health_/initialHealth_)));
+    particleEffect_->SetMinEmissionRate(7.0f+23.0f*panic_);
 
     CheckHealth();
 }

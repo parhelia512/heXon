@@ -16,8 +16,6 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include <Urho3D/Scene/SceneEvents.h>
-
 #include "spawnmaster.h"
 #include "tilemaster.h"
 #include "tile.h"

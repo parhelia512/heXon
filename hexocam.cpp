@@ -16,20 +16,6 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include <Urho3D/Urho3D.h>
-#include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/Scene/SceneEvents.h>
-#include <Urho3D/Graphics/Camera.h>
-#include <Urho3D/Graphics/Viewport.h>
-#include <Urho3D/Graphics/RenderPath.h>
-#include <Urho3D/Graphics/Light.h>
-#include <Urho3D/Physics/CollisionShape.h>
-#include <Urho3D/Scene/Scene.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Resource/XMLFile.h>
-#include <Urho3D/Math/MathDefs.h>
-#include <Urho3D/Input/Input.h>
-
 #include "hexocam.h"
 
 heXoCam::heXoCam(Context *context, MasterControl *masterControl):
@@ -38,11 +24,9 @@ heXoCam::heXoCam(Context *context, MasterControl *masterControl):
     masterControl_ = masterControl;
     SubscribeToEvent(E_SCENEUPDATE, HANDLER(heXoCam, HandleSceneUpdate));
 
-    //Create the camera. Limit far clip distance to match the fog
     rootNode_ = masterControl_->world.scene->CreateChild("Camera");
     camera_ = rootNode_->CreateComponent<Camera>();
     camera_->SetFarClip(1024.0f);
-    //Set an initial position for the camera scene node above the origin
     rootNode_->SetPosition(Vector3(0.0f, 42.0f, -23.0f));
     rootNode_->SetRotation(Quaternion(65.0f, 0.0f, 0.0f));
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
@@ -60,8 +44,6 @@ heXoCam::heXoCam(Context *context, MasterControl *masterControl):
     light->SetCastShadows(false);
 
     SetupViewport();
-
-    Node* healthBarNode = rootNode_->CreateChild();
 }
 
 

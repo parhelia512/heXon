@@ -19,6 +19,12 @@
 #ifndef OBJECTPOOL_H
 #define OBJECTPOOL_H
 
+#include <Urho3D/Urho3D.h>
+#include <Urho3D/Graphics/Graphics.h>
+#include <Urho3D/Graphics/OctreeQuery.h>
+#include <Urho3D/IO/FileSystem.h>
+#include <Urho3D/Scene/Node.h>
+
 #include "mastercontrol.h"
 #include "sceneobject.h"
 

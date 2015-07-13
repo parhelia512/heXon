@@ -16,38 +16,6 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include <Urho3D/Urho3D.h>
-#include <Urho3D/Engine/Engine.h>
-#include <Urho3D/Engine/Console.h>
-#include <Urho3D/Graphics/Graphics.h>
-#include <Urho3D/Graphics/DebugRenderer.h>
-#include <Urho3D/Engine/DebugHud.h>
-#include <Urho3D/DebugNew.h>
-#include <Urho3D/UI/Text.h>
-#include <Urho3D/UI/Font.h>
-#include <Urho3D/Scene/Scene.h>
-#include <Urho3D/Physics/PhysicsWorld.h>
-#include <Urho3D/Physics/CollisionShape.h>
-#include <Urho3D/Graphics/Model.h>
-#include <Urho3D/Graphics/StaticModel.h>
-#include <Urho3D/Graphics/Light.h>
-#include <Urho3D/Graphics/Camera.h>
-#include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Graphics/RenderPath.h>
-#include <Urho3D/IO/FileSystem.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Resource/XMLFile.h>
-#include <Urho3D/Resource/Resource.h>
-#include <Urho3D/Audio/Sound.h>
-#include <Urho3D/Audio/SoundSource.h>
-#include <Urho3D/IO/Log.h>
-#include <Urho3D/Scene/SceneEvents.h>
-#include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/Graphics/Octree.h>
-#include <Urho3D/Graphics/OctreeQuery.h>
-#include <Urho3D/Graphics/Zone.h>
-
-#include "mastercontrol.h"
 #include "hexocam.h"
 #include "inputmaster.h"
 #include "spawnmaster.h"
@@ -61,6 +29,8 @@
 #include "hitfx.h"
 #include "explosion.h"
 #include "muzzle.h"
+
+#include "mastercontrol.h"
 
 DEFINE_APPLICATION_MAIN(MasterControl);
 

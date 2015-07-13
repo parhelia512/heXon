@@ -20,8 +20,14 @@
 #define RAZOR_H
 
 #include <Urho3D/Urho3D.h>
-#include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/Core/CoreEvents.h>
+#include <Urho3D/Graphics/Material.h>
+#include <Urho3D/Graphics/Model.h>
+#include <Urho3D/Graphics/StaticModel.h>
+#include <Urho3D/Graphics/StaticModel.h>
+#include <Urho3D/Resource/ResourceCache.h>
+#include <Urho3D/Scene/SceneEvents.h>
+#include <Urho3D/Scene/Scene.h>
 
 #include "enemy.h"
 

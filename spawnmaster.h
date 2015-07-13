@@ -21,6 +21,7 @@
 
 #include <Urho3D/Urho3D.h>
 #include <Urho3D/Scene/Scene.h>
+#include <Urho3D/Scene/SceneEvents.h>
 
 #include "mastercontrol.h"
 #include "razor.h"

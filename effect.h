@@ -21,8 +21,11 @@
 
 #include <Urho3D/Urho3D.h>
 #include <Urho3D/Core/CoreEvents.h>
+#include <Urho3D/Graphics/ParticleEffect.h>
 #include <Urho3D/Graphics/ParticleEmitter.h>
-
+#include <Urho3D/Scene/SceneEvents.h>
+#include <Urho3D/Scene/Scene.h>
+#include <Urho3D/Urho3D.h>
 
 #include "sceneobject.h"
 

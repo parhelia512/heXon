@@ -16,21 +16,8 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include <Urho3D/Urho3D.h>
-#include <Urho3D/Scene/Scene.h>
-#include <Urho3D/Scene/SceneEvents.h>
-#include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Graphics/ParticleEmitter.h>
-#include <Urho3D/Graphics/ParticleEffect.h>
-#include <Urho3D/Audio/Sound.h>
-#include <Urho3D/Audio/SoundSource.h>
-#include <Urho3D/Math/Sphere.h>
-
-#include "tilemaster.h"
 #include "spawnmaster.h"
 #include "explosion.h"
-#include "hitfx.h"
 
 Explosion::Explosion(Context *context, MasterControl *masterControl, Vector3 position, Color color, double size):
     Effect(context, masterControl, position),

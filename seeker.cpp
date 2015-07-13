@@ -16,18 +16,6 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include <Urho3D/Urho3D.h>
-#include <Urho3D/Scene/Scene.h>
-#include <Urho3D/Scene/SceneEvents.h>
-#include <Urho3D/Graphics/Model.h>
-#include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Physics/RigidBody.h>
-#include <Urho3D/Physics/CollisionShape.h>
-#include <Urho3D/Physics/PhysicsEvents.h>
-#include <Urho3D/Graphics/ParticleEmitter.h>
-#include <Urho3D/Graphics/ParticleEffect.h>
-
 #include "seeker.h"
 #include "hitfx.h"
 #include "tilemaster.h"
@@ -35,7 +23,7 @@
 
 Seeker::Seeker(Context *context, MasterControl *masterControl, Vector3 position):
     SceneObject(context, masterControl),
-    lifeTime_{8.8f},
+    lifeTime_{7.5f},
     damage_{2.3f}
 {
     rootNode_->SetName("Seeker");
