@@ -32,7 +32,7 @@ Pickup::Pickup(Context *context, MasterControl *masterControl):
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
     rigidBody_->SetRestitution(0.666f);
-    rigidBody_->SetMass(0.5f);
+    rigidBody_->SetMass(0.666f);
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
     rigidBody_->SetLinearDamping(0.5f);
     rigidBody_->SetFriction(0.0f);

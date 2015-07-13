@@ -55,8 +55,8 @@ void Tile::Deselect()
 
 void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
 {
-    double elapsedTime = masterControl_->world.scene->GetElapsedTime();
-    double offsetY = 0.0;
+    float elapsedTime = masterControl_->world.scene->GetElapsedTime();
+    float offsetY = 0.0;
 
     //Alien Chaos - Disorder = time*1.0525f
     //Talpa - Unusual Chair = time*1.444
@@ -66,26 +66,29 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     if (nHexAffectors) {
         for (uint i = 0; i < nHexAffectors; i++) {
             WeakPtr<Node> hexAffector = tileMaster_->hexAffectors_.Keys()[i];
-            double hexAffectorMass = tileMaster_->hexAffectors_[hexAffector]->GetMass();
+            float hexAffectorMass = tileMaster_->hexAffectors_[hexAffector]->GetMass();
 
             if (hexAffector->IsEnabled()) {
-                double offsetYPart = sqrt(hexAffectorMass) - (0.1* Vector3::Distance(referencePosition_, hexAffector->GetPosition()));
+                float offsetYPart = sqrt(hexAffectorMass) - (0.1* Vector3::Distance(referencePosition_, hexAffector->GetPosition()));
                 if (offsetYPart > 0.0) {
                     offsetYPart = pow(offsetYPart, 4);
                     offsetY += offsetYPart;
                 }
             }
         }
-        offsetY = sqrt(offsetY);
+        offsetY = sqrt(offsetY*0.666f);
     }
     offsetY += 0.023f * wave_;
+
+    offsetY = (offsetY + lastOffsetY_) * 0.5f;
+    lastOffsetY_ = offsetY;
 
     Vector3 lastPos = rootNode_->GetPosition();
     Vector3 newPos = Vector3(lastPos.x_, referencePosition_.y_ - offsetY, lastPos.z_);
     rootNode_->SetPosition(newPos);
 
-    double color = Clamp((0.25 * offsetY) +0.3, 0.0, 1.0);
-    model_->GetMaterial(0)->SetShaderParameter("MatDiffColor", Color(color, color, color, color + (0.023 * wave_)));
+    float color = Clamp((0.25f * offsetY) +0.3f, 0.0f, 1.0f);
+    model_->GetMaterial(0)->SetShaderParameter("MatDiffColor", Color(color, color, color, color + (0.023f * wave_)));
 }
 
 void Tile::FixFringe()

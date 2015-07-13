@@ -28,7 +28,6 @@
 #include <Urho3D/Math/Vector2.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Scene/Scene.h>
-
 #include "mastercontrol.h"
 
 namespace Urho3D {
@@ -81,7 +80,7 @@ public:
     void EnableSlots();
     void DisableSlots();
 
-    void AddToAffectors(WeakPtr<Node> affector, WeakPtr<RigidBody> rigidBody) { if (hexAffectors_.Values().Length() <= 23 || affector->GetNameHash() == N_SPIRE) hexAffectors_[affector] = rigidBody; }
+    void AddToAffectors(WeakPtr<Node> affector, WeakPtr<RigidBody> rigidBody) { hexAffectors_[affector] = rigidBody; }
     void RemoveFromAffectors(WeakPtr<Node> affector) { if (hexAffectors_.Contains(affector) ) hexAffectors_.Erase(affector); }
     HashMap<WeakPtr<Node>, WeakPtr<RigidBody> >* GetAffectors() { return &hexAffectors_; }
 

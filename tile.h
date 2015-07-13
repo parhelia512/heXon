@@ -59,9 +59,10 @@ private:
 
     Node* rootNode_;
     Vector3 referencePosition_;
-    double centerDistExp_;
-    double wave_;
-    double addBright_ = 0.0;
+    float centerDistExp_;
+    float wave_;
+    float addBright_ = 0.0f;
+    float lastOffsetY_ = 0.0f;
     StaticModel* model_;
     Node* cursor_;
     void Select();
