@@ -13,3 +13,12 @@ cd Source
 cd ThirdParty
 cd Bullet
 make
+
+cd ..
+cd ..
+cd ..
+cd ..
+
+#Create symbolic links
+ln -s Urho3D/bin/Data
+ln -s Urho3D/bin/CoreData
