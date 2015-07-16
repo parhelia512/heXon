@@ -16,7 +16,7 @@ T Cycle(T x, T min, T max){
                   : x;
 }
 
-float Distance(Urho3D::Vector3 from, Urho3D::Vector3 to);
+float Distance(const Urho3D::Vector3 from, const Urho3D::Vector3 to);
 unsigned IntVector2ToHash(Urho3D::IntVector2 vec);
 }
 

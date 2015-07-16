@@ -45,11 +45,11 @@ private:
     MasterControl* masterControl_;
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 
-    double razorInterval_;
-    double sinceRazorSpawn_;
+    float razorInterval_;
+    float sinceRazorSpawn_;
 
-    double spireInterval_;
-    double sinceSpireSpawn_;
+    float spireInterval_;
+    float sinceSpireSpawn_;
 
     void SpawnRazor(Vector3 position);
     bool RespawnRazor(Vector3 position);

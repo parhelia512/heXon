@@ -47,4 +47,4 @@ public:
     const int worth_ = 23;
 };
 
-#endif
+#endif //APPLE_H

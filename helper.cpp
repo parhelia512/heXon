@@ -1,6 +1,6 @@
 #include "helper.h"
 
-float heXon::Distance(Urho3D::Vector3 from, Urho3D::Vector3 to){
+float heXon::Distance(const Urho3D::Vector3 from, const Urho3D::Vector3 to){
     return (to - from).Length();
 }
 
