@@ -41,4 +41,4 @@ Zentrix - Warp Drive
 from [Alternate Frequency](http://www.ektoplazm.com/free-music/alternate-frequency)
 
 Alien Chaos - Disorder
-from [Discorvering the Code](http://www.ektoplazm.com/free-music/alien-chaos-discovering-the-code)
+from [Discovering the Code](http://www.ektoplazm.com/free-music/alien-chaos-discovering-the-code)
