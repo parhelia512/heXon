@@ -65,7 +65,7 @@ void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 int SpawnMaster::CountActiveRazors()
 {
     int razorCount = 0;
-    for (int r = 0; r < razors_.Values().Length(); r++){
+    for (int r = 0; r < razors_.Values().Size(); r++){
         if (razors_[r]->rootNode_->IsEnabled()) ++razorCount;
     }
     return razorCount;
@@ -73,7 +73,7 @@ int SpawnMaster::CountActiveRazors()
 int SpawnMaster::CountActiveSpires()
 {
     int spireCount = 0;
-    for (int s = 0; s < spires_.Values().Length(); s++){
+    for (int s = 0; s < spires_.Values().Size(); s++){
         if (spires_[s]->rootNode_->IsEnabled()) ++spireCount;
     }
     return spireCount;
@@ -91,7 +91,7 @@ void SpawnMaster::SpawnRazor(Vector3 position)
 bool SpawnMaster::RespawnRazor(Vector3 position)
 {
     Vector<SharedPtr<Razor> > razors = razors_.Values();
-    for (int r = 0; r < razors.Length(); r++){
+    for (int r = 0; r < razors.Size(); r++){
         if (!razors[r]->rootNode_->IsEnabled()){
             SharedPtr<Razor> razor = razors[r];
             razor->Set(position);
@@ -113,7 +113,7 @@ void SpawnMaster::SpawnSpire(Vector3 position)
 bool SpawnMaster::RespawnSpire(Vector3 position)
 {
     Vector<SharedPtr<Spire> > spires = spires_.Values();
-    for (int s = 0; s < spires.Length(); s++){
+    for (int s = 0; s < spires.Size(); s++){
         if (!spires[s]->rootNode_->IsEnabled()){
             SharedPtr<Spire> spire = spires[s];
             spire->Set(position);

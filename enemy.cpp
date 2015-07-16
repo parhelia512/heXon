@@ -33,7 +33,7 @@ Enemy::Enemy(Context *context, MasterControl *masterControl, Vector3 position):
     rootNode_->SetPosition(position);
     //Generate random color
     int randomizer = Random(6);
-    color_ = Color(0.5f + (randomizer * 0.075f), 0.9f - (randomizer * 0.075f), 0.5+Max(randomizer-3.0, 3.0)/6.0, 1.0f);
+    color_ = Color(0.5f + (randomizer * 0.075f), 0.9f - (randomizer * 0.075f), 0.5f+Max(randomizer-3.0f, 3.0f)/6.0f, 1.0f);
 
     particleNode_ = rootNode_->CreateChild("SmokeTrail");
     ParticleEmitter* particleEmitter = particleNode_->CreateComponent<ParticleEmitter>();
@@ -64,7 +64,7 @@ Enemy::Enemy(Context *context, MasterControl *masterControl, Vector3 position):
     samples_.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Melee3.ogg")));
     samples_.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Melee4.ogg")));
     samples_.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Melee5.ogg")));
-    for (int s = 0; s < samples_.Length(); s++){
+    for (int s = 0; s < samples_.Size(); s++){
         samples_[s]->SetLooped(false);
     }
 
@@ -147,10 +147,10 @@ void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
     rigidBody_->GetCollidingBodies(collidingBodies);
 
     if (sinceLastWhack_ > whackInterval_){
-        for (int i = 0; i < collidingBodies.Length(); i++) {
+        for (int i = 0; i < collidingBodies.Size(); i++) {
             RigidBody* collider = collidingBodies[i];
             if (collider->GetNode()->GetNameHash() == N_PLAYER) {
-                soundSource_->Play(samples_[Random((int)samples_.Length())]);
+                soundSource_->Play(samples_[Random((int)samples_.Size())]);
                 masterControl_->player_->Hit(meleeDamage_);
                 sinceLastWhack_ = 0.0f;
             }

@@ -24,7 +24,7 @@ SceneObject(context, masterControl)
 {
     rootNode_->SetName("ArenaEdge");
     rootNode_->SetScale(Vector3(24.0f, 2.0f, 24.0f));
-    rootNode_->SetPosition(0.0f, 0.0f, 0.0f);
+    rootNode_->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
     rootNode_->SetRotation(Quaternion(0.0f, yRotation, 0.0f));
 
     Model* model = masterControl_->cache_->GetResource<Model>("Resources/Models/ArenaEdgeSegment.mdl");
@@ -52,7 +52,7 @@ void ArenaEdge::HandleNodeCollisionStart(StringHash eventType, VariantMap &event
     Vector3 contactPosition = contacts.ReadVector3();
     Vector3 contactNormal = contacts.ReadVector3();
 
-    if (Vector3::Distance(contactPosition, collidingNode->GetPosition()) < 2.0f){
+    if (heXon::Distance(contactPosition, collidingNode->GetPosition()) < 2.0f){
         PODVector<PhysicsRaycastResult> hitResults;
         Ray blinkRay(contactPosition, -contactNormal);
         if (masterControl_->PhysicsRayCast(hitResults, blinkRay, 42.0, M_MAX_UNSIGNED)){

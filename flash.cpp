@@ -40,5 +40,5 @@ Flash::Flash(Context *context, MasterControl *masterControl, Vector3 position):
 
 void Flash::UpdateFlash(StringHash eventType, VariantMap &eventData)
 {
-    light_->SetBrightness(Max(initialBrightness_*(0.25 - age_)/0.25,0.0));
+    light_->SetBrightness(Max(initialBrightness_*(0.25f - age_)/0.25f,0.0f));
 }

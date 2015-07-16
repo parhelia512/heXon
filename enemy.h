@@ -55,7 +55,7 @@ class Enemy : public SceneObject
     OBJECT(Enemy);
 public:
     Enemy(Context* context, MasterControl* masterControl, Vector3 position);
-    double GetHealth(){return health_;}
+    float GetHealth(){ return health_; }
     void Hit(float damage, int ownerID);
 protected:
     float panicTime_ = 0.0f;

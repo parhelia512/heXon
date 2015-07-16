@@ -46,8 +46,8 @@ public:
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 protected:
     SharedPtr<ParticleEmitter> particleEmitter_;
-    double age_ = 0.0;
-    double emitTime_ = 0.1;
+    float age_ = 0.0f;
+    float emitTime_ = 0.1f;
 };
 
 #endif

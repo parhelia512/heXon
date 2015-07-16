@@ -105,21 +105,21 @@ Player::Player(Context *context, MasterControl *masterControl):
 
     //Setup 3D GUI elements
     healthBarNode_ = masterControl_->world.scene->CreateChild("HealthBar");
-    healthBarNode_->SetPosition(0.0f, 1.0f, 21.0f);
-    healthBarNode_->SetScale(health_, 1.0f, 1.0f);
+    healthBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
+    healthBarNode_->SetScale(Vector3(health_, 1.0f, 1.0f));
     healthBarModel_ = healthBarNode_->CreateComponent<StaticModel>();
     healthBarModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Bar.mdl"));
     healthBarModel_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/GreenGlowEnvmap.xml"));
 
     shieldBarNode_ = masterControl_->world.scene->CreateChild("HealthBar");
-    shieldBarNode_->SetPosition(0.0f, 1.0f, 21.0f);
-    shieldBarNode_->SetScale(health_, 0.9f, 0.9f);
+    shieldBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
+    shieldBarNode_->SetScale(Vector3(health_, 0.9f, 0.9f));
     shieldBarModel_ = shieldBarNode_->CreateComponent<StaticModel>();
     shieldBarModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Bar.mdl"));
     shieldBarModel_->SetMaterial(masterControl_->cache_->GetResource<Material>("Resources/Materials/BlueGlowEnvmap.xml"));
 
     Node* healthBarHolderNode = masterControl_->world.scene->CreateChild("HealthBarHolder");
-    healthBarHolderNode->SetPosition(0.0f, 1.0f, 21.0f);
+    healthBarHolderNode->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
     StaticModel* healthBarHolderModel = healthBarHolderNode->CreateComponent<StaticModel>();
     healthBarHolderModel->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/BarHolder.mdl"));
     healthBarHolderModel->SetMaterial(masterControl_->cache_->GetResource<Material>("Resources/Materials/Metal.xml"));
@@ -128,7 +128,7 @@ Player::Player(Context *context, MasterControl *masterControl):
     for (int a = 0; a < 5; a++){
         appleCounter_[a] = appleCounterRoot_->CreateChild();
         appleCounter_[a]->SetEnabled(false);
-        appleCounter_[a]->SetPosition(-((float)a + 8.0f), 1.0f, 21.0f);
+        appleCounter_[a]->SetPosition(Vector3(-((float)a + 8.0f), 1.0f, 21.0f));
         appleCounter_[a]->SetScale(0.333f);
         StaticModel* apple = appleCounter_[a]->CreateComponent<StaticModel>();
         apple->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Apple.mdl"));
@@ -139,7 +139,7 @@ Player::Player(Context *context, MasterControl *masterControl):
     for (int h = 0; h < 5; h++){
         heartCounter_[h] = heartCounterRoot_->CreateChild();
         heartCounter_[h]->SetEnabled(false);
-        heartCounter_[h]->SetPosition((float)h + 8.0f, 1.0f, 21.0f);
+        heartCounter_[h]->SetPosition(Vector3((float)h + 8.0f, 1.0f, 21.0f));
         heartCounter_[h]->SetScale(0.333f);
         StaticModel* heart = heartCounter_[h]->CreateComponent<StaticModel>();
         heart->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Heart.mdl"));
@@ -161,7 +161,7 @@ void Player::AddScore(int points)
 
 void Player::PlaySample(Sound* sample)
 {
-    for (int i = 0; i < sampleSources_.Length(); i++){
+    for (int i = 0; i < sampleSources_.Size(); i++){
         if (!sampleSources_[i]->IsPlaying()){
             sampleSources_[i]->Play(sample);
             break;
@@ -292,8 +292,8 @@ void Player::Shoot(Vector3 fire)
 
 void Player::FireBullet(Vector3 direction){
     SharedPtr<Bullet> bullet;
-    if (bullets_.Length() > 0){
-        for (int b = 0; b < bullets_.Length(); b++){
+    if (bullets_.Size() > 0){
+        for (int b = 0; b < bullets_.Size(); b++){
             if (!bullets_[b]->rootNode_->IsEnabled()){
                 bullet = bullets_[b];
             }
@@ -328,7 +328,7 @@ void Player::Pickup(const StringHash nameHash)
             heartCount_ = 0;
             SetHealth(15.0);
         }
-        else SetHealth(Max(health_, Clamp(health_+5.0, 0.0, 10.0)));
+        else SetHealth(Max(health_, Clamp(health_+5.0f, 0.0f, 10.0f)));
     }
 
     for (int a = 0; a < 5; a++){

@@ -42,7 +42,8 @@ SOURCES += \
     spire.cpp \
     objectpool.cpp \
     muzzle.cpp \
-    seeker.cpp
+    seeker.cpp \
+    helper.cpp
 
 HEADERS += \
     mastercontrol.h \
@@ -67,4 +68,5 @@ HEADERS += \
     spire.h \
     objectpool.h \
     muzzle.h \
-    seeker.h
+    seeker.h \
+    helper.h

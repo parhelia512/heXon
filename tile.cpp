@@ -33,7 +33,7 @@ Object(context)
     model_->SetCastShadows(false);
 
     referencePosition_ = rootNode_->GetPosition();
-    centerDistExp_ = exp2(0.75*Vector3::Distance(Vector3::ZERO, referencePosition_));
+    centerDistExp_ = exp2(0.75*heXon::Distance(Vector3::ZERO, referencePosition_));
 }
 
 void Tile::Start()
@@ -69,7 +69,7 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
             float hexAffectorMass = tileMaster_->hexAffectors_[hexAffector]->GetMass();
 
             if (hexAffector->IsEnabled()) {
-                float offsetYPart = sqrt(hexAffectorMass) - (0.1* Vector3::Distance(referencePosition_, hexAffector->GetPosition()));
+                float offsetYPart = sqrt(hexAffectorMass) - (0.1* heXon::Distance(referencePosition_, hexAffector->GetPosition()));
                 if (offsetYPart > 0.0) {
                     offsetYPart = pow(offsetYPart, 4);
                     offsetY += offsetYPart;

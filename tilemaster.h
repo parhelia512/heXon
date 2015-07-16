@@ -29,6 +29,7 @@
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Scene/Scene.h>
 #include "mastercontrol.h"
+#include "helper.h"
 
 namespace Urho3D {
 class Drawable;

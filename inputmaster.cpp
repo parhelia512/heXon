@@ -171,7 +171,7 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
 
 void InputMaster::DeselectAll()
 {
-    for (int i = 0; i < selectedTiles_.Length(); i++)
+    for (int i = 0; i < selectedTiles_.Size(); i++)
     {
         selectedTiles_[i]->Deselect();
     }

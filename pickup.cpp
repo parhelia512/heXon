@@ -75,7 +75,7 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
     PODVector<RigidBody*> collidingBodies;
     triggerBody_->GetCollidingBodies(collidingBodies);
 
-    for (int i = 0; i < collidingBodies.Length(); i++) {
+    for (int i = 0; i < collidingBodies.Size(); i++) {
         RigidBody* collider = collidingBodies[i];
         if (collider->GetNode()->GetNameHash() == N_PLAYER) {
             Reset();

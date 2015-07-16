@@ -56,6 +56,7 @@
 #include <Urho3D/UI/Font.h>
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
+#include <helper.h>
 
 namespace Urho3D {
 class Drawable;
@@ -144,8 +145,7 @@ public:
     void Exit();
 
     void CreateSineLookupTable();
-    double Sine(double x) { return sine_[(int)round(sine_.Length() * Cycle(x/M_PI, 0.0, 1.0))%sine_.Length()]; }
-    float Sine(float x) { return sine_[(int)round(sine_.Length() * Cycle(x/M_PI, 0.0, 1.0))%sine_.Length()]; }
+    float Sine(float x) { return sine_[(int)round(sine_.Size() * heXon::Cycle(x/M_PI, 0.0f, 1.0f))%sine_.Size()]; }
     double Sine(double freq, double min, double max, double shift = 0.0);
     float Sine(float freq, float min, float max, float shift = 0.0f);
 

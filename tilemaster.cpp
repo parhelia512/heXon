@@ -19,6 +19,13 @@
 #include "tilemaster.h"
 #include "tile.h"
 
+namespace Urho3D {
+template <> unsigned MakeHash(const IntVector2& value)
+  {
+    return heXon::IntVector2ToHash(value);
+  }
+}
+
 TileMaster::TileMaster(Context *context, MasterControl* masterControl):
 Object(context),
   masterControl_{masterControl}
@@ -51,10 +58,10 @@ void TileMaster::Stop()
 Tile *TileMaster::GetRandomTile()
 {
     Vector<SharedPtr<Tile> > tiles = tileMap_.Values();
-    if (tiles.Length()){
+    if (tiles.Size()){
         SharedPtr<Tile> tile;
         while (!tile){
-            SharedPtr<Tile> tryTile = tiles[Random((int)tiles.Length())];
+            SharedPtr<Tile> tryTile = tiles[Random((int)tiles.Size())];
             PODVector<PhysicsRaycastResult> hitResults;
             Ray spawnRay(tryTile->rootNode_->GetPosition()-Vector3::UP, Vector3::UP*10.0f);
             if (!masterControl_->PhysicsRayCast(hitResults, spawnRay, 23.0f, M_MAX_UNSIGNED)){

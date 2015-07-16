@@ -66,8 +66,8 @@ void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
     using namespace Update;
     float timeStep = eventData[P_TIMESTEP].GetFloat();
 
-    rigidBody_->SetMass(Max(initialMass_*((0.1 - age_)/0.1),0.01));
-    light_->SetBrightness(Max(initialBrightness_*(0.32 - age_)/0.32,0.0));
+    rigidBody_->SetMass(Max(initialMass_*((0.1f - age_)/0.1f),0.01f));
+    light_->SetBrightness(Max(initialBrightness_*(0.32f - age_)/0.32f,0.0f));
 
     if (rootNode_->IsEnabled() && masterControl_->world.scene->IsUpdateEnabled()) {
         PODVector<RigidBody* > hitResults;
@@ -75,7 +75,7 @@ void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
         if (masterControl_->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), radius, M_MAX_UNSIGNED)){
             for (int i = 0; i < hitResults.Size(); i++){
                 if (!hitResults[i]->IsTrigger()){
-                    hitResults[i]->ApplyForce((hitResults[i]->GetNode()->GetWorldPosition() - rootNode_->GetWorldPosition()) * sqrt(radius-Vector3::Distance(rootNode_->GetWorldPosition(), hitResults[i]->GetNode()->GetWorldPosition()))*timeStep*500.0f*rigidBody_->GetMass()
+                    hitResults[i]->ApplyForce((hitResults[i]->GetNode()->GetWorldPosition() - rootNode_->GetWorldPosition()) * sqrt(radius-heXon::Distance(rootNode_->GetWorldPosition(), hitResults[i]->GetNode()->GetWorldPosition()))*timeStep*500.0f*rigidBody_->GetMass()
                                 );
                     //Deal damage
                     unsigned hitID = hitResults[i]->GetNode()->GetID();
