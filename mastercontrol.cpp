@@ -49,8 +49,8 @@ void MasterControl::Setup()
     engineParameters_["LogName"] = GetSubsystem<FileSystem>()->GetAppPreferencesDir("urho3d", "logs")+"heXon.log";
     engineParameters_["FullScreen"] = true;
     engineParameters_["Headless"] = false;
-    engineParameters_["WindowWidth"] = 1920;
-    engineParameters_["WindowHeight"] = 1080;
+    engineParameters_["WindowWidth"] = 1024;
+    engineParameters_["WindowHeight"] = 768;
 }
 void MasterControl::Start()
 {
@@ -71,7 +71,7 @@ void MasterControl::Start()
     //Hook up to the frame update and render post-update events
     SubscribeToEvents();
 
-    Sound* music = cache_->GetResource<Sound>("Resources/Music/Alien Chaos - Disorder.ogg"); //Battle
+    Sound* music = cache_->GetResource<Sound>("Resources/Music/Zentrix - Warp Drive.ogg"); //Battle
     music->SetLooped(true);
     Node* musicNode = world.scene->CreateChild("Music");
     SoundSource* musicSource = musicNode->CreateComponent<SoundSource>();
@@ -149,7 +149,7 @@ void MasterControl::CreateScene()
 
     //Add a directional light to the world. Enable cascaded shadows on it
     Node* lightNode = world.scene->CreateChild("PointLight");
-    lightNode->SetPosition(Vector3::UP*5.0);
+    lightNode->SetPosition(Vector3::UP*5.0f);
     lightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
     Light* light = lightNode->CreateComponent<Light>();
     light->SetLightType(LIGHT_DIRECTIONAL);
