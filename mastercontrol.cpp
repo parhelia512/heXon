@@ -49,8 +49,8 @@ void MasterControl::Setup()
     engineParameters_["LogName"] = GetSubsystem<FileSystem>()->GetAppPreferencesDir("urho3d", "logs")+"heXon.log";
     engineParameters_["FullScreen"] = true;
     engineParameters_["Headless"] = false;
-    engineParameters_["WindowWidth"] = 1024;
-    engineParameters_["WindowHeight"] = 768;
+    engineParameters_["WindowWidth"] = 1920;
+    engineParameters_["WindowHeight"] = 1080;
 }
 void MasterControl::Start()
 {
