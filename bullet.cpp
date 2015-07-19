@@ -68,13 +68,13 @@ void Bullet::Set(Vector3 position)
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();
     SceneObject::Set(position);
-    masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
+    //masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 }
 
 void Bullet::Disable()
 {
     fading_ = true;
-    masterControl_->tileMaster_->RemoveFromAffectors(rootNode_);
+    //masterControl_->tileMaster_->RemoveFromAffectors(rootNode_);
     rootNode_->SetEnabled(false);
 }
 
