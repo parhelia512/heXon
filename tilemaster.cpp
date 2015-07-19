@@ -55,7 +55,15 @@ void TileMaster::Stop()
 {
 }
 
-Tile *TileMaster::GetRandomTile()
+void TileMaster::Restart()
+{
+    Vector<SharedPtr<Tile> > tiles = tileMap_.Values();
+    for (unsigned t = 0; t < tiles.Size(); t++){
+        tiles[t]->lastOffsetY_ = 2.3f;
+    }
+}
+
+WeakPtr<Tile> TileMaster::GetRandomTile()
 {
     Vector<SharedPtr<Tile> > tiles = tileMap_.Values();
     if (tiles.Size()){
@@ -68,6 +76,6 @@ Tile *TileMaster::GetRandomTile()
                 tile = tryTile;
             }
         }
-        return tile.Get();
+        return WeakPtr<Tile>(tile);
     }
 }

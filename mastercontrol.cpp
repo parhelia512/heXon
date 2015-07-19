@@ -261,6 +261,7 @@ void MasterControl::Restart()
     spawnMaster_->Restart();
     apple_->Respawn(true);
     heart_->Respawn(true);
+    tileMaster_->Restart();
 }
 
 void MasterControl::CreateSineLookupTable()

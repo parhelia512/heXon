@@ -21,6 +21,7 @@
 Tile::Tile(Context *context, TileMaster* tileMaster, Vector3 position):
 Object(context)
 {
+    lastOffsetY_ = 0.666f;
     tileMaster_ = tileMaster;
     masterControl_ = tileMaster->masterControl_;
     SubscribeToEvent(E_UPDATE, HANDLER(Tile, HandleUpdate));

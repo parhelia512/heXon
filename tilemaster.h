@@ -51,6 +51,7 @@ class TileMaster : public Object
 {
     OBJECT(TileMaster);
     friend class InputMaster;
+    friend class MasterControl;
     friend class Tile;
 public:
     TileMaster(Context *context, MasterControl* masterControl);
@@ -85,7 +86,7 @@ public:
     void RemoveFromAffectors(WeakPtr<Node> affector) { if (hexAffectors_.Contains(affector) ) hexAffectors_.Erase(affector); }
     HashMap<WeakPtr<Node>, WeakPtr<RigidBody> >* GetAffectors() { return &hexAffectors_; }
 
-    Tile* GetRandomTile();
+    WeakPtr<Tile> GetRandomTile();
 private:
     HashMap<WeakPtr<Node>, WeakPtr<RigidBody> > hexAffectors_;
     HashMap<IntVector2, SharedPtr<Tile> > tileMap_;
@@ -107,6 +108,7 @@ private:
     void RemoveBuilding(IntVector2 coords) {SetBuilding(coords, B_EMPTY);}
     void UpdateCenterOfMass();
     void Move(double timeStep);
+    void Restart();
 };
 
 #endif

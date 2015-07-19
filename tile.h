@@ -61,7 +61,7 @@ private:
     Vector3 referencePosition_;
     float centerDistExp_;
     float wave_;
-    float lastOffsetY_ = 0.666f;
+    float lastOffsetY_;
     StaticModel* model_;
     Node* cursor_;
     void Select();
