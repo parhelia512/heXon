@@ -35,7 +35,7 @@ SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
 
 Vector3 SpawnMaster::CreateSpawnPoint()
 {
-    Tile* randomTile = masterControl_->tileMaster_->GetRandomTile();
+    WeakPtr<Tile> randomTile = masterControl_->tileMaster_->GetRandomTile();
     if (randomTile) {
         Vector3 tilePosition = randomTile->rootNode_->GetPosition();
         return Vector3(tilePosition.x_, -23.0f, tilePosition.z_);
