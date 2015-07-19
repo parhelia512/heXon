@@ -32,6 +32,7 @@
 #include "tile.h"
 #include "tilemaster.h"
 #include "hexocam.h"
+#include "player.h"
 
 namespace Urho3D {
 class Drawable;
@@ -151,6 +152,7 @@ private:
 
     Vector<SharedPtr<Tile> > selectedTiles_;
     void AddSelection(SharedPtr<Tile> tile);
+    void PausedButtonPressed();
 };
 
 #endif

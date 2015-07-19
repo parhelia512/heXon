@@ -51,11 +51,12 @@ public:
     Seeker(Context* context, MasterControl* masterControl, Vector3 position);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void HandleTriggerStart(StringHash eventType, VariantMap &eventData);
+    void Set(Vector3 position);
 protected:
     RigidBody* rigidBody_;
     SharedPtr<Node> target_;
 
-    float age_ = 0.0f;
+    float age_;
     float lifeTime_;
     float damage_;
 };

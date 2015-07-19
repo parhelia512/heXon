@@ -42,13 +42,16 @@
 
 Player::Player(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
-    initialHealth_{10.0f},
-    health_{5.0f},
+    initialHealth_{1.0f},
+    health_{initialHealth_},
+    appleCount_{0},
+    heartCount_{0},
     score_{0},
     weaponLevel_{0},
-    bulletAmount_{0},
+    bulletAmount_{1},
     initialShotInterval_{0.30f},
-    shotInterval_{initialShotInterval_}
+    shotInterval_{initialShotInterval_},
+    sinceLastShot_{0.0f}
 {
     rootNode_->SetName("Player");
 
@@ -152,11 +155,25 @@ Player::Player(Context *context, MasterControl *masterControl):
 
 void Player::AddScore(int points)
 {
-    score_ += points;
+    SetScore(GetScore()+points);
+}
+
+void Player::SetScore(int points)
+{
+    score_ = points;
     UI* ui = GetSubsystem<UI>();
     UIElement* scoreElement = ui->GetRoot()->GetChild(scoreTextName_);
     Text* scoreText = (Text*)scoreElement;
-    scoreText->SetText(String(score_));
+    scoreText->SetText(String(points));
+}
+int Player::GetScore()
+{
+    return score_;
+}
+
+void Player::ResetScore()
+{
+    SetScore(0);
 }
 
 void Player::PlaySample(Sound* sample)
@@ -330,6 +347,10 @@ void Player::Pickup(const StringHash nameHash)
         }
         else SetHealth(Max(health_, Clamp(health_+5.0f, 0.0f, 10.0f)));
     }
+    else if (nameHash == StringHash("Reset")){
+        appleCount_ = 0;
+        heartCount_= 0;
+    }
 
     for (int a = 0; a < 5; a++){
         if (appleCount_ > a) appleCounter_[a]->SetEnabled(true);
@@ -343,9 +364,26 @@ void Player::Pickup(const StringHash nameHash)
 
 void Player::Die()
 {
+    dead_ = true;
     Disable();
     new Explosion(context_, masterControl_, rootNode_->GetPosition(), Color::GREEN, 2.0f);
-    //masterControl_->world.camera->SetGreyScale(true);
+    masterControl_->world.camera->SetGreyScale(true);
+}
+
+void Player::Respawn()
+{
+    SetHealth(10.0f);
+    Pickup(StringHash("Reset"));
+    ResetScore();
+    SetHealth(initialHealth_);
+    weaponLevel_ = 0;
+    bulletAmount_ = 1;
+    shotInterval_ = initialShotInterval_;
+    rigidBody_->ResetForces();
+    rigidBody_->SetLinearVelocity(Vector3::ZERO);
+    Set(Vector3::ZERO);
+    masterControl_->world.camera->SetGreyScale(false);
+    dead_ = false;
 }
 
 void Player::SetHealth(float health)

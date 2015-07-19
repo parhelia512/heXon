@@ -26,21 +26,25 @@
 #include "mastercontrol.h"
 #include "razor.h"
 #include "spire.h"
+#include "seeker.h"
 
 class SpawnMaster : public Object
 {
+    friend class MasterControl;
     OBJECT(SpawnMaster);
 public:
     SpawnMaster(Context *context, MasterControl *masterControl);
 
     HashMap<unsigned, SharedPtr<Razor> > razors_;
     HashMap<unsigned, SharedPtr<Spire> > spires_;
+    Vector<SharedPtr<Seeker> > seekers_;
 
     Vector3 CreateSpawnPoint();
 
 
     int CountActiveRazors();
     int CountActiveSpires();
+    void SpawnSeeker(Vector3 position);
 private:
     MasterControl* masterControl_;
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
@@ -55,6 +59,8 @@ private:
     bool RespawnRazor(Vector3 position);
     void SpawnSpire(Vector3 position);
     bool RespawnSpire(Vector3 position);
+    void Restart();
+    bool RespawnSeeker(Vector3 position);
 };
 
 #endif

@@ -52,20 +52,25 @@ public:
     void AddScore(int points);
     void Pickup(const StringHash nameHash);
     void Die();
+    bool Alive() {return !dead_;}
+    void Respawn();
+
     void Shoot(Vector3 fire);
+    int GetScore();
 private:
     float initialHealth_;
     float health_;
+    bool dead_ = false;
     int score_;
     int weaponLevel_;
     int bulletAmount_;
 
-    int appleCount_ = 0;
-    int heartCount_ = 0;
+    int appleCount_;
+    int heartCount_;
 
     float initialShotInterval_;
     float shotInterval_;
-    float sinceLastShot_ = 0.0f;
+    float sinceLastShot_;
 
     StaticModel* model_;
     RigidBody* rigidBody_;
@@ -92,6 +97,8 @@ private:
     void UpgradeWeapons();
     void SetHealth(float health);
     Color HealthToColor(float health);
+    void SetScore(int points);
+    void ResetScore();
 };
 
 #endif

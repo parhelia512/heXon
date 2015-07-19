@@ -51,8 +51,9 @@ class Pickup : public SceneObject
     OBJECT(Pickup);
 public:
     Pickup(Context *context, MasterControl* masterControl);
-    void Reset();
+    void Respawn(bool restart = false);
 protected:
+    Vector3 initialPosition_;
     SharedPtr<RigidBody> rigidBody_;
     SharedPtr<RigidBody> triggerBody_;
     SharedPtr<StaticModel> model_;

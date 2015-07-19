@@ -86,6 +86,7 @@ private:
     void Disable();
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void HandleCollisionStart(StringHash eventType, VariantMap &eventData);
+    void SetHealth(float health);
 };
 
 #endif

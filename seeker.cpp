@@ -23,6 +23,7 @@
 
 Seeker::Seeker(Context *context, MasterControl *masterControl, Vector3 position):
     SceneObject(context, masterControl),
+    age_{0.0f},
     lifeTime_{7.5f},
     damage_{2.3f}
 {
@@ -54,6 +55,8 @@ Seeker::Seeker(Context *context, MasterControl *masterControl, Vector3 position)
 
 void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
+    if (!IsEnabled()) return;
+
     using namespace SceneUpdate;
     float timeStep = eventData[P_TIMESTEP].GetFloat();
 
@@ -89,4 +92,13 @@ void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
             Disable();
         }
     }
+}
+
+void Seeker::Set(Vector3 position)
+{
+    age_= 0.0f;
+    SceneObject::Set(position);
+    rigidBody_->ResetForces();
+    rigidBody_->SetLinearVelocity(Vector3::ZERO);
+    masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 }

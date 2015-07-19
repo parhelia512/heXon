@@ -42,7 +42,7 @@ using namespace Urho3D;
 
 class SceneObject : public Object
 {
-    friend class ObjectPool;
+    friend class SpawnMaster;
     friend class Seeker;
     OBJECT(SceneObject);
 public:

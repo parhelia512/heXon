@@ -256,6 +256,11 @@ void MasterControl::Exit()
 
 void MasterControl::Restart()
 {
+    world.lastReset = world.scene->GetElapsedTime();
+    player_->Respawn();
+    spawnMaster_->Restart();
+    apple_->Respawn(true);
+    heart_->Respawn(true);
 }
 
 void MasterControl::CreateSineLookupTable()

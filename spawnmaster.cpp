@@ -23,10 +23,10 @@
 
 SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
     Object(context),
-    razorInterval_{2.0},
-    sinceRazorSpawn_{0.0},
-    spireInterval_{23.0},
-    sinceSpireSpawn_{0.0}
+    razorInterval_{2.0f},
+    sinceRazorSpawn_{0.0f},
+    spireInterval_{23.0f},
+    sinceSpireSpawn_{0.0f}
 {
     masterControl_ = masterControl;
 
@@ -123,6 +123,45 @@ bool SpawnMaster::RespawnSpire(Vector3 position)
     return false;
 }
 
+void SpawnMaster::SpawnSeeker(Vector3 position)
+{
+    if (!RespawnSeeker(position)){
+        Seeker* newSeeker = new Seeker(context_, masterControl_, position);
+        seekers_.Push(SharedPtr<Seeker>(newSeeker));
+    }
+}
+bool SpawnMaster::RespawnSeeker(Vector3 position)
+{
+    for (int s = 0; s < seekers_.Size(); s++){
+        if (!seekers_[s]->rootNode_->IsEnabled()){
+            SharedPtr<Seeker> seeker = seekers_[s];
+            seeker->Set(position);
+            return true;
+        }
+    }
+    return false;
+}
 
+void SpawnMaster::Restart()
+{
+    Vector<SharedPtr<Razor> > razors = razors_.Values();
+    for (unsigned r = 0; r < razors.Size(); r++){
+        if (razors[r]->IsEnabled())
+            razors[r]->Disable();
+    }
+    Vector<SharedPtr<Spire> > spires = spires_.Values();
+    for (unsigned s = 0; s < spires.Size(); s++){
+        if (spires[s]->IsEnabled())
+            spires[s]->Disable();
+    }
+    for (unsigned s = 0; s < seekers_.Size(); s++){
+        if (seekers_[s]->IsEnabled())
+            seekers_[s]->Disable();
+    }
+    razorInterval_ = 2.0f;
+    sinceRazorSpawn_ = 0.0f;
+    spireInterval_ = 23.0f;
+    sinceSpireSpawn_  = 0.0f;
+}
 
 

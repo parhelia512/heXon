@@ -99,10 +99,16 @@ void Enemy::Set(Vector3 position)
 void Enemy::Hit(float damage, int ownerID) {
     if (firstHitBy_ == 0) firstHitBy_ = ownerID;
     else if (firstHitBy_ != ownerID) bonus_ = false;
-
     lastHitBy_ = ownerID;
-    health_ -= damage;
+
+    SetHealth(health_-damage);
+}
+
+void Enemy::SetHealth(float health)
+{
+    health_ = health;
     panic_ = (initialHealth_-health_)/initialHealth_;
+    panic_ < 0.0f ? panic_ = 0.0f : panic_ = panic_;
     particleEffect_->SetMinEmissionRate(7.0f+23.0f*panic_);
 
     CheckHealth();

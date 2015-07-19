@@ -19,6 +19,7 @@
 #include "mastercontrol.h"
 #include "seeker.h"
 #include "spire.h"
+#include "spawnmaster.h"
 
 Spire::Spire(Context *context, MasterControl *masterControl, Vector3 position):
     Enemy(context, masterControl, position),
@@ -71,7 +72,7 @@ void Spire::HandleSpireUpdate(StringHash eventType, VariantMap &eventData)
             sinceLastShot_ += timeStep;
             if (sinceLastShot_ > shotInterval_){
                 sinceLastShot_ = 0.0f;
-                new Seeker(context_, masterControl_, rootNode_->GetPosition());
+                masterControl_->spawnMaster_->SpawnSeeker(rootNode_->GetPosition());
             }
         }
     }
