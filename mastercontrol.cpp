@@ -77,7 +77,7 @@ void MasterControl::Start()
     SoundSource* musicSource = musicNode->CreateComponent<SoundSource>();
     musicSource->SetGain(0.32f);
     musicSource->SetSoundType(SOUND_MUSIC);
-    //musicSource->Play(music);
+    musicSource->Play(music);
 }
 void MasterControl::Stop()
 {
