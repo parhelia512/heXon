@@ -42,7 +42,7 @@
 
 Player::Player(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
-    initialHealth_{1.0f},
+    initialHealth_{10.0f},
     health_{initialHealth_},
     appleCount_{0},
     heartCount_{0},
