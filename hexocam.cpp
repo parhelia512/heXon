@@ -77,6 +77,7 @@ void heXoCam::SetupViewport()
     SetGreyScale(false);
     viewport_->SetRenderPath(effectRenderPath_);
     renderer->SetViewport(0, viewport);
+
 }
 
 Vector3 heXoCam::GetWorldPosition()
