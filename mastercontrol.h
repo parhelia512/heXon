@@ -148,7 +148,6 @@ public:
 
     void CreateSineLookupTable();
     float Sine(float x) { return sine_[(int)round(sine_.Size() * heXon::Cycle((float)(x/M_PI), 0.0f, 1.0f))%sine_.Size()]; }
-    //double Sine(double freq, double min, double max, double shift = 0.0); // conflicting functions, VS does not know which one to use
     float Sine(float freq, float min, float max, float shift = 0.0f);
 
     bool GetPaused() { return paused_; }

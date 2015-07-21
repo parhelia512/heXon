@@ -272,12 +272,6 @@ void MasterControl::CreateSineLookupTable()
     }
 }
 
-/*double MasterControl::Sine(double freq, double min, double max, double shift)
-{
-    double phase = freq * (world.scene->GetElapsedTime() + shift);
-    double add = 0.5*(min+max);
-    return Sine(phase) * 0.5 * (max - min) + add;
-}*/
 float MasterControl::Sine(float freq, float min, float max, float shift)
 {
     float phase = freq * world.scene->GetElapsedTime() + shift;
