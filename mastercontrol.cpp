@@ -112,7 +112,7 @@ void MasterControl::CreateUI()
 
     //Create a Cursor UI element because we want to be able to hide and show it at will. When hidden, the mouse cursor will control the camera
     world.cursor.uiCursor = new Cursor(context_);
-    world.cursor.uiCursor->SetVisible(false);
+    world.cursor.uiCursor->SetVisible(true);
     ui_->SetCursor(world.cursor.uiCursor);
 
     //Set starting position of the cursor at the rendering window center
@@ -198,14 +198,15 @@ void MasterControl::UpdateCursor(double timeStep)
     //world.cursor.sceneCursor->SetScale((world.cursor.sceneCursor->GetWorldPosition() - world.camera->GetWorldPosition()).Length()*0.05f);
     if (CursorRayCast(250.0f, world.cursor.hitResults))
     {
-        for (int i = 0; i < world.cursor.hitResults.Size(); i++)
+        for (unsigned i = 0; i < world.cursor.hitResults.Size(); i++)
         {
-            if (world.cursor.hitResults[i].node_->GetNameHash() == N_VOID)
+            if (world.cursor.hitResults[i].node_->GetNameHash() == N_TILE)
             {
-                Vector3 camHitDifference = world.camera->rootNode_->GetWorldPosition() - world.cursor.hitResults[i].position_;
+                world.cursor.sceneCursor->SetWorldPosition(world.cursor.hitResults[i].node_->GetPosition()+Vector3::UP);
+                /*Vector3 camHitDifference = world.camera->rootNode_->GetWorldPosition() - world.cursor.hitResults[i].position_;
                 camHitDifference /= world.camera->rootNode_->GetWorldPosition().y_ - world.voidNode->GetPosition().y_;
                 camHitDifference *= world.camera->rootNode_->GetWorldPosition().y_;
-                world.cursor.sceneCursor->SetWorldPosition(world.camera->rootNode_->GetWorldPosition()-camHitDifference);
+                world.cursor.sceneCursor->SetWorldPosition(world.camera->rootNode_->GetWorldPosition()-camHitDifference);*/
             }
         }
     }
@@ -213,8 +214,8 @@ void MasterControl::UpdateCursor(double timeStep)
 
 bool MasterControl::CursorRayCast(double maxDistance, PODVector<RayQueryResult> &hitResults)
 {
-    IntVector2 mousePos = GetSubsystem<Input>()->GetMousePosition();
-    Ray cameraRay = world.camera->camera_->GetScreenRay(0.5f,0.5f);
+    IntVector2 mousePos = world.cursor.uiCursor->GetPosition();
+    Ray cameraRay = world.camera->camera_->GetScreenRay((float)mousePos.x_/graphics_->GetWidth(), (float)mousePos.y_/graphics_->GetHeight());
     RayOctreeQuery query(hitResults, cameraRay, RAY_TRIANGLE, maxDistance, DRAWABLE_GEOMETRY);
     world.scene->GetComponent<Octree>()->Raycast(query);
     if (hitResults.Size()) return true;
@@ -253,8 +254,9 @@ void MasterControl::Restart()
 void MasterControl::CreateSineLookupTable()
 {
     //Generate sine lookup array
-    for (int i = 0; i < 1024; i++){
+    for (int i = 0; i < 1024; i+=2){
         sine_.Push(sin((i/512.0)*2.0*M_PI));
+        sine_.Push(sin((i/512.0)*2.0*M_PI)+Random(-0.023f, 0.023f));
     }
 }
 
