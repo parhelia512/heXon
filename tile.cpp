@@ -63,9 +63,9 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     //Talpa - Unusual Chair = time*1.444
     wave_ = 6.0*pow(masterControl_->Sine(Abs(centerDistExp_ - elapsedTime * 0.666f)), 4.0);
 
-    uint nHexAffectors = tileMaster_->hexAffectors_.Size();
+    unsigned nHexAffectors = tileMaster_->hexAffectors_.Size();
     if (nHexAffectors) {
-        for (uint i = 0; i < nHexAffectors; i++) {
+        for (unsigned i = 0; i < nHexAffectors; i++) {
             WeakPtr<Node> hexAffector = tileMaster_->hexAffectors_.Keys()[i];
             float hexAffectorMass = tileMaster_->hexAffectors_[hexAffector]->GetMass();
 
