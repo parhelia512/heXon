@@ -71,7 +71,7 @@ void MasterControl::Start()
     //Hook up to the frame update and render post-update events
     SubscribeToEvents();
 
-    Sound* music = cache_->GetResource<Sound>("Resources/Music/Zentrix - Warp Drive.ogg"); //Battle
+    Sound* music = cache_->GetResource<Sound>("Resources/Music/Zentrix - Warp Drive.ogg");
     music->SetLooped(true);
     Node* musicNode = world.scene->CreateChild("Music");
     SoundSource* musicSource = musicNode->CreateComponent<SoundSource>();
@@ -117,16 +117,6 @@ void MasterControl::CreateUI()
 
     //Set starting position of the cursor at the rendering window center
     world.cursor.uiCursor->SetPosition(graphics_->GetWidth()/2, graphics_->GetHeight()/2);
-
-    //Construct new Text object, set string to display and font to use
-    /*Text* instructionText = ui_->GetRoot()->CreateChild<Text>();
-    instructionText->SetText("heXon");
-    instructionText->SetFont(cache_->GetResource<Font>("Resources/Fonts/skirmishergrad.ttf"), 32);
-    instructionText->SetColor(Color(0.0f, 0.75f, 1.0f, 0.5f));
-    //The text has multiple rows. Center them in relation to each other
-    instructionText->SetHorizontalAlignment(HA_CENTER);
-    instructionText->SetVerticalAlignment(VA_CENTER);
-    instructionText->SetPosition(0, ui_->GetRoot()->GetHeight()/2.1);*/
 }
 
 void MasterControl::CreateScene()
@@ -153,14 +143,10 @@ void MasterControl::CreateScene()
     lightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
     Light* light = lightNode->CreateComponent<Light>();
     light->SetLightType(LIGHT_DIRECTIONAL);
-
-    light->SetBrightness(1.0f);
-    light->SetRange(7.0f);
+    light->SetBrightness(0.666f);
+    light->SetRange(10.0f);
     light->SetColor(Color(1.0f, 0.9f, 0.95f));
     light->SetCastShadows(false);
-    light->SetShadowBias(BiasParameters(0.00025f, 0.5f));
-    //Set cascade splits at 10, 50, 200 world unitys, fade shadows at 80% of maximum shadow distance
-    light->SetShadowCascade(CascadeParameters(7.0f, 23.0f, 42.0f, 500.0f, 0.8f));
 
     //Create cursor
     world.cursor.sceneCursor = world.scene->CreateChild("Cursor");
