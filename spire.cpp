@@ -23,7 +23,8 @@
 
 Spire::Spire(Context *context, MasterControl *masterControl, Vector3 position):
     Enemy(context, masterControl, position),
-    shotInterval_{2.3f},
+    initialShotInterval_{5.0f},
+    shotInterval_{initialShotInterval_},
     sinceLastShot_{0.0f}
 {
     rootNode_->SetName("Spire");
@@ -76,4 +77,16 @@ void Spire::HandleSpireUpdate(StringHash eventType, VariantMap &eventData)
             }
         }
     }
+}
+
+void Spire::Hit(float damage, int ownerID)
+{
+    Enemy::Hit(damage, ownerID);
+    shotInterval_ = initialShotInterval_ - 3.0f * panic_;
+}
+
+void Spire::Set(Vector3 position)
+{
+    shotInterval_ = initialShotInterval_;
+    Enemy::Set(position);
 }

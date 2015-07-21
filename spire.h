@@ -43,18 +43,22 @@ using namespace Urho3D;
 class Spire : public Enemy
 {
     OBJECT(Spire);
+    friend class SpawnMaster;
 public:
     Spire(Context* context, MasterControl* masterControl, Vector3 position);
+    void Hit(float damage, int ownerID);
 protected:
     Node* topNode_;
     Node* bottomNode_;
     StaticModel* topModel_;
     StaticModel* bottomModel_;
 
+    float initialShotInterval_;
     float shotInterval_;
     float sinceLastShot_;
 
     void HandleSpireUpdate(StringHash eventType, VariantMap &eventData);
+    void Set(Vector3 position);
 };
 
 #endif

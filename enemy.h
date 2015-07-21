@@ -73,6 +73,7 @@ protected:
     float meleeDamage_;
 
     SharedPtr<Node> particleNode_;
+    SharedPtr<ParticleEmitter> particleEmitter_;
     SharedPtr<ParticleEffect> particleEffect_;
     RigidBody* rigidBody_;
     StaticModel* centerModel_;

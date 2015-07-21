@@ -36,14 +36,14 @@ Enemy::Enemy(Context *context, MasterControl *masterControl, Vector3 position):
     color_ = Color(0.5f + (randomizer * 0.075f), 0.9f - (randomizer * 0.075f), 0.5f+Max(randomizer-3.0f, 3.0f)/6.0f, 1.0f);
 
     particleNode_ = rootNode_->CreateChild("SmokeTrail");
-    ParticleEmitter* particleEmitter = particleNode_->CreateComponent<ParticleEmitter>();
+    particleEmitter_ = particleNode_->CreateComponent<ParticleEmitter>();
     particleEffect_ = masterControl_->cache_->GetTempResource<ParticleEffect>("Resources/Particles/Enemy.xml");
     Vector<ColorFrame> colorFrames;
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
     colorFrames.Push(ColorFrame(Color(color_.r_*0.666f, color_.g_*0.666f, color_.b_*0.666f, 0.5f), 0.1f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 1.0f));
     particleEffect_->SetColorFrames(colorFrames);
-    particleEmitter->SetEffect(particleEffect_);
+    particleEmitter_->SetEffect(particleEffect_);
 
     centerModel_ = rootNode_->CreateComponent<StaticModel>();
     centerModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/RazorCenter.mdl"));
@@ -64,7 +64,7 @@ Enemy::Enemy(Context *context, MasterControl *masterControl, Vector3 position):
     samples_.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Melee3.ogg")));
     samples_.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Melee4.ogg")));
     samples_.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Melee5.ogg")));
-    for (int s = 0; s < samples_.Size(); s++){
+    for (unsigned s = 0; s < samples_.Size(); s++){
         samples_[s]->SetLooped(false);
     }
 
@@ -90,8 +90,7 @@ void Enemy::Set(Vector3 position)
     health_ = initialHealth_;
     panic_ = 0.0f;
 
-    ParticleEmitter* particleEmitter = particleNode_->GetComponent<ParticleEmitter>();
-    particleEmitter->RemoveAllParticles();
+    particleEmitter_->RemoveAllParticles();
     SceneObject::Set(position);
 }
 
