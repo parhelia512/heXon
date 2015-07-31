@@ -3,7 +3,7 @@
 heXon is a free and open source dual stick arcade shooter created using the Urho3D game engine.
 
 ###Installation
-Assumption: You are running Linux.
+####Linux
 
 1. Either run CloneMakeUrho3D.sh; This script will clone the Urho3D game engine into your heXon folder, compile it and create symlinks to the Data and CoreData folders.
 Or, if you already have Urho3D compiled on your system place three symlinks in the heXon folder pointing to the root folder of the Urho3D game engine and both it's Data and CoreData folders.
