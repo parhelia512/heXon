@@ -36,6 +36,8 @@
 #include <Urho3D/Graphics/Model.h>
 #include <Urho3D/Graphics/Octree.h>
 #include <Urho3D/Graphics/OctreeQuery.h>
+#include <Urho3D/Graphics/ParticleEffect.h>
+#include <Urho3D/Graphics/ParticleEmitter.h>
 #include <Urho3D/Graphics/Renderer.h>
 #include <Urho3D/Graphics/RenderPath.h>
 #include <Urho3D/Graphics/StaticModel.h>
@@ -57,10 +59,7 @@
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
 
-
 #include "helper.h"
-
-#include <Urho3D/DebugNew.h> // always (!) should be last 
 
 namespace Urho3D {
 class Drawable;

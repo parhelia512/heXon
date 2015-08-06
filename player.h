@@ -20,17 +20,27 @@
 #define PLAYER_H
 
 #include <Urho3D/Urho3D.h>
-#include <Urho3D/Graphics/StaticModel.h>
-#include <Urho3D/UI/Text.h>
-#include <Urho3D/UI/Font.h>
-#include <Urho3D/Input/Input.h>
-#include <Urho3D/Input/InputEvents.h>
-#include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Audio/Sound.h>
 #include <Urho3D/Audio/SoundSource.h>
+#include <Urho3D/Core/CoreEvents.h>
+#include <Urho3D/Graphics/Material.h>
+#include <Urho3D/Graphics/Model.h>
+#include <Urho3D/Graphics/ParticleEffect.h>
+#include <Urho3D/Graphics/ParticleEmitter.h>
+#include <Urho3D/Graphics/StaticModel.h>
+#include <Urho3D/Input/InputEvents.h>
+#include <Urho3D/Input/Input.h>
+#include <Urho3D/Physics/CollisionShape.h>
+#include <Urho3D/Resource/ResourceCache.h>
+#include <Urho3D/Scene/SceneEvents.h>
+#include <Urho3D/Scene/Scene.h>
+#include <Urho3D/UI/Font.h>
+#include <Urho3D/UI/Text.h>
+#include <Urho3D/UI/UI.h>
 
 #include "sceneobject.h"
 #include "bullet.h"
+#include "tailgenerator.h"
 
 namespace Urho3D {
 class Drawable;
@@ -85,6 +95,7 @@ private:
     Node* heartCounterRoot_;
     Node* heartCounter_[5];
 
+    Vector<SharedPtr<TailGenerator> > tailGens_;
     Vector<SharedPtr<Bullet> > bullets_;
     SharedPtr<Sound> shot_;
     Vector<SharedPtr<SoundSource> > sampleSources_;

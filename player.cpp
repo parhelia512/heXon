@@ -16,21 +16,6 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include <Urho3D/Urho3D.h>
-#include <Urho3D/Scene/Scene.h>
-#include <Urho3D/Scene/SceneEvents.h>
-#include <Urho3D/Physics/CollisionShape.h>
-#include <Urho3D/Graphics/Model.h>
-#include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/UI/UI.h>
-#include <Urho3D/UI/Text.h>
-#include <Urho3D/UI/Font.h>
-#include <Urho3D/Graphics/ParticleEmitter.h>
-#include <Urho3D/Graphics/ParticleEffect.h>
-#include <Urho3D/Audio/Sound.h>
-#include <Urho3D/Audio/SoundSource.h>
-
 #include "mastercontrol.h"
 #include "spawnmaster.h"
 #include "tilemaster.h"
@@ -69,6 +54,18 @@ Player::Player(Context *context, MasterControl *masterControl):
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
     particleEffect->SetColorFrames(colorFrames);
     particleEmitter->SetEffect(particleEffect);
+
+    for (int n = 0; n < 3; n++)
+    {
+        Node* tailNode = rootNode_->CreateChild("Tail");
+        tailNode->SetPosition(Vector3(-0.85f+0.85f*n, n==1? 0.0f : -0.5f, n==1? -0.5f : -0.23f));
+        TailGenerator* tailGen = tailNode->CreateComponent<TailGenerator>();
+        tailGen->SetTailLength(n==1? 0.075f : 0.05f); // set segment length
+        tailGen->SetNumTails(n==1? 14 : 12);     // set num of segments
+        tailGen->SetWidthScale(n==1? 0.666f : 0.23f); // side scale
+        tailGen->SetColorForHead(Color(0.9f, 1.0f, 0.5f));
+        tailGen->SetColorForTip(Color(0.0f, 1.0f, 0.0f));
+    }
 
     //Setup player audio
     shot_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Shot.ogg");

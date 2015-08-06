@@ -29,6 +29,7 @@
 #include "hitfx.h"
 #include "explosion.h"
 #include "muzzle.h"
+#include "tailgenerator.h"
 
 #include "mastercontrol.h"
 
@@ -47,13 +48,15 @@ void MasterControl::Setup()
     //Set custom window title and icon.
     engineParameters_["WindowTitle"] = "heXon";
     engineParameters_["LogName"] = GetSubsystem<FileSystem>()->GetAppPreferencesDir("urho3d", "logs")+"heXon.log";
-    engineParameters_["FullScreen"] = true;
+    /*engineParameters_["FullScreen"] = true;
     engineParameters_["Headless"] = false;
     engineParameters_["WindowWidth"] = 1920;
-    engineParameters_["WindowHeight"] = 1080;
+    engineParameters_["WindowHeight"] = 1080;*/
 }
 void MasterControl::Start()
 {
+    TailGenerator::RegisterObject(context_);
+
     new InputMaster(context_, this);
     cache_ = GetSubsystem<ResourceCache>();
     graphics_ = GetSubsystem<Graphics>();
@@ -143,7 +146,7 @@ void MasterControl::CreateScene()
     lightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
     Light* light = lightNode->CreateComponent<Light>();
     light->SetLightType(LIGHT_DIRECTIONAL);
-    light->SetBrightness(0.666f);
+    light->SetBrightness(0.75f);
     light->SetRange(10.0f);
     light->SetColor(Color(1.0f, 0.9f, 0.95f));
     light->SetCastShadows(false);

@@ -17,53 +17,7 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
-    mastercontrol.cpp \
-    inputmaster.cpp \
-    tile.cpp \
-    tilemaster.cpp \
-    hexocam.cpp \
-    pickup.cpp \
-    sceneobject.cpp \
-    enemy.cpp \
-    razor.cpp \
-    player.cpp \
-    apple.cpp \
-    heart.cpp \
-    bullet.cpp \
-    arenaedge.cpp \
-    flash.cpp \
-    hitfx.cpp \
-    effect.cpp \
-    explosion.cpp \
-    spawnmaster.cpp \
-    spire.cpp \
-    objectpool.cpp \
-    muzzle.cpp \
-    seeker.cpp \
-    helper.cpp
+    *.cpp \
 
 HEADERS += \
-    mastercontrol.h \
-    inputmaster.h \
-    tile.h \
-    tilemaster.h \
-    hexocam.h \
-    pickup.h \
-    sceneobject.h \
-    enemy.h \
-    razor.h \
-    player.h \
-    apple.h \
-    heart.h \
-    bullet.h \
-    arenaedge.h \
-    flash.h \
-    hitfx.h \
-    effect.h \
-    explosion.h \
-    spawnmaster.h \
-    spire.h \
-    objectpool.h \
-    muzzle.h \
-    seeker.h \
-    helper.h
+    *.h \

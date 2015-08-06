@@ -21,15 +21,9 @@
 
 #include <Urho3D/Urho3D.h>
 #include <Urho3D/Container/Vector.h>
-#include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Graphics/Model.h>
-#include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/Math/Vector2.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Scene/Scene.h>
+
 #include "mastercontrol.h"
-#include "helper.h"
 
 namespace Urho3D {
 class Drawable;

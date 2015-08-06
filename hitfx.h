@@ -20,18 +20,8 @@
 #define HITFX_H
 
 #include <Urho3D/Urho3D.h>
-#include <Urho3D/Audio/Sound.h>
-#include <Urho3D/Audio/Sound.h>
-#include <Urho3D/Audio/SoundSource.h>
-#include <Urho3D/Audio/SoundSource.h>
-#include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/Graphics/Material.h>
 #include <Urho3D/Graphics/ParticleEffect.h>
 #include <Urho3D/Graphics/ParticleEmitter.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Scene/SceneEvents.h>
-#include <Urho3D/Scene/Scene.h>
-
 
 #include "effect.h"
 
@@ -55,4 +45,4 @@ private:
     SharedPtr<SoundSource> sampleSource_;
 };
 
-#endif
+#endif // HITFX_H
