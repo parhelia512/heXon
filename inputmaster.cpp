@@ -192,7 +192,7 @@ void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D:
 }
 void InputMaster::PausedButtonPressed()
 {
-    if (masterControl_->player_->Alive())
+    if (masterControl_->player_->IsAlive())
         masterControl_->SetPaused(!masterControl_->GetPaused());
     else masterControl_->Restart();
 }

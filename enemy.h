@@ -57,6 +57,7 @@ public:
     Enemy(Context* context, MasterControl* masterControl, Vector3 position);
     float GetHealth(){ return health_; }
     void Hit(float damage, int ownerID);
+    bool IsEmerged();
 protected:
     float panicTime_ = 0.0f;
     float health_;
@@ -81,6 +82,7 @@ protected:
     void CheckHealth();
     void Set(Vector3 position);
     Color GetGlowColor();
+    void Emerge(float timeStep);
 private:
     Vector<SharedPtr<Sound> > samples_;
     SharedPtr<SoundSource> soundSource_;

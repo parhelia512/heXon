@@ -54,12 +54,8 @@ void Razor::HandleRazorUpdate(StringHash eventType, VariantMap &eventData)
     bottomNode_->Rotate(Quaternion(0.0f, timeStep*-50.0f*aimSpeed_, 0.0f));
     //Pulse
     topModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", GetGlowColor());
-    //Emerge
-    if (rootNode_->GetPosition().y_ < -0.1f) {
-        rootNode_->Translate(Vector3::UP * timeStep * (0.25f - rootNode_->GetPosition().y_));
-    }
     //Get moving
-    else if (rigidBody_->GetLinearVelocity().Length() < 0.1f) {
+    if (rigidBody_->GetLinearVelocity().Length() < rigidBody_->GetLinearRestThreshold() && IsEmerged()) {
         rigidBody_->ApplyImpulse(Vector3::RIGHT*Random(-0.05f, 0.05f) + Vector3::FORWARD*Random(-0.05f, 0.05f));
     }
     //Adjust speed

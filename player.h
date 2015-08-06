@@ -62,7 +62,7 @@ public:
     void AddScore(int points);
     void Pickup(const StringHash nameHash);
     void Die();
-    bool Alive() {return !dead_;}
+    bool IsAlive() {return !dead_;}
     void Respawn();
 
     void Shoot(Vector3 fire);

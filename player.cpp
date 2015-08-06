@@ -55,6 +55,7 @@ Player::Player(Context *context, MasterControl *masterControl):
     particleEffect->SetColorFrames(colorFrames);
     particleEmitter->SetEffect(particleEffect);
 
+    //Create tails
     for (int n = 0; n < 3; n++)
     {
         Node* tailNode = rootNode_->CreateChild("Tail");

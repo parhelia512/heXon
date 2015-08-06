@@ -141,6 +141,8 @@ void Enemy::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     panicTime_ += 3.0f * panic_ * timeStep;
     sinceLastWhack_ += timeStep;
 
+    Emerge(timeStep);
+
     if ((rootNode_->GetPosition()*(Vector3::ONE-Vector3::UP)).Length() > 23.666f) Disable();;
 }
 
@@ -161,4 +163,16 @@ void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
             }
         }
     }
+}
+
+void Enemy::Emerge(float timeStep)
+{
+    if (!IsEmerged()) {
+        rootNode_->Translate(Vector3::UP * timeStep * (0.25f - rootNode_->GetPosition().y_));
+    }
+}
+
+bool Enemy::IsEmerged()
+{
+    return rootNode_->GetPosition().y_ > -0.1f;
 }

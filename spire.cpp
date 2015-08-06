@@ -17,6 +17,7 @@
 */
 
 #include "mastercontrol.h"
+#include "player.h"
 #include "seeker.h"
 #include "spire.h"
 #include "spawnmaster.h"
@@ -57,18 +58,13 @@ void Spire::HandleSpireUpdate(StringHash eventType, VariantMap &eventData)
 
         double timeStep = eventData[P_TIMESTEP].GetFloat();
 
-        //Flicker
+        //Pulse
         topModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", GetGlowColor());
         //Spin
         topNode_->Rotate(Quaternion(0.0f, timeStep*(50.0f+panic_*300.0f), 0.0f));
         bottomNode_->Rotate(Quaternion(0.0f, timeStep*-(50.0f+panic_*300.0f), 0.0f));
 
-        //Emerge
-        if (rootNode_->GetPosition().y_ < -0.1f) {
-            rootNode_->Translate(Vector3::UP * timeStep * (0.25f - rootNode_->GetPosition().y_));
-            //topRenderer.materials[1].color = randomColor * 0.25f;
-        }
-        else {
+        if (masterControl_->player_->IsAlive() && IsEmerged()){
             //Shoot
             sinceLastShot_ += timeStep;
             if (sinceLastShot_ > shotInterval_){
