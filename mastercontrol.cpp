@@ -74,13 +74,15 @@ void MasterControl::Start()
     //Hook up to the frame update and render post-update events
     SubscribeToEvents();
 
-    Sound* music = cache_->GetResource<Sound>("Resources/Music/Zentrix - Warp Drive.ogg");
-    music->SetLooped(true);
+    menuMusic_ = cache_->GetResource<Sound>("Resources/Music/Eddy J - Webbed Gloves in Neon Brights.ogg");
+    menuMusic_->SetLooped(true);
+    gameMusic_ = cache_->GetResource<Sound>("Resources/Music/Zentrix - Warp Drive.ogg");
+    gameMusic_->SetLooped(true);
     Node* musicNode = world.scene->CreateChild("Music");
-    SoundSource* musicSource = musicNode->CreateComponent<SoundSource>();
-    musicSource->SetGain(0.32f);
-    musicSource->SetSoundType(SOUND_MUSIC);
-    musicSource->Play(music);
+    musicSource_ = musicNode->CreateComponent<SoundSource>();
+    musicSource_->SetGain(0.32f);
+    musicSource_->SetSoundType(SOUND_MUSIC);
+    musicSource_->Play(gameMusic_);
 }
 void MasterControl::Stop()
 {
@@ -175,6 +177,17 @@ void MasterControl::CreateScene()
     for (int i = 0; i < 6; i++){
         new ArenaEdge(context_, this, (60.0f * i)+30.0f);
     }
+
+    //Create heXon logo
+    Node* logoNode = world.scene->CreateChild("heXon");
+    logoNode->SetScale(20.0f);
+    logoNode->SetPosition(world.camera->rootNode_->GetPosition()+
+                          world.camera->rootNode_->GetDirection()*68.75f);
+    logoNode->LookAt(world.camera->rootNode_->GetPosition());
+    logoNode->Translate(Vector3(0.0f, 2.0f, 0.0f));
+    StaticModel* logoModel = logoNode->CreateComponent<StaticModel>();
+    logoModel->SetModel(cache_->GetResource<Model>("Resources/Models/heXon.mdl"));
+    logoModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/BackgroundTile.xml"));
 
     spawnMaster_ = new SpawnMaster(context_, this);
 

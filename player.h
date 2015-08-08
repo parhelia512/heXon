@@ -67,6 +67,7 @@ public:
 
     void Shoot(Vector3 fire);
     int GetScore();
+    void CreateTails();
 private:
     float initialHealth_;
     float health_;

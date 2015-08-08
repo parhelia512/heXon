@@ -66,15 +66,15 @@ public:
     /// Set material.
     void SetMaterial(Material* material);
     /// Set tail segment length
-    void SetTailLength(float length);
+    void SetSegmentLength(float length);
     /// Get tail segment length
     float GetTailLength();
     /// Set count segments of all tail 
-    void SetNumTails(unsigned num);
+    void SetSegmentCount(unsigned num);
     /// Get count segments of all tail 
     unsigned GetNumTails();
     /// Set width scale of the tail
-    void SetWidthScale(float scale);
+    void SetScale(float scale);
     /// Set vertex blended color for tip of all tail. The alpha-value of new color resets by default to zero.
     void SetColorForTip(const Color& c);
     // Set vertex blended color for head of all tail. The alpha-value of new color resets by default to one.

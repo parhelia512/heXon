@@ -25,9 +25,27 @@
 #include "hexocam.h"
 #include "explosion.h"
 
+void Player::CreateTails()
+{
+    for (int n = 0; n < 3; n++)
+    {
+        Node* tailNode = rootNode_->CreateChild("Tail");
+        tailNode->SetPosition(Vector3(-0.85f+0.85f*n, n==1? 0.0f : -0.5f, n==1? -0.5f : -0.23f));
+        TailGenerator* tailGen = tailNode->CreateComponent<TailGenerator>();
+        tailGen->SetDrawHorizontal(true);
+        tailGen->SetDrawVertical(n==1?true:false);
+        tailGen->SetSegmentLength(n==1? 0.075f : 0.05f);
+        tailGen->SetSegmentCount(n==1? 14 : 12);
+        tailGen->SetScale(n==1? 0.666f : 0.23f);
+        tailGen->SetColorForHead(Color(0.9f, 1.0f, 0.5f));
+        tailGen->SetColorForTip(Color(0.0f, 1.0f, 0.0f));
+        tailGens_.Push(SharedPtr<TailGenerator>(tailGen));
+    }
+}
+
 Player::Player(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
-    initialHealth_{10.0f},
+    initialHealth_{1.0f},
     health_{initialHealth_},
     appleCount_{0},
     heartCount_{0},
@@ -56,17 +74,7 @@ Player::Player(Context *context, MasterControl *masterControl):
     particleEmitter->SetEffect(particleEffect);
 
     //Create tails
-    for (int n = 0; n < 3; n++)
-    {
-        Node* tailNode = rootNode_->CreateChild("Tail");
-        tailNode->SetPosition(Vector3(-0.85f+0.85f*n, n==1? 0.0f : -0.5f, n==1? -0.5f : -0.23f));
-        TailGenerator* tailGen = tailNode->CreateComponent<TailGenerator>();
-        tailGen->SetTailLength(n==1? 0.075f : 0.05f); // set segment length
-        tailGen->SetNumTails(n==1? 14 : 12);     // set num of segments
-        tailGen->SetWidthScale(n==1? 0.666f : 0.23f); // side scale
-        tailGen->SetColorForHead(Color(0.9f, 1.0f, 0.5f));
-        tailGen->SetColorForTip(Color(0.0f, 1.0f, 0.0f));
-    }
+    CreateTails();
 
     //Setup player audio
     shot_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Shot.ogg");
@@ -379,6 +387,10 @@ void Player::Respawn()
     shotInterval_ = initialShotInterval_;
     rigidBody_->ResetForces();
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
+    for (unsigned i = 0; i < tailGens_.Size(); i++){
+        tailGens_[i]->Remove();
+    }
+    CreateTails();
     Set(Vector3::ZERO);
     masterControl_->world.camera->SetGreyScale(false);
     dead_ = false;

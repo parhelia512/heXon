@@ -188,6 +188,11 @@ private:
     /// Pause flag
     bool paused_;
 
+    /// Songs
+    Sound* menuMusic_;
+    Sound* gameMusic_;
+    SoundSource* musicSource_;
+
     ///Sine lookup table
     Vector<double> sine_;
 };
