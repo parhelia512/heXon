@@ -51,6 +51,19 @@ class Sprite;
 
 using namespace Urho3D;
 
+typedef struct Ship
+{
+    Node* node_;
+    StaticModel* model_;
+} Ship;
+typedef struct Pilot
+{
+    Node* node_;
+    bool male_;
+    Vector<Color> colors_;
+    AnimatedModel* model_;
+} Pilot;
+
 class Player : public SceneObject
 {
     OBJECT(Player);
@@ -68,7 +81,11 @@ public:
     void Shoot(Vector3 fire);
     int GetScore();
     void CreateTails();
+    void RemoveTails();
+    void CreateGUI();
+    void SetupShip();
 private:
+    bool pilotMode_;
     float initialHealth_;
     float health_;
     bool dead_ = false;
@@ -83,8 +100,10 @@ private:
     float shotInterval_;
     float sinceLastShot_;
 
-    StaticModel* model_;
+    Ship ship_;
+    Pilot pilot_;
     RigidBody* rigidBody_;
+    AnimationController* animCtrl_;
 
     Node* healthBarNode_;
     StaticModel* healthBarModel_;
@@ -111,6 +130,7 @@ private:
     Color HealthToColor(float health);
     void SetScore(int points);
     void ResetScore();
+    void CreateNewPilot();
 };
 
 #endif

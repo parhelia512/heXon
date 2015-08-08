@@ -43,7 +43,7 @@ Seeker::Seeker(Context *context, MasterControl *masterControl, Vector3 position)
     particleEmitter->SetEffect(masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/Seeker.xml"));
 
     Light* light = rootNode_->CreateComponent<Light>();
-    light->SetRange(5.0f);
+    light->SetRange(6.66f);
     light->SetBrightness(2.3f);
     light->SetColor(Color(1.0f, 1.0f, 1.0f));
 

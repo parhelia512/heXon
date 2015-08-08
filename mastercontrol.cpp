@@ -37,8 +37,9 @@ DEFINE_APPLICATION_MAIN(MasterControl);
 
 MasterControl::MasterControl(Context *context):
     Application(context),
-    paused_(false),
-    editMode_(false)
+    paused_{false},
+    currentState_{GS_LOBBY},
+    editMode_{false}
 {
 }
 
@@ -63,6 +64,8 @@ void MasterControl::Start()
     renderer_ = GetSubsystem<Renderer>();
     CreateSineLookupTable();
 
+    LoadResources();
+
     // Get default style
     defaultStyle_ = cache_->GetResource<XMLFile>("UI/DefaultStyle.xml");
     //Create console and debug HUD.
@@ -82,7 +85,7 @@ void MasterControl::Start()
     musicSource_ = musicNode->CreateComponent<SoundSource>();
     musicSource_->SetGain(0.32f);
     musicSource_->SetSoundType(SOUND_MUSIC);
-    musicSource_->Play(gameMusic_);
+    musicSource_->Play(menuMusic_);
 }
 void MasterControl::Stop()
 {
@@ -122,6 +125,36 @@ void MasterControl::CreateUI()
 
     //Set starting position of the cursor at the rendering window center
     world.cursor.uiCursor->SetPosition(graphics_->GetWidth()/2, graphics_->GetHeight()/2);
+}
+
+void MasterControl::LoadResources()
+{
+    //Load models
+    resources.models.pilots.male = cache_->GetResource<Model>("Resources/Models/Male.mdl");
+    resources.models.pilots.female = cache_->GetResource<Model>("Resources/Models/Female.mdl");
+
+    resources.models.ships.swift = cache_->GetResource<Model>("Resources/Models/Swift.mdl");
+
+    resources.models.arenaElements.backgroundTile = cache_->GetResource<Model>("Resources/Models/BackgroundTile.mdl");
+    resources.models.arenaElements.obstacle = cache_->GetResource<Model>("Resources/Models/Obstacle.mdl");
+
+    //Load materials
+    resources.materials.skin.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/Skin_0.xml")));
+    resources.materials.skin.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/Skin_1.xml")));
+    resources.materials.skin.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/Skin_2.xml")));
+    resources.materials.skin.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/Skin_3.xml")));
+    resources.materials.skin.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/Skin_4.xml")));
+
+    resources.materials.cloth.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothWhite.xml")));
+    resources.materials.cloth.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothBlack.xml")));
+    resources.materials.cloth.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothRed.xml")));
+    resources.materials.cloth.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothYellow.xml")));
+    resources.materials.cloth.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothGreen.xml")));
+    resources.materials.cloth.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothBlue.xml")));
+
+    resources.materials.shoes.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothBlue.xml")));
+
+    resources.materials.hair.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothBlue.xml")));
 }
 
 void MasterControl::CreateScene()
@@ -180,20 +213,52 @@ void MasterControl::CreateScene()
 
     //Create heXon logo
     Node* logoNode = world.scene->CreateChild("heXon");
-    logoNode->SetScale(20.0f);
-    logoNode->SetPosition(world.camera->rootNode_->GetPosition()+
-                          world.camera->rootNode_->GetDirection()*68.75f);
-    logoNode->LookAt(world.camera->rootNode_->GetPosition());
-    logoNode->Translate(Vector3(0.0f, 2.0f, 0.0f));
+    logoNode->SetScale(16.0f);
+    //logoNode->Rotate(Quaternion(-90.0f, 0.0f, 0.0f));
+    logoNode->SetWorldPosition(Vector3(0.0f, -5.0f, 0.0f));
+    //logoNode->SetPosition(world.camera->rootNode_->GetPosition()+world.camera->rootNode_->GetDirection()*68.75f);
+    //logoNode->LookAt(world.camera->rootNode_->GetPosition());
+    //logoNode->Translate(Vector3(0.0f, 2.0f, 0.0f));
     StaticModel* logoModel = logoNode->CreateComponent<StaticModel>();
     logoModel->SetModel(cache_->GetResource<Model>("Resources/Models/heXon.mdl"));
-    logoModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/BackgroundTile.xml"));
+    logoModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Loglow.xml"));
 
     spawnMaster_ = new SpawnMaster(context_, this);
 
     player_ = new Player(context_, this);
     apple_ = new Apple(context_, this);
     heart_ = new Heart(context_, this);
+}
+
+void MasterControl::SetGameState(GameState newState)
+{
+    if (newState != currentState_){
+        LeaveGameState();
+        currentState_ = newState;
+        EnterGameState();
+    }
+}
+void MasterControl::LeaveGameState()
+{
+    switch (currentState_){
+    case GS_INTRO : break; //Hide intro
+    case GS_LOBBY : break; //Disable static ship
+    case GS_PLAY : break; //Eject when alive
+    case GS_DEAD : break; //Return colour to screen, remove generate new pilot, reset score
+    case GS_EDIT : break; //Disable EditMaster
+        default: break;
+    }
+}
+void MasterControl::EnterGameState()
+{
+    switch (currentState_){
+    case GS_INTRO : break; //Play intro
+    case GS_LOBBY : break; //Remove all SceneObjects except player, Activate static ship, switch Player to pilot mode, Deactivate SpawnMaster, Apple and Heart
+    case GS_PLAY : break; //Activate SpawnMaster, Apple and Heart, Switch Player to ship mode
+    case GS_DEAD : break; //Remove colour from 3D stuff
+    case GS_EDIT : break; //Activate EditMaster
+        default: break;
+    }
 }
 
 void MasterControl::HandleUpdate(StringHash eventType, VariantMap &eventData)

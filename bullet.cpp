@@ -35,7 +35,7 @@ Bullet::Bullet(Context *context, MasterControl *masterControl):
     rigidBody_->SetFriction(0.0f);
 
     Light* light = rootNode_->CreateComponent<Light>();
-    light->SetRange(5.0f);
+    light->SetRange(6.66f);
     light->SetColor(Color(0.6f, 1.0f, 0.2f));
 
     SubscribeToEvent(E_SCENEUPDATE, HANDLER(Bullet, HandleSceneUpdate));

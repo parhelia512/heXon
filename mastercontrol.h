@@ -28,6 +28,8 @@
 #include <Urho3D/Engine/Console.h>
 #include <Urho3D/Engine/DebugHud.h>
 #include <Urho3D/Engine/Engine.h>
+#include <Urho3D/Graphics/AnimatedModel.h>
+#include <Urho3D/Graphics/AnimationController.h>
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Graphics/Graphics.h>
@@ -94,6 +96,40 @@ typedef struct GameWorld
     } cursor;
 } GameWorld;
 
+typedef struct Resources
+{
+    struct {
+        struct {
+            SharedPtr<Model> male;
+            SharedPtr<Model> female;
+        } pilots;
+        struct {
+            SharedPtr<Model> swift;
+        } ships;
+        struct {
+            SharedPtr<Model> center;
+            struct {
+                SharedPtr<Model> top;
+                SharedPtr<Model> bottom;
+            } razor;
+            struct {
+                SharedPtr<Model> top;
+                SharedPtr<Model> bottom;
+            } spire;
+        } enemies;
+        struct {
+            SharedPtr<Model> backgroundTile;
+            SharedPtr<Model> obstacle;
+        } arenaElements;
+    } models;
+    struct {
+        Vector<SharedPtr<Material> > skin;
+        Vector<SharedPtr<Material> > cloth;
+        Vector<SharedPtr<Material> > shoes;
+        Vector<SharedPtr<Material> > hair;
+    } materials;
+} Resources;
+
 typedef struct HitInfo
 {
     Vector3 position_;
@@ -115,6 +151,7 @@ StringHash const N_SPIRE = StringHash("Spire");
 StringHash const N_RAZOR = StringHash("Razor");
 }
 
+enum GameState {GS_INTRO, GS_LOBBY, GS_PLAY, GS_DEAD, GS_EDIT};
 enum JoyStickButton {JB_SELECT, JB_LEFTSTICK, JB_RIGHTSTICK, JB_START, JB_DPAD_UP, JB_DPAD_RIGHT, JB_DPAD_DOWN, JB_DPAD_LEFT, JB_L2, JB_R2, JB_L1, JB_R1, JB_TRIANGLE, JB_CIRCLE, JB_CROSS, JB_SQUARE};
 
 class MasterControl : public Application
@@ -125,6 +162,7 @@ public:
     /// Constructor.
     MasterControl(Context* context);
     GameWorld world;
+    Resources resources;
     SharedPtr<PhysicsWorld> physicsWorld_;
     SharedPtr<ResourceCache> cache_;
     SharedPtr<Graphics> graphics_;
@@ -160,6 +198,12 @@ public:
     bool PhysicsRayCast(PODVector<PhysicsRaycastResult> &hitResults, Urho3D::Ray ray, float distance, unsigned collisionMask);
     bool PhysicsSphereCast(PODVector<RigidBody *> &hitResults, Vector3 center, float radius, unsigned collisionMask);
     void Restart();
+
+    ///Get resources
+    SharedPtr<Material> GetRandomSkin() { return resources.materials.skin[Random((int)resources.materials.skin.Size())]; }
+    SharedPtr<Material> GetRandomCloth() { return resources.materials.cloth[Random((int)resources.materials.cloth.Size())]; }
+    SharedPtr<Material> GetRandomShoes() { return resources.materials.shoes[Random((int)resources.materials.shoes.Size())]; }
+    SharedPtr<Material> GetRandomHair() { return resources.materials.hair[Random((int)resources.materials.hair.Size())]; }
 private:
     /// Set custom window title and icon
     void SetWindowTitleAndIcon();
@@ -187,6 +231,7 @@ private:
 
     /// Pause flag
     bool paused_;
+    GameState currentState_;
 
     /// Songs
     Sound* menuMusic_;
@@ -195,6 +240,10 @@ private:
 
     ///Sine lookup table
     Vector<double> sine_;
+    void SetGameState(GameState newState);
+    void LeaveGameState();
+    void EnterGameState();
+    void LoadResources();
 };
 
 #endif

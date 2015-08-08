@@ -25,26 +25,9 @@
 #include "hexocam.h"
 #include "explosion.h"
 
-void Player::CreateTails()
-{
-    for (int n = 0; n < 3; n++)
-    {
-        Node* tailNode = rootNode_->CreateChild("Tail");
-        tailNode->SetPosition(Vector3(-0.85f+0.85f*n, n==1? 0.0f : -0.5f, n==1? -0.5f : -0.23f));
-        TailGenerator* tailGen = tailNode->CreateComponent<TailGenerator>();
-        tailGen->SetDrawHorizontal(true);
-        tailGen->SetDrawVertical(n==1?true:false);
-        tailGen->SetSegmentLength(n==1? 0.075f : 0.05f);
-        tailGen->SetSegmentCount(n==1? 14 : 12);
-        tailGen->SetScale(n==1? 0.666f : 0.23f);
-        tailGen->SetColorForHead(Color(0.9f, 1.0f, 0.5f));
-        tailGen->SetColorForTip(Color(0.0f, 1.0f, 0.0f));
-        tailGens_.Push(SharedPtr<TailGenerator>(tailGen));
-    }
-}
-
 Player::Player(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
+    pilotMode_{true},
     initialHealth_{1.0f},
     health_{initialHealth_},
     appleCount_{0},
@@ -58,23 +41,17 @@ Player::Player(Context *context, MasterControl *masterControl):
 {
     rootNode_->SetName("Player");
 
-    //Setup player graphics
-    model_ = rootNode_->CreateComponent<StaticModel>();
-    model_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Swift.mdl"));
-    model_->SetMaterial(0, masterControl_->cache_->GetTempResource<Material>("Resources/Materials/GreenGlowEnvmap.xml"));
-    model_->SetMaterial(1, masterControl_->cache_->GetTempResource<Material>("Resources/Materials/GreenEnvmap.xml"));
+    //Setup ship
+    SetupShip();
 
-    ParticleEmitter* particleEmitter = rootNode_->CreateComponent<ParticleEmitter>();
-    SharedPtr<ParticleEffect> particleEffect = masterControl_->cache_->GetTempResource<ParticleEffect>("Resources/Particles/Shine.xml");
-    Vector<ColorFrame> colorFrames;
-    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
-    colorFrames.Push(ColorFrame(Color(0.42f, 0.7f, 0.23f, 0.23f), 0.2f));
-    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
-    particleEffect->SetColorFrames(colorFrames);
-    particleEmitter->SetEffect(particleEffect);
-
-    //Create tails
-    CreateTails();
+    //Setup pilot
+    pilot_.node_ = rootNode_->CreateChild("Pilot");
+    pilot_.model_ = pilot_.node_->CreateComponent<AnimatedModel>();
+    CreateNewPilot();
+    animCtrl_ = pilot_.node_->CreateComponent<AnimationController>();
+    animCtrl_->PlayExclusive("Resources/Models/IdleRelax.ani", 0, true, 0.1f);
+    animCtrl_->SetSpeed("Resources/Models/IdleRelax.ani", 1.0f);
+    animCtrl_->SetStartBone("Resources/Models/IdleRelax.ani", "MasterBone");
 
     //Setup player audio
     shot_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Shot.ogg");
@@ -101,6 +78,17 @@ Player::Player(Context *context, MasterControl *masterControl):
     masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 
     //Setup 2D GUI elements
+    CreateGUI();
+
+    //Subscribe to events
+    SubscribeToEvent(E_SCENEUPDATE, HANDLER(Player, HandleSceneUpdate));
+
+    pilot_.node_->SetEnabledRecursive(pilotMode_);
+    ship_.node_->SetEnabledRecursive(!pilotMode_);
+}
+
+void Player::CreateGUI()
+{
     UI* ui = GetSubsystem<UI>();
     Text* scoreText = ui->GetRoot()->CreateChild<Text>();
     scoreText->SetName("Score");
@@ -154,9 +142,6 @@ Player::Player(Context *context, MasterControl *masterControl):
         heart->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Heart.mdl"));
         heart->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/RedEnvmap.xml"));
     }
-
-    //Subscribe to events
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(Player, HandleSceneUpdate));
 }
 
 void Player::AddScore(int points)
@@ -211,15 +196,14 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     //Only handle input when player is active
     if (!rootNode_->IsEnabled()) return;
 
-
     Input* input = GetSubsystem<Input>();
 
     //Movement values
     Vector3 move = Vector3::ZERO;
     Vector3 moveJoy = Vector3::ZERO;
     Vector3 moveKey = Vector3::ZERO;
-    float thrust = 2323.0f;
-    float maxSpeed = 23.0f;
+    float thrust = pilotMode_ ? 666.0f : 2323.0f;
+    float maxSpeed = pilotMode_? 2.0f : 23.0f;
     //Firing values
     Vector3 fire = Vector3::ZERO;
     Vector3 fireJoy = Vector3::ZERO;
@@ -251,29 +235,58 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
 
     //Restrict move vector length
-    if (move.Length() > 1.0) move /= move.Length();
+    if (move.Length() > 1.0f) move /= move.Length();
     //Deadzone
-    else if (move.Length() < 0.1) move *= 0.0;
+    else if (move.Length() < 0.1f) move *= 0.0f;
 
-    if (fire.Length() < 0.1) fire *= 0.0;
+    if (fire.Length() < 0.1f) fire *= 0.0f;
     else fire.Normalize();
 
-    //Apply movement
-    Vector3 force = move * thrust * timeStep;
-    if (rigidBody_->GetLinearVelocity().Length() < maxSpeed || (rigidBody_->GetLinearVelocity().Normalized() + force.Normalized()).Length() < 1.0) {
-        rigidBody_->ApplyForce(force);
-    }
+    if (pilotMode_){
+        //Apply movement
+        Vector3 force = move * thrust * timeStep;
+        if (rigidBody_->GetLinearVelocity().Length() < maxSpeed ||
+                (rigidBody_->GetLinearVelocity().Normalized() + force.Normalized()).Length() < 1.0f) {
+            rigidBody_->ApplyForce(force);
+        }
 
-    //Update rotation according to direction of the ship's movement.
-    if (rigidBody_->GetLinearVelocity().Length() > 0.1f)
-        rootNode_->LookAt(rootNode_->GetPosition()+rigidBody_->GetLinearVelocity());
+        //Update rotation according to direction of the player's movement.
+        Vector3 velocity = rigidBody_->GetLinearVelocity();
+        Vector3 lookDirection = velocity + 2.0f*fire;
+        Quaternion rotation = rootNode_->GetWorldRotation();
+        Quaternion aimRotation = rotation;
+        aimRotation.FromLookRotation(lookDirection);
+        rootNode_->SetRotation(rotation.Slerp(aimRotation, 7.0f * timeStep * velocity.Length()));
 
-    //Shooting
-    sinceLastShot_ += timeStep;
-    if (fire.Length()) {
-        if (sinceLastShot_ > shotInterval_)
-        {
-            Shoot(fire);
+        //Update animation
+        if (velocity.Length() > 0.1f){
+            animCtrl_->PlayExclusive("Resources/Models/WalkRelax.ani", 0, true, 0.15f);
+            animCtrl_->SetSpeed("Resources/Models/WalkRelax.ani", velocity.Length()*2.3f);
+            animCtrl_->SetStartBone("Resources/Models/WalkRelax.ani", "MasterBone");
+        }
+        else {
+            animCtrl_->PlayExclusive("Resources/Models/IdleRelax.ani", 0, true, 0.15f);
+            animCtrl_->SetStartBone("Resources/Models/IdleRelax.ani", "MasterBone");
+        }
+    } else {
+        //Apply movement
+        Vector3 force = move * thrust * timeStep;
+        if (rigidBody_->GetLinearVelocity().Length() < maxSpeed ||
+                (rigidBody_->GetLinearVelocity().Normalized() + force.Normalized()).Length() < 1.0f) {
+            rigidBody_->ApplyForce(force);
+        }
+
+        //Update rotation according to direction of the ship's movement.
+        if (rigidBody_->GetLinearVelocity().Length() > 0.1f)
+            rootNode_->LookAt(rootNode_->GetPosition()+rigidBody_->GetLinearVelocity());
+
+        //Shooting
+        sinceLastShot_ += timeStep;
+        if (fire.Length()) {
+            if (sinceLastShot_ > shotInterval_)
+            {
+                Shoot(fire);
+            }
         }
     }
 }
@@ -387,9 +400,7 @@ void Player::Respawn()
     shotInterval_ = initialShotInterval_;
     rigidBody_->ResetForces();
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
-    for (unsigned i = 0; i < tailGens_.Size(); i++){
-        tailGens_[i]->Remove();
-    }
+    RemoveTails();
     CreateTails();
     Set(Vector3::ZERO);
     masterControl_->world.camera->SetGreyScale(false);
@@ -429,5 +440,67 @@ void Player::UpgradeWeapons()
         ++weaponLevel_;
         bulletAmount_ = 1 + ((weaponLevel_+5) / 6);
         shotInterval_ = initialShotInterval_ - 0.01f*weaponLevel_;
+    }
+}
+void Player::CreateNewPilot()
+{
+    pilot_.male_ = (Random(1.0f)>0.5f) ? true : false;
+    pilot_.node_->SetRotation(Quaternion(0.0f, 0.0f, 0.0f));
+
+    if (pilot_.male_){
+        pilot_.model_->SetModel(masterControl_->resources.models.pilots.male);
+        pilot_.model_->SetMaterial(2, masterControl_->GetRandomSkin());
+        pilot_.model_->SetMaterial(0, masterControl_->GetRandomCloth());
+        pilot_.model_->SetMaterial(1, masterControl_->GetRandomCloth());
+        pilot_.model_->SetMaterial(3, masterControl_->GetRandomShoes());
+    }
+    else{
+        pilot_.model_->SetModel(masterControl_->resources.models.pilots.female);
+        pilot_.model_->SetMaterial(1, masterControl_->GetRandomSkin());
+        pilot_.model_->SetMaterial(0, masterControl_->GetRandomCloth());
+        pilot_.model_->SetMaterial(2, masterControl_->GetRandomCloth());
+        pilot_.model_->SetMaterial(3, masterControl_->GetRandomShoes());
+    }
+}
+void Player::SetupShip()
+{
+    ship_.node_ = rootNode_->CreateChild("Ship");
+    ship_.model_ = ship_.node_->CreateComponent<StaticModel>();
+    ship_.model_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Swift.mdl"));
+    ship_.model_->SetMaterial(0, masterControl_->cache_->GetTempResource<Material>("Resources/Materials/GreenGlowEnvmap.xml"));
+    ship_.model_->SetMaterial(1, masterControl_->cache_->GetTempResource<Material>("Resources/Materials/GreenEnvmap.xml"));
+
+    ParticleEmitter* particleEmitter = ship_.node_->CreateComponent<ParticleEmitter>();
+    SharedPtr<ParticleEffect> particleEffect = masterControl_->cache_->GetTempResource<ParticleEffect>("Resources/Particles/Shine.xml");
+    Vector<ColorFrame> colorFrames;
+    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
+    colorFrames.Push(ColorFrame(Color(0.42f, 0.7f, 0.23f, 0.23f), 0.2f));
+    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
+    particleEffect->SetColorFrames(colorFrames);
+    particleEmitter->SetEffect(particleEffect);
+
+    CreateTails();
+}
+void Player::CreateTails()
+{
+    for (int n = 0; n < 3; n++)
+    {
+        Node* tailNode = ship_.node_->CreateChild("Tail");
+        tailNode->SetPosition(Vector3(-0.85f+0.85f*n, n==1? 0.0f : -0.5f, n==1? -0.5f : -0.23f));
+        TailGenerator* tailGen = tailNode->CreateComponent<TailGenerator>();
+        tailGen->SetDrawHorizontal(true);
+        tailGen->SetDrawVertical(n==1?true:false);
+        tailGen->SetSegmentLength(n==1? 0.075f : 0.05f);
+        tailGen->SetSegmentCount(n==1? 14 : 12);
+        tailGen->SetScale(n==1? 0.666f : 0.23f);
+        tailGen->SetColorForHead(Color(0.9f, 1.0f, 0.5f));
+        tailGen->SetColorForTip(Color(0.0f, 1.0f, 0.0f));
+        tailGens_.Push(SharedPtr<TailGenerator>(tailGen));
+    }
+}
+void Player::RemoveTails()
+{
+    for (unsigned i = 0; i < tailGens_.Size(); i++){
+        tailGens_[i]->GetNode()->Remove();
     }
 }
