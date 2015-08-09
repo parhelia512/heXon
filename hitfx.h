@@ -20,8 +20,6 @@
 #define HITFX_H
 
 #include <Urho3D/Urho3D.h>
-#include <Urho3D/Graphics/ParticleEffect.h>
-#include <Urho3D/Graphics/ParticleEmitter.h>
 
 #include "effect.h"
 

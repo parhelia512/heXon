@@ -20,6 +20,7 @@
 #define HEXOCAM_H
 
 #include <Urho3D/Urho3D.h>
+
 #include "mastercontrol.h"
 
 namespace Urho3D {
@@ -67,4 +68,4 @@ private:
     void SetupViewport();
 };
 
-#endif
+#endif // HEXOCAM_H

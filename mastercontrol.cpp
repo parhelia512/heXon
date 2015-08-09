@@ -37,8 +37,8 @@ DEFINE_APPLICATION_MAIN(MasterControl);
 
 MasterControl::MasterControl(Context *context):
     Application(context),
+    currentState_{GS_INTRO},
     paused_{false},
-    currentState_{GS_LOBBY},
     editMode_{false}
 {
 }
@@ -79,13 +79,15 @@ void MasterControl::Start()
 
     menuMusic_ = cache_->GetResource<Sound>("Resources/Music/Eddy J - Webbed Gloves in Neon Brights.ogg");
     menuMusic_->SetLooped(true);
-    gameMusic_ = cache_->GetResource<Sound>("Resources/Music/Zentrix - Warp Drive.ogg");
+    gameMusic_ = cache_->GetResource<Sound>("Resources/Music/Alien Chaos - Disorder.ogg");
     gameMusic_->SetLooped(true);
     Node* musicNode = world.scene->CreateChild("Music");
     musicSource_ = musicNode->CreateComponent<SoundSource>();
     musicSource_->SetGain(0.32f);
     musicSource_->SetSoundType(SOUND_MUSIC);
     musicSource_->Play(menuMusic_);
+
+    SetGameState(GS_LOBBY);
 }
 void MasterControl::Stop()
 {
@@ -98,8 +100,6 @@ void MasterControl::SubscribeToEvents()
     SubscribeToEvent(E_SCENEUPDATE, HANDLER(MasterControl, HandleSceneUpdate));
     //Subscribe HandleUpdate() function for processing update events
     SubscribeToEvent(E_UPDATE, HANDLER(MasterControl, HandleUpdate));
-    //Subscribe scene update event.
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(MasterControl, HandleSceneUpdate));
 }
 
 void MasterControl::CreateConsoleAndDebugHud()
@@ -170,21 +170,10 @@ void MasterControl::CreateScene()
     Node* zoneNode = world.scene->CreateChild("Zone");
     Zone* zone = zoneNode->CreateComponent<Zone>();
     zone->SetBoundingBox(BoundingBox(Vector3(-100.0f, -50.0f, -100.0f),Vector3(100.0f, 0.0f, 100.0f)));
-    zone->SetAmbientColor(Color(0.15f, 0.15f, 0.15f));
+    zone->SetAmbientColor(Color(0.0f, 0.0f, 0.0f));
     zone->SetFogColor(Color(0.0f, 0.0f, 0.0f));
     zone->SetFogStart(56.8f);
     zone->SetFogEnd(61.8f);
-
-    //Add a directional light to the world. Enable cascaded shadows on it
-    Node* lightNode = world.scene->CreateChild("PointLight");
-    lightNode->SetPosition(Vector3::UP*5.0f);
-    lightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
-    Light* light = lightNode->CreateComponent<Light>();
-    light->SetLightType(LIGHT_DIRECTIONAL);
-    light->SetBrightness(0.75f);
-    light->SetRange(10.0f);
-    light->SetColor(Color(1.0f, 0.9f, 0.95f));
-    light->SetCastShadows(false);
 
     //Create cursor
     world.cursor.sceneCursor = world.scene->CreateChild("Cursor");
@@ -214,17 +203,60 @@ void MasterControl::CreateScene()
     //Create heXon logo
     Node* logoNode = world.scene->CreateChild("heXon");
     logoNode->SetScale(16.0f);
-    //logoNode->Rotate(Quaternion(-90.0f, 0.0f, 0.0f));
     logoNode->SetWorldPosition(Vector3(0.0f, -5.0f, 0.0f));
-    //logoNode->SetPosition(world.camera->rootNode_->GetPosition()+world.camera->rootNode_->GetDirection()*68.75f);
-    //logoNode->LookAt(world.camera->rootNode_->GetPosition());
-    //logoNode->Translate(Vector3(0.0f, 2.0f, 0.0f));
     StaticModel* logoModel = logoNode->CreateComponent<StaticModel>();
     logoModel->SetModel(cache_->GetResource<Model>("Resources/Models/heXon.mdl"));
     logoModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Loglow.xml"));
 
-    spawnMaster_ = new SpawnMaster(context_, this);
+    //Construct lobby
+    lobbyNode_ = world.scene->CreateChild("Lobby");
+    lobbyNode_->Rotate(Quaternion(0.0f, 180.0f, 0.0f));
+    Node* floorNode = lobbyNode_->CreateChild("Floor");
+    floorNode->SetPosition(Vector3(0.0f, -0.5f, 0.0f));
+    floorNode->SetScale(10.0f);
+    floorNode->Rotate(Quaternion(0.0f, 30.0f, 0.0f));
+    StaticModel* floorModel = floorNode->CreateComponent<StaticModel>();
+    floorModel->SetModel(cache_->GetResource<Model>("Resources/Models/Hexagon.mdl"));
+    floorModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Black.xml"));
+    floorModel->SetCastShadows(true);
+    //Create central ship
+    StaticModel* ship = lobbyNode_->CreateChild("Ship")->CreateComponent<StaticModel>();
+    ship->SetModel(cache_->GetResource<Model>("Resources/Models/Swift.mdl"));
+    ship->SetMaterial(0, cache_->GetTempResource<Material>("Resources/Materials/GreenGlow.xml"));
+    ship->SetMaterial(1, cache_->GetTempResource<Material>("Resources/Materials/Green.xml"));
+    ship->SetCastShadows(true);
+    RigidBody* lobbyBody = lobbyNode_->CreateComponent<RigidBody>();
+    lobbyBody->SetTrigger(true);
+    CollisionShape* shipShape = lobbyNode_->CreateComponent<CollisionShape>();
+    shipShape->SetCylinder(1.0f, 1.0f);
 
+    SubscribeToEvent(lobbyNode_, E_NODECOLLISIONSTART, HANDLER(MasterControl, HandlePlayTrigger));
+
+    //Add a point light to the lobby. Enable cascaded shadows on it
+    Node* lobbyLightNode = lobbyNode_->CreateChild("Spot");
+    lobbyLightNode->SetPosition(Vector3::UP*10.0f);
+    lobbyLightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
+    lobbyLight_ = lobbyLightNode->CreateComponent<Light>();
+    lobbyLight_->SetLightType(LIGHT_POINT);
+    lobbyLight_->SetBrightness(1.0f);
+    lobbyLight_->SetRange(23.0f);
+    lobbyLight_->SetColor(Color(1.0f, 0.9f, 0.95f));
+    lobbyLight_->SetCastShadows(true);
+
+    for (int i = 0; i < 6; i++){
+        Node* edgeNode = floorNode->CreateChild("LobbyEdge");
+//        edgeNode->SetScale(Vector3(1.0f, 1.0f, 1.0f));
+        edgeNode->Rotate(Quaternion(0.0f, (60.0f * i), 0.0f));
+        Model* model = cache_->GetResource<Model>("Resources/Models/ArenaEdgeSegment.mdl");
+        StaticModel* edgeModel = edgeNode->CreateComponent<StaticModel>();
+        edgeModel->SetModel(model);
+        edgeModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Green.xml"));
+        RigidBody* rigidBody = edgeNode->CreateComponent<RigidBody>();
+        CollisionShape* collider = edgeNode->CreateComponent<CollisionShape>();
+        collider->SetConvexHull(model);
+    }
+    //Create game elements
+    spawnMaster_ = new SpawnMaster(context_, this);
     player_ = new Player(context_, this);
     apple_ = new Apple(context_, this);
     heart_ = new Heart(context_, this);
@@ -241,21 +273,47 @@ void MasterControl::SetGameState(GameState newState)
 void MasterControl::LeaveGameState()
 {
     switch (currentState_){
-    case GS_INTRO : break; //Hide intro
-    case GS_LOBBY : break; //Disable static ship
-    case GS_PLAY : break; //Eject when alive
-    case GS_DEAD : break; //Return colour to screen, remove generate new pilot, reset score
+    case GS_INTRO : break;
+    case GS_LOBBY : {
+        lobbyNode_->SetEnabledRecursive(false);
+    } break;
+    case GS_PLAY : {
+        spawnMaster_->Deactivate();
+    } break; //Eject when alive
+    case GS_DEAD : {
+        player_->CreateNewPilot();
+        world.camera->SetGreyScale(false);
+    } break;
     case GS_EDIT : break; //Disable EditMaster
-        default: break;
+    default: break;
     }
 }
 void MasterControl::EnterGameState()
 {
     switch (currentState_){
-    case GS_INTRO : break; //Play intro
-    case GS_LOBBY : break; //Remove all SceneObjects except player, Activate static ship, switch Player to pilot mode, Deactivate SpawnMaster, Apple and Heart
-    case GS_PLAY : break; //Activate SpawnMaster, Apple and Heart, Switch Player to ship mode
-    case GS_DEAD : break; //Remove colour from 3D stuff
+    case GS_INTRO : break;
+    case GS_LOBBY : {
+        musicSource_->Play(menuMusic_);
+        lobbyNode_->SetEnabledRecursive(true);
+        player_->EnterLobby();
+        spawnMaster_->Clear();
+        tileMaster_->HideArena();
+        apple_->Deactivate();
+        heart_->Deactivate();
+    } break;
+    case GS_PLAY : {
+        musicSource_->Play(gameMusic_);
+        player_->EnterPlay();
+        apple_->Respawn(true);
+        heart_->Respawn(true);
+        world.lastReset = world.scene->GetElapsedTime();
+        spawnMaster_->Restart();
+        tileMaster_->Restart();
+    } break;
+    case GS_DEAD : {
+        spawnMaster_->Deactivate();
+        world.camera->SetGreyScale(true);
+    } break;
     case GS_EDIT : break; //Activate EditMaster
         default: break;
     }
@@ -320,16 +378,6 @@ bool MasterControl::PhysicsSphereCast(PODVector<RigidBody*> &hitResults, Vector3
 void MasterControl::Exit()
 {
     engine_->Exit();
-}
-
-void MasterControl::Restart()
-{
-    world.lastReset = world.scene->GetElapsedTime();
-    player_->Respawn();
-    spawnMaster_->Restart();
-    apple_->Respawn(true);
-    heart_->Respawn(true);
-    tileMaster_->Restart();
 }
 
 void MasterControl::CreateSineLookupTable()

@@ -52,4 +52,4 @@ private:
 
 };
 
-#endif
+#endif // ARENAEDGE_H

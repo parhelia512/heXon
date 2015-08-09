@@ -49,6 +49,7 @@
 #include <Urho3D/IO/FileSystem.h>
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Physics/CollisionShape.h>
+#include <Urho3D/Physics/PhysicsEvents.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/Resource/ResourceCache.h>
@@ -146,6 +147,7 @@ StringHash const N_TILE = StringHash("Tile");
 StringHash const N_PLAYER = StringHash("Player");
 StringHash const N_APPLE = StringHash("Apple");
 StringHash const N_HEART = StringHash("Heart");
+StringHash const N_RESET = StringHash("Reset");
 StringHash const N_SEEKER = StringHash("Seeker");
 StringHash const N_SPIRE = StringHash("Spire");
 StringHash const N_RAZOR = StringHash("Razor");
@@ -176,6 +178,7 @@ public:
     SharedPtr<Player> player_;
     SharedPtr<Apple> apple_;
     SharedPtr<Heart> heart_;
+    SharedPtr<Node> lobbyNode_;
 
     /// Setup before engine initialization. Modifies the engine paramaters.
     virtual void Setup();
@@ -189,15 +192,16 @@ public:
     float Sine(float x) { return sine_[(int)round(sine_.Size() * heXon::Cycle((float)(x/M_PI), 0.0f, 1.0f))%sine_.Size()]; }
     float Sine(float freq, float min, float max, float shift = 0.0f);
 
+    void SetGameState(GameState newState);
+    GameState GetGameState(){ return currentState_; }
     bool GetPaused() { return paused_; }
     void SetPaused(bool paused) { paused_ = paused; world.scene->SetUpdateEnabled(!paused);}
     void Pause() { SetPaused(true);}
     void Unpause() { SetPaused(false); }
-    /// Edit-mode flag
     bool editMode_;
     bool PhysicsRayCast(PODVector<PhysicsRaycastResult> &hitResults, Urho3D::Ray ray, float distance, unsigned collisionMask);
     bool PhysicsSphereCast(PODVector<RigidBody *> &hitResults, Vector3 center, float radius, unsigned collisionMask);
-    void Restart();
+    void StartGame();
 
     ///Get resources
     SharedPtr<Material> GetRandomSkin() { return resources.materials.skin[Random((int)resources.materials.skin.Size())]; }
@@ -205,45 +209,35 @@ public:
     SharedPtr<Material> GetRandomShoes() { return resources.materials.shoes[Random((int)resources.materials.shoes.Size())]; }
     SharedPtr<Material> GetRandomHair() { return resources.materials.hair[Random((int)resources.materials.hair.Size())]; }
 private:
-    /// Set custom window title and icon
-    void SetWindowTitleAndIcon();
-    /// Create console and debug HUD
-    void CreateConsoleAndDebugHud();
-
-    /// Construct the scene content.
-    void CreateScene();
-    /// Construct user interface elements.
-    void CreateUI();
-    /// Subscribe to application-wide logic update and post-render update events.
-    void SubscribeToEvents();
-
-    /// Handle scene update event to control camera's pitch and yaw.
-    void HandleSceneUpdate(StringHash eventType, VariantMap& eventData);
-    /// Handle the logic update event.
-    void HandleUpdate(StringHash eventType, VariantMap& eventData);
-    /// Handle the post-render update event.
-    void HandlePostRenderUpdate(StringHash eventType, VariantMap& eventData);
-
-    /// Update the cursor
-    void UpdateCursor(double timeStep);
-    /// Utility function to raycast to the cursor position. Return true if hit.
-    bool CursorRayCast(double maxDistance, PODVector<RayQueryResult> &hitResults);
-
-    /// Pause flag
     bool paused_;
     GameState currentState_;
 
-    /// Songs
+    Light* lobbyLight_;
+
     Sound* menuMusic_;
     Sound* gameMusic_;
     SoundSource* musicSource_;
 
-    ///Sine lookup table
     Vector<double> sine_;
-    void SetGameState(GameState newState);
+
+    void SetWindowTitleAndIcon();
+    void CreateConsoleAndDebugHud();
+
+    void CreateScene();
+    void CreateUI();
+    void SubscribeToEvents();
+
+    void HandleSceneUpdate(StringHash eventType, VariantMap& eventData);
+    void HandleUpdate(StringHash eventType, VariantMap& eventData);
+    void HandlePostRenderUpdate(StringHash eventType, VariantMap& eventData);
+    void HandlePlayTrigger(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY);}
+
+    void UpdateCursor(double timeStep);
+    bool CursorRayCast(double maxDistance, PODVector<RayQueryResult> &hitResults);
+
     void LeaveGameState();
     void EnterGameState();
     void LoadResources();
 };
 
-#endif
+#endif // MASTERCONTROL_H

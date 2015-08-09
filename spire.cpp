@@ -64,7 +64,7 @@ void Spire::HandleSpireUpdate(StringHash eventType, VariantMap &eventData)
         topNode_->Rotate(Quaternion(0.0f, timeStep*(50.0f+panic_*300.0f), 0.0f));
         bottomNode_->Rotate(Quaternion(0.0f, timeStep*-(50.0f+panic_*300.0f), 0.0f));
 
-        if (masterControl_->player_->IsAlive() && IsEmerged()){
+        if (masterControl_->GetGameState() == GS_PLAY && IsEmerged()){
             //Shoot
             sinceLastShot_ += timeStep;
             if (sinceLastShot_ > shotInterval_){

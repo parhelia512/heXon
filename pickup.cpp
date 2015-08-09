@@ -28,7 +28,7 @@ Pickup::Pickup(Context *context, MasterControl *masterControl):
 
     model_ = rootNode_->CreateComponent<StaticModel>();
     rootNode_->SetScale(0.8f);
-
+    rootNode_->SetEnabledRecursive(false);
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
     rigidBody_->SetRestitution(0.666f);
@@ -110,4 +110,9 @@ void Pickup::Respawn(bool restart)
                   );
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();
+    rootNode_->SetEnabledRecursive(true);
+}
+void Pickup::Deactivate()
+{
+    rootNode_->SetEnabledRecursive(false);
 }

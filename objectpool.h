@@ -39,4 +39,4 @@ public:
 private:
 };
 
-#endif
+#endif // OBJECTPOOL_H

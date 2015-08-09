@@ -27,7 +27,6 @@
 
 Player::Player(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
-    pilotMode_{true},
     initialHealth_{1.0f},
     health_{initialHealth_},
     appleCount_{0},
@@ -40,13 +39,17 @@ Player::Player(Context *context, MasterControl *masterControl):
     sinceLastShot_{0.0f}
 {
     rootNode_->SetName("Player");
+    //Setup GUI elements
+    CreateGUI();
 
     //Setup ship
     SetupShip();
 
     //Setup pilot
     pilot_.node_ = rootNode_->CreateChild("Pilot");
+    pilot_.node_->Translate(Vector3(0.0f, -0.5f, 0.0f));
     pilot_.model_ = pilot_.node_->CreateComponent<AnimatedModel>();
+    pilot_.model_->SetCastShadows(true);
     CreateNewPilot();
     animCtrl_ = pilot_.node_->CreateComponent<AnimationController>();
     animCtrl_->PlayExclusive("Resources/Models/IdleRelax.ani", 0, true, 0.1f);
@@ -72,19 +75,15 @@ Player::Player(Context *context, MasterControl *masterControl):
     rigidBody_->SetLinearRestThreshold(0.01f);
     rigidBody_->SetAngularRestThreshold(0.1f);
 
-    CollisionShape* collisionShape = rootNode_->CreateComponent<CollisionShape>();
-    collisionShape->SetSphere(2.0f);
+    collisionShape_ = rootNode_->CreateComponent<CollisionShape>();
+    collisionShape_->SetSphere(2.0f);
 
     masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
-
-    //Setup 2D GUI elements
-    CreateGUI();
 
     //Subscribe to events
     SubscribeToEvent(E_SCENEUPDATE, HANDLER(Player, HandleSceneUpdate));
 
-    pilot_.node_->SetEnabledRecursive(pilotMode_);
-    ship_.node_->SetEnabledRecursive(!pilotMode_);
+    //SetPilotMode(true);
 }
 
 void Player::CreateGUI()
@@ -101,27 +100,28 @@ void Player::CreateGUI()
     scoreText->SetPosition(0, ui->GetRoot()->GetHeight()/2.2);
 
     //Setup 3D GUI elements
-    healthBarNode_ = masterControl_->world.scene->CreateChild("HealthBar");
+    guiNode_ = masterControl_->world.scene->CreateChild("GUI3D");
+    healthBarNode_ = guiNode_->CreateChild("HealthBar");
     healthBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
     healthBarNode_->SetScale(Vector3(health_, 1.0f, 1.0f));
     healthBarModel_ = healthBarNode_->CreateComponent<StaticModel>();
     healthBarModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Bar.mdl"));
     healthBarModel_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/GreenGlowEnvmap.xml"));
 
-    shieldBarNode_ = masterControl_->world.scene->CreateChild("HealthBar");
+    shieldBarNode_ = guiNode_->CreateChild("HealthBar");
     shieldBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
     shieldBarNode_->SetScale(Vector3(health_, 0.9f, 0.9f));
     shieldBarModel_ = shieldBarNode_->CreateComponent<StaticModel>();
     shieldBarModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Bar.mdl"));
     shieldBarModel_->SetMaterial(masterControl_->cache_->GetResource<Material>("Resources/Materials/BlueGlowEnvmap.xml"));
 
-    Node* healthBarHolderNode = masterControl_->world.scene->CreateChild("HealthBarHolder");
+    Node* healthBarHolderNode = guiNode_->CreateChild("HealthBarHolder");
     healthBarHolderNode->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
     StaticModel* healthBarHolderModel = healthBarHolderNode->CreateComponent<StaticModel>();
     healthBarHolderModel->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/BarHolder.mdl"));
     healthBarHolderModel->SetMaterial(masterControl_->cache_->GetResource<Material>("Resources/Materials/Metal.xml"));
 
-    appleCounterRoot_ = masterControl_->world.scene->CreateChild("AppleCounter");
+    appleCounterRoot_ = guiNode_->CreateChild("AppleCounter");
     for (int a = 0; a < 5; a++){
         appleCounter_[a] = appleCounterRoot_->CreateChild();
         appleCounter_[a]->SetEnabled(false);
@@ -132,7 +132,7 @@ void Player::CreateGUI()
         apple->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/GoldEnvmap.xml"));
     }
 
-    heartCounterRoot_ = masterControl_->world.scene->CreateChild("HeartCounter");
+    heartCounterRoot_ = guiNode_->CreateChild("HeartCounter");
     for (int h = 0; h < 5; h++){
         heartCounter_[h] = heartCounterRoot_->CreateChild();
         heartCounter_[h]->SetEnabled(false);
@@ -202,7 +202,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     Vector3 move = Vector3::ZERO;
     Vector3 moveJoy = Vector3::ZERO;
     Vector3 moveKey = Vector3::ZERO;
-    float thrust = pilotMode_ ? 666.0f : 2323.0f;
+    float thrust = pilotMode_ ? 256.0f : 2323.0f;
     float maxSpeed = pilotMode_? 2.0f : 23.0f;
     //Firing values
     Vector3 fire = Vector3::ZERO;
@@ -242,6 +242,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     if (fire.Length() < 0.1f) fire *= 0.0f;
     else fire.Normalize();
 
+    //When in pilot mode
     if (pilotMode_){
         //Apply movement
         Vector3 force = move * thrust * timeStep;
@@ -259,7 +260,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         rootNode_->SetRotation(rotation.Slerp(aimRotation, 7.0f * timeStep * velocity.Length()));
 
         //Update animation
-        if (velocity.Length() > 0.1f){
+        if (velocity.Length() > 0.05f){
             animCtrl_->PlayExclusive("Resources/Models/WalkRelax.ani", 0, true, 0.15f);
             animCtrl_->SetSpeed("Resources/Models/WalkRelax.ani", velocity.Length()*2.3f);
             animCtrl_->SetStartBone("Resources/Models/WalkRelax.ani", "MasterBone");
@@ -268,6 +269,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
             animCtrl_->PlayExclusive("Resources/Models/IdleRelax.ani", 0, true, 0.15f);
             animCtrl_->SetStartBone("Resources/Models/IdleRelax.ani", "MasterBone");
         }
+    // When in ship mode
     } else {
         //Apply movement
         Vector3 force = move * thrust * timeStep;
@@ -296,22 +298,18 @@ void Player::Shoot(Vector3 fire)
     for (int i = 0; i < bulletAmount_; i++) {
         float angle = 0.0f;
         switch (i) {
-        case 0: if (bulletAmount_ == 2 || bulletAmount_ == 3)
-                angle = -5.0f;
+        case 0: angle = (bulletAmount_ == 2 || bulletAmount_ == 3) ?
+                        -5.0f : 0.0f;
             break;
-        case 1:
-            if (bulletAmount_ < 4) angle = 5.0f;
-            else angle = 7.5f;
+        case 1: angle = bulletAmount_ < 4 ?
+                        5.0f : 7.5f;
             break;
-        case 2:
-            if (bulletAmount_ < 5) angle = 180.0f;
-            angle = 175.0f;
+        case 2: angle = bulletAmount_ < 5 ?
+                        180.0f : 175.0f;
             break;
-        case 3:
-            angle = -7.5f;
+        case 3: angle = -7.5f;
             break;
-        case 4:
-            angle = 185.0f;
+        case 4: angle = 185.0f;
             break;
         default: break;
         }
@@ -366,7 +364,7 @@ void Player::Pickup(const StringHash nameHash)
         }
         else SetHealth(Max(health_, Clamp(health_+5.0f, 0.0f, 10.0f)));
     }
-    else if (nameHash == StringHash("Reset")){
+    else if (nameHash == N_RESET){
         appleCount_ = 0;
         heartCount_= 0;
     }
@@ -383,28 +381,43 @@ void Player::Pickup(const StringHash nameHash)
 
 void Player::Die()
 {
-    dead_ = true;
     Disable();
     new Explosion(context_, masterControl_, rootNode_->GetPosition(), Color::GREEN, 2.0f);
-    masterControl_->world.camera->SetGreyScale(true);
+    masterControl_->SetGameState(GS_DEAD);
 }
 
-void Player::Respawn()
+void Player::EnterPlay()
 {
-    SetHealth(10.0f);
-    Pickup(StringHash("Reset"));
-    ResetScore();
+    guiNode_->SetEnabledRecursive(true);
+    Pickup(N_RESET);
+
+    rootNode_->SetRotation(Quaternion::IDENTITY);
+    rigidBody_->ResetForces();
+    rigidBody_->SetLinearVelocity(Vector3::ZERO);
+
     SetHealth(initialHealth_);
     weaponLevel_ = 0;
     bulletAmount_ = 1;
     shotInterval_ = initialShotInterval_;
-    rigidBody_->ResetForces();
-    rigidBody_->SetLinearVelocity(Vector3::ZERO);
     RemoveTails();
     CreateTails();
     Set(Vector3::ZERO);
-    masterControl_->world.camera->SetGreyScale(false);
-    dead_ = false;
+    SetPilotMode(false);
+}
+void Player::EnterLobby()
+{
+    guiNode_->SetEnabledRecursive(false);
+    SetPilotMode(true);
+    rootNode_->SetPosition(Vector3::BACK*5.0f);
+    rigidBody_->SetLinearVelocity(Vector3::ZERO);
+    rigidBody_->ResetForces();
+}
+void Player::SetPilotMode(bool pilotMode){
+    pilotMode_ = pilotMode;
+    rootNode_->SetEnabled(true);
+    pilot_.node_->SetEnabledRecursive(pilotMode_);
+    ship_.node_->SetEnabledRecursive(!pilotMode_);
+    collisionShape_->SetSphere(pilotMode_? 0.666f : 2.0f);
 }
 
 void Player::SetHealth(float health)
@@ -442,8 +455,12 @@ void Player::UpgradeWeapons()
         shotInterval_ = initialShotInterval_ - 0.01f*weaponLevel_;
     }
 }
+
 void Player::CreateNewPilot()
 {
+    Pickup(StringHash("Reset"));
+    ResetScore();
+
     pilot_.male_ = (Random(1.0f)>0.5f) ? true : false;
     pilot_.node_->SetRotation(Quaternion(0.0f, 0.0f, 0.0f));
 
@@ -503,4 +520,5 @@ void Player::RemoveTails()
     for (unsigned i = 0; i < tailGens_.Size(); i++){
         tailGens_[i]->GetNode()->Remove();
     }
+    tailGens_.Clear();
 }

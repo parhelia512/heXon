@@ -56,4 +56,4 @@ protected:
     void Set(Vector3 position);
 };
 
-#endif
+#endif // SCENEOBJECT_H

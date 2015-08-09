@@ -19,13 +19,13 @@
 #include "tile.h"
 
 Tile::Tile(Context *context, TileMaster* tileMaster, Vector3 position):
-Object(context)
+Object(context),
+  tileMaster_{tileMaster},
+  lastOffsetY_{0.666f}
 {
-    lastOffsetY_ = 0.666f;
-    tileMaster_ = tileMaster;
     masterControl_ = tileMaster->masterControl_;
     SubscribeToEvent(E_UPDATE, HANDLER(Tile, HandleUpdate));
-    rootNode_ = masterControl_->world.scene->CreateChild("Tile");
+    rootNode_ = tileMaster_->rootNode_->CreateChild("Tile");
     rootNode_->SetPosition(position);
     rootNode_->SetScale(1.1f);
     model_ = rootNode_->CreateComponent<StaticModel>();
@@ -85,7 +85,7 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     lastOffsetY_ = offsetY;
 
     Vector3 lastPos = rootNode_->GetPosition();
-    Vector3 newPos = Vector3(lastPos.x_, referencePosition_.y_ - offsetY, lastPos.z_);
+    Vector3 newPos = Vector3(lastPos.x_, referencePosition_.y_ - Min(offsetY, 4.0f), lastPos.z_);
     rootNode_->SetPosition(newPos);
 
     float color = Clamp((0.25f * offsetY) +0.3f, 0.0f, 1.0f);

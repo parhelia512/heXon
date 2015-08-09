@@ -146,7 +146,7 @@ private:
 
     Vector<SharedPtr<Tile> > selectedTiles_;
     void AddSelection(SharedPtr<Tile> tile);
-    void PausedButtonPressed();
+    void PauseButtonPressed();
 };
 
-#endif
+#endif // INPUTMASTER_H

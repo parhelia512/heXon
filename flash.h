@@ -20,13 +20,6 @@
 #define FLASH_H
 
 #include <Urho3D/Urho3D.h>
-#include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Graphics/ParticleEffect.h>
-#include <Urho3D/Graphics/ParticleEmitter.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Scene/SceneEvents.h>
-#include <Urho3D/Scene/Scene.h>
 
 #include "effect.h"
 
@@ -51,4 +44,4 @@ private:
     float initialBrightness_;
 };
 
-#endif
+#endif // FLASH_H

@@ -16,6 +16,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#include "mastercontrol.h"
 #include "tilemaster.h"
 #include "tile.h"
 
@@ -30,6 +31,7 @@ TileMaster::TileMaster(Context *context, MasterControl* masterControl):
 Object(context),
   masterControl_{masterControl}
 {
+    rootNode_ = masterControl_->world.scene->CreateChild("TileMaster");
     //Create hexagonal field
     //Lays a field of hexagons at the origin
     int bigHexSize = 23;
@@ -39,28 +41,34 @@ Object(context),
                     i > (bigHexSize / 4) - (j + 1) / 2 &&  //Exclude bottom left
                     i + 1 < (bigHexSize - bigHexSize / 4) + ((bigHexSize - j + 1)) / 2 &&  //Exclude top right
                     i - 1 > (bigHexSize / 4) - ((bigHexSize - j + 2) / 2)) { //Exclude top left
-                Vector3 tilePos = Vector3((-bigHexSize / 2.0f + i) * 2.0f + j % 2, 0.0f, (-bigHexSize / 2.0f + j + 0.5f) * 1.8f);
+                Vector3 tilePos = Vector3((-bigHexSize / 2.0f + i) * 2.0f + j % 2, -0.1f, (-bigHexSize / 2.0f + j + 0.5f) * 1.8f);
                 tileMap_[IntVector2(i, j)] = new Tile(context_, this, tilePos);
             }
         }
     }
-}
-
-
-void TileMaster::Start()
-{
-}
-
-void TileMaster::Stop()
-{
+    //Add a directional light to the arena. Enable cascaded shadows on it
+    Node* lightNode = rootNode_->CreateChild("Sun");
+    lightNode->SetPosition(Vector3::UP*5.0f);
+    lightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
+    Light* playLight = lightNode->CreateComponent<Light>();
+    playLight->SetLightType(LIGHT_DIRECTIONAL);
+    playLight->SetBrightness(0.75f);
+    playLight->SetRange(10.0f);
+    playLight->SetColor(Color(1.0f, 0.9f, 0.95f));
+    playLight->SetCastShadows(false);
 }
 
 void TileMaster::Restart()
 {
+    rootNode_->SetEnabledRecursive(true);
     Vector<SharedPtr<Tile> > tiles = tileMap_.Values();
     for (unsigned t = 0; t < tiles.Size(); t++){
         tiles[t]->lastOffsetY_ = 2.3f;
     }
+}
+void TileMaster::HideArena()
+{
+    rootNode_->SetEnabledRecursive(false);
 }
 
 WeakPtr<Tile> TileMaster::GetRandomTile()

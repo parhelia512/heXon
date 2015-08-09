@@ -23,6 +23,7 @@
 
 SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
     Object(context),
+    spawning_{false},
     razorInterval_{2.0f},
     sinceRazorSpawn_{0.0f},
     spireInterval_{23.0f},
@@ -30,7 +31,42 @@ SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
 {
     masterControl_ = masterControl;
 
+}
+
+void SpawnMaster::Activate()
+{
     SubscribeToEvent(E_SCENEUPDATE, HANDLER(SpawnMaster, HandleSceneUpdate));
+}
+void SpawnMaster::Deactivate()
+{
+    UnsubscribeFromAllEvents();
+}
+void SpawnMaster::Clear()
+{
+    Vector<SharedPtr<Razor> > razors = razors_.Values();
+    for (unsigned r = 0; r < razors.Size(); r++){
+        if (razors[r]->IsEnabled())
+            razors[r]->Disable();
+    }
+    Vector<SharedPtr<Spire> > spires = spires_.Values();
+    for (unsigned s = 0; s < spires.Size(); s++){
+        if (spires[s]->IsEnabled())
+            spires[s]->Disable();
+    }
+    for (unsigned s = 0; s < seekers_.Size(); s++){
+        if (seekers_[s]->IsEnabled())
+            seekers_[s]->Disable();
+    }
+}
+
+void SpawnMaster::Restart()
+{
+    Clear();
+    razorInterval_ = 2.0f;
+    sinceRazorSpawn_ = 0.0f;
+    spireInterval_ = 23.0f;
+    sinceSpireSpawn_  = 0.0f;
+    Activate();
 }
 
 Vector3 SpawnMaster::CreateSpawnPoint()
@@ -54,10 +90,10 @@ void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
     if (masterControl_->player_->IsEnabled()){
         if (sinceRazorSpawn_ > razorInterval_/* &&
-                    CountActiveRazors() < 23*/)
+                                    CountActiveRazors() < 23*/)
             SpawnRazor(CreateSpawnPoint());
         if (sinceSpireSpawn_ > spireInterval_/* &&
-                    CountActiveSpires() < 7*/)
+                                    CountActiveSpires() < 7*/)
             SpawnSpire(CreateSpawnPoint());
     }
 }
@@ -140,28 +176,6 @@ bool SpawnMaster::RespawnSeeker(Vector3 position)
         }
     }
     return false;
-}
-
-void SpawnMaster::Restart()
-{
-    Vector<SharedPtr<Razor> > razors = razors_.Values();
-    for (unsigned r = 0; r < razors.Size(); r++){
-        if (razors[r]->IsEnabled())
-            razors[r]->Disable();
-    }
-    Vector<SharedPtr<Spire> > spires = spires_.Values();
-    for (unsigned s = 0; s < spires.Size(); s++){
-        if (spires[s]->IsEnabled())
-            spires[s]->Disable();
-    }
-    for (unsigned s = 0; s < seekers_.Size(); s++){
-        if (seekers_[s]->IsEnabled())
-            seekers_[s]->Disable();
-    }
-    razorInterval_ = 2.0f;
-    sinceRazorSpawn_ = 0.0f;
-    spireInterval_ = 23.0f;
-    sinceSpireSpawn_  = 0.0f;
 }
 
 

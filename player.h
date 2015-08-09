@@ -20,23 +20,6 @@
 #define PLAYER_H
 
 #include <Urho3D/Urho3D.h>
-#include <Urho3D/Audio/Sound.h>
-#include <Urho3D/Audio/SoundSource.h>
-#include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Graphics/Model.h>
-#include <Urho3D/Graphics/ParticleEffect.h>
-#include <Urho3D/Graphics/ParticleEmitter.h>
-#include <Urho3D/Graphics/StaticModel.h>
-#include <Urho3D/Input/InputEvents.h>
-#include <Urho3D/Input/Input.h>
-#include <Urho3D/Physics/CollisionShape.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Scene/SceneEvents.h>
-#include <Urho3D/Scene/Scene.h>
-#include <Urho3D/UI/Font.h>
-#include <Urho3D/UI/Text.h>
-#include <Urho3D/UI/UI.h>
 
 #include "sceneobject.h"
 #include "bullet.h"
@@ -72,23 +55,18 @@ public:
 
     double GetHealth(){return health_;}
     void Hit(float damage);
-    void AddScore(int points);
-    void Pickup(const StringHash nameHash);
-    void Die();
-    bool IsAlive() {return !dead_;}
-    void Respawn();
 
-    void Shoot(Vector3 fire);
+    void AddScore(int points);
+    void Die();
     int GetScore();
-    void CreateTails();
-    void RemoveTails();
-    void CreateGUI();
-    void SetupShip();
+    void Pickup(const StringHash nameHash);
+    void EnterLobby();
+    void EnterPlay();
+    void CreateNewPilot();
 private:
     bool pilotMode_;
     float initialHealth_;
     float health_;
-    bool dead_ = false;
     int score_;
     int weaponLevel_;
     int bulletAmount_;
@@ -103,8 +81,10 @@ private:
     Ship ship_;
     Pilot pilot_;
     RigidBody* rigidBody_;
+    CollisionShape* collisionShape_;
     AnimationController* animCtrl_;
 
+    Node* guiNode_;
     Node* healthBarNode_;
     StaticModel* healthBarModel_;
     Node* shieldBarNode_;
@@ -124,13 +104,18 @@ private:
 
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void PlaySample(Sound *sample);
+    void Shoot(Vector3 fire);
     void FireBullet(Vector3 direction);
     void UpgradeWeapons();
     void SetHealth(float health);
     Color HealthToColor(float health);
     void SetScore(int points);
     void ResetScore();
-    void CreateNewPilot();
+    void SetupShip();
+    void CreateTails();
+    void RemoveTails();
+    void CreateGUI();
+    void SetPilotMode(bool pilotMode);
 };
 
-#endif
+#endif // PLAYER_H

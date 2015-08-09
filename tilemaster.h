@@ -62,10 +62,6 @@ public:
     TileType GetBuildingType(IntVector2 coords);
     TileType GetNeighbourType(IntVector2 coords, TileElement element);
 
-
-    virtual void Start();
-    virtual void Stop();
-
     void AddMissingSlots();
     void FixFringe();
     void FixFringe(IntVector2 coords);
@@ -103,6 +99,7 @@ private:
     void UpdateCenterOfMass();
     void Move(double timeStep);
     void Restart();
+    void HideArena();
 };
 
-#endif
+#endif // TILEMASTER_H

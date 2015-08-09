@@ -164,7 +164,7 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
     //Pause/Unpause game on P or joystick Start
     else if (key == KEY_P)
     {
-        PausedButtonPressed();
+        PauseButtonPressed();
     }
     //Enter edit mode on E
 }
@@ -187,14 +187,19 @@ void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D:
     // Process game event
     if(button == JB_START)
     {
-        PausedButtonPressed();
+        PauseButtonPressed();
     }
 }
-void InputMaster::PausedButtonPressed()
+void InputMaster::PauseButtonPressed()
 {
-    if (masterControl_->player_->IsAlive())
-        masterControl_->SetPaused(!masterControl_->GetPaused());
-    else masterControl_->Restart();
+    switch (masterControl_->GetGameState()){
+    case GS_INTRO: break;
+    case GS_LOBBY: masterControl_->SetGameState(GS_PLAY); break;
+    case GS_PLAY: masterControl_->SetPaused(!masterControl_->GetPaused()); break;
+    case GS_DEAD: masterControl_->SetGameState(GS_LOBBY); break;
+    case GS_EDIT: break;
+        default: break;
+    }
 }
 
 

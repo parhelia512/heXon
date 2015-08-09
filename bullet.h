@@ -20,7 +20,6 @@
 #define BULLET_H
 
 #include <Urho3D/Urho3D.h>
-#include <Urho3D/Physics/PhysicsEvents.h>
 
 #include "spawnmaster.h"
 #include "razor.h"
@@ -61,4 +60,4 @@ private:
     void Disable();
 };
 
-#endif
+#endif // BULLET_H

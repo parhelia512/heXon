@@ -41,13 +41,15 @@ public:
 
     Vector3 CreateSpawnPoint();
 
-
     int CountActiveRazors();
     int CountActiveSpires();
     void SpawnSeeker(Vector3 position);
+    void Clear();
 private:
     MasterControl* masterControl_;
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
+
+    bool spawning_;
 
     float razorInterval_;
     float sinceRazorSpawn_;
@@ -59,8 +61,10 @@ private:
     bool RespawnRazor(Vector3 position);
     void SpawnSpire(Vector3 position);
     bool RespawnSpire(Vector3 position);
-    void Restart();
     bool RespawnSeeker(Vector3 position);
+    void Activate();
+    void Deactivate();
+    void Restart();
 };
 
-#endif
+#endif // SPAWNMASTER_H

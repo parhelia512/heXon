@@ -20,23 +20,6 @@
 #define PICKUP_H
 
 #include <Urho3D/Urho3D.h>
-#include <Urho3D/Audio/Sound.h>
-#include <Urho3D/Audio/Sound.h>
-#include <Urho3D/Audio/SoundSource.h>
-#include <Urho3D/Audio/SoundSource.h>
-#include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Graphics/Model.h>
-#include <Urho3D/Graphics/ParticleEffect.h>
-#include <Urho3D/Graphics/ParticleEmitter.h>
-#include <Urho3D/Graphics/ParticleEmitter.h>
-#include <Urho3D/Graphics/StaticModel.h>
-#include <Urho3D/Graphics/StaticModel.h>
-#include <Urho3D/Physics/CollisionShape.h>
-#include <Urho3D/Physics/PhysicsEvents.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Scene/SceneEvents.h>
-#include <Urho3D/Scene/Scene.h>
 
 #include "sceneobject.h"
 
@@ -52,6 +35,7 @@ class Pickup : public SceneObject
 public:
     Pickup(Context *context, MasterControl* masterControl);
     void Respawn(bool restart = false);
+    void Deactivate();
 protected:
     Vector3 initialPosition_;
     SharedPtr<RigidBody> rigidBody_;
@@ -64,7 +48,6 @@ protected:
     void HandleTriggerStart(StringHash otherNode, VariantMap &eventData);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 private:
-
 };
 
-#endif
+#endif // PICKUP_H
