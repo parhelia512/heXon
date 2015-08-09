@@ -233,24 +233,36 @@ void MasterControl::CreateScene()
     SubscribeToEvent(lobbyNode_, E_NODECOLLISIONSTART, HANDLER(MasterControl, HandlePlayTrigger));
 
     //Add a point light to the lobby. Enable cascaded shadows on it
-    Node* lobbyLightNode = lobbyNode_->CreateChild("Spot");
-    lobbyLightNode->SetPosition(Vector3::UP*10.0f);
-    lobbyLightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
-    lobbyLight_ = lobbyLightNode->CreateComponent<Light>();
-    lobbyLight_->SetLightType(LIGHT_POINT);
-    lobbyLight_->SetBrightness(1.0f);
-    lobbyLight_->SetRange(23.0f);
-    lobbyLight_->SetColor(Color(1.0f, 0.9f, 0.95f));
-    lobbyLight_->SetCastShadows(true);
+    Node* lobbyPointLightNode = lobbyNode_->CreateChild("Spot");
+    lobbyPointLightNode->SetPosition(Vector3::UP*5.0f);
+    lobbyPointLightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
+    Light* lobbyPointLight = lobbyPointLightNode->CreateComponent<Light>();
+    lobbyPointLight->SetLightType(LIGHT_SPOT);
+    lobbyPointLight->SetFov(120.0f);
+    lobbyPointLight->SetBrightness(1.0f);
+    lobbyPointLight->SetRange(23.0f);
+    lobbyPointLight->SetColor(Color(0.8f, 0.85f, 1.0f));
+    lobbyPointLight->SetCastShadows(true);
+
+    Node* lobbySpotNode = lobbyNode_->CreateChild("Spot");
+    lobbySpotNode->SetPosition(Vector3::UP*10.0f);
+    lobbySpotNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
+    Light* lobbySpot = lobbySpotNode->CreateComponent<Light>();
+    lobbySpot->SetLightType(LIGHT_SPOT);
+    lobbySpot->SetFov(60.0f);
+    lobbySpot->SetBrightness(1.0f);
+    lobbySpot->SetRange(23.0f);
+    lobbySpot->SetColor(Color(1.0f, 1.0f, 0.9f));
+    lobbySpot->SetCastShadows(true);
 
     for (int i = 0; i < 6; i++){
         Node* edgeNode = floorNode->CreateChild("LobbyEdge");
 //        edgeNode->SetScale(Vector3(1.0f, 1.0f, 1.0f));
         edgeNode->Rotate(Quaternion(0.0f, (60.0f * i), 0.0f));
         Model* model = cache_->GetResource<Model>("Resources/Models/ArenaEdgeSegment.mdl");
-        StaticModel* edgeModel = edgeNode->CreateComponent<StaticModel>();
-        edgeModel->SetModel(model);
-        edgeModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Green.xml"));
+//        StaticModel* edgeModel = edgeNode->CreateComponent<StaticModel>();
+//        edgeModel->SetModel(model);
+//        edgeModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Green.xml"));
         RigidBody* rigidBody = edgeNode->CreateComponent<RigidBody>();
         CollisionShape* collider = edgeNode->CreateComponent<CollisionShape>();
         collider->SetConvexHull(model);

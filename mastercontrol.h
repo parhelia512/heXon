@@ -212,8 +212,6 @@ private:
     bool paused_;
     GameState currentState_;
 
-    Light* lobbyLight_;
-
     Sound* menuMusic_;
     Sound* gameMusic_;
     SoundSource* musicSource_;
