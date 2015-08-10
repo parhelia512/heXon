@@ -58,7 +58,7 @@ public:
 
     void AddScore(int points);
     void Die();
-    int GetScore();
+    unsigned GetScore();
     void Pickup(const StringHash nameHash);
     void EnterLobby();
     void EnterPlay();
@@ -67,7 +67,7 @@ private:
     bool pilotMode_;
     float initialHealth_;
     float health_;
-    int score_;
+    unsigned score_;
     int weaponLevel_;
     int bulletAmount_;
 

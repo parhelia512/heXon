@@ -157,7 +157,7 @@ void Player::SetScore(int points)
     Text* scoreText = (Text*)scoreElement;
     scoreText->SetText(String(points));
 }
-int Player::GetScore()
+unsigned Player::GetScore()
 {
     return score_;
 }
@@ -484,7 +484,7 @@ void Player::SetupShip()
 {
     ship_.node_ = rootNode_->CreateChild("Ship");
     ship_.model_ = ship_.node_->CreateComponent<StaticModel>();
-    ship_.model_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Swift.mdl"));
+    ship_.model_->SetModel(masterControl_->resources.models.ships.swift);
     ship_.model_->SetMaterial(0, masterControl_->cache_->GetTempResource<Material>("Resources/Materials/GreenGlowEnvmap.xml"));
     ship_.model_->SetMaterial(1, masterControl_->cache_->GetTempResource<Material>("Resources/Materials/GreenEnvmap.xml"));
 

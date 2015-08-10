@@ -99,10 +99,10 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     graphicsNode_->SetPosition(
                 Vector3::UP *masterControl_->Sine(1.23f, -floatFactor, floatFactor,
                                                   rootNode_->GetNameHash()==N_APPLE?
-                                                      0.23f : 0.0f));
+                                                      0.23f : 0.5f));
     //Emerge
     if (rootNode_->GetPosition().y_ < 0.01f) {
-        rootNode_->Translate(Vector3::UP * timeStep * (0.25f - rootNode_->GetPosition().y_));
+        rootNode_->Translate(Vector3::UP * timeStep * (0.23f - rootNode_->GetPosition().y_));
     }
     //Move trigger along
     triggerBody_->SetPosition(rootNode_->GetPosition());
@@ -115,9 +115,8 @@ void Pickup::Respawn(bool restart)
     rootNode_->SetPosition(
                 restart ?
                     initialPosition_
-                  :
-                    masterControl_->spawnMaster_->CreateSpawnPoint()
-                  );
+                  : masterControl_->spawnMaster_->CreateSpawnPoint());
+
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();
     rootNode_->SetEnabledRecursive(true);

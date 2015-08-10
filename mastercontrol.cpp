@@ -131,7 +131,7 @@ void MasterControl::LoadResources()
     resources.models.pilots.male = cache_->GetResource<Model>("Resources/Models/Male.mdl");
     resources.models.pilots.female = cache_->GetResource<Model>("Resources/Models/Female.mdl");
 
-    resources.models.ships.swift = cache_->GetResource<Model>("Resources/Models/Swift.mdl");
+    resources.models.ships.swift = cache_->GetResource<Model>("Resources/Models/KlåMk10.mdl");
 
     resources.models.arenaElements.backgroundTile = cache_->GetResource<Model>("Resources/Models/BackgroundTile.mdl");
     resources.models.arenaElements.obstacle = cache_->GetResource<Model>("Resources/Models/Obstacle.mdl");
@@ -219,7 +219,7 @@ void MasterControl::CreateScene()
     floorModel->SetCastShadows(true);
     //Create central ship
     StaticModel* ship = lobbyNode_->CreateChild("Ship")->CreateComponent<StaticModel>();
-    ship->SetModel(cache_->GetResource<Model>("Resources/Models/Swift.mdl"));
+    ship->SetModel(resources.models.ships.swift);
     ship->SetMaterial(0, cache_->GetTempResource<Material>("Resources/Materials/GreenGlow.xml"));
     ship->SetMaterial(1, cache_->GetTempResource<Material>("Resources/Materials/Green.xml"));
     ship->SetCastShadows(true);
@@ -332,6 +332,11 @@ void MasterControl::EnterGameState()
     }
 }
 
+void MasterControl::Eject()
+{
+    SetGameState(GS_LOBBY);
+}
+
 void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
     using namespace Update;
@@ -340,8 +345,10 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
 
     if (currentState_ == GS_LOBBY){
         Color spotColor;
-        spotColor.FromHSV(heXon::Cycle(0.1f*world.scene->GetElapsedTime(), 0.0f, 1.0f), 0.05f, 1.0f);
+        unsigned score = player_->GetScore();
+        spotColor.FromHSV(heXon::Cycle(((score/100000)+0.1f)*world.scene->GetElapsedTime(), 0.0f, 1.0f), Min(1.0f, score/1000), 1.0f);
         lobbySpotLight_->SetColor(spotColor);
+        lobbySpotLight_->SetBrightness(1.0f + Min(10.0f, (score/100000)));
     }
 }
 

@@ -147,7 +147,7 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
     int key = eventData[P_KEY].GetInt();
 
     //Exit when ESC is pressed
-    if (key == KEY_ESC) masterControl_->Exit();
+    if (key == KEY_ESC) EjectButtonPressed();
 
     //Take screenshot when 9 is pressed
     else if (key == KEY_9)
@@ -185,9 +185,10 @@ void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D:
     eventData[P_JOYSTICKID];		//int
     int button = eventData[P_BUTTON].GetInt();		//int
     // Process game event
-    if(button == JB_START)
-    {
-        PauseButtonPressed();
+    switch (button){
+    case JB_START: PauseButtonPressed(); break;
+    case JB_L1: case JB_R1: EjectButtonPressed(); break;
+    default: break;
     }
 }
 void InputMaster::PauseButtonPressed()
@@ -201,7 +202,12 @@ void InputMaster::PauseButtonPressed()
         default: break;
     }
 }
-
+void InputMaster::EjectButtonPressed()
+{
+    if (masterControl_->GetGameState()==GS_PLAY) {
+        masterControl_->Eject();
+    }
+}
 
 void InputMaster::HandleJoystickButtonUp(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
 {
@@ -214,7 +220,8 @@ void InputMaster::HandleJoystickButtonUp(Urho3D::StringHash eventType, Urho3D::V
     if(_controllerActions.Contains(button))
     {
         //SendButtonUpEvent(_controllerActions[button]);
-    }}
+    }
+}
 
 void InputMaster::HandleJoystickAxisMove(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
 {
