@@ -95,9 +95,13 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     //Spin
     rootNode_->Rotate(Quaternion(0.0f, 100.0f * timeStep, 0.0f));
     //Float
-    graphicsNode_->SetPosition(Vector3::UP * masterControl_->Sine(1.0f, -0.5, 0.5f));
+    float floatFactor = 0.5f-Min(0.5f, 0.5f*Abs(rootNode_->GetPosition().y_));
+    graphicsNode_->SetPosition(
+                Vector3::UP *masterControl_->Sine(1.23f, -floatFactor, floatFactor,
+                                                  rootNode_->GetNameHash()==N_APPLE?
+                                                      0.23f : 0.0f));
     //Emerge
-    if (rootNode_->GetPosition().y_ < -0.1f) {
+    if (rootNode_->GetPosition().y_ < 0.01f) {
         rootNode_->Translate(Vector3::UP * timeStep * (0.25f - rootNode_->GetPosition().y_));
     }
     //Move trigger along

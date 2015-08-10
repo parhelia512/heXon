@@ -194,7 +194,7 @@ void InputMaster::PauseButtonPressed()
 {
     switch (masterControl_->GetGameState()){
     case GS_INTRO: break;
-    case GS_LOBBY: masterControl_->SetGameState(GS_PLAY); break;
+    case GS_LOBBY: /*masterControl_->SetGameState(GS_PLAY);*/ break;
     case GS_PLAY: masterControl_->SetPaused(!masterControl_->GetPaused()); break;
     case GS_DEAD: masterControl_->SetGameState(GS_LOBBY); break;
     case GS_EDIT: break;

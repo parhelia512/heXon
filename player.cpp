@@ -94,7 +94,7 @@ void Player::CreateGUI()
     scoreTextName_ = scoreText->GetName();
     scoreText->SetText("0");
     scoreText->SetFont(masterControl_->cache_->GetResource<Font>("Resources/Fonts/skirmishergrad.ttf"), 32);
-    scoreText->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f));
+    scoreText->SetColor(Color(0.5f, 0.95f, 1.0f, 0.9f));
     scoreText->SetHorizontalAlignment(HA_CENTER);
     scoreText->SetVerticalAlignment(VA_CENTER);
     scoreText->SetPosition(0, ui->GetRoot()->GetHeight()/2.2);
@@ -269,6 +269,8 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         }
     // When in ship mode
     } else {
+        //Float
+        ship_.node_->SetPosition(Vector3::UP *masterControl_->Sine(1.0f, -0.1f, 0.1f));
         //Apply movement
         Vector3 force = move * thrust * timeStep;
         if (rigidBody_->GetLinearVelocity().Length() < maxSpeed ||
