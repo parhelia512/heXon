@@ -98,8 +98,6 @@ void MasterControl::SubscribeToEvents()
 {
     //Subscribe scene update event.
     SubscribeToEvent(E_SCENEUPDATE, HANDLER(MasterControl, HandleSceneUpdate));
-    //Subscribe HandleUpdate() function for processing update events
-    SubscribeToEvent(E_UPDATE, HANDLER(MasterControl, HandleUpdate));
 }
 
 void MasterControl::CreateConsoleAndDebugHud()
@@ -228,32 +226,33 @@ void MasterControl::CreateScene()
     RigidBody* lobbyBody = lobbyNode_->CreateComponent<RigidBody>();
     lobbyBody->SetTrigger(true);
     CollisionShape* shipShape = lobbyNode_->CreateComponent<CollisionShape>();
-    shipShape->SetCylinder(1.0f, 1.0f);
+    shipShape->SetCylinder(1.8f, 1.0f);
 
     SubscribeToEvent(lobbyNode_, E_NODECOLLISIONSTART, HANDLER(MasterControl, HandlePlayTrigger));
 
     //Add a point light to the lobby. Enable cascaded shadows on it
-    Node* lobbyPointLightNode = lobbyNode_->CreateChild("Spot");
-    lobbyPointLightNode->SetPosition(Vector3::UP*5.0f);
-    lobbyPointLightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
-    Light* lobbyPointLight = lobbyPointLightNode->CreateComponent<Light>();
-    lobbyPointLight->SetLightType(LIGHT_SPOT);
-    lobbyPointLight->SetFov(120.0f);
-    lobbyPointLight->SetBrightness(1.0f);
-    lobbyPointLight->SetRange(23.0f);
-    lobbyPointLight->SetColor(Color(0.8f, 0.85f, 1.0f));
-    lobbyPointLight->SetCastShadows(true);
+    Node* lobbySpotLightNode = lobbyNode_->CreateChild("PointLight");
+    lobbySpotLightNode->SetPosition(Vector3::UP*5.0f);
+    lobbySpotLightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
+    lobbySpotLight_ = lobbySpotLightNode->CreateComponent<Light>();
+    lobbySpotLight_->SetLightType(LIGHT_SPOT);
+    lobbySpotLight_->SetFov(120.0f);
+    lobbySpotLight_->SetBrightness(1.0f);
+    lobbySpotLight_->SetRange(10.0f);
+    lobbySpotLight_->SetColor(Color(0.3f, 0.5f, 1.0f));
+    lobbySpotLight_->SetCastShadows(true);
+    lobbySpotLight_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
-    Node* lobbySpotNode = lobbyNode_->CreateChild("Spot");
-    lobbySpotNode->SetPosition(Vector3::UP*10.0f);
-    lobbySpotNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
-    Light* lobbySpot = lobbySpotNode->CreateComponent<Light>();
-    lobbySpot->SetLightType(LIGHT_SPOT);
-    lobbySpot->SetFov(60.0f);
-    lobbySpot->SetBrightness(1.0f);
-    lobbySpot->SetRange(23.0f);
-    lobbySpot->SetColor(Color(1.0f, 1.0f, 0.9f));
-    lobbySpot->SetCastShadows(true);
+//    Node* lobbyPointLightNode = lobbyNode_->CreateChild("SpotLight");
+//    lobbyPointLightNode->SetPosition(Vector3::UP*10.0f + Vector3::FORWARD*5.0f);
+//    lobbyPointLightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
+//    Light* lobbyPointLight = lobbyPointLightNode->CreateComponent<Light>();
+//    lobbyPointLight->SetLightType(LIGHT_SPOT);
+//    lobbyPointLight->SetFov(30.0f);
+//    lobbyPointLight->SetBrightness(1.0f);
+//    lobbyPointLight->SetRange(16.0f);
+//    lobbyPointLight->SetColor(Color(1.0f, 1.0f, 0.9f));
+//    lobbyPointLight->SetCastShadows(false);
 
     for (int i = 0; i < 6; i++){
         Node* edgeNode = floorNode->CreateChild("LobbyEdge");
@@ -308,6 +307,7 @@ void MasterControl::EnterGameState()
         musicSource_->Play(menuMusic_);
         lobbyNode_->SetEnabledRecursive(true);
         player_->EnterLobby();
+        world.camera->EnterLobby();
         spawnMaster_->Clear();
         tileMaster_->HideArena();
         apple_->Deactivate();
@@ -316,6 +316,7 @@ void MasterControl::EnterGameState()
     case GS_PLAY : {
         musicSource_->Play(gameMusic_);
         player_->EnterPlay();
+        world.camera->EnterPlay();
         apple_->Respawn(true);
         heart_->Respawn(true);
         world.lastReset = world.scene->GetElapsedTime();
@@ -331,16 +332,17 @@ void MasterControl::EnterGameState()
     }
 }
 
-void MasterControl::HandleUpdate(StringHash eventType, VariantMap &eventData)
-{
-
-}
-
 void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
     using namespace Update;
     double timeStep = eventData[P_TIMESTEP].GetFloat();
     UpdateCursor(timeStep);
+
+    if (currentState_ == GS_LOBBY){
+        Color spotColor;
+        spotColor.FromHSV(heXon::Cycle(0.1f*world.scene->GetElapsedTime(), 0.0f, 1.0f), 0.05f, 1.0f);
+        lobbySpotLight_->SetColor(spotColor);
+    }
 }
 
 void MasterControl::UpdateCursor(double timeStep)

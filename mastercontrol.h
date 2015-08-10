@@ -209,14 +209,15 @@ public:
     SharedPtr<Material> GetRandomShoes() { return resources.materials.shoes[Random((int)resources.materials.shoes.Size())]; }
     SharedPtr<Material> GetRandomHair() { return resources.materials.hair[Random((int)resources.materials.hair.Size())]; }
 private:
+    Vector<double> sine_;
+
     bool paused_;
     GameState currentState_;
 
     Sound* menuMusic_;
     Sound* gameMusic_;
     SoundSource* musicSource_;
-
-    Vector<double> sine_;
+    Light* lobbySpotLight_;
 
     void SetWindowTitleAndIcon();
     void CreateConsoleAndDebugHud();
@@ -226,8 +227,6 @@ private:
     void SubscribeToEvents();
 
     void HandleSceneUpdate(StringHash eventType, VariantMap& eventData);
-    void HandleUpdate(StringHash eventType, VariantMap& eventData);
-    void HandlePostRenderUpdate(StringHash eventType, VariantMap& eventData);
     void HandlePlayTrigger(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY);}
 
     void UpdateCursor(double timeStep);

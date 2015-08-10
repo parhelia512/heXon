@@ -59,13 +59,16 @@ private:
     SharedPtr<Node> rootNode_;
 
     SharedPtr<RigidBody> rigidBody_;
-    double yaw_ = 0.0;
-    double pitch_ = 0.0;
-    //double roll_ = 0.0;
-    double yawDelta_ = 0.0;
-    double pitchDelta_ = 0.0;
-    double forceMultiplier = 1.0;
+    float yaw_ = 0.0f;
+    float pitch_ = 0.0f;
+    //float roll_ = 0.0f;
+    float yawDelta_ = 0.0f;
+    float pitchDelta_ = 0.0f;
+    float forceMultiplier = 1.0f;
+    bool closeUp_;
     void SetupViewport();
+    void EnterLobby();
+    void EnterPlay();
 };
 
 #endif // HEXOCAM_H

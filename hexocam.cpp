@@ -87,9 +87,22 @@ void heXoCam::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     using namespace Update;
 
     float timeStep = eventData[P_TIMESTEP].GetFloat();
+
+    rootNode_->SetPosition(rootNode_->GetPosition().Lerp(
+                               closeUp_?
+                                   Vector3(0.0f, 16.0f, -10.0f) :
+                                   Vector3(0.0f, 42.0f, -23.0f)
+                                   , 5.0f * timeStep));
 }
 
 void heXoCam::SetGreyScale(bool enabled)
 {
     effectRenderPath_->SetEnabled("GreyScale", enabled);
+}
+
+void heXoCam::EnterLobby(){
+    closeUp_ = true;
+}
+void heXoCam::EnterPlay(){
+    closeUp_ = false;
 }

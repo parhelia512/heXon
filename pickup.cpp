@@ -25,8 +25,9 @@ Pickup::Pickup(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl)
 {
     rootNode_->SetName("Pickup");
+    graphicsNode_ = rootNode_->CreateChild("Graphics");
 
-    model_ = rootNode_->CreateComponent<StaticModel>();
+    model_ = graphicsNode_->CreateComponent<StaticModel>();
     rootNode_->SetScale(0.8f);
     rootNode_->SetEnabledRecursive(false);
 
@@ -54,7 +55,7 @@ Pickup::Pickup(Context *context, MasterControl *masterControl):
     CollisionShape* triggerShape = triggerNode->CreateComponent<CollisionShape>();
     triggerShape->SetSphere(2.5f);
 
-    particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
+    particleEmitter_ = graphicsNode_->CreateComponent<ParticleEmitter>();
 
     particleEmitter_->SetEffect(masterControl_->cache_->GetTempResource<ParticleEffect>("Resources/Particles/Shine.xml"));
 
@@ -91,10 +92,15 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     using namespace Update;
     float timeStep = eventData[P_TIMESTEP].GetFloat();
 
+    //Spin
+    rootNode_->Rotate(Quaternion(0.0f, 100.0f * timeStep, 0.0f));
+    //Float
+    graphicsNode_->SetPosition(Vector3::UP * masterControl_->Sine(1.0f, -0.5, 0.5f));
     //Emerge
     if (rootNode_->GetPosition().y_ < -0.1f) {
         rootNode_->Translate(Vector3::UP * timeStep * (0.25f - rootNode_->GetPosition().y_));
     }
+    //Move trigger along
     triggerBody_->SetPosition(rootNode_->GetPosition());
 
     if ((rootNode_->GetPosition()*(Vector3::ONE-Vector3::UP)).Length() > 23.666f) Respawn();

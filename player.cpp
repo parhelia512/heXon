@@ -203,8 +203,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     Vector3 moveJoy = Vector3::ZERO;
     Vector3 moveKey = Vector3::ZERO;
     float thrust = pilotMode_ ? 256.0f : 2323.0f;
-    float maxSpeed = pilotMode_? 2.0f : 23.0f;
-    //Firing values
+    float maxSpeed = pilotMode_? 1.8f : 23.0f;    //Firing values
     Vector3 fire = Vector3::ZERO;
     Vector3 fireJoy = Vector3::ZERO;
     Vector3 fireKey = Vector3::ZERO;
@@ -232,7 +231,6 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     //Pick most significant input
     moveJoy.Length() > moveKey.Length() ? move = moveJoy : move = moveKey;
     fireJoy.Length() > fireKey.Length() ? fire = fireJoy : fire = fireKey;
-
 
     //Restrict move vector length
     if (move.Length() > 1.0f) move /= move.Length();
@@ -408,8 +406,8 @@ void Player::EnterLobby()
 {
     guiNode_->SetEnabledRecursive(false);
     SetPilotMode(true);
-    rootNode_->SetPosition(Vector3::BACK*5.0f);
-    rigidBody_->SetLinearVelocity(Vector3::ZERO);
+    rootNode_->SetPosition(Vector3::BACK*7.0f);
+    rigidBody_->SetLinearVelocity(Vector3::FORWARD*5.0f);
     rigidBody_->ResetForces();
 }
 void Player::SetPilotMode(bool pilotMode){
@@ -418,6 +416,7 @@ void Player::SetPilotMode(bool pilotMode){
     pilot_.node_->SetEnabledRecursive(pilotMode_);
     ship_.node_->SetEnabledRecursive(!pilotMode_);
     collisionShape_->SetSphere(pilotMode_? 0.666f : 2.0f);
+    rigidBody_->SetLinearDamping(pilotMode_? 0.75f : 0.5f);
 }
 
 void Player::SetHealth(float health)
@@ -469,14 +468,14 @@ void Player::CreateNewPilot()
         pilot_.model_->SetMaterial(2, masterControl_->GetRandomSkin());
         pilot_.model_->SetMaterial(0, masterControl_->GetRandomCloth());
         pilot_.model_->SetMaterial(1, masterControl_->GetRandomCloth());
-        pilot_.model_->SetMaterial(3, masterControl_->GetRandomShoes());
+        pilot_.model_->SetMaterial(3, masterControl_->GetRandomCloth());
     }
     else{
         pilot_.model_->SetModel(masterControl_->resources.models.pilots.female);
         pilot_.model_->SetMaterial(1, masterControl_->GetRandomSkin());
         pilot_.model_->SetMaterial(0, masterControl_->GetRandomCloth());
         pilot_.model_->SetMaterial(2, masterControl_->GetRandomCloth());
-        pilot_.model_->SetMaterial(3, masterControl_->GetRandomShoes());
+        pilot_.model_->SetMaterial(3, masterControl_->GetRandomCloth());
     }
 }
 void Player::SetupShip()
