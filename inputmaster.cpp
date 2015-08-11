@@ -204,7 +204,7 @@ void InputMaster::PauseButtonPressed()
 }
 void InputMaster::EjectButtonPressed()
 {
-    if (masterControl_->GetGameState()==GS_PLAY) {
+    if (masterControl_->GetGameState()==GS_PLAY && !masterControl_->GetPaused()) {
         masterControl_->Eject();
     }
 }

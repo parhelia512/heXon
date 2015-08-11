@@ -35,6 +35,9 @@ SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
 
 void SpawnMaster::Activate()
 {
+    for (int r = 0; r < 100; r++){
+        SpawnRazor(CreateSpawnPoint());
+    }
     SubscribeToEvent(E_SCENEUPDATE, HANDLER(SpawnMaster, HandleSceneUpdate));
 }
 void SpawnMaster::Deactivate()

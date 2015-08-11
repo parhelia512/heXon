@@ -22,7 +22,6 @@
 #include "player.h"
 #include "apple.h"
 #include "heart.h"
-#include "arenaedge.h"
 #include "bullet.h"
 #include "seeker.h"
 #include "flash.h"
@@ -194,9 +193,9 @@ void MasterControl::CreateScene()
 
     //Create arena
     tileMaster_ = new TileMaster(context_, this);
-    for (int i = 0; i < 6; i++){
+    /*for (int i = 0; i < 6; i++){
         new ArenaEdge(context_, this, (60.0f * i)+30.0f);
-    }
+    }*/
 
     //Create heXon logo
     Node* logoNode = world.scene->CreateChild("heXon");
@@ -254,18 +253,18 @@ void MasterControl::CreateScene()
 //    lobbyPointLight->SetColor(Color(1.0f, 1.0f, 0.9f));
 //    lobbyPointLight->SetCastShadows(false);
 
-    for (int i = 0; i < 6; i++){
-        Node* edgeNode = floorNode->CreateChild("LobbyEdge");
-//        edgeNode->SetScale(Vector3(1.0f, 1.0f, 1.0f));
-        edgeNode->Rotate(Quaternion(0.0f, (60.0f * i), 0.0f));
-        Model* model = cache_->GetResource<Model>("Resources/Models/ArenaEdgeSegment.mdl");
-//        StaticModel* edgeModel = edgeNode->CreateComponent<StaticModel>();
-//        edgeModel->SetModel(model);
-//        edgeModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Green.xml"));
-        RigidBody* rigidBody = edgeNode->CreateComponent<RigidBody>();
-        CollisionShape* collider = edgeNode->CreateComponent<CollisionShape>();
-        collider->SetConvexHull(model);
-    }
+//    for (int i = 0; i < 6; i++){
+//        Node* edgeNode = floorNode->CreateChild("LobbyEdge");
+////        edgeNode->SetScale(Vector3(1.0f, 1.0f, 1.0f));
+//        edgeNode->Rotate(Quaternion(0.0f, (60.0f * i), 0.0f));
+//        Model* model = cache_->GetResource<Model>("Resources/Models/ArenaEdgeSegment.mdl");
+////        StaticModel* edgeModel = edgeNode->CreateComponent<StaticModel>();
+////        edgeModel->SetModel(model);
+////        edgeModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Green.xml"));
+//        RigidBody* rigidBody = edgeNode->CreateComponent<RigidBody>();
+//        CollisionShape* collider = edgeNode->CreateComponent<CollisionShape>();
+//        collider->SetConvexHull(model);
+//    }
     //Create game elements
     spawnMaster_ = new SpawnMaster(context_, this);
     player_ = new Player(context_, this);

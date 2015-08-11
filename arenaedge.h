@@ -16,6 +16,8 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+/* Code Museum
+
 #ifndef ARENAEDGE_H
 #define ARENAEDGE_H
 
@@ -53,3 +55,5 @@ private:
 };
 
 #endif // ARENAEDGE_H
+
+*/

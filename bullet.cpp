@@ -23,6 +23,8 @@ Bullet::Bullet(Context *context, MasterControl *masterControl):
     lifeTime_{1.0f},
     damage_{0.0f}
 {
+    blink_ = false;
+
     rootNode_->SetName("Bullet");
     rootNode_->SetScale(Vector3(1.0f, 1.0f, 0.1f));
     model_ = rootNode_->CreateComponent<StaticModel>();

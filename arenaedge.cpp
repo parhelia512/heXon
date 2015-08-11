@@ -16,6 +16,8 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+/* Code museum
+
 #include "arenaedge.h"
 #include "flash.h"
 
@@ -39,7 +41,7 @@ SceneObject(context, masterControl)
     sampleSource_->SetGain(0.5f);
     sampleSource_->SetSoundType(SOUND_EFFECT);
 
-    SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, HANDLER(ArenaEdge, HandleNodeCollisionStart));
+    //SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, HANDLER(ArenaEdge, HandleNodeCollisionStart));
 }
 
 void ArenaEdge::HandleNodeCollisionStart(StringHash eventType, VariantMap &eventData)
@@ -69,3 +71,4 @@ void ArenaEdge::HandleNodeCollisionStart(StringHash eventType, VariantMap &event
         }
     }
 }
+*/

@@ -21,6 +21,8 @@
 Effect::Effect(Context *context, MasterControl *masterControl, Vector3 position):
     SceneObject(context, masterControl)
 {
+    blink_ = false;
+
     rootNode_->SetName("Effect");
     rootNode_->SetPosition(position);
     particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();

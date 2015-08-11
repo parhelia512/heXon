@@ -126,6 +126,7 @@ void Enemy::CheckHealth()
 
 void Enemy::Disable()
 {
+    soundSource_->Stop();
     SceneObject::Disable();
 }
 
@@ -142,8 +143,6 @@ void Enemy::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     sinceLastWhack_ += timeStep;
 
     Emerge(timeStep);
-
-    if ((rootNode_->GetPosition()*(Vector3::ONE-Vector3::UP)).Length() > 23.666f) Disable();;
 }
 
 void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)

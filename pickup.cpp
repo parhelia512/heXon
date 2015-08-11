@@ -37,8 +37,9 @@ Pickup::Pickup(Context *context, MasterControl *masterControl):
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
     rigidBody_->SetLinearDamping(0.5f);
     rigidBody_->SetFriction(0.0f);
+    rigidBody_->SetAngularFactor(Vector3::UP);
     rigidBody_->SetAngularDamping(0.0f);
-    rigidBody_->ApplyTorque(Vector3::UP * 32.0);
+    rigidBody_->ApplyTorque(Vector3::UP * 32.0f);
     rigidBody_->SetLinearRestThreshold(0.0f);
     rigidBody_->SetAngularRestThreshold(0.0f);
 
@@ -61,9 +62,9 @@ Pickup::Pickup(Context *context, MasterControl *masterControl):
 
     sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Pickup.ogg");
     sample_->SetLooped(false);
-    sampleSource_ = rootNode_->CreateComponent<SoundSource>();
-    sampleSource_->SetGain(0.6f);
-    sampleSource_->SetSoundType(SOUND_EFFECT);
+    soundSource_ = rootNode_->CreateComponent<SoundSource>();
+    soundSource_->SetGain(0.6f);
+    soundSource_->SetSoundType(SOUND_EFFECT);
 
     SubscribeToEvent(triggerNode, E_NODECOLLISIONSTART, HANDLER(Pickup, HandleTriggerStart));
     SubscribeToEvent(E_SCENEUPDATE, HANDLER(Pickup, HandleSceneUpdate));
@@ -80,8 +81,7 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
         RigidBody* collider = collidingBodies[i];
         if (collider->GetNode()->GetNameHash() == N_PLAYER) {
             Respawn();
-            sampleSource_->Play(sample_);
-
+            soundSource_->Play(sample_);
             masterControl_->player_->Pickup(rootNode_->GetNameHash());
         }
     }
@@ -106,8 +106,6 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     }
     //Move trigger along
     triggerBody_->SetPosition(rootNode_->GetPosition());
-
-    if ((rootNode_->GetPosition()*(Vector3::ONE-Vector3::UP)).Length() > 23.666f) Respawn();
 }
 
 void Pickup::Respawn(bool restart)
@@ -123,5 +121,6 @@ void Pickup::Respawn(bool restart)
 }
 void Pickup::Deactivate()
 {
+    soundSource_->Stop();
     rootNode_->SetEnabledRecursive(false);
 }

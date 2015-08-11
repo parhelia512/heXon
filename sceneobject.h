@@ -49,12 +49,17 @@ public:
     bool IsEnabled() {return rootNode_->IsEnabled();}
     SceneObject(Context *context, MasterControl* masterControl);
 protected:
+    bool blink_;
     MasterControl* masterControl_;
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     SharedPtr<Node> rootNode_;
     SharedPtr<Node> graphicsNode_;
     void Disable();
     void Set(Vector3 position);
+private:
+    Sound* flashSample_;
+    SoundSource* flashSource_;
+    void BlinkCheck(StringHash eventType, VariantMap &eventData);
 };
 
 #endif // SCENEOBJECT_H
