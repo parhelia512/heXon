@@ -61,7 +61,7 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
 
     //Alien Chaos - Disorder = time*1.0525f
     //Talpa - Unusual Chair = time*1.444
-    wave_ = 6.0*pow(masterControl_->Sine(Abs(centerDistExp_ - elapsedTime * 0.666f)), 4.0);
+    wave_ = 6.0*pow(masterControl_->Sine(Abs(centerDistExp_ - elapsedTime * 5.0f)), 4.0);
 
     unsigned nHexAffectors = tileMaster_->hexAffectors_.Size();
     if (nHexAffectors) {

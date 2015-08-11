@@ -27,7 +27,7 @@
 
 Player::Player(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
-    initialHealth_{10.0f},
+    initialHealth_{1.0f},
     health_{initialHealth_},
     appleCount_{0},
     heartCount_{0},
@@ -186,9 +186,9 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     //Pulse and spin the counters' apples and hearts
     for (int i = 0; i < 5; i++){
         appleCounter_[i]->Rotate(Quaternion(0.0f, (i*i+10.0f) * 23.0f * timeStep, 0.0f));
-        appleCounter_[i]->SetScale(masterControl_->Sine(1.0f+(appleCount_/2.0f), 0.2f, 0.4, -i/(2.0f*M_PI)));
+        appleCounter_[i]->SetScale(masterControl_->Sine(1.0f+(appleCount_), 0.2f, 0.4, -i/(2.0f*M_PI)));
         heartCounter_[i]->Rotate(Quaternion(0.0f, (i*i+10.0f) * 23.0f * timeStep, 0.0f));
-        heartCounter_[i]->SetScale(masterControl_->Sine(1.0f+(heartCount_/2.0f), 0.2f, 0.4, -i/(2.0f*M_PI)));
+        heartCounter_[i]->SetScale(masterControl_->Sine(1.0f+(heartCount_), 0.2f, 0.4, -i/(2.0f*M_PI)));
     }
     //Update HealthBar color
     healthBarModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", HealthToColor(health_));
@@ -270,7 +270,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     // When in ship mode
     } else {
         //Float
-        ship_.node_->SetPosition(Vector3::UP *masterControl_->Sine(1.0f, -0.1f, 0.1f));
+        ship_.node_->SetPosition(Vector3::UP *masterControl_->Sine(2.3f, -0.1f, 0.1f));
         //Apply movement
         Vector3 force = move * thrust * timeStep;
         if (rigidBody_->GetLinearVelocity().Length() < maxSpeed ||
@@ -437,7 +437,7 @@ Color Player::HealthToColor(float health)
     Color color(1.0f, 1.0f, 0.05f, 1.0f);
     health = Clamp(health, 0.0f, 10.0f);
     float maxBright = 0.666f;
-    if (health < 3.0f) maxBright = masterControl_->Sine(2.0f+3.0f-health, 0.05f, 1.0f);
+    if (health < 5.0f) maxBright = masterControl_->Sine(2.0f+3.0f*(5.0f-health), 0.2f*health, 1.0f);
     color.r_ = Clamp((3.0f - (health - 3.0f))/3.0f, 0.0f, maxBright);
     color.g_ = Clamp((health - 3.0f)/4.0f, 0.0f, maxBright);
     return color;

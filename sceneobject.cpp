@@ -65,7 +65,7 @@ void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
             hexantNormal = position.Angle(otherHexantNormal) < position.Angle(hexantNormal) ?
                         otherHexantNormal : hexantNormal;
         }
-        float boundsCheck = position.Length() * Cos(position.Angle(hexantNormal)); //Should be calculated through sine table
+        float boundsCheck = position.Length() * masterControl_->Cosine(M_DEGTORAD * position.Angle(hexantNormal));
         if (boundsCheck > radius){
             new Flash(context_, masterControl_, position); //Should be recycled
             Vector3 newPosition = rootNode_->GetPosition()-(2.0f*radius)*hexantNormal;

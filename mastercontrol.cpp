@@ -199,8 +199,9 @@ void MasterControl::CreateScene()
 
     //Create heXon logo
     Node* logoNode = world.scene->CreateChild("heXon");
-    logoNode->SetScale(16.0f);
     logoNode->SetWorldPosition(Vector3(0.0f, -5.0f, 0.0f));
+    logoNode->SetRotation(Quaternion(0.0f, 180.0f, 0.0f));
+    logoNode->SetScale(16.0f);
     StaticModel* logoModel = logoNode->CreateComponent<StaticModel>();
     logoModel->SetModel(cache_->GetResource<Model>("Resources/Models/heXon.mdl"));
     logoModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Loglow.xml"));
@@ -253,18 +254,15 @@ void MasterControl::CreateScene()
 //    lobbyPointLight->SetColor(Color(1.0f, 1.0f, 0.9f));
 //    lobbyPointLight->SetCastShadows(false);
 
-//    for (int i = 0; i < 6; i++){
-//        Node* edgeNode = floorNode->CreateChild("LobbyEdge");
-////        edgeNode->SetScale(Vector3(1.0f, 1.0f, 1.0f));
-//        edgeNode->Rotate(Quaternion(0.0f, (60.0f * i), 0.0f));
-//        Model* model = cache_->GetResource<Model>("Resources/Models/ArenaEdgeSegment.mdl");
-////        StaticModel* edgeModel = edgeNode->CreateComponent<StaticModel>();
-////        edgeModel->SetModel(model);
-////        edgeModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Green.xml"));
-//        RigidBody* rigidBody = edgeNode->CreateComponent<RigidBody>();
-//        CollisionShape* collider = edgeNode->CreateComponent<CollisionShape>();
-//        collider->SetConvexHull(model);
-//    }
+    for (int i = 0; i < 6; i++){
+        Node* edgeNode = floorNode->CreateChild("LobbyEdge");
+//        edgeNode->SetScale(Vector3(1.0f, 1.0f, 1.0f));
+        edgeNode->Rotate(Quaternion(0.0f, (60.0f * i), 0.0f));
+        Model* model = cache_->GetResource<Model>("Resources/Models/ArenaEdgeSegment.mdl");
+        edgeNode->CreateComponent<RigidBody>();
+        CollisionShape* collider = edgeNode->CreateComponent<CollisionShape>();
+        collider->SetConvexHull(model);
+    }
     //Create game elements
     spawnMaster_ = new SpawnMaster(context_, this);
     player_ = new Player(context_, this);
@@ -402,10 +400,10 @@ void MasterControl::Exit()
 
 void MasterControl::CreateSineLookupTable()
 {
-    //Generate sine lookup array
-    for (int i = 0; i < 1024; i+=2){
-        sine_.Push(sin((i/512.0)*2.0*M_PI));
-        sine_.Push(sin((i/512.0)*2.0*M_PI)+Random(-0.023f, 0.023f));
+    //Generate sine lookup vector
+    int resolution = 2048;
+    for (int i = 0; i < resolution; i++){
+        sine_.Push(sin(((float)i/resolution)*2.0*M_PI));
     }
 }
 

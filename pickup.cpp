@@ -97,7 +97,7 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     //Float
     float floatFactor = 0.5f-Min(0.5f, 0.5f*Abs(rootNode_->GetPosition().y_));
     graphicsNode_->SetPosition(
-                Vector3::UP *masterControl_->Sine(1.23f, -floatFactor, floatFactor,
+                Vector3::UP *masterControl_->Sine(2.5f, -floatFactor, floatFactor,
                                                   rootNode_->GetNameHash()==N_APPLE?
                                                       0.23f : 0.5f));
     //Emerge

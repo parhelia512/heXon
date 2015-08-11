@@ -89,27 +89,25 @@ void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     sinceSpireSpawn_ += timeStep;
 
     if (masterControl_->player_->IsEnabled()){
-        if (sinceRazorSpawn_ > razorInterval_/* &&
-                                    CountActiveRazors() < 23*/)
+        if (sinceRazorSpawn_ > razorInterval_)// && CountActiveRazors() < 23)
             SpawnRazor(CreateSpawnPoint());
-        if (sinceSpireSpawn_ > spireInterval_/* &&
-                                    CountActiveSpires() < 7*/)
+        if (sinceSpireSpawn_ > spireInterval_)// && CountActiveSpires() < 7)
             SpawnSpire(CreateSpawnPoint());
     }
 }
 
-int SpawnMaster::CountActiveRazors()
+int SpawnMaster::CountActiveRazors() //Crash
 {
     int razorCount = 0;
-    for (int r = 0; r < razors_.Values().Size(); r++){
+    for (unsigned r = 0; r < razors_.Values().Size(); r++){
         if (razors_[r]->rootNode_->IsEnabled()) ++razorCount;
     }
     return razorCount;
 }
-int SpawnMaster::CountActiveSpires()
+int SpawnMaster::CountActiveSpires() //Crash
 {
     int spireCount = 0;
-    for (int s = 0; s < spires_.Values().Size(); s++){
+    for (unsigned s = 0; s < spires_.Values().Size(); s++){
         if (spires_[s]->rootNode_->IsEnabled()) ++spireCount;
     }
     return spireCount;
