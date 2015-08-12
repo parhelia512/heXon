@@ -39,7 +39,7 @@ public:
     HashMap<unsigned, SharedPtr<Spire> > spires_;
     Vector<SharedPtr<Seeker> > seekers_;
 
-    Vector3 CreateSpawnPoint();
+    Vector3 SpawnPoint();
 
     int CountActiveRazors();
     int CountActiveSpires();

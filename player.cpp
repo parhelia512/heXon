@@ -17,13 +17,14 @@
 */
 
 #include "mastercontrol.h"
+#include "hexocam.h"
 #include "spawnmaster.h"
 #include "tilemaster.h"
-#include "player.h"
+#include "multix.h"
 #include "bullet.h"
 #include "muzzle.h"
-#include "hexocam.h"
 #include "explosion.h"
+#include "player.h"
 
 Player::Player(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
@@ -32,6 +33,8 @@ Player::Player(Context *context, MasterControl *masterControl):
     appleCount_{0},
     heartCount_{0},
     score_{0},
+    flightScore_{0},
+    multiplier_{1},
     weaponLevel_{0},
     bulletAmount_{1},
     initialShotInterval_{0.30f},
@@ -146,7 +149,13 @@ void Player::CreateGUI()
 
 void Player::AddScore(int points)
 {
-    SetScore(GetScore()+points);
+    unsigned nextMultiX = pow(10, multiplier_);
+    if (flightScore_ < nextMultiX && flightScore_ + points > nextMultiX){
+        masterControl_->x_->Respawn();
+    }
+
+    SetScore(GetScore()+(points*multiplier_));
+    flightScore_ += points;
 }
 
 void Player::SetScore(int points)
@@ -156,10 +165,6 @@ void Player::SetScore(int points)
     UIElement* scoreElement = ui->GetRoot()->GetChild(scoreTextName_);
     Text* scoreText = (Text*)scoreElement;
     scoreText->SetText(String(points));
-}
-unsigned Player::GetScore()
-{
-    return score_;
 }
 
 void Player::ResetScore()
@@ -177,6 +182,7 @@ void Player::PlaySample(Sound* sample)
     }
 }
 
+
 void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
     using namespace Update;
@@ -184,14 +190,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     //Take the frame time step, which is stored as a double
     float timeStep = eventData[P_TIMESTEP].GetFloat();
     //Pulse and spin the counters' apples and hearts
-    for (int i = 0; i < 5; i++){
-        appleCounter_[i]->Rotate(Quaternion(0.0f, (i*i+10.0f) * 23.0f * timeStep, 0.0f));
-        appleCounter_[i]->SetScale(masterControl_->Sine(1.0f+(appleCount_), 0.2f, 0.4, -i/(2.0f*M_PI)));
-        heartCounter_[i]->Rotate(Quaternion(0.0f, (i*i+10.0f) * 23.0f * timeStep, 0.0f));
-        heartCounter_[i]->SetScale(masterControl_->Sine(1.0f+(heartCount_), 0.2f, 0.4, -i/(2.0f*M_PI)));
-    }
-    //Update HealthBar color
-    healthBarModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", HealthToColor(health_));
+    UpdateGUI(timeStep);
 
     //Only handle input when player is active
     if (!rootNode_->IsEnabled()) return;
@@ -293,6 +292,18 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     }
 }
 
+void Player::UpdateGUI(float timeStep)
+{
+    for (int i = 0; i < 5; i++){
+        appleCounter_[i]->Rotate(Quaternion(0.0f, (i*i+10.0f) * 23.0f * timeStep, 0.0f));
+        appleCounter_[i]->SetScale(masterControl_->Sine((1.0f+(appleCount_))*2.0f, 0.2f, 0.4, -i/(2.0f*M_PI)));
+        heartCounter_[i]->Rotate(Quaternion(0.0f, (i*i+10.0f) * 23.0f * timeStep, 0.0f));
+        heartCounter_[i]->SetScale(masterControl_->Sine((1.0f+(heartCount_))*2.0f, 0.2f, 0.4, -i/(2.0f*M_PI)));
+    }
+    //Update HealthBar color
+    healthBarModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", HealthToColor(health_));
+}
+
 void Player::Shoot(Vector3 fire)
 {
     for (int i = 0; i < bulletAmount_; i++) {
@@ -345,7 +356,7 @@ void Player::FireBullet(Vector3 direction){
 
 void Player::Pickup(const StringHash nameHash)
 {
-    if (nameHash == N_APPLE){
+    if(nameHash == N_APPLE) {
         bulletAmount_ = (bulletAmount_ == 0)?1:bulletAmount_;
         ++appleCount_;
         heartCount_ = 0;
@@ -354,8 +365,7 @@ void Player::Pickup(const StringHash nameHash)
             appleCount_ = 0;
             UpgradeWeapons();
         }
-    }
-    else if (nameHash == N_HEART){
+    } else if (nameHash == N_HEART) {
         ++heartCount_;
         appleCount_ = 0;
         if (heartCount_ >= 5){
@@ -363,12 +373,12 @@ void Player::Pickup(const StringHash nameHash)
             SetHealth(15.0);
         }
         else SetHealth(Max(health_, Clamp(health_+5.0f, 0.0f, 10.0f)));
-    }
-    else if (nameHash == N_RESET){
+    } else if (nameHash == N_MULTIX) {
+        multiplier_++;
+    } else if (nameHash == N_RESET) {
         appleCount_ = 0;
         heartCount_= 0;
     }
-
     for (int a = 0; a < 5; a++){
         if (appleCount_ > a) appleCounter_[a]->SetEnabled(true);
         else appleCounter_[a]->SetEnabled(false);
@@ -396,6 +406,8 @@ void Player::EnterPlay()
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
 
     SetHealth(initialHealth_);
+    flightScore_ = 0;
+    multiplier_ = 1;
     weaponLevel_ = 0;
     bulletAmount_ = 1;
     shotInterval_ = initialShotInterval_;

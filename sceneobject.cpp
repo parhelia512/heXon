@@ -57,7 +57,7 @@ void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
 
     Vector3 position = rootNode_->GetPosition();
     float radius = 20.0f;
-    if (position.Length() >= radius){
+    if (position.Length() > radius){
         Vector3 hexantNormal = Vector3::FORWARD;
         int sides = 6;
         for (int h = 0; h < sides; h++){

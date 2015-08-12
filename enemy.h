@@ -59,7 +59,7 @@ protected:
     float whackInterval_;
     float meleeDamage_;
 
-    SharedPtr<Node> particleNode_;
+    SharedPtr<Node> centerNode_;
     SharedPtr<ParticleEmitter> particleEmitter_;
     SharedPtr<ParticleEffect> particleEffect_;
     RigidBody* rigidBody_;

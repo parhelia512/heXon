@@ -22,6 +22,7 @@
 #include "player.h"
 #include "apple.h"
 #include "heart.h"
+#include "multix.h"
 #include "bullet.h"
 #include "seeker.h"
 #include "flash.h"
@@ -199,12 +200,12 @@ void MasterControl::CreateScene()
 
     //Create heXon logo
     Node* logoNode = world.scene->CreateChild("heXon");
-    logoNode->SetWorldPosition(Vector3(0.0f, -5.0f, 0.0f));
+    logoNode->SetWorldPosition(Vector3(0.0f, -4.0f, 0.0f));
     logoNode->SetRotation(Quaternion(0.0f, 180.0f, 0.0f));
     logoNode->SetScale(16.0f);
     StaticModel* logoModel = logoNode->CreateComponent<StaticModel>();
     logoModel->SetModel(cache_->GetResource<Model>("Resources/Models/heXon.mdl"));
-    logoModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Loglow.xml"));
+    logoModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Loglow_bak.xml"));
 
     //Construct lobby
     lobbyNode_ = world.scene->CreateChild("Lobby");
@@ -268,6 +269,7 @@ void MasterControl::CreateScene()
     player_ = new Player(context_, this);
     apple_ = new Apple(context_, this);
     heart_ = new Heart(context_, this);
+    x_ = new X(context_, this);
 }
 
 void MasterControl::SetGameState(GameState newState)
@@ -309,6 +311,7 @@ void MasterControl::EnterGameState()
         tileMaster_->HideArena();
         apple_->Deactivate();
         heart_->Deactivate();
+        x_->Deactivate();
     } break;
     case GS_PLAY : {
         musicSource_->Play(gameMusic_);

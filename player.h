@@ -53,21 +53,26 @@ class Player : public SceneObject
 public:
     Player(Context* context, MasterControl* masterControl);
 
+    Vector3 GetPosition() { return rootNode_->GetPosition(); }
     double GetHealth(){return health_;}
     void Hit(float damage);
 
     void AddScore(int points);
     void Die();
-    unsigned GetScore();
+    unsigned GetScore() { return score_; }
+    unsigned GetFlightScore() { return flightScore_; }
     void Pickup(const StringHash nameHash);
     void EnterLobby();
     void EnterPlay();
     void CreateNewPilot();
+    void UpdateGUI(float timeStep);
 private:
     bool pilotMode_;
     float initialHealth_;
     float health_;
     unsigned score_;
+    unsigned flightScore_;
+    int multiplier_;
     int weaponLevel_;
     int bulletAmount_;
 

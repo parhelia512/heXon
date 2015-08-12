@@ -80,9 +80,9 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
     for (int i = 0; i < collidingBodies.Size(); i++) {
         RigidBody* collider = collidingBodies[i];
         if (collider->GetNode()->GetNameHash() == N_PLAYER) {
-            Respawn();
             soundSource_->Play(sample_);
             masterControl_->player_->Pickup(rootNode_->GetNameHash());
+            rootNode_->GetNameHash() == N_MULTIX ? Deactivate() : Respawn();
         }
     }
 }
@@ -104,6 +104,10 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     if (rootNode_->GetPosition().y_ < 0.01f) {
         rootNode_->Translate(Vector3::UP * timeStep * (0.23f - rootNode_->GetPosition().y_));
     }
+    //Flee
+    else if (rootNode_->GetNameHash() == N_MULTIX){
+        rigidBody_->ApplyForce(masterControl_->player_->GetPosition());
+    }
     //Move trigger along
     triggerBody_->SetPosition(rootNode_->GetPosition());
 }
@@ -113,7 +117,7 @@ void Pickup::Respawn(bool restart)
     rootNode_->SetPosition(
                 restart ?
                     initialPosition_
-                  : masterControl_->spawnMaster_->CreateSpawnPoint());
+                  : masterControl_->spawnMaster_->SpawnPoint());
 
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();

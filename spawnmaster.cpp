@@ -69,7 +69,7 @@ void SpawnMaster::Restart()
     Activate();
 }
 
-Vector3 SpawnMaster::CreateSpawnPoint()
+Vector3 SpawnMaster::SpawnPoint()
 {
     WeakPtr<Tile> randomTile = masterControl_->tileMaster_->GetRandomTile();
     if (randomTile) {
@@ -90,9 +90,9 @@ void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
     if (masterControl_->player_->IsEnabled()){
         if (sinceRazorSpawn_ > razorInterval_)// && CountActiveRazors() < 23)
-            SpawnRazor(CreateSpawnPoint());
+            SpawnRazor(SpawnPoint());
         if (sinceSpireSpawn_ > spireInterval_)// && CountActiveSpires() < 7)
-            SpawnSpire(CreateSpawnPoint());
+            SpawnSpire(SpawnPoint());
     }
 }
 
@@ -175,5 +175,4 @@ bool SpawnMaster::RespawnSeeker(Vector3 position)
     }
     return false;
 }
-
 

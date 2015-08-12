@@ -35,8 +35,8 @@ Enemy::Enemy(Context *context, MasterControl *masterControl, Vector3 position):
     int randomizer = Random(6);
     color_ = Color(0.5f + (randomizer * 0.075f), 0.9f - (randomizer * 0.075f), 0.5f+Max(randomizer-3.0f, 3.0f)/6.0f, 1.0f);
 
-    particleNode_ = rootNode_->CreateChild("SmokeTrail");
-    particleEmitter_ = particleNode_->CreateComponent<ParticleEmitter>();
+    centerNode_ = rootNode_->CreateChild("SmokeTrail");
+    particleEmitter_ = centerNode_->CreateComponent<ParticleEmitter>();
     particleEffect_ = masterControl_->cache_->GetTempResource<ParticleEffect>("Resources/Particles/Enemy.xml");
     Vector<ColorFrame> colorFrames;
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
@@ -45,10 +45,10 @@ Enemy::Enemy(Context *context, MasterControl *masterControl, Vector3 position):
     particleEffect_->SetColorFrames(colorFrames);
     particleEmitter_->SetEffect(particleEffect_);
 
-    centerModel_ = rootNode_->CreateComponent<StaticModel>();
+    centerModel_ = centerNode_->CreateComponent<StaticModel>();
     centerModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/RazorCenter.mdl"));
-    centerModel_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/Glow.xml"));
-    centerModel_->GetMaterial(0)->SetShaderParameter("MatDiffColor", color_);
+    centerModel_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/CoreGlow.xml"));
+    centerModel_->GetMaterial(0)->SetShaderParameter("MatDiffColor", color_ * 0.5f);
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
     rigidBody_->SetRestitution(0.666f);

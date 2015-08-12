@@ -80,6 +80,7 @@ class SpawnMaster;
 class Razor;
 class Player;
 class Apple;
+class X;
 class Heart;
 
 typedef struct GameWorld
@@ -147,6 +148,7 @@ StringHash const N_TILE = StringHash("Tile");
 StringHash const N_PLAYER = StringHash("Player");
 StringHash const N_APPLE = StringHash("Apple");
 StringHash const N_HEART = StringHash("Heart");
+StringHash const N_MULTIX = StringHash("MultiX");
 StringHash const N_RESET = StringHash("Reset");
 StringHash const N_SEEKER = StringHash("Seeker");
 StringHash const N_SPIRE = StringHash("Spire");
@@ -178,6 +180,7 @@ public:
     SharedPtr<Player> player_;
     SharedPtr<Apple> apple_;
     SharedPtr<Heart> heart_;
+    SharedPtr<X> x_;
     SharedPtr<Node> lobbyNode_;
 
     /// Setup before engine initialization. Modifies the engine paramaters.
