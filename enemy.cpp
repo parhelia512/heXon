@@ -48,7 +48,8 @@ Enemy::Enemy(Context *context, MasterControl *masterControl, Vector3 position):
     centerModel_ = centerNode_->CreateComponent<StaticModel>();
     centerModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/RazorCenter.mdl"));
     centerModel_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/CoreGlow.xml"));
-    centerModel_->GetMaterial(0)->SetShaderParameter("MatDiffColor", color_ * 0.5f);
+    centerModel_->GetMaterial(0)->SetShaderParameter("MatDiffColor", color_);
+    centerModel_->GetMaterial(0)->SetShaderParameter("MatEmissiveColor", color_);
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
     rigidBody_->SetRestitution(0.666f);

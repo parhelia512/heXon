@@ -31,12 +31,14 @@ Razor::Razor(Context *context, MasterControl *masterControl, Vector3 position):
     topNode_ = rootNode_->CreateChild();
     topModel_ = topNode_->CreateComponent<StaticModel>();
     topModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/RazorTop.mdl"));
-    topModel_->SetMaterial(black);
+    topModel_->SetMaterial(0, black);
+    topModel_->SetMaterial(1, centerModel_->GetMaterial());
 
     bottomNode_ = rootNode_->CreateChild();
     bottomModel_ = bottomNode_->CreateComponent<StaticModel>();
     bottomModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/RazorBottom.mdl"));
-    bottomModel_->SetMaterial(black);
+    bottomModel_->SetMaterial(0, black);
+    bottomModel_->SetMaterial(1, centerModel_->GetMaterial());
 
     SubscribeToEvent(E_SCENEPOSTUPDATE, HANDLER(Razor, HandleRazorUpdate));
 }
