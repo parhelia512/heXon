@@ -14,18 +14,18 @@ s.boot();
 }.play();
 )
 
-//Blink
+//Seeker
 (
 {
 	var ampEnv = Env(
-		levels: [0,0.5,0],
-		times:[0.08,0.08],
-		curve: 1);
+		levels: [0,0.666,0],
+		times:[0.3,0.1],
+		curve: -5);
 	var freqEnv = Env(
-		levels: [[190,220],[220,190]],
-		times:[0.1],
+		levels: [[100,101],[60,90], [151,150]],
+		times:[0.2],
 		curve:1);
-	Pulse.ar(EnvGen.kr(freqEnv),0.5,EnvGen.kr(ampEnv, doneAction:1));
+	Saw.ar(EnvGen.kr(freqEnv),EnvGen.kr(ampEnv, doneAction:1));
 }.play();
 )
 

@@ -38,6 +38,8 @@ class Effect : public SceneObject
 public:
     Effect(Context* context, MasterControl* masterControl, Vector3 position);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
+    void Set(Vector3 position);
+    void Disable();
 protected:
     SharedPtr<ParticleEmitter> particleEmitter_;
     float age_ = 0.0f;

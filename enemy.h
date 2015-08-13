@@ -43,7 +43,7 @@ public:
     Enemy(Context* context, MasterControl* masterControl, Vector3 position);
     float GetHealth(){ return health_; }
     void Hit(float damage, int ownerID);
-    bool IsEmerged();
+    void Set(Vector3 position);
 protected:
     float panicTime_ = 0.0f;
     float health_;
@@ -66,7 +66,6 @@ protected:
     StaticModel* centerModel_;
     Color color_;
     void CheckHealth();
-    void Set(Vector3 position);
     Color GetGlowColor();
     void Emerge(float timeStep);
 private:

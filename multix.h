@@ -32,12 +32,11 @@ class Sprite;
 
 using namespace Urho3D;
 
-class X : public Pickup
+class MultiX : public Pickup
 {
-    OBJECT(X);
+    OBJECT(MultiX);
 public:
-    X(Context* context, MasterControl* masterControl);
-    const int worth_ = 0;
+    MultiX(Context* context, MasterControl* masterControl);
 };
 
 #endif // MULTIX_H

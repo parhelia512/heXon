@@ -25,6 +25,13 @@ heXoCam::heXoCam(Context *context, MasterControl *masterControl):
     SubscribeToEvent(E_SCENEUPDATE, HANDLER(heXoCam, HandleSceneUpdate));
 
     rootNode_ = masterControl_->world.scene->CreateChild("Camera");
+    Node* leftEye = rootNode_->CreateChild("Left Eye");
+    leftEye->SetPosition(Vector3::LEFT);
+    stereoCam_.first_ = leftEye->CreateComponent<Camera>();
+    Node* rightEye = rootNode_->CreateChild("Right Eye");
+    rightEye->SetPosition(Vector3::RIGHT);
+    stereoCam_.second_ = rightEye->CreateComponent<Camera>();
+
     camera_ = rootNode_->CreateComponent<Camera>();
     camera_->SetFarClip(1024.0f);
     rootNode_->SetPosition(Vector3(0.0f, 42.0f, -23.0f));

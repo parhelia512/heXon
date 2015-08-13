@@ -36,7 +36,11 @@ public:
     Pickup(Context *context, MasterControl* masterControl);
     void Respawn(bool restart = false);
     void Deactivate();
+    PickupType GetPickupType() { return pickupType_; }
 protected:
+    PickupType pickupType_;
+    float sinceLastRespawn_;
+    float chaoInterval_;
     Vector3 initialPosition_;
     SharedPtr<RigidBody> rigidBody_;
     SharedPtr<RigidBody> triggerBody_;

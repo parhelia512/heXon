@@ -22,6 +22,7 @@ Heart::Heart(Context *context, MasterControl *masterControl):
     Pickup(context, masterControl)
 {
     rootNode_->SetName("Heart");
+    pickupType_ = PT_HEART;
     initialPosition_ = Vector3::RIGHT*10.0;
     rootNode_->SetPosition(initialPosition_);
     model_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Heart.mdl"));

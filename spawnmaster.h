@@ -27,6 +27,8 @@
 #include "razor.h"
 #include "spire.h"
 #include "seeker.h"
+#include "flash.h"
+#include "explosion.h"
 
 class SpawnMaster : public Object
 {
@@ -37,14 +39,20 @@ public:
 
     HashMap<unsigned, SharedPtr<Razor> > razors_;
     HashMap<unsigned, SharedPtr<Spire> > spires_;
+    Vector<SharedPtr<HitFX> > hitFXs_;
     Vector<SharedPtr<Seeker> > seekers_;
+    Vector<SharedPtr<Flash> > flashes_;
+    Vector<SharedPtr<Explosion> > explosions_;
 
     Vector3 SpawnPoint();
 
     int CountActiveRazors();
     int CountActiveSpires();
     void SpawnSeeker(Vector3 position);
+    void SpawnHitFX(Vector3 position, bool sound = true);
     void Clear();
+    void SpawnFlash(Vector3 position);
+    bool SpawnExplosion(Vector3 position, Color color, float size);
 private:
     MasterControl* masterControl_;
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
@@ -61,7 +69,12 @@ private:
     bool RespawnRazor(Vector3 position);
     void SpawnSpire(Vector3 position);
     bool RespawnSpire(Vector3 position);
+
     bool RespawnSeeker(Vector3 position);
+    bool RespawnFlash(Vector3 position);
+    bool RespawnExplosion(Vector3 position, Color color, float size);
+    bool RespawnHitFX(Vector3 position, bool sound = true);
+
     void Activate();
     void Deactivate();
     void Restart();

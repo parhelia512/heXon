@@ -73,7 +73,6 @@ Enemy::Enemy(Context *context, MasterControl *masterControl, Vector3 position):
     soundSource_->SetSoundType(SOUND_EFFECT);
 
     masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
-
     SubscribeToEvent(E_SCENEUPDATE, HANDLER(Enemy, HandleSceneUpdate));
     SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, HANDLER(Enemy, HandleCollisionStart));
 }
@@ -83,7 +82,6 @@ void Enemy::Set(Vector3 position)
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();
     rigidBody_->SetMass(mass_);
-    masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 
     firstHitBy_ = lastHitBy_ = 0;
     bonus_ = true;
@@ -92,6 +90,9 @@ void Enemy::Set(Vector3 position)
 
     particleEmitter_->RemoveAllParticles();
     SceneObject::Set(position);
+    masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
+    SubscribeToEvent(E_SCENEUPDATE, HANDLER(Enemy, HandleSceneUpdate));
+    SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, HANDLER(Enemy, HandleCollisionStart));
 }
 
 // Takes care of dealing damage and keeps track of who deserves how many points.
@@ -118,8 +119,8 @@ void Enemy::CheckHealth()
     //Die
     if (rootNode_->IsEnabled() && health_ <= 0.0) {
         masterControl_->player_->AddScore(bonus_ ? worth_ : 2 * worth_ / 3);
-        Explosion* newExplosion = new Explosion(context_, masterControl_, rootNode_->GetPosition(), Color(color_.r_*color_.r_, color_.g_*color_.g_, color_.b_*color_.b_), 0.5f*mass_);
-        newExplosion->rigidBody_->SetLinearVelocity(rigidBody_->GetLinearVelocity());
+        masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), Color(color_.r_*color_.r_, color_.g_*color_.g_, color_.b_*color_.b_), 0.5f*mass_);
+        //explosion->rigidBody_->SetLinearVelocity(rigidBody_->GetLinearVelocity());
         Disable();
     }
 }
@@ -169,9 +170,4 @@ void Enemy::Emerge(float timeStep)
     if (!IsEmerged()) {
         rootNode_->Translate(Vector3::UP * timeStep * (0.25f - rootNode_->GetPosition().y_));
     }
-}
-
-bool Enemy::IsEmerged()
-{
-    return rootNode_->GetPosition().y_ > -0.1f;
 }

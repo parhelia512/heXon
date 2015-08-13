@@ -76,7 +76,7 @@ Vector3 SpawnMaster::SpawnPoint()
         Vector3 tilePosition = randomTile->rootNode_->GetPosition();
         return Vector3(tilePosition.x_, -23.0f, tilePosition.z_);
     }
-    else return Vector3(Random(-5.0f, 5.0f), -23.0f, Random(-5.0f, 5.0f));
+    else return Vector3(Random(-5.0f, 5.0f), -42.0f, Random(-5.0f, 5.0f));
 }
 
 void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
@@ -100,7 +100,7 @@ int SpawnMaster::CountActiveRazors() //Crash
 {
     int razorCount = 0;
     for (unsigned r = 0; r < razors_.Values().Size(); r++){
-        if (razors_[r]->rootNode_->IsEnabled()) ++razorCount;
+        if (razors_[r]->rootNode_!=nullptr && razors_[r]->rootNode_->IsEnabled()) ++razorCount;
     }
     return razorCount;
 }
@@ -125,7 +125,7 @@ void SpawnMaster::SpawnRazor(Vector3 position)
 bool SpawnMaster::RespawnRazor(Vector3 position)
 {
     Vector<SharedPtr<Razor> > razors = razors_.Values();
-    for (int r = 0; r < razors.Size(); r++){
+    for (unsigned r = 0; r < razors.Size(); r++){
         if (!razors[r]->rootNode_->IsEnabled()){
             SharedPtr<Razor> razor = razors[r];
             razor->Set(position);
@@ -147,7 +147,7 @@ void SpawnMaster::SpawnSpire(Vector3 position)
 bool SpawnMaster::RespawnSpire(Vector3 position)
 {
     Vector<SharedPtr<Spire> > spires = spires_.Values();
-    for (int s = 0; s < spires.Size(); s++){
+    for (unsigned s = 0; s < spires.Size(); s++){
         if (!spires[s]->rootNode_->IsEnabled()){
             SharedPtr<Spire> spire = spires[s];
             spire->Set(position);
@@ -166,7 +166,7 @@ void SpawnMaster::SpawnSeeker(Vector3 position)
 }
 bool SpawnMaster::RespawnSeeker(Vector3 position)
 {
-    for (int s = 0; s < seekers_.Size(); s++){
+    for (unsigned s = 0; s < seekers_.Size(); s++){
         if (!seekers_[s]->rootNode_->IsEnabled()){
             SharedPtr<Seeker> seeker = seekers_[s];
             seeker->Set(position);
@@ -176,3 +176,60 @@ bool SpawnMaster::RespawnSeeker(Vector3 position)
     return false;
 }
 
+void SpawnMaster::SpawnHitFX(Vector3 position, bool sound)
+{
+    if (!RespawnHitFX(position)){
+        HitFX* newHitFX = new HitFX(context_, masterControl_, position, sound);
+        hitFXs_.Push(SharedPtr<HitFX>(newHitFX));
+    }
+}
+bool SpawnMaster::RespawnHitFX(Vector3 position, bool sound)
+{
+    for (unsigned h = 0; h < hitFXs_.Size(); h++){
+        if (!hitFXs_[h]->rootNode_->IsEnabled()){
+            SharedPtr<HitFX> hitFX = hitFXs_[h];
+            hitFX->Set(position, sound);
+            return true;
+        }
+    }
+    return false;
+}
+
+void SpawnMaster::SpawnFlash(Vector3 position)
+{
+    if (!RespawnFlash(position)){
+        Flash* newFlash = new Flash(context_, masterControl_, position);
+        flashes_.Push(SharedPtr<Flash>(newFlash));
+    }
+}
+bool SpawnMaster::RespawnFlash(Vector3 position)
+{
+    for (unsigned f = 0; f < flashes_.Size(); f++){
+        if (!flashes_[f]->rootNode_->IsEnabled()){
+            SharedPtr<Flash> flash = flashes_[f];
+            flash->Set(position);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool SpawnMaster::SpawnExplosion(Vector3 position, Color color, float size)
+{
+    if (!RespawnExplosion(position, color, size)){
+        Explosion* explosion = new Explosion(context_, masterControl_, position, color, size);
+        explosions_.Push(SharedPtr<Explosion>(explosion));
+    }
+    return false;
+}
+bool SpawnMaster::RespawnExplosion(Vector3 position, Color color, float size)
+{
+    for (unsigned e = 0; e < explosions_.Size(); e++){
+        if (!explosions_[e]->rootNode_->IsEnabled()){
+            WeakPtr<Explosion> explosion = explosions_[e];
+            explosion->Set(position, color, size);
+            return true;
+        }
+    }
+    return false;
+}

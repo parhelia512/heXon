@@ -47,6 +47,7 @@ public:
     virtual void Stop();
 
     SharedPtr<Camera> camera_;
+    Pair<SharedPtr<Camera>, SharedPtr<Camera> > stereoCam_;
     SharedPtr<Viewport> viewport_;
     SharedPtr<RenderPath> effectRenderPath_;
 

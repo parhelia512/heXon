@@ -70,6 +70,7 @@ void Bullet::Set(Vector3 position)
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();
     SceneObject::Set(position);
+    SubscribeToEvent(E_SCENEUPDATE, HANDLER(Bullet, HandleSceneUpdate));
     //masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 }
 
@@ -88,7 +89,7 @@ void Bullet::HitCheck(float timeStep) {
             for (int i = 0; i < hitResults.Size(); i++){
                 if (!hitResults[i].body_->IsTrigger() && hitResults[i].body_->GetNode()->GetNameHash() != N_PLAYER){
                     hitResults[i].body_->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.05f);
-                    new HitFX(context_, masterControl_, hitResults[i].position_);
+                    masterControl_->spawnMaster_->SpawnHitFX(hitResults[i].position_);
                     //Deal damage
                     unsigned hitID = hitResults[i].body_->GetNode()->GetID();
                     if(masterControl_->spawnMaster_->spires_.Keys().Contains(hitID)){

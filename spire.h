@@ -39,6 +39,7 @@ class Spire : public Enemy
 public:
     Spire(Context* context, MasterControl* masterControl, Vector3 position);
     void Hit(float damage, int ownerID);
+    void Set(Vector3 position);
 protected:
     Node* topNode_;
     Node* bottomNode_;
@@ -50,7 +51,6 @@ protected:
     float sinceLastShot_;
 
     void HandleSpireUpdate(StringHash eventType, VariantMap &eventData);
-    void Set(Vector3 position);
 };
 
 #endif // SPIRE_H

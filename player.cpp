@@ -58,7 +58,12 @@ Player::Player(Context *context, MasterControl *masterControl):
     animCtrl_->PlayExclusive("Resources/Models/IdleRelax.ani", 0, true, 0.1f);
     animCtrl_->SetSpeed("Resources/Models/IdleRelax.ani", 1.0f);
     animCtrl_->SetStartBone("Resources/Models/IdleRelax.ani", "MasterBone");
-
+    //Setup shield
+    shieldNode_ = rootNode_->CreateChild("Shield");
+    shieldModel_ = shieldNode_->CreateComponent<StaticModel>();
+    shieldModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Shield.mdl"));
+    shieldMaterial_ = masterControl_->cache_->GetResource<Material>("Resources/Materials/Shield.xml");
+    shieldModel_->SetMaterial(shieldMaterial_);
     //Setup player audio
     shot_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Shot.ogg");
     shot_->SetLooped(false);
@@ -85,8 +90,6 @@ Player::Player(Context *context, MasterControl *masterControl):
 
     //Subscribe to events
     SubscribeToEvent(E_SCENEUPDATE, HANDLER(Player, HandleSceneUpdate));
-
-    //SetPilotMode(true);
 }
 
 void Player::CreateGUI()
@@ -149,12 +152,13 @@ void Player::CreateGUI()
 
 void Player::AddScore(int points)
 {
-    unsigned nextMultiX = pow(10, multiplier_);
+    points *= multiplier_;
+    unsigned nextMultiX = pow(10, multiplier_+1);
     if (flightScore_ < nextMultiX && flightScore_ + points > nextMultiX){
-        masterControl_->x_->Respawn();
+        masterControl_->multiX_->Respawn();
     }
 
-    SetScore(GetScore()+(points*multiplier_));
+    SetScore(GetScore()+points);
     flightScore_ += points;
 }
 
@@ -209,10 +213,10 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
     //Read input
     if (input->GetJoystickByIndex(0)){
-    moveJoy = Vector3::RIGHT * input->GetJoystickByIndex(0)->GetAxisPosition(0) +
-            Vector3::BACK * input->GetJoystickByIndex(0)->GetAxisPosition(1);
-    fireJoy = Vector3::RIGHT * input->GetJoystickByIndex(0)->GetAxisPosition(2) +
-            Vector3::BACK * input->GetJoystickByIndex(0)->GetAxisPosition(3);
+        moveJoy = Vector3::RIGHT * input->GetJoystickByIndex(0)->GetAxisPosition(0) +
+                Vector3::BACK * input->GetJoystickByIndex(0)->GetAxisPosition(1);
+        fireJoy = Vector3::RIGHT * input->GetJoystickByIndex(0)->GetAxisPosition(2) +
+                Vector3::BACK * input->GetJoystickByIndex(0)->GetAxisPosition(3);
     }
     moveKey = Vector3::LEFT * input->GetKeyDown(KEY_A) +
             Vector3::RIGHT * input->GetKeyDown(KEY_D) +
@@ -266,8 +270,14 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
             animCtrl_->PlayExclusive("Resources/Models/IdleRelax.ani", 0, true, 0.15f);
             animCtrl_->SetStartBone("Resources/Models/IdleRelax.ani", "MasterBone");
         }
-    // When in ship mode
+        // When in ship mode
     } else {
+        //Update shield
+        shieldNode_->Rotate(Quaternion(1010.0f*timeStep, 200.0f*timeStep, Random(10.0f, 100.0f)));
+        Color shieldColor = shieldMaterial_->GetShaderParameter("MatDiffColor").GetColor();
+        shieldMaterial_->SetShaderParameter("MatDiffColor", Color(shieldColor.r_ * Random(0.6f, 0.9f),
+                                                  shieldColor.g_ * Random(0.7f, 0.95f),
+                                                  shieldColor.b_ * Random(0.8f, 0.9f)));
         //Float
         ship_.node_->SetPosition(Vector3::UP *masterControl_->Sine(2.3f, -0.1f, 0.1f));
         //Apply movement
@@ -296,9 +306,9 @@ void Player::UpdateGUI(float timeStep)
 {
     for (int i = 0; i < 5; i++){
         appleCounter_[i]->Rotate(Quaternion(0.0f, (i*i+10.0f) * 23.0f * timeStep, 0.0f));
-        appleCounter_[i]->SetScale(masterControl_->Sine((1.0f+(appleCount_))*2.0f, 0.2f, 0.4, -i/(2.0f*M_PI)));
+        appleCounter_[i]->SetScale(masterControl_->Sine((1.0f+(appleCount_))*2.0f, 0.2f, 0.4, -i));
         heartCounter_[i]->Rotate(Quaternion(0.0f, (i*i+10.0f) * 23.0f * timeStep, 0.0f));
-        heartCounter_[i]->SetScale(masterControl_->Sine((1.0f+(heartCount_))*2.0f, 0.2f, 0.4, -i/(2.0f*M_PI)));
+        heartCounter_[i]->SetScale(masterControl_->Sine((1.0f+(heartCount_))*2.0f, 0.2f, 0.4, -i));
     }
     //Update HealthBar color
     healthBarModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", HealthToColor(health_));
@@ -330,7 +340,7 @@ void Player::Shoot(Vector3 fire)
     sinceLastShot_ = 0.0;
     //Create a single muzzle flash
     if (bulletAmount_ > 0){
-        new Muzzle(context_, masterControl_, rootNode_->GetPosition());
+        MoveMuzzle();
         PlaySample(shot_);
     }
 }
@@ -350,13 +360,19 @@ void Player::FireBullet(Vector3 direction){
     }
     bullet->Set(rootNode_->GetPosition() + direction);
     bullet->rootNode_->LookAt(bullet->rootNode_->GetPosition() + direction*5.0f);
-    bullet->rigidBody_->ApplyForce(direction*(1500.0f+50.0f*weaponLevel_));
+    bullet->rigidBody_->ApplyForce(direction*(1500.0f+23.0f*weaponLevel_));
     bullet->damage_ = 0.15f + 0.00666f * weaponLevel_;
 }
-
-void Player::Pickup(const StringHash nameHash)
+void Player::MoveMuzzle()
 {
-    if(nameHash == N_APPLE) {
+    if (muzzle_ == nullptr) muzzle_ = new Muzzle(context_, masterControl_, rootNode_->GetPosition());
+    else muzzle_->Set(rootNode_->GetPosition());
+}
+
+void Player::Pickup(PickupType pickup)
+{
+    switch (pickup) {
+    case PT_APPLE: {
         bulletAmount_ = (bulletAmount_ == 0)?1:bulletAmount_;
         ++appleCount_;
         heartCount_ = 0;
@@ -365,7 +381,8 @@ void Player::Pickup(const StringHash nameHash)
             appleCount_ = 0;
             UpgradeWeapons();
         }
-    } else if (nameHash == N_HEART) {
+    } break;
+    case PT_HEART: {
         ++heartCount_;
         appleCount_ = 0;
         if (heartCount_ >= 5){
@@ -373,12 +390,37 @@ void Player::Pickup(const StringHash nameHash)
             SetHealth(15.0);
         }
         else SetHealth(Max(health_, Clamp(health_+5.0f, 0.0f, 10.0f)));
-    } else if (nameHash == N_MULTIX) {
+    } break;
+    case PT_MULTIX: {
         multiplier_++;
-    } else if (nameHash == N_RESET) {
+    } break;
+    case PT_CHAOBALL: {
+        PODVector<RigidBody* > hitResults;
+        float radius = 5.0f;
+        if (masterControl_->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), radius, M_MAX_UNSIGNED)){
+            for (int i = 0; i < hitResults.Size(); i++){
+                //Deal damage
+                unsigned hitID = hitResults[i]->GetNode()->GetID();
+                if(masterControl_->spawnMaster_->spires_.Keys().Contains(hitID)){
+                    WeakPtr<Spire> spire = masterControl_->spawnMaster_->spires_[hitID];
+                    spire->Set(spire->GetPosition()+Vector3::DOWN*23.0f);
+                    AddScore(Random(42, 100));
+                }
+                else if(masterControl_->spawnMaster_->razors_.Keys().Contains(hitID)){
+                    WeakPtr<Razor> razor = masterControl_->spawnMaster_->razors_[hitID];
+                    razor->Set(razor->GetPosition()+Vector3::DOWN*23.0f);
+                    AddScore(Random(23, 42));
+                }
+            }
+        }
+    } break;
+    case PT_RESET: {
         appleCount_ = 0;
         heartCount_= 0;
     }
+    }
+
+    //Update Pickup GUI elements
     for (int a = 0; a < 5; a++){
         if (appleCount_ > a) appleCounter_[a]->SetEnabled(true);
         else appleCounter_[a]->SetEnabled(false);
@@ -392,18 +434,19 @@ void Player::Pickup(const StringHash nameHash)
 void Player::Die()
 {
     Disable();
-    new Explosion(context_, masterControl_, rootNode_->GetPosition(), Color::GREEN, 2.0f);
+    masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), Color::GREEN, 2.0f);
     masterControl_->SetGameState(GS_DEAD);
 }
 
 void Player::EnterPlay()
 {
     guiNode_->SetEnabledRecursive(true);
-    Pickup(N_RESET);
+    Pickup(PT_RESET);
 
     rootNode_->SetRotation(Quaternion::IDENTITY);
     rigidBody_->ResetForces();
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
+    shieldMaterial_->SetShaderParameter("MatDiffColor", Color::BLACK);
 
     SetHealth(initialHealth_);
     flightScore_ = 0;
@@ -429,6 +472,7 @@ void Player::SetPilotMode(bool pilotMode){
     rootNode_->SetEnabled(true);
     pilot_.node_->SetEnabledRecursive(pilotMode_);
     ship_.node_->SetEnabledRecursive(!pilotMode_);
+    shieldNode_->SetEnabled(!pilotMode_);
     collisionShape_->SetSphere(pilotMode_? 0.666f : 2.0f);
     rigidBody_->SetLinearDamping(pilotMode_? 0.75f : 0.5f);
 }
@@ -455,8 +499,12 @@ Color Player::HealthToColor(float health)
     return color;
 }
 
-void Player::Hit(float damage)
+void Player::Hit(float damage, bool melee)
 {
+    if (health_ > 10.0f){
+        damage *= (melee ? 0.9f : 0.5f);
+        shieldMaterial_->SetShaderParameter("MatDiffColor", Color(2.0f, 3.0f, 5.0f, 1.0f));
+    }
     SetHealth(health_ - damage);
 }
 
@@ -471,7 +519,7 @@ void Player::UpgradeWeapons()
 
 void Player::CreateNewPilot()
 {
-    Pickup(StringHash("Reset"));
+    Pickup(PT_RESET);
     ResetScore();
 
     pilot_.male_ = (Random(1.0f)>0.5f) ? true : false;

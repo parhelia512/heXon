@@ -23,6 +23,7 @@
 #include "apple.h"
 #include "heart.h"
 #include "multix.h"
+#include "chaoball.h"
 #include "bullet.h"
 #include "seeker.h"
 #include "flash.h"
@@ -49,10 +50,11 @@ void MasterControl::Setup()
     //Set custom window title and icon.
     engineParameters_["WindowTitle"] = "heXon";
     engineParameters_["LogName"] = GetSubsystem<FileSystem>()->GetAppPreferencesDir("urho3d", "logs")+"heXon.log";
-    /*engineParameters_["FullScreen"] = true;
-    engineParameters_["Headless"] = false;
-    engineParameters_["WindowWidth"] = 1920;
-    engineParameters_["WindowHeight"] = 1080;*/
+//    engineParameters_["VSync"] = true;
+//    engineParameters_["FullScreen"] = true;
+//    engineParameters_["Headless"] = false;
+    engineParameters_["WindowWidth"] = 1600;
+    engineParameters_["WindowHeight"] = 1024;
 }
 void MasterControl::Start()
 {
@@ -205,7 +207,7 @@ void MasterControl::CreateScene()
     logoNode->SetScale(16.0f);
     StaticModel* logoModel = logoNode->CreateComponent<StaticModel>();
     logoModel->SetModel(cache_->GetResource<Model>("Resources/Models/heXon.mdl"));
-    logoModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Loglow_bak.xml"));
+    logoModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Loglow.xml"));
 
     //Construct lobby
     lobbyNode_ = world.scene->CreateChild("Lobby");
@@ -269,7 +271,8 @@ void MasterControl::CreateScene()
     player_ = new Player(context_, this);
     apple_ = new Apple(context_, this);
     heart_ = new Heart(context_, this);
-    x_ = new X(context_, this);
+    multiX_ = new MultiX(context_, this);
+    //chaoBall_ = new ChaoBall(context_, this);
 }
 
 void MasterControl::SetGameState(GameState newState)
@@ -311,7 +314,8 @@ void MasterControl::EnterGameState()
         tileMaster_->HideArena();
         apple_->Deactivate();
         heart_->Deactivate();
-        x_->Deactivate();
+        multiX_->Deactivate();
+        //chaoBall_->Deactivate();
     } break;
     case GS_PLAY : {
         musicSource_->Play(gameMusic_);
@@ -343,12 +347,12 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
     double timeStep = eventData[P_TIMESTEP].GetFloat();
     UpdateCursor(timeStep);
 
-    if (currentState_ == GS_LOBBY){
+    if (currentState_ == GS_LOBBY) {
         Color spotColor;
         unsigned score = player_->GetScore();
-        spotColor.FromHSV(heXon::Cycle(((score/100000)+0.1f)*world.scene->GetElapsedTime(), 0.0f, 1.0f), Min(1.0f, score/1000), 1.0f);
+        spotColor.FromHSV(heXon::Cycle(((score/20000)+0.1f)*world.scene->GetElapsedTime(), 0.0f, 1.0f), Min(1.0f, score/5000), 1.0f);
         lobbySpotLight_->SetColor(spotColor);
-        lobbySpotLight_->SetBrightness(1.0f + Min(10.0f, (score/100000)));
+        lobbySpotLight_->SetBrightness(1.0f + Min(10.0f, (score/10000)));
     }
 }
 
@@ -404,7 +408,7 @@ void MasterControl::Exit()
 void MasterControl::CreateSineLookupTable()
 {
     //Generate sine lookup vector
-    int resolution = 2048;
+    int resolution = 4096;
     for (int i = 0; i < resolution; i++){
         sine_.Push(sin(((float)i/resolution)*2.0*M_PI));
     }

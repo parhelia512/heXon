@@ -43,6 +43,8 @@ public:
     Explosion(Context* context, MasterControl* masterControl, Vector3 position, Color color, double size);
 
     void UpdateExplosion(StringHash eventType, VariantMap &eventData);
+    void Set(Vector3 position, Color color, float size);
+    void Disable();
 protected:
     SharedPtr<RigidBody> rigidBody_;
     SharedPtr<Light> light_;

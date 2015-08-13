@@ -27,12 +27,18 @@ HitFX::HitFX(Context *context, MasterControl *masterControl, Vector3 position, b
     ParticleEffect* particleEffect = masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/HitFX.xml");
     particleEmitter_->SetEffect(particleEffect);
 
+    sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Hit.ogg");
+    sample_->SetLooped(false);
+    sampleSource_ = rootNode_->CreateComponent<SoundSource>();
+    sampleSource_->SetGain(0.23f);
+    sampleSource_->SetSoundType(SOUND_EFFECT);
     if (sound){
-        sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Hit.ogg");
-        sample_->SetLooped(false);
-        sampleSource_ = rootNode_->CreateComponent<SoundSource>();
-        sampleSource_->SetGain(0.23f);
-        sampleSource_->SetSoundType(SOUND_EFFECT);
         sampleSource_->Play(sample_);
     }
+}
+
+void HitFX::Set(Vector3 position, bool sound)
+{
+    if (sound) sampleSource_->Play(sample_);
+    Effect::Set(position);
 }

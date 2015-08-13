@@ -16,12 +16,12 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef HITFX_H
-#define HITFX_H
+#ifndef CHAOBALL_H
+#define CHAOBALL_H
 
 #include <Urho3D/Urho3D.h>
 
-#include "effect.h"
+#include "pickup.h"
 
 namespace Urho3D {
 class Drawable;
@@ -32,16 +32,11 @@ class Sprite;
 
 using namespace Urho3D;
 
-class HitFX : public Effect
+class ChaoBall : public Pickup
 {
-    OBJECT(HitFX);
+    OBJECT(ChaoBall);
 public:
-    HitFX(Context* context, MasterControl* masterControl, Vector3 position, bool sound = true);
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-    void Set(Vector3 position, bool sound = true);
-private:
-    SharedPtr<Sound> sample_;
-    SharedPtr<SoundSource> sampleSource_;
+    ChaoBall(Context* context, MasterControl* masterControl);
 };
 
-#endif // HITFX_H
+#endif // CHAOBALL_H

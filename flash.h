@@ -40,6 +40,8 @@ public:
     SharedPtr<Light> light_;
 
     void UpdateFlash(StringHash eventType, VariantMap &eventData);
+    void Set(Vector3 position);
+    void Disable();
 private:
     float initialBrightness_;
 };

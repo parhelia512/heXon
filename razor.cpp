@@ -79,6 +79,7 @@ void Razor::Set(Vector3 position)
 {
     aimSpeed_ = 0.25 * topSpeed_;
     Enemy::Set(position);
+    SubscribeToEvent(E_SCENEPOSTUPDATE, HANDLER(Razor, HandleRazorUpdate));
 }
 
 

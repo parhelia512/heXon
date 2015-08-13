@@ -48,6 +48,9 @@ class SceneObject : public Object
 public:
     bool IsEnabled() {return rootNode_->IsEnabled();}
     SceneObject(Context *context, MasterControl* masterControl);
+    void Set(Vector3 position);
+    Vector3 GetPosition() { return rootNode_->GetPosition(); }
+    bool IsEmerged() { return rootNode_->GetPosition().y_ > -0.1f; }
 protected:
     bool blink_;
     MasterControl* masterControl_;
@@ -55,10 +58,9 @@ protected:
     SharedPtr<Node> rootNode_;
     SharedPtr<Node> graphicsNode_;
     void Disable();
-    void Set(Vector3 position);
 private:
-    Sound* flashSample_;
-    SoundSource* flashSource_;
+    SharedPtr<Sound> flashSample_;
+    SharedPtr<SoundSource> flashSource_;
     void BlinkCheck(StringHash eventType, VariantMap &eventData);
 };
 

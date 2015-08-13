@@ -18,8 +18,8 @@
 
 //#include "mastercontrol.h"
 #include "tilemaster.h"
-#include "flash.h"
 #include "sceneobject.h"
+#include "spawnmaster.h"
 
 SceneObject::SceneObject(Context* context, MasterControl* masterControl):
     Object(context),
@@ -43,34 +43,36 @@ void SceneObject::Set(Vector3 position)
 {
     rootNode_->SetPosition(position);
     rootNode_->SetEnabledRecursive(true);
+    SubscribeToEvent(E_UPDATE, HANDLER(SceneObject, BlinkCheck));
 }
 
 void SceneObject::Disable()
 {
     masterControl_->tileMaster_->RemoveFromAffectors(rootNode_);
     rootNode_->SetEnabledRecursive(false);
+    UnsubscribeFromEvent(E_UPDATE);
 }
 
 void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
 {
-    if (!blink_ || masterControl_->GetPaused()) return;
+    if (!blink_ || masterControl_->GetPaused() || !IsEmerged()) return;
 
-    Vector3 position = rootNode_->GetPosition();
+    Vector3 flatPosition = heXon::Scale(rootNode_->GetPosition(), Vector3::ONE-Vector3::UP);
     float radius = 20.0f;
-    if (position.Length() > radius){
+    if (flatPosition.Length() > radius){
         Vector3 hexantNormal = Vector3::FORWARD;
         int sides = 6;
         for (int h = 0; h < sides; h++){
             Vector3 otherHexantNormal = Quaternion(h * (360.0f/sides), Vector3::UP)*Vector3::FORWARD;
-            hexantNormal = position.Angle(otherHexantNormal) < position.Angle(hexantNormal) ?
+            hexantNormal = flatPosition.Angle(otherHexantNormal) < flatPosition.Angle(hexantNormal) ?
                         otherHexantNormal : hexantNormal;
         }
-        float boundsCheck = position.Length() * masterControl_->Cosine(M_DEGTORAD * position.Angle(hexantNormal));
+        float boundsCheck = flatPosition.Length() * masterControl_->Cosine(M_DEGTORAD * flatPosition.Angle(hexantNormal));
         if (boundsCheck > radius){
-            new Flash(context_, masterControl_, position); //Should be recycled
-            Vector3 newPosition = rootNode_->GetPosition()-(2.0f*radius)*hexantNormal;
+            masterControl_->spawnMaster_->SpawnFlash(rootNode_->GetPosition());
+            Vector3 newPosition = rootNode_->GetPosition()-(1.999f*radius)*hexantNormal;
             rootNode_->SetPosition(newPosition);
-            new Flash(context_, masterControl_, newPosition); //Should be recycled
+            masterControl_->spawnMaster_->SpawnFlash(newPosition);
             flashSource_->Play(flashSample_);
         }
     }

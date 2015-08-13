@@ -85,4 +85,5 @@ void Spire::Set(Vector3 position)
 {
     shotInterval_ = initialShotInterval_;
     Enemy::Set(position);
+    SubscribeToEvent(E_SCENEPOSTUPDATE, HANDLER(Spire, HandleSpireUpdate));
 }

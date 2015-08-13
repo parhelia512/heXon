@@ -44,11 +44,11 @@ class Bullet : public SceneObject
     OBJECT(Bullet);
 public:
     Bullet(Context *context, MasterControl* masterControl);
+    void Set(Vector3 position);
 protected:
     SharedPtr<RigidBody> rigidBody_;
     SharedPtr<StaticModel> model_;
 
-    void Set(Vector3 position);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 private:
     float age_ = 0.0f;

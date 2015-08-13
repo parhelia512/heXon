@@ -47,6 +47,13 @@ Seeker::Seeker(Context *context, MasterControl *masterControl, Vector3 position)
     light->SetBrightness(2.3f);
     light->SetColor(Color(1.0f, 1.0f, 1.0f));
 
+    sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Seeker.ogg");
+    sample_->SetLooped(false);
+    sampleSource_ = rootNode_->CreateComponent<SoundSource>();
+    sampleSource_->SetGain(0.666f);
+    sampleSource_->SetSoundType(SOUND_EFFECT);
+    sampleSource_->Play(sample_);
+
     SubscribeToEvent(E_SCENEUPDATE, HANDLER(Seeker, HandleSceneUpdate));
     SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, HANDLER(Seeker, HandleTriggerStart));
 
@@ -62,7 +69,7 @@ void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
     age_ += timeStep;
     if (age_ > lifeTime_ && rootNode_->IsEnabled()) {
-        new HitFX(context_, masterControl_, rootNode_->GetPosition(), false);
+        masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), false);
         Disable();
     }
 
@@ -82,13 +89,13 @@ void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
     for (int i = 0; i < collidingBodies.Size(); i++) {
         RigidBody* collider = collidingBodies[i];
         if (collider->GetNode()->GetNameHash() == N_PLAYER) {
-            masterControl_->player_->Hit(2.3f);
-            new HitFX(context_, masterControl_, rootNode_->GetPosition());
+            masterControl_->player_->Hit(2.3f, false);
+            masterControl_->spawnMaster_->SpawnHitFX(rootNode_->GetPosition(), true);
             collider->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.5f);
             Disable();
         }
         else if (collider->GetNode()->GetNameHash() == N_SEEKER){
-            new HitFX(context_, masterControl_, rootNode_->GetPosition(), false);
+            masterControl_->spawnMaster_->SpawnHitFX(rootNode_->GetPosition(), false);
             Disable();
         }
     }
@@ -101,4 +108,9 @@ void Seeker::Set(Vector3 position)
     rigidBody_->ResetForces();
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
+
+    sampleSource_->Play(sample_);
+
+    SubscribeToEvent(E_SCENEUPDATE, HANDLER(Seeker, HandleSceneUpdate));
+    SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, HANDLER(Seeker, HandleTriggerStart));
 }

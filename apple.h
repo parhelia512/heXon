@@ -44,7 +44,6 @@ class Apple : public Pickup
     OBJECT(Apple);
 public:
     Apple(Context* context, MasterControl* masterControl);
-    const int worth_ = 23;
 };
 
 #endif // APPLE_H

@@ -16,21 +16,29 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "apple.h"
+#include "spawnmaster.h"
+#include "chaoball.h"
 
-Apple::Apple(Context *context, MasterControl *masterControl):
+ChaoBall::ChaoBall(Context *context, MasterControl *masterControl):
     Pickup(context, masterControl)
 {
-    rootNode_->SetName("Apple");
-    pickupType_ = PT_APPLE;
-    initialPosition_ = Vector3::LEFT*10.0;
+    rootNode_->SetName("ChaoBall");
+    pickupType_ = PT_CHAOBALL;
+    rootNode_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
+    initialPosition_ = Vector3::FORWARD*5.0f;
     rootNode_->SetPosition(initialPosition_);
-    model_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Apple.mdl"));
-    model_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/GoldEnvmap.xml"));
+    model_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Chaosphere.mdl"));
+    model_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/Chaosphere.xml"));
+
+    rigidBody_->SetMass(3.0f);
 
     Vector<ColorFrame> colorFrames;
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
-    colorFrames.Push(ColorFrame(Color(0.5f, 0.5f, 0.23f, 0.42f), 0.1f));
+    colorFrames.Push(ColorFrame(Color(0.05f, 0.02f, 1.0f, 0.42f), 0.1f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
     particleEmitter_->GetEffect()->SetColorFrames(colorFrames);
+    particleEmitter_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/Rift.xml"));
+
+    chaoInterval_ = Random(23.0f, 100.0f);
+    Deactivate();
 }

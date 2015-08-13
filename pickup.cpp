@@ -22,7 +22,8 @@
 #include "player.h"
 
 Pickup::Pickup(Context *context, MasterControl *masterControl):
-    SceneObject(context, masterControl)
+    SceneObject(context, masterControl),
+    sinceLastRespawn_{0.0f}
 {
     rootNode_->SetName("Pickup");
     graphicsNode_ = rootNode_->CreateChild("Graphics");
@@ -46,7 +47,7 @@ Pickup::Pickup(Context *context, MasterControl *masterControl):
     CollisionShape* collisionShape = rootNode_->CreateComponent<CollisionShape>();
     collisionShape->SetSphere(1.5f);
 
-    masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
+    //masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 
     Node* triggerNode = rootNode_->CreateChild("PickupTrigger");
     triggerBody_ = triggerNode->CreateComponent<RigidBody>();
@@ -81,8 +82,9 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
         RigidBody* collider = collidingBodies[i];
         if (collider->GetNode()->GetNameHash() == N_PLAYER) {
             soundSource_->Play(sample_);
-            masterControl_->player_->Pickup(rootNode_->GetNameHash());
-            rootNode_->GetNameHash() == N_MULTIX ? Deactivate() : Respawn();
+            masterControl_->player_->Pickup(pickupType_);
+            masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), false);
+            pickupType_ == PT_MULTIX ? Deactivate() : Respawn();
         }
     }
 }
@@ -91,40 +93,53 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
 {
     using namespace Update;
     float timeStep = eventData[P_TIMESTEP].GetFloat();
+    sinceLastRespawn_ += timeStep;
 
     //Spin
-    rootNode_->Rotate(Quaternion(0.0f, 100.0f * timeStep, 0.0f));
+    rootNode_->Rotate(Quaternion(pickupType_ == PT_CHAOBALL? 23.0f*timeStep : 0.0f,
+                                 100.0f * timeStep,
+                                 pickupType_ == PT_CHAOBALL? 42.0f*timeStep : 0.0f));
     //Float
     float floatFactor = 0.5f-Min(0.5f, 0.5f*Abs(rootNode_->GetPosition().y_));
     graphicsNode_->SetPosition(
-                Vector3::UP *masterControl_->Sine(2.5f, -floatFactor, floatFactor,
-                                                  rootNode_->GetNameHash()==N_APPLE?
-                                                      0.23f : 0.5f));
+                Vector3::UP *masterControl_->Sine(pickupType_ == PT_CHAOBALL? 5.0f : 2.5f, -floatFactor, floatFactor,
+                                                  pickupType_ == PT_APPLE? 0.23f : 0.5f));
     //Emerge
-    if (rootNode_->GetPosition().y_ < 0.01f) {
-        rootNode_->Translate(Vector3::UP * timeStep * (0.23f - rootNode_->GetPosition().y_));
+    if (!IsEmerged()) rootNode_->Translate(Vector3::UP * timeStep * (0.23f - rootNode_->GetPosition().y_));
+
+
+
+    //Only when alive and playing
+    if (masterControl_->GetGameState() != GS_PLAY) return;
+    //Move
+    if (IsEmerged())
+    {
+        if (pickupType_ == PT_MULTIX)
+            rigidBody_->ApplyForce(masterControl_->player_->GetPosition());
+        else if (pickupType_ == PT_CHAOBALL)
+            rigidBody_->ApplyForce(-masterControl_->player_->GetPosition());
     }
-    //Flee
-    else if (rootNode_->GetNameHash() == N_MULTIX){
-        rigidBody_->ApplyForce(masterControl_->player_->GetPosition());
-    }
+
+    //Respawn ChaoBall
+    if (pickupType_ == PT_CHAOBALL && !rootNode_->IsEnabled() && sinceLastRespawn_ > chaoInterval_)
+        Respawn();
+
     //Move trigger along
     triggerBody_->SetPosition(rootNode_->GetPosition());
 }
 
 void Pickup::Respawn(bool restart)
 {
-    rootNode_->SetPosition(
-                restart ?
-                    initialPosition_
-                  : masterControl_->spawnMaster_->SpawnPoint());
+    sinceLastRespawn_ = 0.0f; chaoInterval_ = Random(23.0f, 100.0f);
 
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();
-    rootNode_->SetEnabledRecursive(true);
+
+    Set(restart ? initialPosition_
+                : masterControl_->spawnMaster_->SpawnPoint());
 }
 void Pickup::Deactivate()
 {
     soundSource_->Stop();
-    rootNode_->SetEnabledRecursive(false);
+    SceneObject::Disable();
 }

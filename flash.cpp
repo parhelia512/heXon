@@ -42,3 +42,15 @@ void Flash::UpdateFlash(StringHash eventType, VariantMap &eventData)
 {
     light_->SetBrightness(Max(initialBrightness_*(0.25f - age_)/0.25f,0.0f));
 }
+
+void Flash::Set(Vector3 position)
+{
+    SubscribeToEvent(E_POSTUPDATE, HANDLER(Flash, UpdateFlash));
+    Effect::Set(position);
+}
+
+void Flash::Disable()
+{
+    UnsubscribeFromEvent(E_POSTUPDATE);
+    Effect::Disable();
+}

@@ -75,8 +75,12 @@ void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
         if (masterControl_->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), radius, M_MAX_UNSIGNED)){
             for (int i = 0; i < hitResults.Size(); i++){
                 if (!hitResults[i]->IsTrigger()){
-                    hitResults[i]->ApplyForce((hitResults[i]->GetNode()->GetWorldPosition() - rootNode_->GetWorldPosition()) * sqrt(radius-heXon::Distance(rootNode_->GetWorldPosition(), hitResults[i]->GetNode()->GetWorldPosition()))*timeStep*500.0f*rigidBody_->GetMass()
-                                );
+                    hitResults[i]->ApplyForce((hitResults[i]->GetNode()->GetWorldPosition()
+                                               - rootNode_->GetWorldPosition())
+                                              * sqrt(radius-heXon::Distance(
+                                                         rootNode_->GetWorldPosition(),
+                                                         hitResults[i]->GetNode()->GetWorldPosition()))
+                                              *timeStep*500.0f*rigidBody_->GetMass());
                     //Deal damage
                     unsigned hitID = hitResults[i]->GetNode()->GetID();
                     float damage = rigidBody_->GetMass()*timeStep;
@@ -90,4 +94,35 @@ void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
             }
         }
     }
+}
+
+void Explosion::Set(Vector3 position, Color color, float size)
+{
+    Effect::Set(position);
+    rootNode_->SetScale(size);
+    initialMass_ = 3.0f * size;
+    rigidBody_->SetMass(initialMass_);
+    light_->SetColor(color);
+    light_->SetBrightness(initialBrightness_);
+
+    ParticleEffect* particleEffect = particleEmitter_->GetEffect();
+    Vector<ColorFrame> colorFrames;
+    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
+    Color mixColor = 0.5f * (color + particleEffect->GetColorFrame(1)->color_);
+    colorFrames.Push(ColorFrame(mixColor, 0.1f));
+    colorFrames.Push(ColorFrame(mixColor*0.1f, 0.35f));
+    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
+    particleEffect->SetColorFrames(colorFrames);
+
+    sampleSource_->Play(sample_);
+
+    masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
+
+    SubscribeToEvent(E_POSTUPDATE, HANDLER(Explosion, UpdateExplosion));
+}
+
+void Explosion::Disable()
+{
+    UnsubscribeFromEvent(E_POSTUPDATE);
+    Effect::Disable();
 }

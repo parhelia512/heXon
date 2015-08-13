@@ -42,6 +42,8 @@ public:
     void Set(Vector3 position);
 protected:
     RigidBody* rigidBody_;
+    SharedPtr<Sound> sample_;
+    SharedPtr<SoundSource> sampleSource_;
     SharedPtr<Node> target_;
 
     float age_;

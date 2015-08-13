@@ -18,14 +18,17 @@
 
 #include "multix.h"
 
-X::X(Context *context, MasterControl *masterControl):
+MultiX::MultiX(Context *context, MasterControl *masterControl):
     Pickup(context, masterControl)
 {
     rootNode_->SetName("MultiX");
+    pickupType_ = PT_MULTIX;
     initialPosition_ = Vector3::DOWN*42.0f;
     rootNode_->SetPosition(initialPosition_);
     model_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/X.mdl"));
     model_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/BlueGlowEnvmap.xml"));
+
+    rigidBody_->SetMass(2.0f);
 
     Vector<ColorFrame> colorFrames;
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));

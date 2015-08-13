@@ -23,6 +23,7 @@
 
 #include "sceneobject.h"
 #include "bullet.h"
+#include "muzzle.h"
 #include "tailgenerator.h"
 
 namespace Urho3D {
@@ -55,13 +56,13 @@ public:
 
     Vector3 GetPosition() { return rootNode_->GetPosition(); }
     double GetHealth(){return health_;}
-    void Hit(float damage);
+    void Hit(float damage, bool melee = true);
 
     void AddScore(int points);
     void Die();
     unsigned GetScore() { return score_; }
     unsigned GetFlightScore() { return flightScore_; }
-    void Pickup(const StringHash nameHash);
+    void Pickup(PickupType pickup);
     void EnterLobby();
     void EnterPlay();
     void CreateNewPilot();
@@ -85,6 +86,10 @@ private:
 
     Ship ship_;
     Pilot pilot_;
+    Node* shieldNode_;
+    StaticModel* shieldModel_;
+    SharedPtr<Material> shieldMaterial_;
+    Vector3 lastHitDirection_;
     RigidBody* rigidBody_;
     CollisionShape* collisionShape_;
     AnimationController* animCtrl_;
@@ -102,6 +107,7 @@ private:
 
     Vector<SharedPtr<TailGenerator> > tailGens_;
     Vector<SharedPtr<Bullet> > bullets_;
+    SharedPtr<Muzzle> muzzle_;
     SharedPtr<Sound> shot_;
     Vector<SharedPtr<SoundSource> > sampleSources_;
 
@@ -121,6 +127,7 @@ private:
     void RemoveTails();
     void CreateGUI();
     void SetPilotMode(bool pilotMode);
+    void MoveMuzzle();
 };
 
 #endif // PLAYER_H

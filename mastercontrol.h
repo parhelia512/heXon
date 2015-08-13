@@ -80,7 +80,8 @@ class SpawnMaster;
 class Razor;
 class Player;
 class Apple;
-class X;
+class MultiX;
+class ChaoBall;
 class Heart;
 
 typedef struct GameWorld
@@ -149,6 +150,7 @@ StringHash const N_PLAYER = StringHash("Player");
 StringHash const N_APPLE = StringHash("Apple");
 StringHash const N_HEART = StringHash("Heart");
 StringHash const N_MULTIX = StringHash("MultiX");
+StringHash const N_CHAOBALL = StringHash("ChaoBall");
 StringHash const N_RESET = StringHash("Reset");
 StringHash const N_SEEKER = StringHash("Seeker");
 StringHash const N_SPIRE = StringHash("Spire");
@@ -157,6 +159,7 @@ StringHash const N_RAZOR = StringHash("Razor");
 
 enum GameState {GS_INTRO, GS_LOBBY, GS_PLAY, GS_DEAD, GS_EDIT};
 enum JoyStickButton {JB_SELECT, JB_LEFTSTICK, JB_RIGHTSTICK, JB_START, JB_DPAD_UP, JB_DPAD_RIGHT, JB_DPAD_DOWN, JB_DPAD_LEFT, JB_L2, JB_R2, JB_L1, JB_R1, JB_TRIANGLE, JB_CIRCLE, JB_CROSS, JB_SQUARE};
+enum PickupType {PT_RESET, PT_APPLE, PT_HEART, PT_MULTIX, PT_CHAOBALL};
 
 class MasterControl : public Application
 {
@@ -180,7 +183,8 @@ public:
     SharedPtr<Player> player_;
     SharedPtr<Apple> apple_;
     SharedPtr<Heart> heart_;
-    SharedPtr<X> x_;
+    SharedPtr<MultiX> multiX_;
+    SharedPtr<ChaoBall> chaoBall_;
     SharedPtr<Node> lobbyNode_;
 
     /// Setup before engine initialization. Modifies the engine paramaters.
@@ -220,9 +224,9 @@ private:
     bool paused_;
     GameState currentState_;
 
-    Sound* menuMusic_;
-    Sound* gameMusic_;
-    SoundSource* musicSource_;
+    SharedPtr<Sound> menuMusic_;
+    SharedPtr<Sound> gameMusic_;
+    SharedPtr<SoundSource> musicSource_;
     Light* lobbySpotLight_;
 
     void SetWindowTitleAndIcon();
