@@ -55,7 +55,7 @@ void SceneObject::Disable()
 
 void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
 {
-    if (!blink_ || masterControl_->GetPaused() || !IsEmerged()) return;
+    if (!blink_ || masterControl_->GetPaused()) return;
 
     Vector3 flatPosition = heXon::Scale(rootNode_->GetPosition(), Vector3::ONE-Vector3::UP);
     float radius = 20.0f;
