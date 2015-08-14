@@ -71,16 +71,16 @@ void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
 
     if (rootNode_->IsEnabled() && masterControl_->world.scene->IsUpdateEnabled()) {
         PODVector<RigidBody* > hitResults;
-        float radius = 2.0f*initialMass_ + age_*7.0f;
+        float radius = 2.0f * initialMass_ + age_ * 7.0f;
         if (masterControl_->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), radius, M_MAX_UNSIGNED)){
             for (int i = 0; i < hitResults.Size(); i++){
                 if (!hitResults[i]->IsTrigger()){
-                    hitResults[i]->ApplyForce((hitResults[i]->GetNode()->GetWorldPosition()
-                                               - rootNode_->GetWorldPosition())
-                                              * sqrt(radius-heXon::Distance(
-                                                         rootNode_->GetWorldPosition(),
-                                                         hitResults[i]->GetNode()->GetWorldPosition()))
-                                              *timeStep*500.0f*rigidBody_->GetMass());
+                    Vector3 positionDelta = hitResults[i]->GetNode()->GetWorldPosition()
+                            - rootNode_->GetWorldPosition();
+                    float distance = positionDelta.Length();
+                    Vector3 force = positionDelta * Max(radius-distance, 0.0f)
+                            * timeStep * 500.0f * rigidBody_->GetMass();
+                    hitResults[i]->ApplyForce(force);
                     //Deal damage
                     unsigned hitID = hitResults[i]->GetNode()->GetID();
                     float damage = rigidBody_->GetMass()*timeStep;

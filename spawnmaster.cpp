@@ -31,6 +31,13 @@ SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
 {
     masterControl_ = masterControl;
 
+    for (int r = 0; r < 23; r++) SpawnRazor(SpawnPoint());
+    for (int s = 0; s < 7; s++) SpawnSpire(SpawnPoint());
+    for (int s = 0; s < 20; s++) SpawnSeeker(SpawnPoint());
+    for (int h = 0; h < 15; h++) SpawnHitFX(SpawnPoint(), false);
+    for (int e = 0; e < 5; e++) SpawnExplosion(SpawnPoint(), Color::WHITE, 1.0f);
+    for (int f = 0; f < 10; f++) SpawnFlash(SpawnPoint());
+    Clear();
 }
 
 void SpawnMaster::Activate()
@@ -56,6 +63,18 @@ void SpawnMaster::Clear()
     for (unsigned s = 0; s < seekers_.Size(); s++){
         if (seekers_[s]->IsEnabled())
             seekers_[s]->Disable();
+    }
+    for (unsigned h = 0; h < hitFXs_.Size(); h++){
+        if (hitFXs_[h]->IsEnabled())
+            hitFXs_[h]->Disable();
+    }
+    for (unsigned e = 0; e < explosions_.Size(); e++){
+        if (explosions_[e]->IsEnabled())
+            explosions_[e]->Disable();
+    }
+    for (unsigned f = 0; f < flashes_.Size(); f++){
+        if (flashes_[f]->IsEnabled())
+            flashes_[f]->Disable();
     }
 }
 
@@ -115,12 +134,12 @@ int SpawnMaster::CountActiveSpires() //Crash
 
 void SpawnMaster::SpawnRazor(Vector3 position)
 {
-    sinceRazorSpawn_ = 0.0;
+    sinceRazorSpawn_ = 0.0f;
     if (!RespawnRazor(position)){
         Razor* newRazor = new Razor(context_, masterControl_, position);
         razors_[newRazor->rootNode_->GetID()] = SharedPtr<Razor>(newRazor);
     }
-    razorInterval_ = 7.0 * pow(0.95, ((masterControl_->world.scene->GetElapsedTime() - masterControl_->world.lastReset) + 10.0) / 10.0);
+    razorInterval_ = 7.0f * pow(0.95f, ((masterControl_->world.scene->GetElapsedTime() - masterControl_->world.lastReset) + 10.0f) / 10.0f);
 }
 bool SpawnMaster::RespawnRazor(Vector3 position)
 {
@@ -137,12 +156,12 @@ bool SpawnMaster::RespawnRazor(Vector3 position)
 
 void SpawnMaster::SpawnSpire(Vector3 position)
 {
-    sinceSpireSpawn_ = 0.0;
+    sinceSpireSpawn_ = 0.0f;
     if (!RespawnSpire(position)){
         Spire* newSpire = new Spire(context_, masterControl_, position);
         spires_[newSpire->rootNode_->GetID()] = SharedPtr<Spire>(newSpire);
     }
-    spireInterval_ = 23.0 * pow(0.95, ((masterControl_->world.scene->GetElapsedTime() - masterControl_->world.lastReset) + 42.0) / 42.0);
+    spireInterval_ = 23.0f * pow(0.95f, ((masterControl_->world.scene->GetElapsedTime() - masterControl_->world.lastReset) + 42.0f) / 42.0f);
 }
 bool SpawnMaster::RespawnSpire(Vector3 position)
 {
@@ -178,7 +197,7 @@ bool SpawnMaster::RespawnSeeker(Vector3 position)
 
 void SpawnMaster::SpawnHitFX(Vector3 position, bool sound)
 {
-    if (!RespawnHitFX(position)){
+    if (!RespawnHitFX(position, sound)){
         HitFX* newHitFX = new HitFX(context_, masterControl_, position, sound);
         hitFXs_.Push(SharedPtr<HitFX>(newHitFX));
     }

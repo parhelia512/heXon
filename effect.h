@@ -42,8 +42,8 @@ public:
     void Disable();
 protected:
     SharedPtr<ParticleEmitter> particleEmitter_;
-    float age_ = 0.0f;
-    float emitTime_ = 0.1f;
+    float age_;
+    float emitTime_;
 };
 
 #endif // EFFECT_H

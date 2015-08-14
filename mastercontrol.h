@@ -147,6 +147,7 @@ StringHash const N_ARENAEDGE = StringHash("ArenaEdge");
 StringHash const N_CURSOR = StringHash("Cursor");
 StringHash const N_TILE = StringHash("Tile");
 StringHash const N_PLAYER = StringHash("Player");
+StringHash const N_BULLET = StringHash("Bullet");
 StringHash const N_APPLE = StringHash("Apple");
 StringHash const N_HEART = StringHash("Heart");
 StringHash const N_MULTIX = StringHash("MultiX");
@@ -237,7 +238,8 @@ private:
     void SubscribeToEvents();
 
     void HandleSceneUpdate(StringHash eventType, VariantMap& eventData);
-    void HandlePlayTrigger(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY);}
+    void HandlePlayTrigger(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY); }
+    void HandleExitTrigger(StringHash otherNode, VariantMap &eventData){ Exit(); }
 
     void UpdateCursor(double timeStep);
     bool CursorRayCast(double maxDistance, PODVector<RayQueryResult> &hitResults);

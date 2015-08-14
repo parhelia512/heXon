@@ -19,7 +19,9 @@
 #include "effect.h"
 
 Effect::Effect(Context *context, MasterControl *masterControl, Vector3 position):
-    SceneObject(context, masterControl)
+    SceneObject(context, masterControl),
+    age_{0.0f},
+    emitTime_{0.1f}
 {
     blink_ = false;
 

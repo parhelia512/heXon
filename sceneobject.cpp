@@ -55,7 +55,7 @@ void SceneObject::Disable()
 
 void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
 {
-    if (!blink_ || masterControl_->GetPaused()) return;
+    if (masterControl_->GetPaused()) return;
 
     Vector3 flatPosition = heXon::Scale(rootNode_->GetPosition(), Vector3::ONE-Vector3::UP);
     float radius = 20.0f;
@@ -69,11 +69,16 @@ void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
         }
         float boundsCheck = flatPosition.Length() * masterControl_->Cosine(M_DEGTORAD * flatPosition.Angle(hexantNormal));
         if (boundsCheck > radius){
-            masterControl_->spawnMaster_->SpawnFlash(rootNode_->GetPosition());
-            Vector3 newPosition = rootNode_->GetPosition()-(1.999f*radius)*hexantNormal;
-            rootNode_->SetPosition(newPosition);
-            masterControl_->spawnMaster_->SpawnFlash(newPosition);
-            flashSource_->Play(flashSample_);
+            if (blink_){
+                masterControl_->spawnMaster_->SpawnFlash(rootNode_->GetPosition());
+                Vector3 newPosition = rootNode_->GetPosition()-(1.999f*radius)*hexantNormal;
+                rootNode_->SetPosition(newPosition);
+                masterControl_->spawnMaster_->SpawnFlash(newPosition);
+                flashSource_->Play(flashSample_);
+            } else if (rootNode_->GetNameHash() == N_BULLET){
+                masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), false);
+                Disable();
+            }
         }
     }
 }

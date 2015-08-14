@@ -23,7 +23,8 @@
 
 Pickup::Pickup(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
-    sinceLastRespawn_{0.0f}
+    sinceLastPickup_{0.0f},
+    chaoInterval_{Random(23.0f, 100.0f)}
 {
     rootNode_->SetName("Pickup");
     graphicsNode_ = rootNode_->CreateChild("Graphics");
@@ -47,7 +48,7 @@ Pickup::Pickup(Context *context, MasterControl *masterControl):
     CollisionShape* collisionShape = rootNode_->CreateComponent<CollisionShape>();
     collisionShape->SetSphere(1.5f);
 
-    //masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
+    masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 
     Node* triggerNode = rootNode_->CreateChild("PickupTrigger");
     triggerBody_ = triggerNode->CreateComponent<RigidBody>();
@@ -84,7 +85,11 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
             soundSource_->Play(sample_);
             masterControl_->player_->Pickup(pickupType_);
             masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), false);
-            pickupType_ == PT_MULTIX ? Deactivate() : Respawn();
+            switch (pickupType_){
+            case PT_MULTIX: case PT_CHAOBALL: Deactivate(); break;
+            case PT_APPLE: case PT_HEART: Respawn(); break;
+            default: break;
+            }
         }
     }
 }
@@ -93,53 +98,56 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
 {
     using namespace Update;
     float timeStep = eventData[P_TIMESTEP].GetFloat();
-    sinceLastRespawn_ += timeStep;
-
-    //Spin
-    rootNode_->Rotate(Quaternion(pickupType_ == PT_CHAOBALL? 23.0f*timeStep : 0.0f,
-                                 100.0f * timeStep,
-                                 pickupType_ == PT_CHAOBALL? 42.0f*timeStep : 0.0f));
-    //Float
-    float floatFactor = 0.5f-Min(0.5f, 0.5f*Abs(rootNode_->GetPosition().y_));
-    graphicsNode_->SetPosition(
-                Vector3::UP *masterControl_->Sine(pickupType_ == PT_CHAOBALL? 5.0f : 2.5f, -floatFactor, floatFactor,
-                                                  pickupType_ == PT_APPLE? 0.23f : 0.5f));
-    //Emerge
-    if (!IsEmerged()) rootNode_->Translate(Vector3::UP * timeStep * (0.23f - rootNode_->GetPosition().y_));
-
-
-
-    //Only when alive and playing
-    if (masterControl_->GetGameState() != GS_PLAY) return;
-    //Move
-    if (IsEmerged())
-    {
-        if (pickupType_ == PT_MULTIX)
-            rigidBody_->ApplyForce(masterControl_->player_->GetPosition());
-        else if (pickupType_ == PT_CHAOBALL)
-            rigidBody_->ApplyForce(-masterControl_->player_->GetPosition());
-    }
-
-    //Respawn ChaoBall
-    if (pickupType_ == PT_CHAOBALL && !rootNode_->IsEnabled() && sinceLastRespawn_ > chaoInterval_)
-        Respawn();
 
     //Move trigger along
     triggerBody_->SetPosition(rootNode_->GetPosition());
+    //Emerge
+    if (!IsEmerged()) rootNode_->Translate(Vector3::UP * timeStep * (0.23f - rootNode_->GetPosition().y_), TS_WORLD);
+
+    float xSpin = 0.0f;
+    float ySpin = 100.0f;
+    float zSpin = 0.0f;
+    float frequency = 2.5f;
+    float shift = 0.5f;
+
+    switch (pickupType_){
+    case PT_APPLE: shift = 0.23f; break;
+    case PT_HEART: break;
+    case PT_MULTIX:
+        xSpin = 64.0f; zSpin = 10.0f; frequency = 5.0f;
+        if (IsEmerged() && masterControl_->GetGameState() == GS_PLAY)
+            rigidBody_->ApplyForce(2.0f*masterControl_->player_->GetPosition()); break;
+    case PT_CHAOBALL: {
+        xSpin = 23.0f; zSpin = 42.0f; frequency = 5.0f; shift = 0.23f;
+        if (!rootNode_->IsEnabled()) {
+            if (sinceLastPickup_ > chaoInterval_) Respawn();
+            else sinceLastPickup_ += timeStep;
+        }
+        else if (IsEmerged() && masterControl_->GetGameState() == GS_PLAY)
+            rigidBody_->ApplyForce(-3.0f*masterControl_->player_->GetPosition()); break;
+    } break;
+    default: break;
+    }
+    //Spin
+    rootNode_->Rotate(Quaternion(xSpin * timeStep, ySpin * timeStep, zSpin * timeStep));
+    //Float
+    float floatFactor = 0.5f - Min(0.5f, 0.5f * Abs(rootNode_->GetPosition().y_));
+    graphicsNode_->SetPosition(Vector3::UP * masterControl_->Sine(frequency, -floatFactor, floatFactor, shift));
 }
 
 void Pickup::Respawn(bool restart)
 {
-    sinceLastRespawn_ = 0.0f; chaoInterval_ = Random(23.0f, 100.0f);
-
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();
 
     Set(restart ? initialPosition_
                 : masterControl_->spawnMaster_->SpawnPoint());
+    masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 }
 void Pickup::Deactivate()
 {
+    sinceLastPickup_ = 0.0f; chaoInterval_ = Random(23.0f, 100.0f);
+
     soundSource_->Stop();
     SceneObject::Disable();
 }

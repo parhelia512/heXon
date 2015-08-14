@@ -24,6 +24,7 @@
 #include "sceneobject.h"
 #include "bullet.h"
 #include "muzzle.h"
+#include "chaoflash.h"
 #include "tailgenerator.h"
 
 namespace Urho3D {
@@ -67,6 +68,7 @@ public:
     void EnterPlay();
     void CreateNewPilot();
     void UpdateGUI(float timeStep);
+    void PickupChaoBall();
 private:
     bool pilotMode_;
     float initialHealth_;
@@ -89,6 +91,7 @@ private:
     Node* shieldNode_;
     StaticModel* shieldModel_;
     SharedPtr<Material> shieldMaterial_;
+    ChaoFlash* chaoFlash_;
     Vector3 lastHitDirection_;
     RigidBody* rigidBody_;
     CollisionShape* collisionShape_;

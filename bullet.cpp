@@ -26,7 +26,7 @@ Bullet::Bullet(Context *context, MasterControl *masterControl):
     blink_ = false;
 
     rootNode_->SetName("Bullet");
-    rootNode_->SetScale(Vector3(1.0f, 1.0f, 0.1f));
+    rootNode_->SetScale(Vector3(1.0f+damage_, 1.0f+damage_, 0.1f));
     model_ = rootNode_->CreateComponent<StaticModel>();
     model_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Bullet.mdl"));
     model_->SetMaterial(masterControl_->cache_->GetResource<Material>("Resources/Materials/Bullet.xml"));
@@ -38,7 +38,7 @@ Bullet::Bullet(Context *context, MasterControl *masterControl):
 
     Light* light = rootNode_->CreateComponent<Light>();
     light->SetRange(6.66f);
-    light->SetColor(Color(0.6f, 1.0f, 0.2f));
+    light->SetColor(Color(0.6f, 1.0f+damage_, 0.2f));
 
     SubscribeToEvent(E_SCENEUPDATE, HANDLER(Bullet, HandleSceneUpdate));
 }
@@ -50,8 +50,8 @@ void Bullet::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     float timeStep = eventData[P_TIMESTEP].GetFloat();
 
     age_ += timeStep;
-    rootNode_->SetScale(Vector3(Max(1.75f - 10.0f*age_, 1.0f),
-                                Max(1.75f - 10.0f*age_, 1.0f),
+    rootNode_->SetScale(Vector3(Max(1.75f - 10.0f*age_, 1.0f+damage_),
+                                Max(1.75f - 10.0f*age_, 1.0f+damage_),
                                 Min(Min(35.0f*age_, 2.0f), Max(2.0f-timeSinceHit_*42.0f, 0.1f))
                                 ));
     if (age_ > lifeTime_) {

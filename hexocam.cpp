@@ -75,7 +75,7 @@ void heXoCam::SetupViewport()
     effectRenderPath_->Append(cache->GetResource<XMLFile>("PostProcess/GreyScale.xml"));
     SetGreyScale(false);
     viewport_->SetRenderPath(effectRenderPath_);
-    renderer->SetViewport(0, viewport);
+    renderer->SetViewport(0, viewport_);
 
 }
 

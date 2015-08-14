@@ -16,42 +16,35 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef PICKUP_H
-#define PICKUP_H
+#ifndef CHAOFLASH_H
+#define CHAOFLASH_H
 
 #include <Urho3D/Urho3D.h>
 
 #include "sceneobject.h"
 
 namespace Urho3D {
+class Drawable;
 class Node;
 class Scene;
 class Sprite;
 }
 
-class Pickup : public SceneObject
-{
-    OBJECT(Pickup);
-public:
-    Pickup(Context *context, MasterControl* masterControl);
-    void Respawn(bool restart = false);
-    void Deactivate();
-    PickupType GetPickupType() { return pickupType_; }
-protected:
-    PickupType pickupType_;
-    float chaoInterval_;
-    Vector3 initialPosition_;
-    SharedPtr<RigidBody> rigidBody_;
-    SharedPtr<RigidBody> triggerBody_;
-    SharedPtr<StaticModel> model_;
-    SharedPtr<ParticleEmitter> particleEmitter_;
-    SharedPtr<Sound> sample_;
-    SharedPtr<SoundSource> soundSource_;
+using namespace Urho3D;
 
-    void HandleTriggerStart(StringHash otherNode, VariantMap &eventData);
+class ChaoFlash : public SceneObject
+{
+    OBJECT(ChaoFlash);
+public:
+    ChaoFlash(Context* context, MasterControl* masterControl);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
+    void Set(Vector3 position);
+    void Disable();
 private:
-    float sinceLastPickup_;
+    StaticModel* chaoModel_;
+    Material* chaoMaterial_;
+    Sound* sample_;
+    SoundSource* sampleSource_;
 };
 
-#endif // PICKUP_H
+#endif // CHAOFLASH_H

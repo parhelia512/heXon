@@ -64,6 +64,10 @@ Player::Player(Context *context, MasterControl *masterControl):
     shieldModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Shield.mdl"));
     shieldMaterial_ = masterControl_->cache_->GetResource<Material>("Resources/Materials/Shield.xml");
     shieldModel_->SetMaterial(shieldMaterial_);
+    
+    //Setup ChaoFlash
+    chaoFlash_ = new ChaoFlash(context_, masterControl_);
+
     //Setup player audio
     shot_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Shot.ogg");
     shot_->SetLooped(false);
@@ -276,8 +280,9 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         shieldNode_->Rotate(Quaternion(1010.0f*timeStep, 200.0f*timeStep, Random(10.0f, 100.0f)));
         Color shieldColor = shieldMaterial_->GetShaderParameter("MatDiffColor").GetColor();
         shieldMaterial_->SetShaderParameter("MatDiffColor", Color(shieldColor.r_ * Random(0.6f, 0.9f),
-                                                  shieldColor.g_ * Random(0.7f, 0.95f),
-                                                  shieldColor.b_ * Random(0.8f, 0.9f)));
+                                                                  shieldColor.g_ * Random(0.7f, 0.95f),
+                                                                  shieldColor.b_ * Random(0.8f, 0.9f)));
+        
         //Float
         ship_.node_->SetPosition(Vector3::UP *masterControl_->Sine(2.3f, -0.1f, 0.1f));
         //Apply movement
@@ -369,6 +374,7 @@ void Player::MoveMuzzle()
     else muzzle_->Set(rootNode_->GetPosition());
 }
 
+
 void Player::Pickup(PickupType pickup)
 {
     switch (pickup) {
@@ -395,24 +401,7 @@ void Player::Pickup(PickupType pickup)
         multiplier_++;
     } break;
     case PT_CHAOBALL: {
-        PODVector<RigidBody* > hitResults;
-        float radius = 5.0f;
-        if (masterControl_->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), radius, M_MAX_UNSIGNED)){
-            for (int i = 0; i < hitResults.Size(); i++){
-                //Deal damage
-                unsigned hitID = hitResults[i]->GetNode()->GetID();
-                if(masterControl_->spawnMaster_->spires_.Keys().Contains(hitID)){
-                    WeakPtr<Spire> spire = masterControl_->spawnMaster_->spires_[hitID];
-                    spire->Set(spire->GetPosition()+Vector3::DOWN*23.0f);
-                    AddScore(Random(42, 100));
-                }
-                else if(masterControl_->spawnMaster_->razors_.Keys().Contains(hitID)){
-                    WeakPtr<Razor> razor = masterControl_->spawnMaster_->razors_[hitID];
-                    razor->Set(razor->GetPosition()+Vector3::DOWN*23.0f);
-                    AddScore(Random(23, 42));
-                }
-            }
-        }
+       PickupChaoBall();
     } break;
     case PT_RESET: {
         appleCount_ = 0;
@@ -429,6 +418,11 @@ void Player::Pickup(PickupType pickup)
         if (heartCount_ > h) heartCounter_[h]->SetEnabled(true);
         else heartCounter_[h]->SetEnabled(false);
     }
+}
+
+void Player::PickupChaoBall()
+{
+    chaoFlash_->Set(GetPosition());
 }
 
 void Player::Die()
@@ -462,6 +456,7 @@ void Player::EnterPlay()
 void Player::EnterLobby()
 {
     guiNode_->SetEnabledRecursive(false);
+    chaoFlash_->Disable();
     SetPilotMode(true);
     rootNode_->SetPosition(Vector3::BACK*7.0f);
     rigidBody_->SetLinearVelocity(Vector3::FORWARD*5.0f);

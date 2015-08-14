@@ -55,6 +55,7 @@ void MasterControl::Setup()
 //    engineParameters_["Headless"] = false;
     engineParameters_["WindowWidth"] = 1600;
     engineParameters_["WindowHeight"] = 1024;
+    //engineParameters_["RenderPath"] = "RenderPaths/DeferredHWDepth.xml";
 }
 void MasterControl::Start()
 {
@@ -259,12 +260,12 @@ void MasterControl::CreateScene()
 
     for (int i = 0; i < 6; i++){
         Node* edgeNode = floorNode->CreateChild("LobbyEdge");
-//        edgeNode->SetScale(Vector3(1.0f, 1.0f, 1.0f));
         edgeNode->Rotate(Quaternion(0.0f, (60.0f * i), 0.0f));
         Model* model = cache_->GetResource<Model>("Resources/Models/ArenaEdgeSegment.mdl");
         edgeNode->CreateComponent<RigidBody>();
         CollisionShape* collider = edgeNode->CreateComponent<CollisionShape>();
         collider->SetConvexHull(model);
+        SubscribeToEvent(edgeNode, E_NODECOLLISIONSTART, HANDLER(MasterControl, HandleExitTrigger));
     }
     //Create game elements
     spawnMaster_ = new SpawnMaster(context_, this);
@@ -272,7 +273,7 @@ void MasterControl::CreateScene()
     apple_ = new Apple(context_, this);
     heart_ = new Heart(context_, this);
     multiX_ = new MultiX(context_, this);
-    //chaoBall_ = new ChaoBall(context_, this);
+    chaoBall_ = new ChaoBall(context_, this);
 }
 
 void MasterControl::SetGameState(GameState newState)
@@ -315,7 +316,7 @@ void MasterControl::EnterGameState()
         apple_->Deactivate();
         heart_->Deactivate();
         multiX_->Deactivate();
-        //chaoBall_->Deactivate();
+        chaoBall_->Deactivate();
     } break;
     case GS_PLAY : {
         musicSource_->Play(gameMusic_);
@@ -388,9 +389,10 @@ bool MasterControl::CursorRayCast(double maxDistance, PODVector<RayQueryResult> 
 
 bool MasterControl::PhysicsRayCast(PODVector<PhysicsRaycastResult> &hitResults, Ray ray, float distance, unsigned collisionMask = M_MAX_UNSIGNED)
 {
-    physicsWorld_->Raycast(hitResults, ray, distance, collisionMask);
-    if (hitResults.Size()) return true;
-    else return false;
+    if (distance > 1.0e-9)
+        physicsWorld_->Raycast(hitResults, ray, distance, collisionMask);
+
+    return (hitResults.Size() > 0);
 }
 
 bool MasterControl::PhysicsSphereCast(PODVector<RigidBody*> &hitResults, Vector3 center, float radius, unsigned collisionMask = M_MAX_UNSIGNED)
@@ -402,6 +404,9 @@ bool MasterControl::PhysicsSphereCast(PODVector<RigidBody*> &hitResults, Vector3
 
 void MasterControl::Exit()
 {
+    //Save score
+
+
     engine_->Exit();
 }
 

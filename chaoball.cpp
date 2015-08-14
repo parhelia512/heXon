@@ -33,12 +33,13 @@ ChaoBall::ChaoBall(Context *context, MasterControl *masterControl):
     rigidBody_->SetMass(3.0f);
 
     Vector<ColorFrame> colorFrames;
-    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
-    colorFrames.Push(ColorFrame(Color(0.05f, 0.02f, 1.0f, 0.42f), 0.1f));
-    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
+    colorFrames.Push(ColorFrame(Color(0.0f, 1.0f, 0.0f, 0.0f), 0.0f));
+    colorFrames.Push(ColorFrame(Color(0.23f, 0.05f, 0.5f, 0.42f), 0.1f));
+    colorFrames.Push(ColorFrame(Color(1.0f, 0.0f, 0.0f, 0.0f), 0.4f));
     particleEmitter_->GetEffect()->SetColorFrames(colorFrames);
-    particleEmitter_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/Rift.xml"));
 
-    chaoInterval_ = Random(23.0f, 100.0f);
+    sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Chaos.ogg");
+    sample_->SetLooped(false);
+
     Deactivate();
 }
