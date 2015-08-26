@@ -21,15 +21,13 @@
 #include "tilemaster.h"
 #include "player.h"
 
-Seeker::Seeker(Context *context, MasterControl *masterControl, Vector3 position):
+Seeker::Seeker(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
     age_{0.0f},
     lifeTime_{7.5f},
     damage_{2.3f}
 {
     rootNode_->SetName("Seeker");
-
-    rootNode_->SetPosition(position);
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
     rigidBody_->SetMass(2.3f);
@@ -52,12 +50,6 @@ Seeker::Seeker(Context *context, MasterControl *masterControl, Vector3 position)
     sampleSource_ = rootNode_->CreateComponent<SoundSource>();
     sampleSource_->SetGain(0.666f);
     sampleSource_->SetSoundType(SOUND_EFFECT);
-    sampleSource_->Play(sample_);
-
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(Seeker, HandleSceneUpdate));
-    SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, HANDLER(Seeker, HandleTriggerStart));
-
-    masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 }
 
 void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)

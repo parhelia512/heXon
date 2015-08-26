@@ -18,11 +18,10 @@
 
 #include "hitfx.h"
 
-HitFX::HitFX(Context *context, MasterControl *masterControl, Vector3 position, bool sound):
-    Effect(context, masterControl, position)
+HitFX::HitFX(Context *context, MasterControl *masterControl):
+    Effect(context, masterControl)
 {
     rootNode_->SetName("HitFX");
-    rootNode_->SetPosition(position);
     particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
     ParticleEffect* particleEffect = masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/HitFX.xml");
     particleEmitter_->SetEffect(particleEffect);
@@ -32,9 +31,6 @@ HitFX::HitFX(Context *context, MasterControl *masterControl, Vector3 position, b
     sampleSource_ = rootNode_->CreateComponent<SoundSource>();
     sampleSource_->SetGain(0.23f);
     sampleSource_->SetSoundType(SOUND_EFFECT);
-    if (sound){
-        sampleSource_->Play(sample_);
-    }
 }
 
 void HitFX::Set(Vector3 position, bool sound)

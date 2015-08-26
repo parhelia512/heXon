@@ -37,10 +37,11 @@ using namespace Urho3D;
 
 class Enemy : public SceneObject
 {
+    friend class ChaoFlash;
     friend class SpawnMaster;
     OBJECT(Enemy);
 public:
-    Enemy(Context* context, MasterControl* masterControl, Vector3 position);
+    Enemy(Context* context, MasterControl* masterControl);
     float GetHealth(){ return health_; }
     void Hit(float damage, int ownerID);
     void Set(Vector3 position);
@@ -49,7 +50,6 @@ protected:
     float health_;
     float initialHealth_;
     float panic_ = 0.0f;
-    float mass_;
     int worth_ = 5;
     bool bonus_ = true;
     int firstHitBy_ = 0;
@@ -68,10 +68,10 @@ protected:
     void CheckHealth();
     Color GetGlowColor();
     void Emerge(float timeStep);
+    void Disable();
 private:
     Vector<SharedPtr<Sound> > samples_;
     SharedPtr<SoundSource> soundSource_;
-    void Disable();
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void HandleCollisionStart(StringHash eventType, VariantMap &eventData);
     void SetHealth(float health);

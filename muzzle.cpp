@@ -18,12 +18,11 @@
 
 #include "muzzle.h"
 
-Muzzle::Muzzle(Context *context, MasterControl *masterControl, Vector3 position):
-    Effect(context, masterControl, position)
+Muzzle::Muzzle(Context *context, MasterControl *masterControl):
+    Effect(context, masterControl)
 {
     rootNode_->SetName("Muzzle");
 
-    rootNode_->SetPosition(position);
     particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
     ParticleEffect* particleEffect = masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/Muzzle.xml");
     particleEmitter_->SetEffect(particleEffect);

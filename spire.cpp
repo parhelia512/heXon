@@ -22,8 +22,8 @@
 #include "spire.h"
 #include "spawnmaster.h"
 
-Spire::Spire(Context *context, MasterControl *masterControl, Vector3 position):
-    Enemy(context, masterControl, position),
+Spire::Spire(Context *context, MasterControl *masterControl):
+    Enemy(context, masterControl),
     initialShotInterval_{5.0f},
     shotInterval_{initialShotInterval_},
     sinceLastShot_{0.0f}
@@ -32,8 +32,7 @@ Spire::Spire(Context *context, MasterControl *masterControl, Vector3 position):
 
     health_ = initialHealth_ = 5.0;
     worth_ = 10;
-    mass_ = 3.0f;
-    rigidBody_->SetMass(mass_);
+    rigidBody_->SetMass(3.0f);
     rigidBody_->SetLinearFactor(Vector3::ZERO);
 
     SharedPtr<Material> black = masterControl_->cache_->GetTempResource<Material>("Resources/Materials/Spire.xml");

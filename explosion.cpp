@@ -19,15 +19,12 @@
 #include "spawnmaster.h"
 #include "explosion.h"
 
-Explosion::Explosion(Context *context, MasterControl *masterControl, Vector3 position, Color color, double size):
-    Effect(context, masterControl, position),
-    initialMass_{3.0f*size},
+Explosion::Explosion(Context *context, MasterControl *masterControl):
+    Effect(context, masterControl),
+    initialMass_{3.0f},
     initialBrightness_{8.0f}
 {
     rootNode_->SetName("Explosion");
-
-    rootNode_->SetPosition(position);
-    rootNode_->SetScale(size);
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
     rigidBody_->SetMass(initialMass_);
@@ -35,30 +32,16 @@ Explosion::Explosion(Context *context, MasterControl *masterControl, Vector3 pos
 
     light_ = rootNode_->CreateComponent<Light>();
     light_->SetRange(13.0f);
-    light_->SetColor(color);
     light_->SetBrightness(initialBrightness_);
 
     particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
     ParticleEffect* particleEffect = masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/Explosion.xml");
-    Vector<ColorFrame> colorFrames;
-    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
-    Color mixColor = 0.5f * (color + particleEffect->GetColorFrame(1)->color_);
-    colorFrames.Push(ColorFrame(mixColor, 0.1f));
-    colorFrames.Push(ColorFrame(mixColor*0.1f, 0.35f));
-    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
-    particleEffect->SetColorFrames(colorFrames);
     particleEmitter_->SetEffect(particleEffect);
 
     sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Explode.ogg");
     sample_->SetLooped(false);
     sampleSource_ = rootNode_->CreateComponent<SoundSource>();
-    sampleSource_->SetGain(Min(0.5f*size, 1.0f));
     sampleSource_->SetSoundType(SOUND_EFFECT);
-    sampleSource_->Play(sample_);
-
-    masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
-
-    SubscribeToEvent(E_POSTUPDATE, HANDLER(Explosion, UpdateExplosion));
 }
 
 void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
@@ -114,6 +97,7 @@ void Explosion::Set(Vector3 position, Color color, float size)
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
     particleEffect->SetColorFrames(colorFrames);
 
+    sampleSource_->SetGain(Min(0.5f*size, 1.0f));
     sampleSource_->Play(sample_);
 
     masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));

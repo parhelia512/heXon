@@ -31,7 +31,7 @@
 #include "explosion.h"
 #include "muzzle.h"
 #include "tailgenerator.h"
-
+#include "chaomine.h"
 #include "mastercontrol.h"
 
 DEFINE_APPLICATION_MAIN(MasterControl);
@@ -54,7 +54,7 @@ void MasterControl::Setup()
 //    engineParameters_["FullScreen"] = true;
 //    engineParameters_["Headless"] = false;
     engineParameters_["WindowWidth"] = 1600;
-    engineParameters_["WindowHeight"] = 1024;
+    engineParameters_["WindowHeight"] = 900;
     //engineParameters_["RenderPath"] = "RenderPaths/DeferredHWDepth.xml";
 }
 void MasterControl::Start()
@@ -156,6 +156,9 @@ void MasterControl::LoadResources()
     resources.materials.shoes.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothBlue.xml")));
 
     resources.materials.hair.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothBlue.xml")));
+
+    resources.materials.shipPrimary = cache_->GetResource<Material>("Resources/Materials/GreenEnvmap.xml");
+    resources.materials.shipSecondary = cache_->GetResource<Material>("Resources/Materials/GreenGlowEnvmap.xml");
 }
 
 void MasterControl::CreateScene()
@@ -224,8 +227,8 @@ void MasterControl::CreateScene()
     //Create central ship
     StaticModel* ship = lobbyNode_->CreateChild("Ship")->CreateComponent<StaticModel>();
     ship->SetModel(resources.models.ships.swift);
-    ship->SetMaterial(0, cache_->GetTempResource<Material>("Resources/Materials/GreenGlow.xml"));
-    ship->SetMaterial(1, cache_->GetTempResource<Material>("Resources/Materials/Green.xml"));
+    ship->SetMaterial(0, resources.materials.shipSecondary /*cache_->GetResource<Material>("Resources/Materials/GreenGlow.xml")*/);
+    ship->SetMaterial(1, resources.materials.shipPrimary /*cache_->GetResource<Material>("Resources/Materials/Green.xml")*/);
     ship->SetCastShadows(true);
     RigidBody* lobbyBody = lobbyNode_->CreateComponent<RigidBody>();
     lobbyBody->SetTrigger(true);
@@ -246,17 +249,6 @@ void MasterControl::CreateScene()
     lobbySpotLight_->SetColor(Color(0.3f, 0.5f, 1.0f));
     lobbySpotLight_->SetCastShadows(true);
     lobbySpotLight_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
-
-//    Node* lobbyPointLightNode = lobbyNode_->CreateChild("SpotLight");
-//    lobbyPointLightNode->SetPosition(Vector3::UP*10.0f + Vector3::FORWARD*5.0f);
-//    lobbyPointLightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
-//    Light* lobbyPointLight = lobbyPointLightNode->CreateComponent<Light>();
-//    lobbyPointLight->SetLightType(LIGHT_SPOT);
-//    lobbyPointLight->SetFov(30.0f);
-//    lobbyPointLight->SetBrightness(1.0f);
-//    lobbyPointLight->SetRange(16.0f);
-//    lobbyPointLight->SetColor(Color(1.0f, 1.0f, 0.9f));
-//    lobbyPointLight->SetCastShadows(false);
 
     for (int i = 0; i < 6; i++){
         Node* edgeNode = floorNode->CreateChild("LobbyEdge");

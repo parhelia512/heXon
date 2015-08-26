@@ -119,7 +119,7 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
             rigidBody_->ApplyForce(2.0f*masterControl_->player_->GetPosition()); break;
     case PT_CHAOBALL: {
         xSpin = 23.0f; zSpin = 42.0f; frequency = 5.0f; shift = 0.23f;
-        if (!rootNode_->IsEnabled()) {
+        if (!rootNode_->IsEnabled() && masterControl_->GetGameState() == GS_PLAY) {
             if (sinceLastPickup_ > chaoInterval_) Respawn();
             else sinceLastPickup_ += timeStep;
         }

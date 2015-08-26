@@ -36,7 +36,7 @@ class Effect : public SceneObject
 {
     OBJECT(Effect);
 public:
-    Effect(Context* context, MasterControl* masterControl, Vector3 position);
+    Effect(Context* context, MasterControl* masterControl);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void Set(Vector3 position);
     void Disable();

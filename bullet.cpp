@@ -26,6 +26,7 @@ Bullet::Bullet(Context *context, MasterControl *masterControl):
     blink_ = false;
 
     rootNode_->SetName("Bullet");
+    rootNode_->SetEnabled(false);
     rootNode_->SetScale(Vector3(1.0f+damage_, 1.0f+damage_, 0.1f));
     model_ = rootNode_->CreateComponent<StaticModel>();
     model_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Bullet.mdl"));
@@ -71,13 +72,11 @@ void Bullet::Set(Vector3 position)
     rigidBody_->ResetForces();
     SceneObject::Set(position);
     SubscribeToEvent(E_SCENEUPDATE, HANDLER(Bullet, HandleSceneUpdate));
-    //masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 }
 
 void Bullet::Disable()
 {
     fading_ = true;
-    //masterControl_->tileMaster_->RemoveFromAffectors(rootNode_);
     rootNode_->SetEnabled(false);
 }
 
@@ -97,6 +96,9 @@ void Bullet::HitCheck(float timeStep) {
                     }
                     else if(masterControl_->spawnMaster_->razors_.Keys().Contains(hitID)){
                         masterControl_->spawnMaster_->razors_[hitID]->Hit(damage_, 1);
+                    }
+                    else if(masterControl_->spawnMaster_->chaoMines_.Keys().Contains(hitID)){
+                        masterControl_->spawnMaster_->chaoMines_[hitID]->Hit(damage_, 1);
                     }
                     Disable();
                 }

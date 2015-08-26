@@ -36,7 +36,7 @@ class Seeker : public SceneObject
 {
     OBJECT(Seeker);
 public:
-    Seeker(Context* context, MasterControl* masterControl, Vector3 position);
+    Seeker(Context* context, MasterControl* masterControl);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void HandleTriggerStart(StringHash eventType, VariantMap &eventData);
     void Set(Vector3 position);

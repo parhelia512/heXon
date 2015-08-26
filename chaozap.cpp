@@ -18,29 +18,27 @@
 
 #include "player.h"
 #include "spawnmaster.h"
-#include "chaoflash.h"
+#include "chaozap.h"
 
-ChaoFlash::ChaoFlash(Context *context, MasterControl *masterControl):
+ChaoZap::ChaoZap(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl)
 {
-    rootNode_->SetName("ChaoFlash");
-    rootNode_->SetScale(7.0f);
+    rootNode_->SetName("ChaoZap");
+    rootNode_->SetEnabled(false);
+
     chaoModel_ = rootNode_->CreateComponent<StaticModel>();
     chaoModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/ChaoFlash.mdl"));
-    chaoMaterial_ = masterControl_->cache_->GetResource<Material>("Resources/Materials/ChaoFlash.xml");
+    chaoMaterial_ = masterControl_->cache_->GetTempResource<Material>("Resources/Materials/ChaoFlash.xml");
     chaoModel_->SetMaterial(chaoMaterial_);
-    rootNode_->SetEnabled(false);
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(ChaoFlash, HandleSceneUpdate));
 
     sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Chaos.ogg");
     sampleSource_ = rootNode_->CreateComponent<SoundSource>();
     sampleSource_->SetGain(1.0f);
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
-    rigidBody_->SetMass(5.0f);
 }
 
-void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
+void ChaoZap::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
     using namespace Update;
     float timeStep = eventData[P_TIMESTEP].GetFloat();
@@ -63,35 +61,37 @@ void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     }
 }
 
-void ChaoFlash::Set(Vector3 position)
+void ChaoZap::Set(Vector3 position)
 {
     SceneObject::Set(position);
+    size_ = Random(2.0f, 5.0f);
+    rootNode_->SetScale(size_);
+    rigidBody_->SetMass(size_*0.5);
     sampleSource_->Play(sample_);
     PODVector<RigidBody* > hitResults;
-    float radius = 7.5f;
+    float radius = 8.0f;
     rootNode_->SetEnabled(true);
-    chaoMaterial_->SetShaderParameter("MatDiffColor", Color(0.1f, 0.5f, 0.2f, 0.5f));
+        chaoMaterial_->SetShaderParameter("MatDiffColor", Color(0.1f, 0.5f, 0.2f, 0.5f));
     if (masterControl_->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), radius, M_MAX_UNSIGNED)){
         for (int i = 0; i < hitResults.Size(); i++){
             unsigned hitID = hitResults[i]->GetNode()->GetID();
-            if(masterControl_->spawnMaster_->spires_.Keys().Contains(hitID)){
+
+            if(masterControl_->spawnMaster_->spires_.Contains(hitID)){
                 WeakPtr<Spire> spire = masterControl_->spawnMaster_->spires_[hitID];
-                spire->Disable();
-                masterControl_->spawnMaster_->SpawnChaoMine(spire->GetPosition());
-                masterControl_->player_->AddScore(Random(42, 100));
-            }
-            else if(masterControl_->spawnMaster_->razors_.Keys().Contains(hitID)){
-                WeakPtr<Razor> razor = masterControl_->spawnMaster_->razors_[hitID];
-                razor->Disable();
-                masterControl_->spawnMaster_->SpawnChaoMine(razor->GetPosition());
+                spire->Hit(spire->GetHealth()*0.5f, 1);
                 masterControl_->player_->AddScore(Random(23, 42));
+            }
+            else if(masterControl_->spawnMaster_->razors_.Contains(hitID)){
+                WeakPtr<Razor> razor = masterControl_->spawnMaster_->razors_[hitID];
+                razor->Hit(razor->GetHealth()*0.5f, 1);
+                masterControl_->player_->AddScore(Random(5, 23));
             }
         }
     }
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(ChaoFlash, HandleSceneUpdate));
+    SubscribeToEvent(E_SCENEUPDATE, HANDLER(ChaoZap, HandleSceneUpdate));
 }
 
-void ChaoFlash::Disable()
+void ChaoZap::Disable()
 {
     UnsubscribeFromEvent(E_SCENEUPDATE);
     SceneObject::Disable();

@@ -187,7 +187,7 @@ void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D:
     // Process game event
     switch (button){
     case JB_START: PauseButtonPressed(); break;
-    case JB_L1: case JB_R1: EjectButtonPressed(); break;
+    case JB_L2: case JB_R2: EjectButtonPressed(); break;
     default: break;
     }
 }

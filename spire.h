@@ -37,7 +37,7 @@ class Spire : public Enemy
     OBJECT(Spire);
     friend class SpawnMaster;
 public:
-    Spire(Context* context, MasterControl* masterControl, Vector3 position);
+    Spire(Context* context, MasterControl* masterControl);
     void Hit(float damage, int ownerID);
     void Set(Vector3 position);
 protected:

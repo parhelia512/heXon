@@ -94,6 +94,11 @@ Player::Player(Context *context, MasterControl *masterControl):
 
     //Subscribe to events
     SubscribeToEvent(E_SCENEUPDATE, HANDLER(Player, HandleSceneUpdate));
+
+    for (int b = 0; b < 64; b++){
+        Bullet* bullet = new Bullet(context_, masterControl_);
+        bullets_.Push(SharedPtr<Bullet>(bullet));
+    }
 }
 
 void Player::CreateGUI()
@@ -107,7 +112,7 @@ void Player::CreateGUI()
     scoreText->SetColor(Color(0.5f, 0.95f, 1.0f, 0.9f));
     scoreText->SetHorizontalAlignment(HA_CENTER);
     scoreText->SetVerticalAlignment(VA_CENTER);
-    scoreText->SetPosition(0, ui->GetRoot()->GetHeight()/2.2);
+    scoreText->SetPosition(0, ui->GetRoot()->GetHeight()/2.5f);
 
     //Setup 3D GUI elements
     guiNode_ = masterControl_->world.scene->CreateChild("GUI3D");
@@ -370,8 +375,9 @@ void Player::FireBullet(Vector3 direction){
 }
 void Player::MoveMuzzle()
 {
-    if (muzzle_ == nullptr) muzzle_ = new Muzzle(context_, masterControl_, rootNode_->GetPosition());
-    else muzzle_->Set(rootNode_->GetPosition());
+    if (muzzle_ == nullptr)
+        muzzle_ = new Muzzle(context_, masterControl_);
+    muzzle_->Set(rootNode_->GetPosition());
 }
 
 
@@ -422,6 +428,8 @@ void Player::Pickup(PickupType pickup)
 
 void Player::PickupChaoBall()
 {
+//    ship_.model_->GetMaterial(0)->SetShaderParameter("MatDiffColor", Color(Random(), Random(), Random()));
+//    ship_.model_->GetMaterial(1)->SetShaderParameter("MatDiffColor", Color(Random(), Random(), Random()));
     chaoFlash_->Set(GetPosition());
 }
 
@@ -540,8 +548,8 @@ void Player::SetupShip()
     ship_.node_ = rootNode_->CreateChild("Ship");
     ship_.model_ = ship_.node_->CreateComponent<StaticModel>();
     ship_.model_->SetModel(masterControl_->resources.models.ships.swift);
-    ship_.model_->SetMaterial(0, masterControl_->cache_->GetTempResource<Material>("Resources/Materials/GreenGlowEnvmap.xml"));
-    ship_.model_->SetMaterial(1, masterControl_->cache_->GetTempResource<Material>("Resources/Materials/GreenEnvmap.xml"));
+    ship_.model_->SetMaterial(0, masterControl_->resources.materials.shipSecondary);
+    ship_.model_->SetMaterial(1, masterControl_->resources.materials.shipPrimary);
 
     ParticleEmitter* particleEmitter = ship_.node_->CreateComponent<ParticleEmitter>();
     SharedPtr<ParticleEffect> particleEffect = masterControl_->cache_->GetTempResource<ParticleEffect>("Resources/Particles/Shine.xml");

@@ -130,6 +130,8 @@ typedef struct Resources
         Vector<SharedPtr<Material> > cloth;
         Vector<SharedPtr<Material> > shoes;
         Vector<SharedPtr<Material> > hair;
+        SharedPtr<Material> shipPrimary;
+        SharedPtr<Material> shipSecondary;
     } materials;
 } Resources;
 

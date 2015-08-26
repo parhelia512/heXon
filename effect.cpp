@@ -18,7 +18,7 @@
 
 #include "effect.h"
 
-Effect::Effect(Context *context, MasterControl *masterControl, Vector3 position):
+Effect::Effect(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
     age_{0.0f},
     emitTime_{0.1f}
@@ -26,11 +26,7 @@ Effect::Effect(Context *context, MasterControl *masterControl, Vector3 position)
     blink_ = false;
 
     rootNode_->SetName("Effect");
-    rootNode_->SetPosition(position);
     particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
-
-    //Subscribe to update
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(Effect, HandleSceneUpdate));
 }
 
 void Effect::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)

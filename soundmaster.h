@@ -16,28 +16,18 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef MUZZLE_H
-#define MUZZLE_H
+#ifndef SOUNDMASTER_H
+#define SOUNDMASTER_H
 
 #include <Urho3D/Urho3D.h>
+#include "mastercontrol.h"
 
-#include "effect.h"
-
-namespace Urho3D {
-class Drawable;
-class Node;
-class Scene;
-class Sprite;
-}
-
-using namespace Urho3D;
-
-class Muzzle : public Effect
+class SoundMaster : public Object
 {
-    OBJECT(Muzzle);
+    friend class MasterControl;
+    OBJECT(SoundMaster);
 public:
-    Muzzle(Context* context, MasterControl* masterControl);
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
+    SoundMaster(Context* context, MasterControl* masterControl);
 };
 
-#endif // MUZZLE_H
+#endif // SOUNDMASTER_H

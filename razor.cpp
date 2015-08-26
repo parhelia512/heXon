@@ -18,10 +18,10 @@
 
 #include "razor.h"
 
-Razor::Razor(Context *context, MasterControl *masterControl, Vector3 position):
-    Enemy(context, masterControl, position),
-    topSpeed_{10.0},
-    aimSpeed_{0.25*topSpeed_}
+Razor::Razor(Context *context, MasterControl *masterControl):
+    Enemy(context, masterControl),
+    topSpeed_{10.0f},
+    aimSpeed_{0.25f*topSpeed_}
 {
     rootNode_->SetName("Razor");
     meleeDamage_ = 1.0f;
@@ -41,6 +41,7 @@ Razor::Razor(Context *context, MasterControl *masterControl, Vector3 position):
     bottomModel_->SetMaterial(1, centerModel_->GetMaterial());
 
     SubscribeToEvent(E_SCENEPOSTUPDATE, HANDLER(Razor, HandleRazorUpdate));
+
 }
 
 void Razor::HandleRazorUpdate(StringHash eventType, VariantMap &eventData)
@@ -49,7 +50,7 @@ void Razor::HandleRazorUpdate(StringHash eventType, VariantMap &eventData)
 
     using namespace ScenePostUpdate;
 
-    double timeStep = eventData[P_TIMESTEP].GetFloat();
+    float timeStep = eventData[P_TIMESTEP].GetFloat();
 
     //Spin
     topNode_->Rotate(Quaternion(0.0f, timeStep*50.0f*aimSpeed_, 0.0f));

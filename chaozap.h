@@ -16,28 +16,30 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef MUZZLE_H
-#define MUZZLE_H
+#ifndef CHAOZAP_H
+#define CHAOZAP_H
 
 #include <Urho3D/Urho3D.h>
+#include "mastercontrol.h"
+#include "sceneobject.h"
 
-#include "effect.h"
-
-namespace Urho3D {
-class Drawable;
-class Node;
-class Scene;
-class Sprite;
-}
-
-using namespace Urho3D;
-
-class Muzzle : public Effect
+class ChaoZap : public SceneObject
 {
-    OBJECT(Muzzle);
+    friend class SpawnMaster;
+    OBJECT(ChaoZap);
 public:
-    Muzzle(Context* context, MasterControl* masterControl);
+    ChaoZap(Context* context, MasterControl* masterControl);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
+    void Set(Vector3 position);
+protected:
+    void Disable();
+private:
+    float size_;
+    RigidBody* rigidBody_;
+    StaticModel* chaoModel_;
+    SharedPtr<Material> chaoMaterial_;
+    Sound* sample_;
+    SoundSource* sampleSource_;
 };
 
-#endif // MUZZLE_H
+#endif // CHAOZAP_H

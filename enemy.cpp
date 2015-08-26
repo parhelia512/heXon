@@ -19,18 +19,17 @@
 #include "enemy.h"
 #include "player.h"
 
-Enemy::Enemy(Context *context, MasterControl *masterControl, Vector3 position):
+Enemy::Enemy(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
     initialHealth_{1.0f},
-    mass_{2.0f},
     whackInterval_{0.5f},
     sinceLastWhack_{whackInterval_},
     meleeDamage_{0.5f}
 {
-    health_ = initialHealth_;
     rootNode_->SetName("Enemy");
 
-    rootNode_->SetPosition(position);
+    health_ = initialHealth_;
+
     //Generate random color
     int randomizer = Random(6);
     color_ = Color(0.5f + (randomizer * 0.075f), 0.9f - (randomizer * 0.075f), 0.5f+Max(randomizer-3.0f, 3.0f)/6.0f, 1.0f);
@@ -54,7 +53,7 @@ Enemy::Enemy(Context *context, MasterControl *masterControl, Vector3 position):
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
     rigidBody_->SetRestitution(0.666f);
     rigidBody_->SetLinearDamping(0.1f);
-    rigidBody_->SetMass(mass_);
+    rigidBody_->SetMass(2.0f);
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
     rigidBody_->SetAngularFactor(Vector3::ZERO);
     CollisionShape* collider = rootNode_->CreateComponent<CollisionShape>();
@@ -69,20 +68,18 @@ Enemy::Enemy(Context *context, MasterControl *masterControl, Vector3 position):
         samples_[s]->SetLooped(false);
     }
 
-    soundSource_ = rootNode_->CreateComponent<SoundSource>();
+    Node* soundNode = masterControl_->world.scene->CreateChild("SoundSource");
+    soundSource_ = soundNode->CreateComponent<SoundSource>();
     soundSource_->SetGain(0.1f);
     soundSource_->SetSoundType(SOUND_EFFECT);
-
-    masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(Enemy, HandleSceneUpdate));
-    SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, HANDLER(Enemy, HandleCollisionStart));
 }
 
 void Enemy::Set(Vector3 position)
 {
+    soundSource_->Stop();
+
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();
-    rigidBody_->SetMass(mass_);
 
     firstHitBy_ = lastHitBy_ = 0;
     bonus_ = true;
@@ -120,7 +117,7 @@ void Enemy::CheckHealth()
     //Die
     if (rootNode_->IsEnabled() && health_ <= 0.0) {
         masterControl_->player_->AddScore(bonus_ ? worth_ : 2 * worth_ / 3);
-        masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), Color(color_.r_*color_.r_, color_.g_*color_.g_, color_.b_*color_.b_), 0.5f*mass_);
+        masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), Color(color_.r_*color_.r_, color_.g_*color_.g_, color_.b_*color_.b_), 0.5f*rigidBody_->GetMass());
         //explosion->rigidBody_->SetLinearVelocity(rigidBody_->GetLinearVelocity());
         Disable();
     }
@@ -128,7 +125,6 @@ void Enemy::CheckHealth()
 
 void Enemy::Disable()
 {
-    soundSource_->Stop();
     SceneObject::Disable();
 }
 

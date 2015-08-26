@@ -51,6 +51,7 @@ typedef struct Pilot
 
 class Player : public SceneObject
 {
+    friend class ChaoMine;
     OBJECT(Player);
 public:
     Player(Context* context, MasterControl* masterControl);

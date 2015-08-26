@@ -36,7 +36,7 @@ class Razor : public Enemy
 {
     OBJECT(Razor);
 public:
-    Razor(Context* context, MasterControl* masterControl, Vector3 position);
+    Razor(Context* context, MasterControl* masterControl);
     void Hit(float damage, int ownerID);
     void Set(Vector3 position);
 protected:

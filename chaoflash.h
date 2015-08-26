@@ -41,6 +41,7 @@ public:
     void Set(Vector3 position);
     void Disable();
 private:
+    RigidBody* rigidBody_;
     StaticModel* chaoModel_;
     Material* chaoMaterial_;
     Sound* sample_;

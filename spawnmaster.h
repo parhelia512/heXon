@@ -20,12 +20,12 @@
 #define SPAWNMASTER_H
 
 #include <Urho3D/Urho3D.h>
-#include <Urho3D/Scene/Scene.h>
-#include <Urho3D/Scene/SceneEvents.h>
 
 #include "mastercontrol.h"
 #include "razor.h"
 #include "spire.h"
+#include "chaozap.h"
+#include "chaomine.h"
 #include "seeker.h"
 #include "flash.h"
 #include "explosion.h"
@@ -39,20 +39,24 @@ public:
 
     HashMap<unsigned, SharedPtr<Razor> > razors_;
     HashMap<unsigned, SharedPtr<Spire> > spires_;
+    HashMap<unsigned, SharedPtr<ChaoMine> > chaoMines_;
     Vector<SharedPtr<HitFX> > hitFXs_;
     Vector<SharedPtr<Seeker> > seekers_;
+    Vector<SharedPtr<ChaoZap> > chaoZaps_;
     Vector<SharedPtr<Flash> > flashes_;
     Vector<SharedPtr<Explosion> > explosions_;
 
+    void Clear();
     Vector3 SpawnPoint();
 
     int CountActiveRazors();
     int CountActiveSpires();
-    void SpawnSeeker(Vector3 position);
-    void SpawnHitFX(Vector3 position, bool sound = true);
-    void Clear();
-    void SpawnFlash(Vector3 position);
-    bool SpawnExplosion(Vector3 position, Color color, float size);
+    void SpawnChaoZap(const Vector3 &position);
+    void SpawnChaoMine(const Vector3 &position);
+    void SpawnSeeker(const Vector3& position);
+    void SpawnHitFX(const Vector3& position, bool sound = true);
+    void SpawnFlash(const Vector3& position);
+    bool SpawnExplosion(const Vector3& position, const Color &color, float size);
 private:
     MasterControl* masterControl_;
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
@@ -65,15 +69,17 @@ private:
     float spireInterval_;
     float sinceSpireSpawn_;
 
-    void SpawnRazor(Vector3 position);
-    bool RespawnRazor(Vector3 position);
-    void SpawnSpire(Vector3 position);
-    bool RespawnSpire(Vector3 position);
+    void SpawnRazor(const Vector3& position);
+    bool RespawnRazor(const Vector3& position);
+    void SpawnSpire(const Vector3& position);
+    bool RespawnSpire(const Vector3& position);
 
-    bool RespawnSeeker(Vector3 position);
-    bool RespawnFlash(Vector3 position);
-    bool RespawnExplosion(Vector3 position, Color color, float size);
-    bool RespawnHitFX(Vector3 position, bool sound = true);
+    bool RespawnChaoZap(const Vector3& position);
+    bool RespawnChaoMine(const Vector3& position);
+    bool RespawnSeeker(const Vector3& position);
+    bool RespawnFlash(const Vector3& position);
+    bool RespawnExplosion(const Vector3& position, const Color& color, float size);
+    bool RespawnHitFX(const Vector3& position, bool sound = true);
 
     void Activate();
     void Deactivate();

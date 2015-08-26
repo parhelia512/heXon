@@ -18,13 +18,11 @@
 
 #include "flash.h"
 
-Flash::Flash(Context *context, MasterControl *masterControl, Vector3 position):
-    Effect(context, masterControl, position),
+Flash::Flash(Context *context, MasterControl *masterControl):
+    Effect(context, masterControl),
     initialBrightness_{2.0}
 {  
     rootNode_->SetName("Flash");
-
-    rootNode_->SetPosition(position);
 
     particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
     ParticleEffect* particleEffect = masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/Flash.xml");
@@ -34,8 +32,6 @@ Flash::Flash(Context *context, MasterControl *masterControl, Vector3 position):
     light_->SetRange(10.0f);
     light_->SetColor(Color::WHITE);
     light_->SetBrightness(initialBrightness_);
-
-    SubscribeToEvent(E_POSTUPDATE, HANDLER(Flash, UpdateFlash));
 }
 
 void Flash::UpdateFlash(StringHash eventType, VariantMap &eventData)

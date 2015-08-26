@@ -40,7 +40,7 @@ class Explosion : public Effect
     friend class Enemy;
     OBJECT(Explosion);
 public:
-    Explosion(Context* context, MasterControl* masterControl, Vector3 position, Color color, double size);
+    Explosion(Context* context, MasterControl* masterControl);
 
     void UpdateExplosion(StringHash eventType, VariantMap &eventData);
     void Set(Vector3 position, Color color, float size);

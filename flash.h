@@ -36,7 +36,7 @@ class Flash : public Effect
 {
     OBJECT(Flash);
 public:
-    Flash(Context* context, MasterControl* masterControl, Vector3 position);
+    Flash(Context* context, MasterControl* masterControl);
     SharedPtr<Light> light_;
 
     void UpdateFlash(StringHash eventType, VariantMap &eventData);
