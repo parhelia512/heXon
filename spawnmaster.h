@@ -39,9 +39,9 @@ public:
 
     HashMap<unsigned, SharedPtr<Razor> > razors_;
     HashMap<unsigned, SharedPtr<Spire> > spires_;
+    HashMap<unsigned, SharedPtr<Seeker> > seekers_;
     HashMap<unsigned, SharedPtr<ChaoMine> > chaoMines_;
     Vector<SharedPtr<HitFX> > hitFXs_;
-    Vector<SharedPtr<Seeker> > seekers_;
     Vector<SharedPtr<ChaoZap> > chaoZaps_;
     Vector<SharedPtr<Flash> > flashes_;
     Vector<SharedPtr<Explosion> > explosions_;

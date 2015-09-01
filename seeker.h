@@ -34,6 +34,7 @@ using namespace Urho3D;
 
 class Seeker : public SceneObject
 {
+    friend class ChaoFlash;
     OBJECT(Seeker);
 public:
     Seeker(Context* context, MasterControl* masterControl);

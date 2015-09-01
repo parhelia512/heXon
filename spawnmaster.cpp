@@ -50,7 +50,7 @@ SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
 
     for (int s = 0; s < 20; s++) {
         Seeker* newSeeker = new Seeker(context_, masterControl_);
-        seekers_.Push(SharedPtr<Seeker>(newSeeker));
+        seekers_[newSeeker->rootNode_->GetID()] = SharedPtr<Seeker>(newSeeker);
     }
     for (int h = 0; h < 15; h++) {
         HitFX* newHitFX = new HitFX(context_, masterControl_);
@@ -97,9 +97,10 @@ void SpawnMaster::Clear()
         if (chaoMines[m]->IsEnabled())
             chaoMines[m]->Disable();
     }
-    for (unsigned s = 0; s < seekers_.Size(); s++){
-        if (seekers_[s]->IsEnabled())
-            seekers_[s]->Disable();
+    Vector<SharedPtr<Seeker> > seekers = seekers_.Values();
+    for (unsigned m = 0; m < seekers.Size(); m++){
+        if (seekers[m]->IsEnabled())
+            seekers[m]->Disable();
     }
     for (unsigned h = 0; h < hitFXs_.Size(); h++){
         if (hitFXs_[h]->IsEnabled())
@@ -220,6 +221,27 @@ bool SpawnMaster::RespawnSpire(const Vector3 &position)
     return false;
 }
 
+void SpawnMaster::SpawnSeeker(const Vector3& position)
+{
+    if (!RespawnSeeker(position)){
+        Seeker* newSeeker = new Seeker(context_, masterControl_);
+        newSeeker->Set(position);
+        seekers_[newSeeker->rootNode_->GetID()] = SharedPtr<Seeker>(newSeeker);
+    }
+}
+bool SpawnMaster::RespawnSeeker(const Vector3& position)
+{
+    Vector<SharedPtr<Seeker> > seekers = seekers_.Values();
+    for (unsigned s = 0; s < seekers.Size(); s++){
+        if (!seekers[s]->IsEnabled()){
+            SharedPtr<Seeker> seeker = seekers[s];
+            seeker->Set(position);
+            return true;
+        }
+    }
+    return false;
+}
+
 void SpawnMaster::SpawnChaoMine(const Vector3& position)
 {
     if (!RespawnChaoMine(position)){
@@ -254,27 +276,6 @@ bool SpawnMaster::RespawnChaoZap(const Vector3& position)
         if (!chaoZaps_[r]->IsEnabled()){
             SharedPtr<ChaoZap> chaoZap = chaoZaps_[r];
             chaoZap->Set(position);
-            return true;
-        }
-    }
-    return false;
-}
-
-
-void SpawnMaster::SpawnSeeker(const Vector3& position)
-{
-    if (!RespawnSeeker(position)){
-        Seeker* newSeeker = new Seeker(context_, masterControl_);
-        newSeeker->Set(position);
-        seekers_.Push(SharedPtr<Seeker>(newSeeker));
-    }
-}
-bool SpawnMaster::RespawnSeeker(const Vector3& position)
-{
-    for (unsigned s = 0; s < seekers_.Size(); s++){
-        if (!seekers_[s]->IsEnabled()){
-            SharedPtr<Seeker> seeker = seekers_[s];
-            seeker->Set(position);
             return true;
         }
     }
