@@ -16,6 +16,8 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#include <fstream>
+
 #include "mastercontrol.h"
 #include "hexocam.h"
 #include "spawnmaster.h"
@@ -41,6 +43,15 @@ Player::Player(Context *context, MasterControl *masterControl):
     shotInterval_{initialShotInterval_},
     sinceLastShot_{0.0f}
 {
+    std::ifstream f_score("Resources/score.zip");
+    std::string score_str;
+    f_score >> score_str;
+    if (!score_str.empty()){
+        unsigned long score = stoul(score_str, 0, 10);
+        score_ = score;
+    }
+    f_score.close();
+
     rootNode_->SetName("Player");
     //Setup GUI elements
     CreateGUI();
@@ -107,7 +118,7 @@ void Player::CreateGUI()
     Text* scoreText = ui->GetRoot()->CreateChild<Text>();
     scoreText->SetName("Score");
     scoreTextName_ = scoreText->GetName();
-    scoreText->SetText("0");
+    scoreText->SetText(String(score_));
     scoreText->SetFont(masterControl_->cache_->GetResource<Font>("Resources/Fonts/skirmishergrad.ttf"), 32);
     scoreText->SetColor(Color(0.5f, 0.95f, 1.0f, 0.9f));
     scoreText->SetHorizontalAlignment(HA_CENTER);
@@ -522,9 +533,6 @@ void Player::UpgradeWeapons()
 
 void Player::CreateNewPilot()
 {
-    Pickup(PT_RESET);
-    ResetScore();
-
     pilot_.male_ = (Random(1.0f)>0.5f) ? true : false;
     pilot_.node_->SetRotation(Quaternion(0.0f, 0.0f, 0.0f));
 

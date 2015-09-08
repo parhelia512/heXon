@@ -16,6 +16,8 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#include <fstream>
+
 #include "hexocam.h"
 #include "inputmaster.h"
 #include "spawnmaster.h"
@@ -51,10 +53,10 @@ void MasterControl::Setup()
     engineParameters_["WindowTitle"] = "heXon";
     engineParameters_["LogName"] = GetSubsystem<FileSystem>()->GetAppPreferencesDir("urho3d", "logs")+"heXon.log";
 //    engineParameters_["VSync"] = true;
-//    engineParameters_["FullScreen"] = true;
+//    engineParameters_["FullScreen"] = false;
 //    engineParameters_["Headless"] = false;
-    engineParameters_["WindowWidth"] = 1600;
-    engineParameters_["WindowHeight"] = 900;
+//    engineParameters_["WindowWidth"] = 1600;
+//    engineParameters_["WindowHeight"] = 900;
     //engineParameters_["RenderPath"] = "RenderPaths/DeferredHWDepth.xml";
 }
 void MasterControl::Start()
@@ -288,6 +290,7 @@ void MasterControl::LeaveGameState()
     } break; //Eject when alive
     case GS_DEAD : {
         player_->CreateNewPilot();
+        player_->ResetScore();
         world.camera->SetGreyScale(false);
     } break;
     case GS_EDIT : break; //Disable EditMaster
@@ -396,15 +399,21 @@ bool MasterControl::PhysicsSphereCast(PODVector<RigidBody*> &hitResults, Vector3
 
 void MasterControl::Exit()
 {
-    //Save score
+    //Save score to file
+    std::ofstream fScore;
+    fScore.open ("Resources/score.zip");
+    fScore << player_->GetScore();
+    fScore.close();
+    ///Save pilot to file
 
-
+    //And exit
     engine_->Exit();
+
 }
 
 void MasterControl::CreateSineLookupTable()
 {
-    //Generate sine lookup vector
+    //Populate sine lookup vector
     int resolution = 4096;
     for (int i = 0; i < resolution; i++){
         sine_.Push(sin(((float)i/resolution)*2.0*M_PI));

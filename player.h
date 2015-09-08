@@ -62,6 +62,7 @@ public:
 
     void AddScore(int points);
     void Die();
+    void ResetScore();
     unsigned GetScore() { return score_; }
     unsigned GetFlightScore() { return flightScore_; }
     void Pickup(PickupType pickup);
@@ -125,7 +126,6 @@ private:
     void SetHealth(float health);
     Color HealthToColor(float health);
     void SetScore(int points);
-    void ResetScore();
     void SetupShip();
     void CreateTails();
     void RemoveTails();
