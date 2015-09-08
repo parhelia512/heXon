@@ -401,7 +401,7 @@ void MasterControl::Exit()
 {
     //Save score to file
     std::ofstream fScore;
-    fScore.open ("Resources/score.zip");
+    fScore.open ("score.zip");
     fScore << player_->GetScore();
     fScore.close();
     ///Save pilot to file

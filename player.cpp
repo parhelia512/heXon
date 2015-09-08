@@ -43,7 +43,7 @@ Player::Player(Context *context, MasterControl *masterControl):
     shotInterval_{initialShotInterval_},
     sinceLastShot_{0.0f}
 {
-    std::ifstream f_score("Resources/score.zip");
+    std::ifstream f_score("score.zip");
     std::string score_str;
     f_score >> score_str;
     if (!score_str.empty()){
