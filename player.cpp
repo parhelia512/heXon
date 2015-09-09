@@ -43,14 +43,7 @@ Player::Player(Context *context, MasterControl *masterControl):
     shotInterval_{initialShotInterval_},
     sinceLastShot_{0.0f}
 {
-    std::ifstream f_score("score.zip");
-    std::string score_str;
-    f_score >> score_str;
-    if (!score_str.empty()){
-        unsigned long score = stoul(score_str, 0, 10);
-        score_ = score;
-    }
-    f_score.close();
+    LoadScore();
 
     rootNode_->SetName("Player");
     //Setup GUI elements
@@ -170,6 +163,19 @@ void Player::CreateGUI()
     }
 }
 
+
+void Player::SetScore(int points)
+{
+    score_ = points;
+    UI* ui = GetSubsystem<UI>();
+    UIElement* scoreElement = ui->GetRoot()->GetChild(scoreTextName_);
+    Text* scoreText = (Text*)scoreElement;
+    scoreText->SetText(String(points));
+}
+void Player::ResetScore()
+{
+    SetScore(0);
+}
 void Player::AddScore(int points)
 {
     points *= multiplier_;
@@ -181,21 +187,17 @@ void Player::AddScore(int points)
     SetScore(GetScore()+points);
     flightScore_ += points;
 }
-
-void Player::SetScore(int points)
+void Player::LoadScore()
 {
-    score_ = points;
-    UI* ui = GetSubsystem<UI>();
-    UIElement* scoreElement = ui->GetRoot()->GetChild(scoreTextName_);
-    Text* scoreText = (Text*)scoreElement;
-    scoreText->SetText(String(points));
+    std::ifstream f_score("Resources/.score.zip");
+    std::string score_str;
+    f_score >> score_str;
+    if (!score_str.empty()){
+        unsigned long score = stoul(score_str, 0, 10);
+        score_ = score;
+    }
+    f_score.close();
 }
-
-void Player::ResetScore()
-{
-    SetScore(0);
-}
-
 void Player::PlaySample(Sound* sample)
 {
     for (int i = 0; i < sampleSources_.Size(); i++){
@@ -533,7 +535,7 @@ void Player::UpgradeWeapons()
 
 void Player::CreateNewPilot()
 {
-    pilot_.male_ = (Random(1.0f)>0.5f) ? true : false;
+    pilot_.male_ = Random(2);
     pilot_.node_->SetRotation(Quaternion(0.0f, 0.0f, 0.0f));
 
     if (pilot_.male_){

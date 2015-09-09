@@ -166,10 +166,8 @@ enum PickupType {PT_RESET, PT_APPLE, PT_HEART, PT_MULTIX, PT_CHAOBALL};
 
 class MasterControl : public Application
 {
-    /// Enable type information.
     OBJECT(MasterControl);
 public:
-    /// Constructor.
     MasterControl(Context* context);
     GameWorld world;
     Resources resources;
@@ -190,11 +188,11 @@ public:
     SharedPtr<ChaoBall> chaoBall_;
     SharedPtr<Node> lobbyNode_;
 
-    /// Setup before engine initialization. Modifies the engine paramaters.
+    // Setup before engine initialization. Modifies the engine paramaters.
     virtual void Setup();
-    /// Setup after engine initialization.
+    // Setup after engine initialization.
     virtual void Start();
-    /// Cleanup after the main loop. Called by Application.
+    // Cleanup after the main loop. Called by Application.
     virtual void Stop();
     void Exit();
 
@@ -212,10 +210,10 @@ public:
     void Unpause() { SetPaused(false); }
     bool editMode_;
     bool PhysicsRayCast(PODVector<PhysicsRaycastResult> &hitResults, Urho3D::Ray ray, float distance, unsigned collisionMask);
-    bool PhysicsSphereCast(PODVector<RigidBody *> &hitResults, Vector3 center, float radius, unsigned collisionMask);
+    bool PhysicsSphereCast(PODVector<RigidBody*> &hitResults, Vector3 center, float radius, unsigned collisionMask);
     void StartGame();
 
-    ///Get resources
+    //Get resources
     SharedPtr<Material> GetRandomSkin() { return resources.materials.skin[Random((int)resources.materials.skin.Size())]; }
     SharedPtr<Material> GetRandomCloth() { return resources.materials.cloth[Random((int)resources.materials.cloth.Size())]; }
     SharedPtr<Material> GetRandomShoes() { return resources.materials.shoes[Random((int)resources.materials.shoes.Size())]; }
@@ -239,7 +237,7 @@ private:
     void CreateUI();
     void SubscribeToEvents();
 
-    void HandleSceneUpdate(StringHash eventType, VariantMap& eventData);
+    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void HandlePlayTrigger(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY); }
     void HandleExitTrigger(StringHash otherNode, VariantMap &eventData){ Exit(); }
 

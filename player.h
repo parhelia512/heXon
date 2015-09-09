@@ -71,6 +71,7 @@ public:
     void CreateNewPilot();
     void UpdateGUI(float timeStep);
     void PickupChaoBall();
+    void LoadScore();
 private:
     bool pilotMode_;
     float initialHealth_;
