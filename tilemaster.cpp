@@ -52,7 +52,7 @@ Object(context),
     lightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
     Light* playLight = lightNode->CreateComponent<Light>();
     playLight->SetLightType(LIGHT_DIRECTIONAL);
-    playLight->SetBrightness(0.75f);
+    playLight->SetBrightness(0.8f);
     playLight->SetRange(10.0f);
     playLight->SetColor(Color(1.0f, 0.9f, 0.95f));
     playLight->SetCastShadows(false);

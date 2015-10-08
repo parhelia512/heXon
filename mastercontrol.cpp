@@ -175,8 +175,8 @@ void MasterControl::CreateScene()
     //Create a Zone component for ambient ing & fog control
     Node* zoneNode = world.scene->CreateChild("Zone");
     Zone* zone = zoneNode->CreateComponent<Zone>();
-    zone->SetBoundingBox(BoundingBox(Vector3(-100.0f, -50.0f, -100.0f),Vector3(100.0f, 0.0f, 100.0f)));
-    zone->SetAmbientColor(Color(0.0f, 0.0f, 0.0f));
+    zone->SetBoundingBox(BoundingBox(Vector3(-100.0f, -50.0f, -100.0f),Vector3(100.0f, 5.0f, 100.0f)));
+    zone->SetAmbientColor(Color(0.023f, 0.01f, 0.05f));
     zone->SetFogColor(Color(0.0f, 0.0f, 0.0f));
     zone->SetFogStart(56.8f);
     zone->SetFogEnd(61.8f);
