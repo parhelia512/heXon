@@ -290,6 +290,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
             animCtrl_->SetStartBone("Resources/Models/WalkRelax.ani", "MasterBone");
         }
         else {
+            animCtrl_->StopAll(0.23f);
             animCtrl_->PlayExclusive("Resources/Models/IdleRelax.ani", 0, true, 0.15f);
             animCtrl_->SetStartBone("Resources/Models/IdleRelax.ani", "MasterBone");
         }
@@ -536,24 +537,6 @@ void Player::UpgradeWeapons()
 
 void Player::LoadPilot()
 {
-//    std::ifstream f_score("Resources/Pilot.lkp");
-//    std::string score_str;
-//    f_score >> score_str;
-//    if (!score_str.empty()){
-//        unsigned long score = stoul(score_str, 0, 10);
-//        score_ = score;
-//    }
-//    f_score.close();
-
-//    ofstream fPilot;
-//    fPilot.open("Resources/Pilot.lkp");
-//    fPilot << player_->pilot_.male_ << '\n';
-//    for (unsigned c = 0; c < player_->pilot_.colors_.Size(); c++){
-//        fPilot << player_->pilot_.colors_[c].r_ << ' '
-//               << player_->pilot_.colors_[c].g_ << ' '
-//               << player_->pilot_.colors_[c].b_ << ' '
-//               << '\n';
-//    }
     using namespace std;
     ifstream fPilot("Resources/Pilot.lkp");
     while (!fPilot.eof()){
@@ -633,7 +616,7 @@ Color Player::RandomHairColor()
 Color Player::RandomSkinColor()
 {
     Color skinColor{};
-    skinColor.FromHSV(Random(0.1f, 0.2f), Random(0.25f, 0.5f), Random(0.23f, 0.8f));
+    skinColor.FromHSV(Random(0.05f, 0.18f), Random(0.5f, 0.75f), Random(0.23f, 0.8f));
     return skinColor;
 }
 Color Player::RandomColor()
