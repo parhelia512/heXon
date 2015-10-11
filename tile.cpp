@@ -37,41 +37,23 @@ Object(context),
     centerDistExp_ = exp2(0.75*heXon::Distance(Vector3::ZERO, referencePosition_));
 }
 
-void Tile::Start()
-{
-}
-void Tile::Stop()
-{
-}
-
-void Tile::Select()
-{
-
-}
-
-void Tile::Deselect()
-{
-
-}
-
 void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
 {
     float elapsedTime = masterControl_->world.scene->GetElapsedTime();
     float offsetY = 0.0;
 
-    //Alien Chaos - Disorder = time*1.0525f
-    //Talpa - Unusual Chair = time*1.444
-    wave_ = 6.0*pow(masterControl_->Sine(Abs(centerDistExp_ - elapsedTime * 5.0f)), 4.0);
+    //Alien Chaos - Disorder = time * 1.0525
+    //Talpa - Unusual Chair  = time * 1.444
+    wave_ = 6.0*pow(masterControl_->Sine(Abs(centerDistExp_ - elapsedTime * 5.2625f)), 4.0f);
 
     unsigned nHexAffectors = tileMaster_->hexAffectors_.Size();
     if (nHexAffectors) {
         for (unsigned i = 0; i < nHexAffectors; i++) {
             WeakPtr<Node> hexAffector = tileMaster_->hexAffectors_.Keys()[i];
             float hexAffectorMass = tileMaster_->hexAffectors_[hexAffector]->GetMass();
-
             if (hexAffector->IsEnabled()) {
-                float offsetYPart = sqrt(hexAffectorMass) - (0.1* heXon::Distance(referencePosition_, hexAffector->GetPosition()));
-                if (offsetYPart > 0.0) {
+                float offsetYPart = sqrt(hexAffectorMass) - (0.1f * heXon::Distance(referencePosition_, hexAffector->GetPosition()));
+                if (offsetYPart > 0.0f) {
                     offsetYPart = pow(offsetYPart, 4);
                     offsetY += offsetYPart;
                 }
@@ -88,16 +70,6 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     Vector3 newPos = Vector3(lastPos.x_, referencePosition_.y_ - Min(offsetY, 4.0f), lastPos.z_);
     rootNode_->SetPosition(newPos);
 
-    float color = Clamp((0.25f * offsetY) +0.3f, 0.0f, 1.0f);
+    float color = Clamp((0.23f * offsetY) + 0.25f, 0.0f, 1.0f);
     model_->GetMaterial(0)->SetShaderParameter("MatDiffColor", Color(color, color, color, color + (0.023f * wave_)));
-}
-
-void Tile::FixFringe()
-{
-
-}
-
-void Tile::SetTileType(TileType type)
-{
-    tileType_ = type;
 }

@@ -42,10 +42,6 @@ public:
     IntVector2 coords_;
     TileType tileType_;
     Tile(Context *context, TileMaster* tileMaster, Vector3 position);
-
-    virtual void Start();
-    virtual void Stop();
-
 private:
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
     MasterControl* masterControl_;
@@ -58,8 +54,6 @@ private:
     float lastOffsetY_;
     StaticModel* model_;
     Node* cursor_;
-    void Select();
-    void Deselect();
     void FixFringe();
     void SetTileType(TileType type);
 };

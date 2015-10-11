@@ -1,0 +1,15 @@
+Pilot XML data
+
+gender bool
+hair int
+colours
+	skin
+		diffuse float[3]
+	clothing1
+		diffuse float[3]
+	clothing2
+		diffuse float[3]
+	clothing3
+		diffuse float[3]
+	hair
+		diffuse float[3]

@@ -39,4 +39,5 @@ Makefile*
 /CoreData
 /Data
 heXon
-Resources/.score.zip
+Resources/.heXon.lks
+Resources/Pilot.lkp

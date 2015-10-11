@@ -57,7 +57,8 @@ Player::Player(Context *context, MasterControl *masterControl):
     pilot_.node_->Translate(Vector3(0.0f, -0.5f, 0.0f));
     pilot_.model_ = pilot_.node_->CreateComponent<AnimatedModel>();
     pilot_.model_->SetCastShadows(true);
-    CreateNewPilot();
+
+    LoadPilot();
     animCtrl_ = pilot_.node_->CreateComponent<AnimationController>();
     animCtrl_->PlayExclusive("Resources/Models/IdleRelax.ani", 0, true, 0.1f);
     animCtrl_->SetSpeed("Resources/Models/IdleRelax.ani", 1.0f);
@@ -189,7 +190,7 @@ void Player::AddScore(int points)
 }
 void Player::LoadScore()
 {
-    std::ifstream f_score("Resources/.score.zip");
+    std::ifstream f_score("Resources/.heXon.lks");
     std::string score_str;
     f_score >> score_str;
     if (!score_str.empty()){
@@ -533,26 +534,115 @@ void Player::UpgradeWeapons()
     }
 }
 
+void Player::LoadPilot()
+{
+//    std::ifstream f_score("Resources/Pilot.lkp");
+//    std::string score_str;
+//    f_score >> score_str;
+//    if (!score_str.empty()){
+//        unsigned long score = stoul(score_str, 0, 10);
+//        score_ = score;
+//    }
+//    f_score.close();
+
+//    ofstream fPilot;
+//    fPilot.open("Resources/Pilot.lkp");
+//    fPilot << player_->pilot_.male_ << '\n';
+//    for (unsigned c = 0; c < player_->pilot_.colors_.Size(); c++){
+//        fPilot << player_->pilot_.colors_[c].r_ << ' '
+//               << player_->pilot_.colors_[c].g_ << ' '
+//               << player_->pilot_.colors_[c].b_ << ' '
+//               << '\n';
+//    }
+    using namespace std;
+    ifstream fPilot("Resources/Pilot.lkp");
+    while (!fPilot.eof()){
+        string gender_str;
+        string color1_r_str, color1_g_str, color1_b_str;
+        string color2_r_str, color2_g_str, color2_b_str;
+        string color3_r_str, color3_g_str, color3_b_str;
+        string color4_r_str, color4_g_str, color4_b_str;
+        string color5_r_str, color5_g_str, color5_b_str;
+        fPilot >> gender_str;
+        if (gender_str.empty()) break;
+        fPilot >>
+                color1_r_str >> color1_g_str >> color1_b_str >>
+                color2_r_str >> color2_g_str >> color2_b_str >>
+                color3_r_str >> color3_g_str >> color3_b_str >>
+                color4_r_str >> color4_g_str >> color4_b_str >>
+                color5_r_str >> color5_g_str >> color5_b_str;
+
+        pilot_.male_ = stoi(gender_str);
+        pilot_.colors_.Clear();
+        pilot_.colors_.Push(Color(stof(color1_r_str),stof(color1_g_str),stof(color1_b_str)));
+        pilot_.colors_.Push(Color(stof(color2_r_str),stof(color2_g_str),stof(color2_b_str)));
+        pilot_.colors_.Push(Color(stof(color3_r_str),stof(color3_g_str),stof(color3_b_str)));
+        pilot_.colors_.Push(Color(stof(color4_r_str),stof(color4_g_str),stof(color4_b_str)));
+        pilot_.colors_.Push(Color(stof(color5_r_str),stof(color5_g_str),stof(color5_b_str)));
+    }
+    if (!pilot_.colors_.Size()) CreateNewPilot();
+    UpdatePilot();
+}
+
+void Player::UpdatePilot()
+{
+    if (pilot_.male_){
+        pilot_.model_->SetModel(masterControl_->resources.models.pilots.male);}
+    else{
+        pilot_.model_->SetModel(masterControl_->resources.models.pilots.female);
+    }
+
+    for (unsigned m = 0; m < pilot_.model_->GetNumGeometries(); m++){
+        pilot_.model_->SetMaterial(m, masterControl_->cache_->GetTempResource<Material>("Resources/Materials/Basic.xml"));
+        Color diffColor = pilot_.colors_[m];
+        pilot_.model_->GetMaterial(m)->SetShaderParameter("MatDiffColor", diffColor);
+        Color specColor = diffColor*(1.0f-0.1f*m);
+        specColor.a_ = 23.0f - 2.0f * m;
+        pilot_.model_->GetMaterial(m)->SetShaderParameter("MatSpecColor", specColor);
+    }
+}
+
 void Player::CreateNewPilot()
 {
     pilot_.male_ = Random(2);
     pilot_.node_->SetRotation(Quaternion(0.0f, 0.0f, 0.0f));
 
-    if (pilot_.male_){
-        pilot_.model_->SetModel(masterControl_->resources.models.pilots.male);
-        pilot_.model_->SetMaterial(2, masterControl_->GetRandomSkin());
-        pilot_.model_->SetMaterial(0, masterControl_->GetRandomCloth());
-        pilot_.model_->SetMaterial(1, masterControl_->GetRandomCloth());
-        pilot_.model_->SetMaterial(3, masterControl_->GetRandomCloth());
+    pilot_.colors_.Clear();
+    for (int c = 0; c < 5; c++)
+    {
+        switch (c){
+        case 0:{
+            pilot_.colors_.Push(RandomSkinColor());
+        } break;
+        case 4:{
+            pilot_.colors_.Push(RandomHairColor());
+        } break;
+        default: pilot_.colors_.Push(RandomColor()); break;
+        }
     }
-    else{
-        pilot_.model_->SetModel(masterControl_->resources.models.pilots.female);
-        pilot_.model_->SetMaterial(1, masterControl_->GetRandomSkin());
-        pilot_.model_->SetMaterial(0, masterControl_->GetRandomCloth());
-        pilot_.model_->SetMaterial(2, masterControl_->GetRandomCloth());
-        pilot_.model_->SetMaterial(3, masterControl_->GetRandomCloth());
-    }
+    UpdatePilot();
 }
+
+Color Player::RandomHairColor()
+{
+    Color hairColor{};
+    hairColor.FromHSV(Random(0.1666f), Random(0.05f, 0.7f), Random(0.9f));
+    return hairColor;
+}
+
+Color Player::RandomSkinColor()
+{
+    Color skinColor{};
+    skinColor.FromHSV(Random(0.1f, 0.2f), Random(0.25f, 0.5f), Random(0.23f, 0.8f));
+    return skinColor;
+}
+Color Player::RandomColor()
+{
+    Color color{};
+    color.FromHSV(Random(), Random(), Random());
+    return color;
+}
+
 void Player::SetupShip()
 {
     ship_.node_ = rootNode_->CreateChild("Ship");

@@ -126,13 +126,6 @@ void InputMaster::HandleKeyUp(StringHash eventType, VariantMap &eventData)
 {
 }
 
-void InputMaster::AddSelection(SharedPtr<Tile> tile)
-{
-    DeselectAll();
-    selectedTiles_ += tile;
-    tile->Select();
-}
-
 void InputMaster::HandleMouseUp(StringHash eventType, VariantMap &eventData)
 {
     using namespace MouseButtonUp;
@@ -167,15 +160,6 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
         PauseButtonPressed();
     }
     //Enter edit mode on E
-}
-
-void InputMaster::DeselectAll()
-{
-    for (int i = 0; i < selectedTiles_.Size(); i++)
-    {
-        selectedTiles_[i]->Deselect();
-    }
-    selectedTiles_.Clear();
 }
 
 void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)

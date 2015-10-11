@@ -1,4 +1,5 @@
-#include "tailgenerator.h"
+#include "TailGenerator.h"
+
 
 extern const char* GEOMETRY_CATEGORY;
 
@@ -53,8 +54,8 @@ void TailGenerator::RegisterObject(Context* context)
 
     COPY_BASE_ATTRIBUTES(Drawable);
     MIXED_ACCESSOR_ATTRIBUTE("Material", GetMaterialAttr, SetMaterialAttr, ResourceRef, ResourceRef(Material::GetTypeStatic()), AM_DEFAULT);
-    ACCESSOR_ATTRIBUTE("Segments", GetNumTails, SetSegmentCount, unsigned int, 10, AM_DEFAULT);
-    ACCESSOR_ATTRIBUTE("Length", GetTailLength, SetSegmentLength, float, 0.25f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE("Segments", GetSegmentsCount, SetSegmentCount, unsigned int, 10, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE("Length", GetSegmentLength, SetSegmentLength, float, 0.25f, AM_DEFAULT);
     ACCESSOR_ATTRIBUTE("Width", GetWidthScale, SetScale, float, 1.0f, AM_DEFAULT);
     ACCESSOR_ATTRIBUTE("Start Color", GetColorForHead, SetColorForHead, Color, Color::WHITE, AM_DEFAULT);
     ACCESSOR_ATTRIBUTE("End Color", GetColorForTip, SetColorForTip, Color, Color::WHITE, AM_DEFAULT);
@@ -364,7 +365,7 @@ void TailGenerator::UpdateVertexBuffer(const FrameInfo& frame)
 }
 
 
-void TailGenerator::SetSegmentLength(float length) 
+void TailGenerator::SetSegmentLength(float length)
 {
     
     tailLength_ = length;
@@ -380,7 +381,7 @@ void TailGenerator::SetColorForHead(const Color& c)
     tailHeadColor = Color(c.r_, c.g_, c.b_, 1.0f);
 }
 
-void TailGenerator::SetSegmentCount(unsigned num) 
+void TailGenerator::SetSegmentCount(unsigned num)
 {
     // Prevent negative value being assigned from the editor
     if (num > M_MAX_INT)
@@ -393,7 +394,7 @@ void TailGenerator::SetSegmentCount(unsigned num)
     tailNum_ = num;
 }
 
-unsigned TailGenerator::GetNumTails() 
+unsigned TailGenerator::GetSegmentsCount() 
 {
     return tailNum_;
 }

@@ -14,7 +14,9 @@
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/Material.h>
 
+
 using namespace Urho3D;
+
 
 /// Vertex struct for tail  
 struct URHO3D_API TailVertex
@@ -68,11 +70,11 @@ public:
     /// Set tail segment length
     void SetSegmentLength(float length);
     /// Get tail segment length
-    float GetTailLength();
+    float GetSegmentLength();
     /// Set count segments of all tail 
     void SetSegmentCount(unsigned num);
     /// Get count segments of all tail 
-    unsigned GetNumTails();
+    unsigned GetSegmentsCount();
     /// Set width scale of the tail
     void SetScale(float scale);
     /// Set vertex blended color for tip of all tail. The alpha-value of new color resets by default to zero.
@@ -98,8 +100,8 @@ public:
     void SetMatchNodeOrientation(bool value);
 
     float GetWidthScale() const { return scale_; }
-    unsigned  GetNumTails() const { return tailNum_; }
-    float GetTailLength() const { return tailLength_;  }
+    unsigned  GetSegmentsCount() const { return tailNum_; }
+    float GetSegmentLength() const { return tailLength_;  }
     const Color& GetColorForHead() const { return tailHeadColor; }
     const Color& GetColorForTip() const { return tailTipColor;  }
 
@@ -157,5 +159,4 @@ private:
     bool matchNode_;
     bool horizontal_;
 };
-
 #endif // TAILGENERATOR_H

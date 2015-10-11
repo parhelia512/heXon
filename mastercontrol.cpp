@@ -32,7 +32,7 @@
 #include "hitfx.h"
 #include "explosion.h"
 #include "muzzle.h"
-#include "tailgenerator.h"
+#include "TailGenerator.h"
 #include "chaomine.h"
 #include "mastercontrol.h"
 
@@ -142,22 +142,7 @@ void MasterControl::LoadResources()
     resources.models.arenaElements.obstacle = cache_->GetResource<Model>("Resources/Models/Obstacle.mdl");
 
     //Load materials
-    resources.materials.skin.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/Skin_0.xml")));
-    resources.materials.skin.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/Skin_1.xml")));
-    resources.materials.skin.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/Skin_2.xml")));
-    resources.materials.skin.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/Skin_3.xml")));
-    resources.materials.skin.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/Skin_4.xml")));
-
-    resources.materials.cloth.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothWhite.xml")));
-    resources.materials.cloth.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothBlack.xml")));
-    resources.materials.cloth.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothRed.xml")));
-    resources.materials.cloth.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothYellow.xml")));
-    resources.materials.cloth.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothGreen.xml")));
-    resources.materials.cloth.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothBlue.xml")));
-
-    resources.materials.shoes.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothBlue.xml")));
-
-    resources.materials.hair.Push(SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/ClothBlue.xml")));
+    resources.materials.basic = SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/Basic.xml"));
 
     resources.materials.shipPrimary = cache_->GetResource<Material>("Resources/Materials/GreenEnvmap.xml");
     resources.materials.shipSecondary = cache_->GetResource<Material>("Resources/Materials/GreenGlowEnvmap.xml");
@@ -176,7 +161,6 @@ void MasterControl::CreateScene()
     Node* zoneNode = world.scene->CreateChild("Zone");
     Zone* zone = zoneNode->CreateComponent<Zone>();
     zone->SetBoundingBox(BoundingBox(Vector3(-100.0f, -50.0f, -100.0f),Vector3(100.0f, 5.0f, 100.0f)));
-    zone->SetAmbientColor(Color(0.023f, 0.01f, 0.05f));
     zone->SetFogColor(Color(0.0f, 0.0f, 0.0f));
     zone->SetFogStart(56.8f);
     zone->SetFogEnd(61.8f);
@@ -399,16 +383,24 @@ bool MasterControl::PhysicsSphereCast(PODVector<RigidBody*> &hitResults, Vector3
 
 void MasterControl::Exit()
 {
+    using namespace std;
     //Save score to file
-    std::ofstream fScore;
-    fScore.open ("Resources/.score.zip");
+    ofstream fScore;
+    fScore.open ("Resources/.heXon.lks");
     fScore << player_->GetScore();
     fScore.close();
-    ///Save pilot to file
-
+    //Save pilot to file
+    ofstream fPilot;
+    fPilot.open("Resources/Pilot.lkp");
+    fPilot << player_->pilot_.male_ << '\n';
+    for (unsigned c = 0; c < player_->pilot_.colors_.Size(); c++){
+        fPilot << player_->pilot_.colors_[c].r_ << ' '
+               << player_->pilot_.colors_[c].g_ << ' '
+               << player_->pilot_.colors_[c].b_ << ' '
+               << '\n';
+    }
     //And exit
     engine_->Exit();
-
 }
 
 void MasterControl::CreateSineLookupTable()

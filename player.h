@@ -25,7 +25,7 @@
 #include "bullet.h"
 #include "muzzle.h"
 #include "chaoflash.h"
-#include "tailgenerator.h"
+#include "TailGenerator.h"
 
 namespace Urho3D {
 class Drawable;
@@ -55,6 +55,7 @@ class Player : public SceneObject
     OBJECT(Player);
 public:
     Player(Context* context, MasterControl* masterControl);
+    Pilot pilot_;
 
     Vector3 GetPosition() { return rootNode_->GetPosition(); }
     double GetHealth(){return health_;}
@@ -72,6 +73,7 @@ public:
     void UpdateGUI(float timeStep);
     void PickupChaoBall();
     void LoadScore();
+    void UpdatePilot();
 private:
     bool pilotMode_;
     float initialHealth_;
@@ -90,7 +92,6 @@ private:
     float sinceLastShot_;
 
     Ship ship_;
-    Pilot pilot_;
     Node* shieldNode_;
     StaticModel* shieldModel_;
     SharedPtr<Material> shieldMaterial_;
@@ -133,6 +134,10 @@ private:
     void CreateGUI();
     void SetPilotMode(bool pilotMode);
     void MoveMuzzle();
+    Color RandomHairColor();
+    Color RandomSkinColor();
+    Color RandomColor();
+    void LoadPilot();
 };
 
 #endif // PLAYER_H

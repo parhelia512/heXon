@@ -126,10 +126,7 @@ typedef struct Resources
         } arenaElements;
     } models;
     struct {
-        Vector<SharedPtr<Material> > skin;
-        Vector<SharedPtr<Material> > cloth;
-        Vector<SharedPtr<Material> > shoes;
-        Vector<SharedPtr<Material> > hair;
+        SharedPtr<Material> basic;
         SharedPtr<Material> shipPrimary;
         SharedPtr<Material> shipSecondary;
     } materials;
@@ -213,11 +210,6 @@ public:
     bool PhysicsSphereCast(PODVector<RigidBody*> &hitResults, Vector3 center, float radius, unsigned collisionMask);
     void StartGame();
 
-    //Get resources
-    SharedPtr<Material> GetRandomSkin() { return resources.materials.skin[Random((int)resources.materials.skin.Size())]; }
-    SharedPtr<Material> GetRandomCloth() { return resources.materials.cloth[Random((int)resources.materials.cloth.Size())]; }
-    SharedPtr<Material> GetRandomShoes() { return resources.materials.shoes[Random((int)resources.materials.shoes.Size())]; }
-    SharedPtr<Material> GetRandomHair() { return resources.materials.hair[Random((int)resources.materials.hair.Size())]; }
     void Eject();
 private:
     Vector<double> sine_;
