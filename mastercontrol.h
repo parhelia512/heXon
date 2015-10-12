@@ -20,49 +20,8 @@
 #define MASTERCONTROL_H
 
 #include <Urho3D/Urho3D.h>
-#include <Urho3D/Audio/Sound.h>
-#include <Urho3D/Audio/SoundSource.h>
-#include <Urho3D/Container/HashMap.h>
-#include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/Engine/Application.h>
-#include <Urho3D/Engine/Console.h>
-#include <Urho3D/Engine/DebugHud.h>
-#include <Urho3D/Engine/Engine.h>
-#include <Urho3D/Graphics/AnimatedModel.h>
-#include <Urho3D/Graphics/AnimationController.h>
-#include <Urho3D/Graphics/Camera.h>
-#include <Urho3D/Graphics/DebugRenderer.h>
-#include <Urho3D/Graphics/Graphics.h>
-#include <Urho3D/Graphics/Light.h>
-#include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Graphics/Model.h>
-#include <Urho3D/Graphics/Octree.h>
-#include <Urho3D/Graphics/OctreeQuery.h>
-#include <Urho3D/Graphics/ParticleEffect.h>
-#include <Urho3D/Graphics/ParticleEmitter.h>
-#include <Urho3D/Graphics/Renderer.h>
-#include <Urho3D/Graphics/RenderPath.h>
-#include <Urho3D/Graphics/StaticModel.h>
-#include <Urho3D/Graphics/Viewport.h>
-#include <Urho3D/Graphics/Zone.h>
-#include <Urho3D/Input/Input.h>
-#include <Urho3D/IO/FileSystem.h>
-#include <Urho3D/IO/Log.h>
-#include <Urho3D/Physics/CollisionShape.h>
-#include <Urho3D/Physics/PhysicsEvents.h>
-#include <Urho3D/Physics/PhysicsWorld.h>
-#include <Urho3D/Physics/RigidBody.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Resource/Resource.h>
-#include <Urho3D/Resource/XMLFile.h>
-#include <Urho3D/Scene/LogicComponent.h>
-#include <Urho3D/Scene/SceneEvents.h>
-#include <Urho3D/Scene/Scene.h>
-#include <Urho3D/UI/Font.h>
-#include <Urho3D/UI/Text.h>
-#include <Urho3D/UI/UI.h>
 
-#include "helper.h"
+#include "luckey.h"
 
 namespace Urho3D {
 class Drawable;
@@ -194,7 +153,7 @@ public:
     void Exit();
 
     void CreateSineLookupTable();
-    float Sine(float x) { return sine_[(int)round(sine_.Size() * heXon::Cycle((float)(x/(2.0f*M_PI)), 0.0f, 1.0f))%sine_.Size()]; }
+    float Sine(float x) { return sine_[(int)round(sine_.Size() * LucKey::Cycle((float)(x/(2.0f*M_PI)), 0.0f, 1.0f))%sine_.Size()]; }
     float Sine(float freq, float min, float max, float shift = 0.0f);
     float Cosine(float x) { return Sine(x+(0.5f*M_PI)); }
     float Cosine(float freq, float min, float max, float shift = 0.0f){ return Sine(freq, min, max, shift+0.5f*M_PI); }

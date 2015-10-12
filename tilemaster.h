@@ -20,8 +20,6 @@
 #define TILEMASTER_H
 
 #include <Urho3D/Urho3D.h>
-#include <Urho3D/Container/Vector.h>
-#include <Urho3D/Math/Vector2.h>
 
 #include "mastercontrol.h"
 

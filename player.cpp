@@ -60,9 +60,6 @@ Player::Player(Context *context, MasterControl *masterControl):
 
     LoadPilot();
     animCtrl_ = pilot_.node_->CreateComponent<AnimationController>();
-    animCtrl_->PlayExclusive("Resources/Models/IdleRelax.ani", 0, true, 0.1f);
-    animCtrl_->SetSpeed("Resources/Models/IdleRelax.ani", 1.0f);
-    animCtrl_->SetStartBone("Resources/Models/IdleRelax.ani", "MasterBone");
     //Setup shield
     shieldNode_ = rootNode_->CreateChild("Shield");
     shieldModel_ = shieldNode_->CreateComponent<StaticModel>();
@@ -190,7 +187,7 @@ void Player::AddScore(int points)
 }
 void Player::LoadScore()
 {
-    std::ifstream f_score("Resources/.heXon.lks");
+    std::ifstream f_score("Resources/.LucKey.lks");
     std::string score_str;
     f_score >> score_str;
     if (!score_str.empty()){
@@ -290,7 +287,6 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
             animCtrl_->SetStartBone("Resources/Models/WalkRelax.ani", "MasterBone");
         }
         else {
-            animCtrl_->StopAll(0.23f);
             animCtrl_->PlayExclusive("Resources/Models/IdleRelax.ani", 0, true, 0.15f);
             animCtrl_->SetStartBone("Resources/Models/IdleRelax.ani", "MasterBone");
         }

@@ -20,7 +20,6 @@
 #define INPUTMASTER_H
 
 #include <Urho3D/Urho3D.h>
-#include <Urho3D/Input/Input.h>
 
 #include "mastercontrol.h"
 #include "tile.h"

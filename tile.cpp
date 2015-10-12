@@ -34,7 +34,7 @@ Object(context),
     model_->SetCastShadows(false);
 
     referencePosition_ = rootNode_->GetPosition();
-    centerDistExp_ = exp2(0.75*heXon::Distance(Vector3::ZERO, referencePosition_));
+    centerDistExp_ = exp2(0.75*LucKey::Distance(Vector3::ZERO, referencePosition_));
 }
 
 void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
@@ -52,7 +52,7 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
             WeakPtr<Node> hexAffector = tileMaster_->hexAffectors_.Keys()[i];
             float hexAffectorMass = tileMaster_->hexAffectors_[hexAffector]->GetMass();
             if (hexAffector->IsEnabled()) {
-                float offsetYPart = sqrt(hexAffectorMass) - (0.1f * heXon::Distance(referencePosition_, hexAffector->GetPosition()));
+                float offsetYPart = sqrt(hexAffectorMass) - (0.1f * LucKey::Distance(referencePosition_, hexAffector->GetPosition()));
                 if (offsetYPart > 0.0f) {
                     offsetYPart = pow(offsetYPart, 4);
                     offsetY += offsetYPart;
