@@ -27,7 +27,7 @@
 class ChaoZap : public SceneObject
 {
     friend class SpawnMaster;
-    OBJECT(ChaoZap);
+    URHO3D_OBJECT(ChaoZap, SceneObject);
 public:
     ChaoZap(Context* context, MasterControl* masterControl);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);

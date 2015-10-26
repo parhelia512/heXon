@@ -41,7 +41,7 @@ void Flash::UpdateFlash(StringHash eventType, VariantMap &eventData)
 
 void Flash::Set(Vector3 position)
 {
-    SubscribeToEvent(E_POSTUPDATE, HANDLER(Flash, UpdateFlash));
+    SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(Flash, UpdateFlash));
     Effect::Set(position);
 }
 

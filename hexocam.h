@@ -37,7 +37,7 @@ using namespace Urho3D;
 
 class heXoCam : public Object
 {
-    OBJECT(heXoCam);
+    URHO3D_OBJECT(heXoCam, Object);
     friend class MasterControl;
     friend class InputMaster;
 public:

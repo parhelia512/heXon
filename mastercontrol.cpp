@@ -32,11 +32,11 @@
 #include "hitfx.h"
 #include "explosion.h"
 #include "muzzle.h"
-#include "TailGenerator.h"
+//#include "TailGenerator.h"
 #include "chaomine.h"
 #include "mastercontrol.h"
 
-DEFINE_APPLICATION_MAIN(MasterControl);
+URHO3D_DEFINE_APPLICATION_MAIN(MasterControl);
 
 MasterControl::MasterControl(Context *context):
     Application(context),
@@ -61,7 +61,7 @@ void MasterControl::Setup()
 }
 void MasterControl::Start()
 {
-    TailGenerator::RegisterObject(context_);
+//    TailGenerator::RegisterObject(context_);
 
     new InputMaster(context_, this);
     cache_ = GetSubsystem<ResourceCache>();
@@ -102,7 +102,7 @@ void MasterControl::Stop()
 void MasterControl::SubscribeToEvents()
 {
     //Subscribe scene update event.
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(MasterControl, HandleSceneUpdate));
+    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(MasterControl, HandleSceneUpdate));
 }
 
 void MasterControl::CreateConsoleAndDebugHud()
@@ -221,7 +221,7 @@ void MasterControl::CreateScene()
     CollisionShape* shipShape = lobbyNode_->CreateComponent<CollisionShape>();
     shipShape->SetCylinder(1.8f, 1.0f);
 
-    SubscribeToEvent(lobbyNode_, E_NODECOLLISIONSTART, HANDLER(MasterControl, HandlePlayTrigger));
+    SubscribeToEvent(lobbyNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandlePlayTrigger));
 
     //Add a point light to the lobby. Enable cascaded shadows on it
     Node* lobbySpotLightNode = lobbyNode_->CreateChild("PointLight");
@@ -243,7 +243,7 @@ void MasterControl::CreateScene()
         edgeNode->CreateComponent<RigidBody>();
         CollisionShape* collider = edgeNode->CreateComponent<CollisionShape>();
         collider->SetConvexHull(model);
-        SubscribeToEvent(edgeNode, E_NODECOLLISIONSTART, HANDLER(MasterControl, HandleExitTrigger));
+        SubscribeToEvent(edgeNode, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandleExitTrigger));
     }
     //Create game elements
     spawnMaster_ = new SpawnMaster(context_, this);

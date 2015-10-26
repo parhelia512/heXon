@@ -47,7 +47,7 @@ Spire::Spire(Context *context, MasterControl *masterControl):
     bottomModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/SpireBottom.mdl"));
     bottomModel_->SetMaterial(black);
 
-    SubscribeToEvent(E_SCENEPOSTUPDATE, HANDLER(Spire, HandleSpireUpdate));
+    SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(Spire, HandleSpireUpdate));
 }
 
 void Spire::HandleSpireUpdate(StringHash eventType, VariantMap &eventData)
@@ -84,5 +84,5 @@ void Spire::Set(Vector3 position)
 {
     shotInterval_ = initialShotInterval_;
     Enemy::Set(position);
-    SubscribeToEvent(E_SCENEPOSTUPDATE, HANDLER(Spire, HandleSpireUpdate));
+    SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(Spire, HandleSpireUpdate));
 }

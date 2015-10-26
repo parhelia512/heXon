@@ -103,6 +103,6 @@ void Seeker::Set(Vector3 position)
 
     sampleSource_->Play(sample_);
 
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(Seeker, HandleSceneUpdate));
-    SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, HANDLER(Seeker, HandleTriggerStart));
+    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Seeker, HandleSceneUpdate));
+    SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Seeker, HandleTriggerStart));
 }

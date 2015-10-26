@@ -122,14 +122,14 @@ enum PickupType {PT_RESET, PT_APPLE, PT_HEART, PT_MULTIX, PT_CHAOBALL};
 
 class MasterControl : public Application
 {
-    OBJECT(MasterControl);
+    URHO3D_OBJECT(MasterControl, Application);
 public:
     MasterControl(Context* context);
     GameWorld world;
     Resources resources;
     SharedPtr<PhysicsWorld> physicsWorld_;
-    SharedPtr<ResourceCache> cache_;
-    SharedPtr<Graphics> graphics_;
+    WeakPtr<ResourceCache> cache_;
+    WeakPtr<Graphics> graphics_;
     SharedPtr<UI> ui_;
     SharedPtr<Renderer> renderer_;
     SharedPtr<XMLFile> defaultStyle_;

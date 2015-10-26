@@ -31,7 +31,7 @@ class Sprite;
 
 class Pickup : public SceneObject
 {
-    OBJECT(Pickup);
+    URHO3D_OBJECT(Pickup, SceneObject);
 public:
     Pickup(Context *context, MasterControl* masterControl);
     void Respawn(bool restart = false);

@@ -74,7 +74,7 @@ SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
 
 void SpawnMaster::Activate()
 {
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(SpawnMaster, HandleSceneUpdate));
+    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(SpawnMaster, HandleSceneUpdate));
 }
 void SpawnMaster::Deactivate()
 {

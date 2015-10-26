@@ -41,7 +41,7 @@ enum TileType {B_SPACE, B_EMPTY, B_ENGINE};
 
 class TileMaster : public Object
 {
-    OBJECT(TileMaster);
+    URHO3D_OBJECT(TileMaster, Object);
     friend class InputMaster;
     friend class MasterControl;
     friend class Tile;

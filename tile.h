@@ -34,7 +34,7 @@ using namespace Urho3D;
 
 class Tile : public Object
 {
-    OBJECT(Tile);
+    URHO3D_OBJECT(Tile, Object);
     friend class TileMaster;
     friend class InputMaster;
     friend class SpawnMaster;

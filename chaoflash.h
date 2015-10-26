@@ -34,7 +34,7 @@ using namespace Urho3D;
 
 class ChaoFlash : public SceneObject
 {
-    OBJECT(ChaoFlash);
+    URHO3D_OBJECT(ChaoFlash, SceneObject);
 public:
     ChaoFlash(Context* context, MasterControl* masterControl);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);

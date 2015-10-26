@@ -87,15 +87,15 @@ void InputMaster::BindControllerAxisAction(int axis, int negative_action, int po
 
 void InputMaster::SubscribeToEvents()
 {
-    SubscribeToEvent(Urho3D::E_MOUSEBUTTONDOWN, HANDLER(InputMaster, HandleMouseButtonDown));
-    SubscribeToEvent(Urho3D::E_MOUSEBUTTONUP, HANDLER(InputMaster, HandleMouseButtonUp));
-    SubscribeToEvent(Urho3D::E_MOUSEMOVE, HANDLER(InputMaster, HandleMouseMove));
-    SubscribeToEvent(Urho3D::E_MOUSEWHEEL, HANDLER(InputMaster, HandleMouseWheel));
-    SubscribeToEvent(Urho3D::E_KEYDOWN, HANDLER(InputMaster, HandleKeyDown));
-    SubscribeToEvent(Urho3D::E_KEYUP, HANDLER(InputMaster, HandleKeyUp));
-    SubscribeToEvent(Urho3D::E_JOYSTICKBUTTONDOWN, HANDLER(InputMaster, HandleJoystickButtonDown));
-    SubscribeToEvent(Urho3D::E_JOYSTICKBUTTONUP, HANDLER(InputMaster, HandleJoystickButtonUp));
-    SubscribeToEvent(Urho3D::E_JOYSTICKAXISMOVE, HANDLER(InputMaster, HandleJoystickAxisMove));
+    SubscribeToEvent(Urho3D::E_MOUSEBUTTONDOWN, URHO3D_HANDLER(InputMaster, HandleMouseButtonDown));
+    SubscribeToEvent(Urho3D::E_MOUSEBUTTONUP, URHO3D_HANDLER(InputMaster, HandleMouseButtonUp));
+    SubscribeToEvent(Urho3D::E_MOUSEMOVE, URHO3D_HANDLER(InputMaster, HandleMouseMove));
+    SubscribeToEvent(Urho3D::E_MOUSEWHEEL, URHO3D_HANDLER(InputMaster, HandleMouseWheel));
+    SubscribeToEvent(Urho3D::E_KEYDOWN, URHO3D_HANDLER(InputMaster, HandleKeyDown));
+    SubscribeToEvent(Urho3D::E_KEYUP, URHO3D_HANDLER(InputMaster, HandleKeyUp));
+    SubscribeToEvent(Urho3D::E_JOYSTICKBUTTONDOWN, URHO3D_HANDLER(InputMaster, HandleJoystickButtonDown));
+    SubscribeToEvent(Urho3D::E_JOYSTICKBUTTONUP, URHO3D_HANDLER(InputMaster, HandleJoystickButtonUp));
+    SubscribeToEvent(Urho3D::E_JOYSTICKAXISMOVE, URHO3D_HANDLER(InputMaster, HandleJoystickAxisMove));
 }
 
 void InputMaster::HandleMouseButtonUp(StringHash eventType, VariantMap &eventData)

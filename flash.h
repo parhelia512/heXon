@@ -34,7 +34,7 @@ using namespace Urho3D;
 
 class Flash : public Effect
 {
-    OBJECT(Flash);
+    URHO3D_OBJECT(Flash, Effect);
 public:
     Flash(Context* context, MasterControl* masterControl);
     SharedPtr<Light> light_;

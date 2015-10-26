@@ -34,7 +34,7 @@ using namespace Urho3D;
 
 class Razor : public Enemy
 {
-    OBJECT(Razor);
+    URHO3D_OBJECT(Razor, Enemy);
 public:
     Razor(Context* context, MasterControl* masterControl);
     void Hit(float damage, int ownerID);

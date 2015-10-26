@@ -30,7 +30,7 @@ ChaoFlash::ChaoFlash(Context *context, MasterControl *masterControl):
     chaoMaterial_ = masterControl_->cache_->GetResource<Material>("Resources/Materials/ChaoFlash.xml");
     chaoModel_->SetMaterial(chaoMaterial_);
     rootNode_->SetEnabled(false);
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(ChaoFlash, HandleSceneUpdate));
+    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(ChaoFlash, HandleSceneUpdate));
 
     sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Chaos.ogg");
     sampleSource_ = rootNode_->CreateComponent<SoundSource>();
@@ -93,7 +93,7 @@ void ChaoFlash::Set(Vector3 position)
             }
         }
     }
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(ChaoFlash, HandleSceneUpdate));
+    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(ChaoFlash, HandleSceneUpdate));
 }
 
 void ChaoFlash::Disable()

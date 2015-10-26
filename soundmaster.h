@@ -26,7 +26,7 @@
 class SoundMaster : public Object
 {
     friend class MasterControl;
-    OBJECT(SoundMaster);
+    URHO3D_OBJECT(SoundMaster, Object);
 public:
     SoundMaster(Context* context, MasterControl* masterControl);
 };

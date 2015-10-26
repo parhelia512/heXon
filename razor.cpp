@@ -40,7 +40,7 @@ Razor::Razor(Context *context, MasterControl *masterControl):
     bottomModel_->SetMaterial(0, black);
     bottomModel_->SetMaterial(1, centerModel_->GetMaterial());
 
-    SubscribeToEvent(E_SCENEPOSTUPDATE, HANDLER(Razor, HandleRazorUpdate));
+    SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(Razor, HandleRazorUpdate));
 
 }
 
@@ -82,7 +82,7 @@ void Razor::Set(Vector3 position)
 {
     aimSpeed_ = 0.25 * topSpeed_;
     Enemy::Set(position);
-    SubscribeToEvent(E_SCENEPOSTUPDATE, HANDLER(Razor, HandleRazorUpdate));
+    SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(Razor, HandleRazorUpdate));
 }
 
 

@@ -41,7 +41,7 @@ Bullet::Bullet(Context *context, MasterControl *masterControl):
     light->SetRange(6.66f);
     light->SetColor(Color(0.6f, 1.0f+damage_, 0.2f));
 
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(Bullet, HandleSceneUpdate));
+    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Bullet, HandleSceneUpdate));
 }
 
 void Bullet::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
@@ -71,7 +71,7 @@ void Bullet::Set(Vector3 position)
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();
     SceneObject::Set(position);
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(Bullet, HandleSceneUpdate));
+    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Bullet, HandleSceneUpdate));
 }
 
 void Bullet::Disable()

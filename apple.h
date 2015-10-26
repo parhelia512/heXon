@@ -34,7 +34,7 @@ using namespace Urho3D;
 
 class Apple : public Pickup
 {
-    OBJECT(Apple);
+    URHO3D_OBJECT(Apple, Pickup);
 public:
     Apple(Context* context, MasterControl* masterControl);
 };

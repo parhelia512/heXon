@@ -35,7 +35,7 @@ void Effect::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     float timeStep = eventData[P_TIMESTEP].GetFloat();
     age_ += timeStep;
 
-    if (age_ > emitTime_ + particleEmitter_->GetEffect()->GetMaxTimeToLive()){
+    if (age_ > emitTime_/* + particleEmitter_->GetEffect()->GetMaxTimeToLive()*/){
         Disable();
     }
     else if (age_ > emitTime_){
@@ -48,7 +48,7 @@ void Effect::Set(Vector3 position)
     SceneObject::Set(position);
     age_ = 0.0f;
     particleEmitter_->SetEmitting(true);
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(Effect, HandleSceneUpdate));
+    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Effect, HandleSceneUpdate));
 }
 
 void Effect::Disable()

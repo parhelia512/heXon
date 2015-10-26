@@ -40,7 +40,7 @@ static const unsigned MAX_TAILS = 65536 / 6;
 /// Custom component that creates a tail
 class URHO3D_API TailGenerator : public Drawable
 {
-    OBJECT(TailGenerator);
+    URHO3D_OBJECT(TailGenerator, Drawable);
 
 public:
     /// Construct.
@@ -119,7 +119,7 @@ protected:
     PODVector<Tail> fullPointPath;
 
 private:
-    /// Resize TailGenerator vertex and index buffers.
+    /// Resize TailGenerator vertex and i*ndex buffers.
     void UpdateBufferSize();
     /// Rewrite TailGenerator vertex buffer.
     void UpdateVertexBuffer(const FrameInfo& frame);

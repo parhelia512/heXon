@@ -34,7 +34,7 @@ using namespace Urho3D;
 
 class Spire : public Enemy
 {
-    OBJECT(Spire);
+    URHO3D_OBJECT(Spire, Enemy);
     friend class SpawnMaster;
 public:
     Spire(Context* context, MasterControl* masterControl);

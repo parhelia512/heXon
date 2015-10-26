@@ -34,7 +34,7 @@ using namespace Urho3D;
 
 class ChaoMine : public Enemy
 {
-    OBJECT(ChaoMine);
+    URHO3D_OBJECT(ChaoMine, Enemy);
 public:
     ChaoMine(Context* context, MasterControl* masterControl);
     void Set(Vector3 position);

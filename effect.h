@@ -34,7 +34,7 @@ using namespace Urho3D;
 
 class Effect : public SceneObject
 {
-    OBJECT(Effect);
+    URHO3D_OBJECT(Effect, SceneObject);
 public:
     Effect(Context* context, MasterControl* masterControl);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);

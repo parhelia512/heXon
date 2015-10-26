@@ -88,7 +88,7 @@ void ChaoZap::Set(Vector3 position)
             }
         }
     }
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(ChaoZap, HandleSceneUpdate));
+    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(ChaoZap, HandleSceneUpdate));
 }
 
 void ChaoZap::Disable()

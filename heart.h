@@ -34,7 +34,7 @@ using namespace Urho3D;
 
 class Heart : public Pickup
 {
-    OBJECT(Heart);
+    URHO3D_OBJECT(Heart, Pickup);
 public:
     Heart(Context* context, MasterControl* masterControl);
 };

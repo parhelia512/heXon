@@ -24,7 +24,7 @@ Object(context),
   lastOffsetY_{0.666f}
 {
     masterControl_ = tileMaster->masterControl_;
-    SubscribeToEvent(E_UPDATE, HANDLER(Tile, HandleUpdate));
+    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Tile, HandleUpdate));
     rootNode_ = tileMaster_->rootNode_->CreateChild("Tile");
     rootNode_->SetPosition(position);
     rootNode_->SetScale(1.1f);

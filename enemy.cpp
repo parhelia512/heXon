@@ -89,8 +89,8 @@ void Enemy::Set(Vector3 position)
     particleEmitter_->RemoveAllParticles();
     SceneObject::Set(position);
     masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(Enemy, HandleSceneUpdate));
-    SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, HANDLER(Enemy, HandleCollisionStart));
+    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Enemy, HandleSceneUpdate));
+    SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Enemy, HandleCollisionStart));
 }
 
 // Takes care of dealing damage and keeps track of who deserves how many points.

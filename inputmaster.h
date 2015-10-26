@@ -37,26 +37,26 @@ class Sprite;
 using namespace Urho3D;
 
 // Define events to be bound
-EVENT(MENU_BUTTON_DOWN, MenuButtonDown) // MouseDown, KeyDown, ControllerButtonDown, MouseWheel
+URHO3D_EVENT(MENU_BUTTON_DOWN, MenuButtonDown) // MouseDown, KeyDown, ControllerButtonDown, MouseWheel
 {
-    PARAM(P_ACTION, Action);	// int
+    URHO3D_PARAM(P_ACTION, Action);	// int
 }
-EVENT(MENU_BUTTON_UP, MenuButtonUp) // MouseUp, KeyUp, ControllerButtonUp, ControllerAxisMove, MouseWheel
+URHO3D_EVENT(MENU_BUTTON_UP, MenuButtonUp) // MouseUp, KeyUp, ControllerButtonUp, ControllerAxisMove, MouseWheel
 {
-    PARAM(P_ACTION, Action);	// int
+    URHO3D_PARAM(P_ACTION, Action);	// int
 }
-EVENT(BUTTON_DOWN, ButtonDown) // MouseDown, KeyDown, ControllerButtonDown, MouseWheel
+URHO3D_EVENT(BUTTON_DOWN, ButtonDown) // MouseDown, KeyDown, ControllerButtonDown, MouseWheel
 {
-    PARAM(P_ACTION, Action);	// int
+    URHO3D_PARAM(P_ACTION, Action);	// int
 }
-EVENT(BUTTON_UP, ButtonUp) // MouseUp, KeyUp, ControllerButtonUp, MouseWheel
+URHO3D_EVENT(BUTTON_UP, ButtonUp) // MouseUp, KeyUp, ControllerButtonUp, MouseWheel
 {
-    PARAM(P_ACTION, Action);	// int
+    URHO3D_PARAM(P_ACTION, Action);	// int
 }
-EVENT(MOUSE_AXIS_MOVE, MouseAxisMove) // MouseMove
+URHO3D_EVENT(MOUSE_AXIS_MOVE, MouseAxisMove) // MouseMove
 {
-    PARAM(P_AXIS, Axis);	// int
-    PARAM(P_DELTA, Delta);	// float
+    URHO3D_PARAM(P_AXIS, Axis);	// int
+    URHO3D_PARAM(P_DELTA, Delta);	// float
 }
 /*EVENT(JOYSTICK_AXIS_MOVE, JoystickAxisMove) // ControllerAxisMove
 {
@@ -98,7 +98,7 @@ struct ControllerAxisAction
 
 class InputMaster : public Object
 {
-    OBJECT(InputMaster);
+    URHO3D_OBJECT(InputMaster, Object);
 public:
     InputMaster(Context* context, MasterControl* masterControl);
     ~InputMaster();

@@ -95,7 +95,7 @@ Player::Player(Context *context, MasterControl *masterControl):
     masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 
     //Subscribe to events
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(Player, HandleSceneUpdate));
+    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Player, HandleSceneUpdate));
 
     for (int b = 0; b < 64; b++){
         Bullet* bullet = new Bullet(context_, masterControl_);
@@ -290,7 +290,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
             animCtrl_->PlayExclusive("Resources/Models/IdleRelax.ani", 0, true, 0.15f);
             animCtrl_->SetStartBone("Resources/Models/IdleRelax.ani", "MasterBone");
         }
-        // When in ship mode
+    // When in ship mode
     } else {
         //Update shield
         shieldNode_->Rotate(Quaternion(1010.0f*timeStep, 200.0f*timeStep, Random(10.0f, 100.0f)));
@@ -467,8 +467,8 @@ void Player::EnterPlay()
     weaponLevel_ = 0;
     bulletAmount_ = 1;
     shotInterval_ = initialShotInterval_;
-    RemoveTails();
-    CreateTails();
+//    RemoveTails();
+//    CreateTails();
     Set(Vector3::ZERO);
     SetPilotMode(false);
 }
@@ -639,8 +639,9 @@ void Player::SetupShip()
     particleEffect->SetColorFrames(colorFrames);
     particleEmitter->SetEffect(particleEffect);
 
-    CreateTails();
+//    CreateTails();
 }
+/* TailGenerator is broken
 void Player::CreateTails()
 {
     for (int n = 0; n < 3; n++)
@@ -665,3 +666,4 @@ void Player::RemoveTails()
     }
     tailGens_.Clear();
 }
+*/

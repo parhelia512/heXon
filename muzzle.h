@@ -34,7 +34,7 @@ using namespace Urho3D;
 
 class Muzzle : public Effect
 {
-    OBJECT(Muzzle);
+    URHO3D_OBJECT(Muzzle, Effect);
 public:
     Muzzle(Context* context, MasterControl* masterControl);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);

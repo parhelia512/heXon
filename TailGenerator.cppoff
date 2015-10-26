@@ -52,16 +52,16 @@ void TailGenerator::RegisterObject(Context* context)
 {
     context->RegisterFactory<TailGenerator>();
 
-    COPY_BASE_ATTRIBUTES(Drawable);
-    MIXED_ACCESSOR_ATTRIBUTE("Material", GetMaterialAttr, SetMaterialAttr, ResourceRef, ResourceRef(Material::GetTypeStatic()), AM_DEFAULT);
-    ACCESSOR_ATTRIBUTE("Segments", GetSegmentsCount, SetSegmentCount, unsigned int, 10, AM_DEFAULT);
-    ACCESSOR_ATTRIBUTE("Length", GetSegmentLength, SetSegmentLength, float, 0.25f, AM_DEFAULT);
-    ACCESSOR_ATTRIBUTE("Width", GetWidthScale, SetScale, float, 1.0f, AM_DEFAULT);
-    ACCESSOR_ATTRIBUTE("Start Color", GetColorForHead, SetColorForHead, Color, Color::WHITE, AM_DEFAULT);
-    ACCESSOR_ATTRIBUTE("End Color", GetColorForTip, SetColorForTip, Color, Color::WHITE, AM_DEFAULT);
-    ACCESSOR_ATTRIBUTE("Draw Vertical", GetDrawVertical, SetDrawVertical, bool, true, AM_DEFAULT);
-    ACCESSOR_ATTRIBUTE("Draw Horizontal", GetDrawHorizontal, SetDrawHorizontal, bool, true, AM_DEFAULT);
-    ACCESSOR_ATTRIBUTE("Match Node Rotation", GetMatchNodeOrientation, SetMatchNodeOrientation, bool, false, AM_DEFAULT);
+    URHO3D_COPY_BASE_ATTRIBUTES(Drawable);
+    URHO3D_MIXED_ACCESSOR_ATTRIBUTE("Material", GetMaterialAttr, SetMaterialAttr, ResourceRef, ResourceRef(Material::GetTypeStatic()), AM_DEFAULT);
+    URHO3D_ACCESSOR_ATTRIBUTE("Segments", GetSegmentsCount, SetSegmentCount, unsigned int, 10, AM_DEFAULT);
+    URHO3D_ACCESSOR_ATTRIBUTE("Length", GetSegmentLength, SetSegmentLength, float, 0.25f, AM_DEFAULT);
+    URHO3D_ACCESSOR_ATTRIBUTE("Width", GetWidthScale, SetScale, float, 1.0f, AM_DEFAULT);
+    URHO3D_ACCESSOR_ATTRIBUTE("Start Color", GetColorForHead, SetColorForHead, Color, Color::WHITE, AM_DEFAULT);
+    URHO3D_ACCESSOR_ATTRIBUTE("End Color", GetColorForTip, SetColorForTip, Color, Color::WHITE, AM_DEFAULT);
+    URHO3D_ACCESSOR_ATTRIBUTE("Draw Vertical", GetDrawVertical, SetDrawVertical, bool, true, AM_DEFAULT);
+    URHO3D_ACCESSOR_ATTRIBUTE("Draw Horizontal", GetDrawHorizontal, SetDrawHorizontal, bool, true, AM_DEFAULT);
+    URHO3D_ACCESSOR_ATTRIBUTE("Match Node Rotation", GetMatchNodeOrientation, SetMatchNodeOrientation, bool, false, AM_DEFAULT);
 }
 
 

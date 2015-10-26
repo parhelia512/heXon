@@ -41,7 +41,7 @@ class Bullet : public SceneObject
 {
     friend class Player;
     friend class SpawnMaster;
-    OBJECT(Bullet);
+    URHO3D_OBJECT(Bullet, SceneObject);
 public:
     Bullet(Context *context, MasterControl* masterControl);
     void Set(Vector3 position);

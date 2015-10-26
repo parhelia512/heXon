@@ -36,14 +36,14 @@ SceneObject::SceneObject(Context* context, MasterControl* masterControl):
     flashSource_->SetGain(0.5f);
     flashSource_->SetSoundType(SOUND_EFFECT);
 
-    SubscribeToEvent(E_UPDATE, HANDLER(SceneObject, BlinkCheck));
+    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(SceneObject, BlinkCheck));
 }
 
 void SceneObject::Set(Vector3 position)
 {
     rootNode_->SetPosition(position);
     rootNode_->SetEnabledRecursive(true);
-    SubscribeToEvent(E_UPDATE, HANDLER(SceneObject, BlinkCheck));
+    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(SceneObject, BlinkCheck));
 }
 
 void SceneObject::Disable()

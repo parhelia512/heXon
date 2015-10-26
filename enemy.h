@@ -39,7 +39,7 @@ class Enemy : public SceneObject
 {
     friend class ChaoFlash;
     friend class SpawnMaster;
-    OBJECT(Enemy);
+    URHO3D_OBJECT(Enemy, SceneObject);
 public:
     Enemy(Context* context, MasterControl* masterControl);
     float GetHealth(){ return health_; }
@@ -62,7 +62,7 @@ protected:
     SharedPtr<Node> centerNode_;
     SharedPtr<ParticleEmitter> particleEmitter_;
     SharedPtr<ParticleEffect> particleEffect_;
-    RigidBody* rigidBody_;
+    SharedPtr<RigidBody> rigidBody_;
     StaticModel* centerModel_;
     Color color_;
     void CheckHealth();

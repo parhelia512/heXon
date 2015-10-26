@@ -34,7 +34,7 @@ using namespace Urho3D;
 
 class ChaoBall : public Pickup
 {
-    OBJECT(ChaoBall);
+    URHO3D_OBJECT(ChaoBall, Pickup);
 public:
     ChaoBall(Context* context, MasterControl* masterControl);
 };

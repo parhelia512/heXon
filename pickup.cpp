@@ -68,8 +68,8 @@ Pickup::Pickup(Context *context, MasterControl *masterControl):
     soundSource_->SetGain(0.6f);
     soundSource_->SetSoundType(SOUND_EFFECT);
 
-    SubscribeToEvent(triggerNode, E_NODECOLLISIONSTART, HANDLER(Pickup, HandleTriggerStart));
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(Pickup, HandleSceneUpdate));
+    SubscribeToEvent(triggerNode, E_NODECOLLISIONSTART, URHO3D_HANDLER(Pickup, HandleTriggerStart));
+    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Pickup, HandleSceneUpdate));
 }
 
 void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)

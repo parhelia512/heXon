@@ -22,7 +22,7 @@ heXoCam::heXoCam(Context *context, MasterControl *masterControl):
     Object(context)
 {
     masterControl_ = masterControl;
-    SubscribeToEvent(E_SCENEUPDATE, HANDLER(heXoCam, HandleSceneUpdate));
+    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(heXoCam, HandleSceneUpdate));
 
     rootNode_ = masterControl_->world.scene->CreateChild("Camera");
     Node* leftEye = rootNode_->CreateChild("Left Eye");

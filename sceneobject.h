@@ -35,7 +35,7 @@ class SceneObject : public Object
 {
     friend class SpawnMaster;
     friend class Seeker;
-    OBJECT(SceneObject);
+    URHO3D_OBJECT(SceneObject, Object);
 public:
     bool IsEnabled() {return rootNode_->IsEnabled();}
     SceneObject(Context *context, MasterControl* masterControl);

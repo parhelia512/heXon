@@ -38,7 +38,7 @@ using namespace Urho3D;
 class Explosion : public Effect
 {
     friend class Enemy;
-    OBJECT(Explosion);
+    URHO3D_OBJECT(Explosion, Effect);
 public:
     Explosion(Context* context, MasterControl* masterControl);
 

@@ -34,7 +34,7 @@ using namespace Urho3D;
 
 class MultiX : public Pickup
 {
-    OBJECT(MultiX);
+    URHO3D_OBJECT(MultiX, Pickup);
 public:
     MultiX(Context* context, MasterControl* masterControl);
 };

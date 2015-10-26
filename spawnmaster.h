@@ -33,7 +33,7 @@
 class SpawnMaster : public Object
 {
     friend class MasterControl;
-    OBJECT(SpawnMaster);
+    URHO3D_OBJECT(SpawnMaster, Object);
 public:
     SpawnMaster(Context *context, MasterControl *masterControl);
 
