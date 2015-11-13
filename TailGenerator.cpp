@@ -30,7 +30,7 @@ TailGenerator::TailGenerator(Context* context) :
     tailNum_ = 10;
     // for debug
     ResourceCache* cache = GetSubsystem<ResourceCache>();
-    SetMaterial(cache->GetResource<Material>("Materials/TailGenerator.xml"));
+    SetMaterial(cache->GetResource<Material>("Resources/Materials/TailGenerator.xml"));
     tailLength_ = 0.25f;
     scale_ = 1.0f; // default side scale
     tailTipColor = Color(1.0f, 1.0f, 1.0f, 1.0f);
