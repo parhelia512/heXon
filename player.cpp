@@ -467,8 +467,8 @@ void Player::EnterPlay()
     weaponLevel_ = 0;
     bulletAmount_ = 1;
     shotInterval_ = initialShotInterval_;
-//    RemoveTails();
-//    CreateTails();
+    RemoveTails();
+    CreateTails();
     Set(Vector3::ZERO);
     SetPilotMode(false);
 }
@@ -639,9 +639,9 @@ void Player::SetupShip()
     particleEffect->SetColorFrames(colorFrames);
     particleEmitter->SetEffect(particleEffect);
 
-//    CreateTails();
+    CreateTails();
 }
-/* TailGenerator is broken
+
 void Player::CreateTails()
 {
     for (int n = 0; n < 3; n++)
@@ -651,9 +651,9 @@ void Player::CreateTails()
         TailGenerator* tailGen = tailNode->CreateComponent<TailGenerator>();
         tailGen->SetDrawHorizontal(true);
         tailGen->SetDrawVertical(n==1?true:false);
-        tailGen->SetSegmentLength(n==1? 0.075f : 0.05f);
-        tailGen->SetSegmentCount(n==1? 14 : 12);
-        tailGen->SetScale(n==1? 0.666f : 0.23f);
+        tailGen->SetTailLength(n==1? 0.075f : 0.05f);
+        tailGen->SetNumTails(n==1? 14 : 12);
+        tailGen->SetWidthScale(n==1? 0.666f : 0.23f);
         tailGen->SetColorForHead(Color(0.9f, 1.0f, 0.5f));
         tailGen->SetColorForTip(Color(0.0f, 1.0f, 0.0f));
         tailGens_.Push(SharedPtr<TailGenerator>(tailGen));
@@ -666,4 +666,3 @@ void Player::RemoveTails()
     }
     tailGens_.Clear();
 }
-*/

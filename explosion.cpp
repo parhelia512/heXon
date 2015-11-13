@@ -88,7 +88,7 @@ void Explosion::Set(Vector3 position, Color color, float size)
     light_->SetColor(color);
     light_->SetBrightness(initialBrightness_);
 
-    /*ParticleEffect* particleEffect = particleEmitter_->GetEffect();
+    ParticleEffect* particleEffect = particleEmitter_->GetEffect();
     Vector<ColorFrame> colorFrames;
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
     Color mixColor = 0.5f * (color + particleEffect->GetColorFrame(1)->color_);
@@ -96,7 +96,7 @@ void Explosion::Set(Vector3 position, Color color, float size)
     colorFrames.Push(ColorFrame(mixColor*0.1f, 0.35f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
     particleEffect->SetColorFrames(colorFrames);
-*/
+
     sampleSource_->SetGain(Min(0.5f*size, 1.0f));
     sampleSource_->Play(sample_);
 

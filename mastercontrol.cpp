@@ -61,7 +61,7 @@ void MasterControl::Setup()
 }
 void MasterControl::Start()
 {
-//    TailGenerator::RegisterObject(context_);
+    TailGenerator::RegisterObject(context_);
 
     new InputMaster(context_, this);
     cache_ = GetSubsystem<ResourceCache>();

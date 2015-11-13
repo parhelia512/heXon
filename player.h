@@ -25,7 +25,7 @@
 #include "bullet.h"
 #include "muzzle.h"
 #include "chaoflash.h"
-//#include "TailGenerator.h"
+#include "TailGenerator.h"
 
 namespace Urho3D {
 class Drawable;
@@ -112,7 +112,7 @@ private:
     Node* heartCounterRoot_;
     Node* heartCounter_[5];
 
-//    Vector<SharedPtr<TailGenerator> > tailGens_;
+    Vector<SharedPtr<TailGenerator> > tailGens_;
     Vector<SharedPtr<Bullet> > bullets_;
     SharedPtr<Muzzle> muzzle_;
     SharedPtr<Sound> shot_;
