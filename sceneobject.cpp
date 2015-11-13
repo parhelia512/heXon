@@ -27,7 +27,6 @@ SceneObject::SceneObject(Context* context, MasterControl* masterControl):
 {
     masterControl_ = masterControl;
 
-    //Create the root node.
     rootNode_ = masterControl_->world.scene->CreateChild("SceneObject");
 
     flashSample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Flash.ogg");

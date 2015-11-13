@@ -32,5 +32,5 @@ Apple::Apple(Context *context, MasterControl *masterControl):
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
     colorFrames.Push(ColorFrame(Color(0.5f, 0.5f, 0.23f, 0.42f), 0.1f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
-//    particleEmitter_->GetEffect()->SetColorFrames(colorFrames);
+    particleEmitter_->GetEffect()->SetColorFrames(colorFrames);
 }
