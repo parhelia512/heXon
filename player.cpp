@@ -30,10 +30,10 @@
 
 Player::Player(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
-    initialHealth_{1.0f},
-    health_{initialHealth_},
     appleCount_{0},
     heartCount_{0},
+    initialHealth_{1.0f},
+    health_{initialHealth_},
     score_{0},
     flightScore_{0},
     multiplier_{1},
@@ -198,7 +198,7 @@ void Player::LoadScore()
 }
 void Player::PlaySample(Sound* sample)
 {
-    for (int i = 0; i < sampleSources_.Size(); i++){
+    for (unsigned i = 0; i < sampleSources_.Size(); ++i){
         if (!sampleSources_[i]->IsPlaying()){
             sampleSources_[i]->Play(sample);
             break;
@@ -369,7 +369,7 @@ void Player::Shoot(Vector3 fire)
 void Player::FireBullet(Vector3 direction){
     SharedPtr<Bullet> bullet;
     if (bullets_.Size() > 0){
-        for (int b = 0; b < bullets_.Size(); b++){
+        for (unsigned b = 0; b < bullets_.Size(); ++b){
             if (!bullets_[b]->rootNode_->IsEnabled()){
                 bullet = bullets_[b];
             }
@@ -467,8 +467,8 @@ void Player::EnterPlay()
     weaponLevel_ = 0;
     bulletAmount_ = 1;
     shotInterval_ = initialShotInterval_;
-//    RemoveTails();
-//    CreateTails();
+    RemoveTails();
+    CreateTails();
     Set(Vector3::ZERO);
     SetPilotMode(false);
 }
@@ -639,21 +639,21 @@ void Player::SetupShip()
     particleEffect->SetColorFrames(colorFrames);
     particleEmitter->SetEffect(particleEffect);
 
-//    CreateTails();
+    CreateTails();
 }
-/* TailGenerator is broken
 void Player::CreateTails()
 {
     for (int n = 0; n < 3; n++)
     {
         Node* tailNode = ship_.node_->CreateChild("Tail");
+        assert(tailNode);
         tailNode->SetPosition(Vector3(-0.85f+0.85f*n, n==1? 0.0f : -0.5f, n==1? -0.5f : -0.23f));
         TailGenerator* tailGen = tailNode->CreateComponent<TailGenerator>();
         tailGen->SetDrawHorizontal(true);
         tailGen->SetDrawVertical(n==1?true:false);
-        tailGen->SetSegmentLength(n==1? 0.075f : 0.05f);
-        tailGen->SetSegmentCount(n==1? 14 : 12);
-        tailGen->SetScale(n==1? 0.666f : 0.23f);
+        tailGen->SetTailLength(n==1? 0.075f : 0.05f);
+        tailGen->SetNumTails(n==1? 14 : 12);
+        tailGen->SetWidthScale(n==1? 0.666f : 0.23f);
         tailGen->SetColorForHead(Color(0.9f, 1.0f, 0.5f));
         tailGen->SetColorForTip(Color(0.0f, 1.0f, 0.0f));
         tailGens_.Push(SharedPtr<TailGenerator>(tailGen));
@@ -666,4 +666,3 @@ void Player::RemoveTails()
     }
     tailGens_.Clear();
 }
-*/

@@ -25,7 +25,7 @@
 #include "bullet.h"
 #include "muzzle.h"
 #include "chaoflash.h"
-//#include "TailGenerator.h"
+#include "TailGenerator.h"
 
 namespace Urho3D {
 class Drawable;
@@ -76,6 +76,8 @@ public:
     void UpdatePilot();
 private:
     bool pilotMode_;
+    int appleCount_;
+    int heartCount_;
     float initialHealth_;
     float health_;
     unsigned score_;
@@ -84,8 +86,6 @@ private:
     int weaponLevel_;
     int bulletAmount_;
 
-    int appleCount_;
-    int heartCount_;
 
     float initialShotInterval_;
     float shotInterval_;
@@ -112,7 +112,7 @@ private:
     Node* heartCounterRoot_;
     Node* heartCounter_[5];
 
-//    Vector<SharedPtr<TailGenerator> > tailGens_;
+    Vector<SharedPtr<TailGenerator> > tailGens_;
     Vector<SharedPtr<Bullet> > bullets_;
     SharedPtr<Muzzle> muzzle_;
     SharedPtr<Sound> shot_;

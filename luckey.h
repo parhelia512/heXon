@@ -65,7 +65,6 @@
 #include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Resource/Resource.h>
 #include <Urho3D/Resource/XMLFile.h>
 #include <Urho3D/Scene/LogicComponent.h>
 #include <Urho3D/Scene/Node.h>
@@ -89,6 +88,12 @@ class Camera;
 
 using namespace Urho3D;
 namespace LucKey {
+
+enum class SixaxisButton {  SELECT, LEFTSTICK, RIGHTSTICK, START,
+                            DPAD_UP, DPAD_RIGHT, DPAD_DOWN, DPAD_LEFT,
+                            L2, R2, L1, R1, TRIANGLE, CIRCLE, CROSS, SQUARE,
+                            PS
+                         };
 
 template <class T>
 T Cycle(T x, T min, T max){

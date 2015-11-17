@@ -5,7 +5,7 @@ LIBS += ../heXon/Urho3D/lib/libUrho3D.a \
 
 DEFINES += URHO3D_COMPILE_QT
 
-QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -std=c++17
 
 INCLUDEPATH += \
     ../heXon/Urho3D/include \

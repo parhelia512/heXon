@@ -18,6 +18,9 @@
 
 #include <fstream>
 
+#include <Urho3D/Container/Ptr.h>
+#include <Urho3D/Core/Context.h>
+
 #include "hexocam.h"
 #include "inputmaster.h"
 #include "spawnmaster.h"
@@ -61,7 +64,7 @@ void MasterControl::Setup()
 }
 void MasterControl::Start()
 {
-//    TailGenerator::RegisterObject(context_);
+    TailGenerator::RegisterObject(context_);
 
     new InputMaster(context_, this);
     cache_ = GetSubsystem<ResourceCache>();
@@ -246,6 +249,7 @@ void MasterControl::CreateScene()
         SubscribeToEvent(edgeNode, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandleExitTrigger));
     }
     //Create game elements
+    assert(context_);
     spawnMaster_ = new SpawnMaster(context_, this);
     player_ = new Player(context_, this);
     apple_ = new Apple(context_, this);
