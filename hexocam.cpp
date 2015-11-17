@@ -45,8 +45,6 @@ heXoCam::heXoCam(Context *context, MasterControl *masterControl):
     SetupViewport();
 }
 
-
-
 void heXoCam::Start()
 {
 }

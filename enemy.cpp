@@ -118,7 +118,6 @@ void Enemy::CheckHealth()
     if (rootNode_->IsEnabled() && health_ <= 0.0) {
         masterControl_->player_->AddScore(bonus_ ? worth_ : 2 * worth_ / 3);
         masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), Color(color_.r_*color_.r_, color_.g_*color_.g_, color_.b_*color_.b_), 0.5f*rigidBody_->GetMass());
-        //explosion->rigidBody_->SetLinearVelocity(rigidBody_->GetLinearVelocity());
         Disable();
     }
 }
