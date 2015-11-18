@@ -43,6 +43,7 @@ protected:
     Node* outerNode_;
     StaticModel* innerModel_;
     StaticModel* outerModel_;
+    float countDown_;
 
     void CheckHealth();
 private:

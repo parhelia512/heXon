@@ -4,10 +4,13 @@
 ChaoMine::ChaoMine(Context *context, MasterControl *masterControl): Enemy(context, masterControl)
 {
     rootNode_->SetName("ChaoMine");
+
     rigidBody_->SetMass(0.5f);
+    //Overrides Enemy values
     meleeDamage_ = 0.1f;
     initialHealth_ = 0.05f;
 
+    countDown_ = Random(1.0f, 5.0f);
     innerNode_ = rootNode_->CreateChild();
     innerModel_ = innerNode_->CreateComponent<StaticModel>();
     innerModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/MineInner.mdl"));

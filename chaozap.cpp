@@ -31,7 +31,7 @@ ChaoZap::ChaoZap(Context *context, MasterControl *masterControl):
     chaoMaterial_ = masterControl_->cache_->GetTempResource<Material>("Resources/Materials/ChaoFlash.xml");
     chaoModel_->SetMaterial(chaoMaterial_);
 
-    sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Chaos.ogg");
+    sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Mine1.ogg");
     sampleSource_ = rootNode_->CreateComponent<SoundSource>();
     sampleSource_->SetGain(1.0f);
 
@@ -69,21 +69,20 @@ void ChaoZap::Set(Vector3 position)
     rigidBody_->SetMass(size_*0.5);
     sampleSource_->Play(sample_);
     PODVector<RigidBody* > hitResults;
-    float radius = 8.0f;
     rootNode_->SetEnabled(true);
         chaoMaterial_->SetShaderParameter("MatDiffColor", Color(0.1f, 0.5f, 0.2f, 0.5f));
-    if (masterControl_->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), radius, M_MAX_UNSIGNED)){
+    if (masterControl_->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), size_, M_MAX_UNSIGNED)){
         for (int i = 0; i < hitResults.Size(); i++){
             unsigned hitID = hitResults[i]->GetNode()->GetID();
 
             if(masterControl_->spawnMaster_->spires_.Contains(hitID)){
                 WeakPtr<Spire> spire = masterControl_->spawnMaster_->spires_[hitID];
-                spire->Hit(spire->GetHealth()*0.5f, 1);
+                spire->Hit(spire->GetHealth(), 1);
                 masterControl_->player_->AddScore(Random(23, 42));
             }
             else if(masterControl_->spawnMaster_->razors_.Contains(hitID)){
                 WeakPtr<Razor> razor = masterControl_->spawnMaster_->razors_[hitID];
-                razor->Hit(razor->GetHealth()*0.5f, 1);
+                razor->Hit(razor->GetHealth(), 1);
                 masterControl_->player_->AddScore(Random(5, 23));
             }
         }

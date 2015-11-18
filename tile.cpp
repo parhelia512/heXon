@@ -42,6 +42,7 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     float elapsedTime = masterControl_->world.scene->GetElapsedTime();
     float offsetY = 0.0;
 
+    if (Random(23)==0) rootNode_->SetRotation(Quaternion(Random(3)*120.0f, Vector3::UP));
     //Alien Chaos - Disorder = time * 1.0525
     //Talpa - Unusual Chair  = time * 1.444
     wave_ = 6.0*pow(masterControl_->Sine(Abs(centerDistExp_ - elapsedTime * 5.2625f)), 4.0f);

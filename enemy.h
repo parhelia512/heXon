@@ -65,7 +65,7 @@ protected:
     SharedPtr<RigidBody> rigidBody_;
     StaticModel* centerModel_;
     Color color_;
-    void CheckHealth();
+    virtual void CheckHealth();
     Color GetGlowColor();
     void Emerge(float timeStep);
     void Disable();
