@@ -150,8 +150,8 @@ void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
     rigidBody_->GetCollidingBodies(collidingBodies);
 
     if (sinceLastWhack_ > whackInterval_){
-        for (int i = 0; i < collidingBodies.Size(); i++) {
-            RigidBody* collider = collidingBodies[i];
+        for (unsigned b = 0; b < collidingBodies.Size(); ++b) {
+            RigidBody* collider = collidingBodies[b];
             if (collider->GetNode()->GetNameHash() == N_PLAYER) {
                 soundSource_->Play(samples_[Random((int)samples_.Size())]);
                 masterControl_->player_->Hit(meleeDamage_);

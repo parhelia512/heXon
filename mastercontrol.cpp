@@ -35,7 +35,6 @@
 #include "hitfx.h"
 #include "explosion.h"
 #include "muzzle.h"
-//#include "TailGenerator.h"
 #include "chaomine.h"
 #include "mastercontrol.h"
 

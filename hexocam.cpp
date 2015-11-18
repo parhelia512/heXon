@@ -33,7 +33,7 @@ heXoCam::heXoCam(Context *context, MasterControl *masterControl):
     stereoCam_.second_ = rightEye->CreateComponent<Camera>();
 
     camera_ = rootNode_->CreateComponent<Camera>();
-    camera_->SetFarClip(1024.0f);
+    camera_->SetFarClip(128.0f);
     rootNode_->SetPosition(Vector3(0.0f, 42.0f, -23.0f));
     rootNode_->SetRotation(Quaternion(65.0f, 0.0f, 0.0f));
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
@@ -58,11 +58,10 @@ void heXoCam::SetupViewport()
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     Renderer* renderer = GetSubsystem<Renderer>();
 
-    //Set up a viewport to the Renderer subsystem so that the 3D scene can be seen
     SharedPtr<Viewport> viewport(new Viewport(context_, masterControl_->world.scene, camera_));
     viewport_ = viewport;
 
-    //Add anti-asliasing
+    //Add anti-asliasing, bloom and a greyscale effects
     effectRenderPath_ = viewport_->GetRenderPath()->Clone();
     effectRenderPath_->Append(cache->GetResource<XMLFile>("PostProcess/FXAA3.xml"));
     effectRenderPath_->SetEnabled("FXAA3", true);

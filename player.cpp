@@ -456,7 +456,7 @@ void Player::EnterPlay()
     guiNode_->SetEnabledRecursive(true);
     Pickup(PT_RESET);
 
-    rootNode_->SetRotation(Quaternion::IDENTITY);
+    rootNode_->SetRotation(Quaternion(180.0f, Vector3::UP));
     rigidBody_->ResetForces();
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     shieldMaterial_->SetShaderParameter("MatDiffColor", Color::BLACK);
@@ -641,10 +641,7 @@ void Player::SetupShip()
 
     CreateTails();
 }
-<<<<<<< HEAD
-=======
 
->>>>>>> f87338835bd0f55a022cb4d8977b3ed9a3c81511
 void Player::CreateTails()
 {
     for (int n = 0; n < 3; n++)
