@@ -53,6 +53,8 @@ private:
     float wave_;
     float lastOffsetY_;
     StaticModel* model_;
+    bool flipped_;
+
     Node* cursor_;
     void FixFringe();
     void SetTileType(TileType type);

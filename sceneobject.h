@@ -37,18 +37,22 @@ class SceneObject : public Object
     friend class Seeker;
     URHO3D_OBJECT(SceneObject, Object);
 public:
-    bool IsEnabled() {return rootNode_->IsEnabled();}
+    bool IsEnabled() const {return rootNode_->IsEnabled();}
     SceneObject(Context *context, MasterControl* masterControl);
     void Set(Vector3 position);
-    Vector3 GetPosition() { return rootNode_->GetPosition(); }
-    bool IsEmerged() { return rootNode_->GetPosition().y_ > -0.1f; }
+    Vector3 GetPosition() const { return rootNode_->GetPosition(); }
+    bool IsEmerged() const { return rootNode_->GetPosition().y_ > -0.1f; }
 protected:
     bool blink_;
     MasterControl* masterControl_;
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     SharedPtr<Node> rootNode_;
+    SharedPtr<Node> soundNode_;
     SharedPtr<Node> graphicsNode_;
+    Vector<SharedPtr<SoundSource> > sampleSources_;
+
     void Disable();
+    void PlaySample(Sound *sample);
 private:
     SharedPtr<Sound> flashSample_;
     SharedPtr<SoundSource> flashSource_;

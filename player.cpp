@@ -46,10 +46,8 @@ Player::Player(Context *context, MasterControl *masterControl):
     LoadScore();
 
     rootNode_->SetName("Player");
-    //Setup GUI elements
     CreateGUI();
 
-    //Setup ship
     SetupShip();
 
     //Setup pilot
@@ -57,9 +55,9 @@ Player::Player(Context *context, MasterControl *masterControl):
     pilot_.node_->Translate(Vector3(0.0f, -0.5f, 0.0f));
     pilot_.model_ = pilot_.node_->CreateComponent<AnimatedModel>();
     pilot_.model_->SetCastShadows(true);
-
     LoadPilot();
     animCtrl_ = pilot_.node_->CreateComponent<AnimationController>();
+
     //Setup shield
     shieldNode_ = rootNode_->CreateChild("Shield");
     shieldModel_ = shieldNode_->CreateComponent<StaticModel>();
@@ -73,11 +71,6 @@ Player::Player(Context *context, MasterControl *masterControl):
     //Setup player audio
     shot_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Shot.ogg");
     shot_->SetLooped(false);
-    for (int i = 0; i < 3; i++){
-        sampleSources_.Push(SharedPtr<SoundSource>(rootNode_->CreateComponent<SoundSource>()));
-        sampleSources_[i]->SetGain(0.3f);
-        sampleSources_[i]->SetSoundType(SOUND_EFFECT);
-    }
 
     //Setup player physics
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
@@ -111,7 +104,7 @@ void Player::CreateGUI()
     scoreTextName_ = scoreText->GetName();
     scoreText->SetText(String(score_));
     scoreText->SetFont(masterControl_->cache_->GetResource<Font>("Resources/Fonts/skirmishergrad.ttf"), 32);
-    scoreText->SetColor(Color(0.5f, 0.95f, 1.0f, 0.9f));
+    scoreText->SetColor(Color(0.5f, 0.95f, 1.0f, 0.666f));
     scoreText->SetHorizontalAlignment(HA_CENTER);
     scoreText->SetVerticalAlignment(VA_CENTER);
     scoreText->SetPosition(0, ui->GetRoot()->GetHeight()/2.5f);
@@ -142,7 +135,7 @@ void Player::CreateGUI()
     for (int a = 0; a < 5; a++){
         appleCounter_[a] = appleCounterRoot_->CreateChild();
         appleCounter_[a]->SetEnabled(false);
-        appleCounter_[a]->SetPosition(Vector3(-((float)a + 8.0f), 1.0f, 21.0f));
+        appleCounter_[a]->SetPosition(Vector3(-(a + 8.0f), 1.0f, 21.0f));
         appleCounter_[a]->SetScale(0.333f);
         StaticModel* apple = appleCounter_[a]->CreateComponent<StaticModel>();
         apple->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Apple.mdl"));
@@ -153,7 +146,7 @@ void Player::CreateGUI()
     for (int h = 0; h < 5; h++){
         heartCounter_[h] = heartCounterRoot_->CreateChild();
         heartCounter_[h]->SetEnabled(false);
-        heartCounter_[h]->SetPosition(Vector3((float)h + 8.0f, 1.0f, 21.0f));
+        heartCounter_[h]->SetPosition(Vector3(h + 8.0f, 1.0f, 21.0f));
         heartCounter_[h]->SetScale(0.333f);
         StaticModel* heart = heartCounter_[h]->CreateComponent<StaticModel>();
         heart->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Heart.mdl"));
@@ -196,16 +189,6 @@ void Player::LoadScore()
     }
     f_score.close();
 }
-void Player::PlaySample(Sound* sample)
-{
-    for (unsigned i = 0; i < sampleSources_.Size(); ++i){
-        if (!sampleSources_[i]->IsPlaying()){
-            sampleSources_[i]->Play(sample);
-            break;
-        }
-    }
-}
-
 
 void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
@@ -647,13 +630,12 @@ void Player::CreateTails()
     for (int n = 0; n < 3; n++)
     {
         Node* tailNode = ship_.node_->CreateChild("Tail");
-        assert(tailNode);
         tailNode->SetPosition(Vector3(-0.85f+0.85f*n, n==1? 0.0f : -0.5f, n==1? -0.5f : -0.23f));
         TailGenerator* tailGen = tailNode->CreateComponent<TailGenerator>();
         tailGen->SetDrawHorizontal(true);
         tailGen->SetDrawVertical(n==1?true:false);
-        tailGen->SetTailLength(n==1? 0.075f : 0.05f);
-        tailGen->SetNumTails(n==1? 14 : 12);
+        tailGen->SetTailLength(n==1? 0.1f : 0.075f);
+        tailGen->SetNumTails(n==1? 23 : 16);
         tailGen->SetWidthScale(n==1? 0.666f : 0.23f);
         tailGen->SetColorForHead(Color(0.9f, 1.0f, 0.5f));
         tailGen->SetColorForTip(Color(0.0f, 1.0f, 0.0f));

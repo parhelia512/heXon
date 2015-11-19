@@ -48,3 +48,19 @@ void ChaoMine::CheckHealth()
         Disable();
     }
 }
+
+void ChaoMine::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
+{
+    using namespace NodeCollisionStart;
+
+    PODVector<RigidBody*> collidingBodies;
+    rigidBody_->GetCollidingBodies(collidingBodies);
+
+    for (unsigned b = 0; b < collidingBodies.Size(); ++b) {
+        StringHash colliderNodeNameHash = collidingBodies[b]->GetNode()->GetNameHash();
+        if (    colliderNodeNameHash == N_RAZOR ||
+                colliderNodeNameHash == N_SPIRE   ) {
+            SetHealth(0.0f);
+        }
+    }
+}

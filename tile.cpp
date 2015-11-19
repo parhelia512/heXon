@@ -19,9 +19,10 @@
 #include "tile.h"
 
 Tile::Tile(Context *context, TileMaster* tileMaster, Vector3 position):
-Object(context),
-  tileMaster_{tileMaster},
-  lastOffsetY_{0.666f}
+    Object(context),
+    tileMaster_{tileMaster},
+    lastOffsetY_{0.666f},
+    flipped_{Random(2)}
 {
     masterControl_ = tileMaster->masterControl_;
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Tile, HandleUpdate));
@@ -42,7 +43,10 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     float elapsedTime = masterControl_->world.scene->GetElapsedTime();
     float offsetY = 0.0;
 
-    if (Random(23)==0) rootNode_->SetRotation(Quaternion(Random(3)*120.0f, Vector3::UP));
+    //Switch curcuit
+    if (Random(23)==0)
+        rootNode_->SetRotation(Quaternion(Random(3)*120.0f + 60.0f*flipped_, Vector3::UP));
+
     //Alien Chaos - Disorder = time * 1.0525
     //Talpa - Unusual Chair  = time * 1.444
     wave_ = 6.0*pow(masterControl_->Sine(Abs(centerDistExp_ - elapsedTime * 5.2625f)), 4.0f);
@@ -72,5 +76,5 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     rootNode_->SetPosition(newPos);
 
     float color = Clamp((0.23f * offsetY) + 0.25f, 0.0f, 1.0f);
-    model_->GetMaterial(0)->SetShaderParameter("MatDiffColor", Color(color, color, color, color + (0.023f * wave_)));
+    model_->GetMaterial(0)->SetShaderParameter("MatDiffColor", Color(color+Random(0.1f), color, color, color + (0.023f * wave_)));
 }

@@ -31,7 +31,11 @@ ChaoZap::ChaoZap(Context *context, MasterControl *masterControl):
     chaoMaterial_ = masterControl_->cache_->GetTempResource<Material>("Resources/Materials/ChaoFlash.xml");
     chaoModel_->SetMaterial(chaoMaterial_);
 
-    sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Mine1.ogg");
+    samples_.Push(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Mine1.ogg"));
+    samples_.Push(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Mine2.ogg"));
+    samples_.Push(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Mine3.ogg"));
+    samples_.Push(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Mine4.ogg"));
+    samples_.Push(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Mine5.ogg"));
     sampleSource_ = rootNode_->CreateComponent<SoundSource>();
     sampleSource_->SetGain(1.0f);
 
@@ -40,34 +44,34 @@ ChaoZap::ChaoZap(Context *context, MasterControl *masterControl):
 
 void ChaoZap::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
+    if (!sampleSource_->IsPlaying()) Disable();
+    if (!IsEnabled()) return;
+
     using namespace Update;
     float timeStep = eventData[P_TIMESTEP].GetFloat();
-    if (!sampleSource_->IsPlaying()) Disable();
-    //Update chaoflash
-    if (!IsEnabled()) return;
+
     Color chaoColor = chaoMaterial_->GetShaderParameter("MatDiffColor").GetColor();
-    if (chaoColor.a_ < 0.01f) rootNode_->SetEnabled(false);
-    else {
-        rigidBody_->SetMass(chaoColor.a_);
-        chaoMaterial_->SetShaderParameter("MatDiffColor",Color(chaoColor.r_ * Random(0.3f, 1.5f),
-                                                                  chaoColor.g_ * Random(0.5f, 1.8f),
-                                                                  chaoColor.b_ * Random(0.4f, 1.4f),
-                                                                  chaoColor.a_ * Random(0.4f, 1.0f)));
-        chaoMaterial_->SetShaderParameter("MatSpecColor",Color(Random(0.3f, 1.5f),
-                                                               Random(0.5f, 1.8f),
-                                                               Random(0.4f, 1.4f),
-                                                               Random(4.0f, 64.0f)));
-        rootNode_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
-    }
+    rigidBody_->SetMass(chaoColor.a_);
+    Color newDiffColor = Color(chaoColor.r_ * Random(0.1f , 1.23f),
+                               chaoColor.g_ * Random(0.23f, 0.9f),
+                               chaoColor.b_ * Random(0.16f, 0.5f),
+                               chaoColor.a_ * Random(0.42f , 0.9f));
+    chaoMaterial_->SetShaderParameter("MatDiffColor", chaoColor.Lerp(newDiffColor, Clamp(23.0f*timeStep, 0.0f, 1.0f)));
+    Color newSpecColor = Color(Random(0.3f, 1.5f),
+                               Random(0.5f, 1.8f),
+                               Random(0.4f, 1.4f),
+                               Random(4.0f, 64.0f));
+    chaoMaterial_->SetShaderParameter("MatSpecColor", newSpecColor);
+    rootNode_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
 }
 
 void ChaoZap::Set(Vector3 position)
 {
     SceneObject::Set(position);
-    size_ = Random(2.0f, 5.0f);
+    size_ = 5.0f;
     rootNode_->SetScale(size_);
     rigidBody_->SetMass(size_*0.5);
-    sampleSource_->Play(sample_);
+    sampleSource_->Play(samples_[ Random(static_cast<int>(samples_.Size())) ]);
     PODVector<RigidBody* > hitResults;
     rootNode_->SetEnabled(true);
         chaoMaterial_->SetShaderParameter("MatDiffColor", Color(0.1f, 0.5f, 0.2f, 0.5f));
@@ -84,6 +88,11 @@ void ChaoZap::Set(Vector3 position)
                 WeakPtr<Razor> razor = masterControl_->spawnMaster_->razors_[hitID];
                 razor->Hit(razor->GetHealth(), 1);
                 masterControl_->player_->AddScore(Random(5, 23));
+            }
+            else if(masterControl_->spawnMaster_->seekers_.Contains(hitID)){
+                WeakPtr<Seeker> seeker = masterControl_->spawnMaster_->seekers_[hitID];
+                seeker->Disable();
+                masterControl_->player_->AddScore(Random(2, 3));
             }
         }
     }

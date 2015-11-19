@@ -109,6 +109,7 @@ unsigned IntVector2ToHash(IntVector2 vec);
 Vector3 Scale(const Vector3 lhs, const Vector3 rhs);
 IntVector2 Scale(const IntVector2 lhs, const IntVector2 rhs);
 Vector2 Rotate(const Vector2 vec2, const float angle);
+float RandomSign();
 Color RandomColor();
 Color RandomSkinColor();
 Color RandomHairColor();

@@ -39,7 +39,7 @@ private:
     RigidBody* rigidBody_;
     StaticModel* chaoModel_;
     SharedPtr<Material> chaoMaterial_;
-    Sound* sample_;
+    Vector<Sound*> samples_;
     SoundSource* sampleSource_;
 };
 

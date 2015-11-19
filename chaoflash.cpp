@@ -42,25 +42,25 @@ ChaoFlash::ChaoFlash(Context *context, MasterControl *masterControl):
 
 void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
+    if (!sampleSource_->IsPlaying()) Disable();
+    if (!IsEnabled()) return;
+
     using namespace Update;
     float timeStep = eventData[P_TIMESTEP].GetFloat();
-    if (!sampleSource_->IsPlaying()) Disable();
-    //Update chaoflash
-    if (!IsEnabled()) return;
+
     Color chaoColor = chaoMaterial_->GetShaderParameter("MatDiffColor").GetColor();
-    if (chaoColor.a_ < 0.01f) rootNode_->SetEnabled(false);
-    else {
-        rigidBody_->SetMass(chaoColor.a_);
-        chaoMaterial_->SetShaderParameter("MatDiffColor",Color(chaoColor.r_ * Random(0.3f, 1.5f),
-                                                                  chaoColor.g_ * Random(0.5f, 1.8f),
-                                                                  chaoColor.b_ * Random(0.4f, 1.4f),
-                                                                  chaoColor.a_ * Random(0.4f, 1.0f)));
-        chaoMaterial_->SetShaderParameter("MatSpecColor",Color(Random(0.3f, 1.5f),
-                                                               Random(0.5f, 1.8f),
-                                                               Random(0.4f, 1.4f),
-                                                               Random(4.0f, 64.0f)));
-        rootNode_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
-    }
+    rigidBody_->SetMass(chaoColor.a_);
+    Color newDiffColor = Color(chaoColor.r_ * Random(0.1f , 1.23f),
+                               chaoColor.g_ * Random(0.23f, 0.9f),
+                               chaoColor.b_ * Random(0.16f, 0.5f),
+                               chaoColor.a_ * Random(0.42f , 0.9f));
+    chaoMaterial_->SetShaderParameter("MatDiffColor", chaoColor.Lerp(newDiffColor, Clamp(23.0f*timeStep, 0.0f, 1.0f)));
+    Color newSpecColor = Color(Random(0.3f, 1.5f),
+                               Random(0.5f, 1.8f),
+                               Random(0.4f, 1.4f),
+                               Random(4.0f, 64.0f));
+    chaoMaterial_->SetShaderParameter("MatSpecColor", newSpecColor);
+    rootNode_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
 }
 
 void ChaoFlash::Set(Vector3 position)
@@ -68,7 +68,7 @@ void ChaoFlash::Set(Vector3 position)
     SceneObject::Set(position);
     sampleSource_->Play(sample_);
     PODVector<RigidBody* > hitResults;
-    float radius = 7.5f;
+    float radius = 7.666f;
     rootNode_->SetEnabled(true);
     chaoMaterial_->SetShaderParameter("MatDiffColor", Color(0.1f, 0.5f, 0.2f, 0.5f));
     if (masterControl_->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), radius, M_MAX_UNSIGNED)){

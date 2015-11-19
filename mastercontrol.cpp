@@ -176,7 +176,7 @@ void MasterControl::CreateScene()
     world.cursor.sceneCursor->SetEnabled(false);
 
     //Create an invisible plane for mouse raycasting
-    world.voidNode = world.scene->CreateChild("Void");
+    world.voidNode = world.scene->CreateChild("MouseHitPlane");
     //Location is set in update since the plane moves with the camera.
     world.voidNode->SetScale(Vector3(1000.0f, 1.0f, 1000.0f));
     StaticModel* planeObject = world.voidNode->CreateComponent<StaticModel>();
@@ -188,9 +188,6 @@ void MasterControl::CreateScene()
 
     //Create arena
     tileMaster_ = new TileMaster(context_, this);
-    /*for (int i = 0; i < 6; i++){
-        new ArenaEdge(context_, this, (60.0f * i)+30.0f);
-    }*/
 
     //Create heXon logo
     Node* logoNode = world.scene->CreateChild("heXon");
@@ -248,7 +245,6 @@ void MasterControl::CreateScene()
         SubscribeToEvent(edgeNode, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandleExitTrigger));
     }
     //Create game elements
-    assert(context_);
     spawnMaster_ = new SpawnMaster(context_, this);
     player_ = new Player(context_, this);
     apple_ = new Apple(context_, this);

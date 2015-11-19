@@ -116,7 +116,7 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     case PT_MULTIX:
         xSpin = 64.0f; zSpin = 10.0f; frequency = 5.0f;
         if (IsEmerged() && masterControl_->GetGameState() == GS_PLAY)
-            rigidBody_->ApplyForce(2.0f*masterControl_->player_->GetPosition()); break;
+            rigidBody_->ApplyForce(2.0f*masterControl_->player_->GetPosition() - rigidBody_->GetLinearVelocity()); break;
     case PT_CHAOBALL: {
         xSpin = 23.0f; zSpin = 42.0f; frequency = 5.0f; shift = 0.23f;
         if (!rootNode_->IsEnabled() && masterControl_->GetGameState() == GS_PLAY) {
@@ -124,7 +124,7 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
             else sinceLastPickup_ += timeStep;
         }
         else if (IsEmerged() && masterControl_->GetGameState() == GS_PLAY)
-            rigidBody_->ApplyForce(-3.0f*masterControl_->player_->GetPosition()); break;
+            rigidBody_->ApplyForce(-3.0f*masterControl_->player_->GetPosition() - rigidBody_->GetLinearVelocity()); break;
     } break;
     default: break;
     }

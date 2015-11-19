@@ -65,6 +65,8 @@ protected:
     SharedPtr<RigidBody> rigidBody_;
     StaticModel* centerModel_;
     Color color_;
+    virtual void HandleCollisionStart(StringHash eventType, VariantMap &eventData);
+    void SetHealth(float health);
     virtual void CheckHealth();
     Color GetGlowColor();
     void Emerge(float timeStep);
@@ -73,8 +75,6 @@ private:
     Vector<SharedPtr<Sound> > samples_;
     SharedPtr<SoundSource> soundSource_;
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-    void HandleCollisionStart(StringHash eventType, VariantMap &eventData);
-    void SetHealth(float health);
 };
 
 #endif // ENEMY_H

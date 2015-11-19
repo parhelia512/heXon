@@ -16,7 +16,6 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-//#include "mastercontrol.h"
 #include "tilemaster.h"
 #include "sceneobject.h"
 #include "spawnmaster.h"
@@ -31,9 +30,11 @@ SceneObject::SceneObject(Context* context, MasterControl* masterControl):
 
     flashSample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Flash.ogg");
     flashSample_->SetLooped(false);
-    flashSource_ = rootNode_->CreateComponent<SoundSource>();
-    flashSource_->SetGain(0.5f);
-    flashSource_->SetSoundType(SOUND_EFFECT);
+    for (int i = 0; i < 3; i++){
+        sampleSources_.Push(SharedPtr<SoundSource>(rootNode_->CreateComponent<SoundSource>()));
+        sampleSources_[i]->SetGain(0.3f);
+        sampleSources_[i]->SetSoundType(SOUND_EFFECT);
+    }
 
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(SceneObject, BlinkCheck));
 }
@@ -52,6 +53,16 @@ void SceneObject::Disable()
     UnsubscribeFromEvent(E_UPDATE);
 }
 
+void SceneObject::PlaySample(Sound* sample)
+{
+    for (unsigned i = 0; i < sampleSources_.Size(); ++i){
+        if (!sampleSources_[i]->IsPlaying()){
+            sampleSources_[i]->Play(sample);
+            return;
+        }
+    }
+}
+
 void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
 {
     if (masterControl_->GetPaused()) return;
@@ -63,17 +74,17 @@ void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
         int sides = 6;
         for (int h = 0; h < sides; h++){
             Vector3 otherHexantNormal = Quaternion(h * (360.0f/sides), Vector3::UP)*Vector3::FORWARD;
-            hexantNormal = flatPosition.Angle(otherHexantNormal) < flatPosition.Angle(hexantNormal) ?
-                        otherHexantNormal : hexantNormal;
+            hexantNormal = flatPosition.Angle(otherHexantNormal) < flatPosition.Angle(hexantNormal)
+                    ? otherHexantNormal : hexantNormal;
         }
         float boundsCheck = flatPosition.Length() * masterControl_->Cosine(M_DEGTORAD * flatPosition.Angle(hexantNormal));
         if (boundsCheck > radius){
             if (blink_){
                 masterControl_->spawnMaster_->SpawnFlash(rootNode_->GetPosition());
-                Vector3 newPosition = rootNode_->GetPosition()-(1.999f*radius)*hexantNormal;
+                Vector3 newPosition = rootNode_->GetPosition()-(1.995f*radius)*hexantNormal;
                 rootNode_->SetPosition(newPosition);
                 masterControl_->spawnMaster_->SpawnFlash(newPosition);
-                flashSource_->Play(flashSample_);
+                PlaySample(flashSample_);
             } else if (rootNode_->GetNameHash() == N_BULLET){
                 masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), false);
                 Disable();

@@ -116,12 +116,10 @@ private:
     Vector<SharedPtr<Bullet> > bullets_;
     SharedPtr<Muzzle> muzzle_;
     SharedPtr<Sound> shot_;
-    Vector<SharedPtr<SoundSource> > sampleSources_;
 
     String scoreTextName_;
 
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-    void PlaySample(Sound *sample);
     void Shoot(Vector3 fire);
     void FireBullet(Vector3 direction);
     void UpgradeWeapons();

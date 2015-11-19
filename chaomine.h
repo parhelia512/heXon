@@ -46,6 +46,7 @@ protected:
     float countDown_;
 
     void CheckHealth();
+    void HandleCollisionStart(StringHash eventType, VariantMap &eventData);
 private:
     void HandleMineUpdate(StringHash eventType, VariantMap &eventData);
 };
