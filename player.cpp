@@ -180,7 +180,7 @@ void Player::AddScore(int points)
 }
 void Player::LoadScore()
 {
-    std::ifstream f_score("Resources/.LucKey.lks");
+    std::ifstream f_score("Resources/.heXon.lks");
     std::string score_str;
     f_score >> score_str;
     if (!score_str.empty()){
@@ -510,7 +510,7 @@ void Player::UpgradeWeapons()
     if (weaponLevel_ < 23){
         ++weaponLevel_;
         bulletAmount_ = 1 + ((weaponLevel_+5) / 6);
-        shotInterval_ = initialShotInterval_ - 0.01f*weaponLevel_;
+        shotInterval_ = initialShotInterval_ - 0.0042f*weaponLevel_;
     }
 }
 

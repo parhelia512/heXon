@@ -34,6 +34,7 @@ class Pickup : public SceneObject
     URHO3D_OBJECT(Pickup, SceneObject);
 public:
     Pickup(Context *context, MasterControl* masterControl);
+    void Set(Vector3 position);
     void Respawn(bool restart = false);
     void Deactivate();
     PickupType GetPickupType() { return pickupType_; }
@@ -41,6 +42,7 @@ protected:
     PickupType pickupType_;
     float chaoInterval_;
     Vector3 initialPosition_;
+    SharedPtr<Node> triggerNode_;
     SharedPtr<RigidBody> rigidBody_;
     SharedPtr<RigidBody> triggerBody_;
     SharedPtr<StaticModel> model_;

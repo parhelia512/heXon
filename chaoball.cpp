@@ -41,5 +41,5 @@ ChaoBall::ChaoBall(Context *context, MasterControl *masterControl):
     sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Chaos.ogg");
     sample_->SetLooped(false);
 
-    Deactivate();
+    Disable();
 }

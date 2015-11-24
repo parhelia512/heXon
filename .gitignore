@@ -39,5 +39,7 @@ Makefile*
 /CoreData
 /Data
 heXon
-Resources/.heXon.lks
-Resources/Pilot.lkp
+
+# LucKey
+*.lks
+*.lkp

@@ -37,5 +37,5 @@ MultiX::MultiX(Context *context, MasterControl *masterControl):
     particleEmitter_->GetEffect()->SetColorFrames(colorFrames);
     particleEmitter_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/Rift.xml"));
 
-    Deactivate();
+    Disable();
 }

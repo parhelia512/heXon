@@ -51,6 +51,7 @@ void SceneObject::Disable()
     masterControl_->tileMaster_->RemoveFromAffectors(rootNode_);
     rootNode_->SetEnabledRecursive(false);
     UnsubscribeFromEvent(E_UPDATE);
+    UnsubscribeFromEvent(E_NODECOLLISIONSTART);
 }
 
 void SceneObject::PlaySample(Sound* sample)

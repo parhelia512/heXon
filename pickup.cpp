@@ -50,12 +50,12 @@ Pickup::Pickup(Context *context, MasterControl *masterControl):
 
     masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 
-    Node* triggerNode = rootNode_->CreateChild("PickupTrigger");
-    triggerBody_ = triggerNode->CreateComponent<RigidBody>();
+    triggerNode_ = masterControl_->world.scene->CreateChild("PickupTrigger");
+    triggerBody_ = triggerNode_->CreateComponent<RigidBody>();
     triggerBody_->SetTrigger(true);
     triggerBody_->SetMass(0.0f);
     triggerBody_->SetLinearFactor(Vector3::ZERO);
-    CollisionShape* triggerShape = triggerNode->CreateComponent<CollisionShape>();
+    CollisionShape* triggerShape = triggerNode_->CreateComponent<CollisionShape>();
     triggerShape->SetSphere(2.5f);
 
     particleEmitter_ = graphicsNode_->CreateComponent<ParticleEmitter>();
@@ -68,7 +68,7 @@ Pickup::Pickup(Context *context, MasterControl *masterControl):
     soundSource_->SetGain(0.6f);
     soundSource_->SetSoundType(SOUND_EFFECT);
 
-    SubscribeToEvent(triggerNode, E_NODECOLLISIONSTART, URHO3D_HANDLER(Pickup, HandleTriggerStart));
+    SubscribeToEvent(triggerNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Pickup, HandleTriggerStart));
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Pickup, HandleSceneUpdate));
 }
 
@@ -100,9 +100,13 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     float timeStep = eventData[P_TIMESTEP].GetFloat();
 
     //Move trigger along
-    triggerBody_->SetPosition(rootNode_->GetPosition());
+    triggerNode_->SetPosition(rootNode_->GetPosition());
     //Emerge
-    if (!IsEmerged()) rootNode_->Translate(Vector3::UP * timeStep * (0.23f - rootNode_->GetPosition().y_), TS_WORLD);
+    if (!IsEmerged()) {
+        rigidBody_->ResetForces();
+        rigidBody_->SetLinearVelocity(Vector3::ZERO);
+        rootNode_->Translate(Vector3::UP * timeStep * (0.23f - rootNode_->GetPosition().y_), TS_WORLD);
+    }
 
     float xSpin = 0.0f;
     float ySpin = 100.0f;
@@ -133,6 +137,12 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     //Float
     float floatFactor = 0.5f - Min(0.5f, 0.5f * Abs(rootNode_->GetPosition().y_));
     graphicsNode_->SetPosition(Vector3::UP * masterControl_->Sine(frequency, -floatFactor, floatFactor, shift));
+}
+
+void Pickup::Set(Vector3 position)
+{
+    SceneObject::Set(position);
+    SubscribeToEvent(triggerNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Pickup, HandleTriggerStart));
 }
 
 void Pickup::Respawn(bool restart)

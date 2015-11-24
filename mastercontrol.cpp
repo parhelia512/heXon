@@ -291,10 +291,10 @@ void MasterControl::EnterGameState()
         world.camera->EnterLobby();
         spawnMaster_->Clear();
         tileMaster_->HideArena();
-        apple_->Deactivate();
-        heart_->Deactivate();
-        multiX_->Deactivate();
-        chaoBall_->Deactivate();
+        apple_->Disable();
+        heart_->Disable();
+        multiX_->Disable();
+        chaoBall_->Disable();
     } break;
     case GS_PLAY : {
         musicSource_->Play(gameMusic_);
