@@ -134,7 +134,7 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     }
     //Spin
     rootNode_->Rotate(Quaternion(xSpin * timeStep, ySpin * timeStep, zSpin * timeStep));
-    //Float
+    //Float like a float
     float floatFactor = 0.5f - Min(0.5f, 0.5f * Abs(rootNode_->GetPosition().y_));
     graphicsNode_->SetPosition(Vector3::UP * masterControl_->Sine(frequency, -floatFactor, floatFactor, shift));
 }

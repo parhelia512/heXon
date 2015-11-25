@@ -166,12 +166,15 @@ void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D:
 {
     using namespace Urho3D::JoystickButtonDown;
 
-    eventData[P_JOYSTICKID];		//int
+    unsigned joystick = eventData[P_JOYSTICKID].GetInt();		//int
     int button = eventData[P_BUTTON].GetInt();		//int
     // Process game event
     switch (button){
-    case JB_START: PauseButtonPressed(); break;
-    case JB_L2: case JB_R2: EjectButtonPressed(); break;
+    case JB_START: PauseButtonPressed();
+        break;
+    case JB_L2: case JB_R2: if (input_->GetJoystickByIndex(joystick)->GetButtonDown(JB_L2) &&
+                                input_->GetJoystickByIndex(joystick)->GetButtonDown(JB_R2)) EjectButtonPressed();
+        break;
     default: break;
     }
 }

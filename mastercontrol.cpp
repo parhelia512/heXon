@@ -59,7 +59,7 @@ void MasterControl::Setup()
 //    engineParameters_["Headless"] = false;
 //    engineParameters_["WindowWidth"] = 1600;
 //    engineParameters_["WindowHeight"] = 900;
-    //engineParameters_["RenderPath"] = "RenderPaths/DeferredHWDepth.xml";
+//    engineParameters_["RenderPath"] = "RenderPaths/DeferredHWDepth.xml";
 }
 void MasterControl::Start()
 {
@@ -302,6 +302,8 @@ void MasterControl::EnterGameState()
         world.camera->EnterPlay();
         apple_->Respawn(true);
         heart_->Respawn(true);
+        multiX_->Deactivate();
+        chaoBall_->Deactivate();
         world.lastReset = world.scene->GetElapsedTime();
         spawnMaster_->Restart();
         tileMaster_->Restart();

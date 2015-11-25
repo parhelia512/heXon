@@ -47,7 +47,6 @@ public:
 protected:
     bool blink_;
     MasterControl* masterControl_;
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     SharedPtr<Node> rootNode_;
     SharedPtr<Node> soundNode_;
     SharedPtr<Node> graphicsNode_;

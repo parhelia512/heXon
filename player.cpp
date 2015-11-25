@@ -399,6 +399,7 @@ void Player::Pickup(PickupType pickup)
     } break;
     case PT_MULTIX: {
         multiplier_++;
+        PlaySample(masterControl_->cache_->GetResource<Sound>("Resources/Samples/MultiX.ogg"));
     } break;
     case PT_CHAOBALL: {
        PickupChaoBall();

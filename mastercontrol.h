@@ -58,6 +58,7 @@ typedef struct GameWorld
     } cursor;
 } GameWorld;
 
+//heXon's resource tree
 typedef struct Resources
 {
     struct {
@@ -179,6 +180,7 @@ private:
     SharedPtr<Sound> menuMusic_;
     SharedPtr<Sound> gameMusic_;
     SharedPtr<SoundSource> musicSource_;
+
     Light* lobbySpotLight_;
 
     void SetWindowTitleAndIcon();

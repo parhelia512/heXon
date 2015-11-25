@@ -30,7 +30,7 @@ SceneObject::SceneObject(Context* context, MasterControl* masterControl):
 
     flashSample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Flash.ogg");
     flashSample_->SetLooped(false);
-    for (int i = 0; i < 3; i++){
+    for (int i = 0; i < 5; i++){
         sampleSources_.Push(SharedPtr<SoundSource>(rootNode_->CreateComponent<SoundSource>()));
         sampleSources_[i]->SetGain(0.3f);
         sampleSources_[i]->SetSoundType(SOUND_EFFECT);
