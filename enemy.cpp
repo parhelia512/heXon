@@ -23,7 +23,7 @@ Enemy::Enemy(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
     initialHealth_{1.0f},
     whackInterval_{0.5f},
-    sinceLastWhack_{whackInterval_},
+    sinceLastWhack_{0.0f},
     meleeDamage_{0.5f}
 {
     rootNode_->SetName("Enemy");
@@ -152,7 +152,8 @@ void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
     if (sinceLastWhack_ > whackInterval_){
         for (unsigned b = 0; b < collidingBodies.Size(); ++b) {
             RigidBody* collider = collidingBodies[b];
-            if (collider->GetNode()->GetNameHash() == N_PLAYER) {
+            StringHash otherNameHash = collider->GetNode()->GetNameHash();
+            if (otherNameHash == N_PLAYER) {
                 soundSource_->Play(samples_[Random((int)samples_.Size())]);
                 masterControl_->player_->Hit(meleeDamage_);
                 sinceLastWhack_ = 0.0f;
