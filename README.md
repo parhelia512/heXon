@@ -34,7 +34,7 @@ Preferably a [SIXAXIS](https://help.ubuntu.com/community/Sixaxis) or other game 
 * ...
 
 ###Screenshot
-![heXon screenshot](https://raw.githubusercontent.com/LucKeyProductions/heXon/master/Screenshots/Screenshot_Thu_Aug__6_08_27_33_2015.png)
+![heXon screenshot](master/Screenshots/Screenshot_Thu_Nov_19_07_50_47_2015.png)
 
 ###Tools
 [Urho3D](http://urho3d.github.io), [QtCreator](http://wiki.qt.io/Category:Tools::QtCreator), [Blender](http://www.blender.org/), [Inkscape](http://inkscape.org/), [GIMP](http://gimp.org), [SuperCollider](http://supercollider.github.io/), [Audacity](http://web.audacityteam.org/)

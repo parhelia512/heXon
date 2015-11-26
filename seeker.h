@@ -22,6 +22,7 @@
 #include <Urho3D/Urho3D.h>
 
 #include "sceneobject.h"
+#include "TailGenerator.h"
 
 namespace Urho3D {
 class Drawable;
@@ -42,15 +43,20 @@ public:
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void HandleTriggerStart(StringHash eventType, VariantMap &eventData);
     void Set(Vector3 position);
+    void Disable();
 protected:
     RigidBody* rigidBody_;
     SharedPtr<Sound> sample_;
     SharedPtr<SoundSource> sampleSource_;
     SharedPtr<Node> target_;
+    SharedPtr<TailGenerator> tailGen_;
 
     float age_;
     float lifeTime_;
     float damage_;
+private:
+    void AddTail();
+    void RemoveTail();
 };
 
 #endif // SEEKER_H

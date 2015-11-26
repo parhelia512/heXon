@@ -40,6 +40,8 @@ Seeker::Seeker(Context *context, MasterControl *masterControl):
     ParticleEmitter* particleEmitter = rootNode_->CreateComponent<ParticleEmitter>();
     particleEmitter->SetEffect(masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/Seeker.xml"));
 
+    AddTail();
+
     Light* light = rootNode_->CreateComponent<Light>();
     light->SetRange(6.66f);
     light->SetBrightness(2.3f);
@@ -92,6 +94,11 @@ void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
         }
     }
 }
+void Seeker::Disable()
+{
+    RemoveTail();
+    SceneObject::Disable();
+}
 
 void Seeker::Set(Vector3 position)
 {
@@ -100,9 +107,26 @@ void Seeker::Set(Vector3 position)
     rigidBody_->ResetForces();
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
-
+    AddTail();
     sampleSource_->Play(sample_);
 
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Seeker, HandleSceneUpdate));
     SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Seeker, HandleTriggerStart));
+}
+
+void Seeker::AddTail()
+{
+
+    tailGen_ = rootNode_->CreateComponent<TailGenerator>();
+    tailGen_->SetDrawHorizontal(true);
+    tailGen_->SetDrawVertical(false);
+    tailGen_->SetTailLength(0.23f);
+    tailGen_->SetNumTails(9);
+    tailGen_->SetWidthScale(0.666f);
+    tailGen_->SetColorForHead(Color(0.5f, 0.23f, 0.666f));
+    tailGen_->SetColorForTip(Color(0.0f, 0.1f, 0.23f));
+}
+void Seeker::RemoveTail()
+{
+    tailGen_->Remove();
 }

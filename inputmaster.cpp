@@ -130,7 +130,6 @@ void InputMaster::HandleMouseUp(StringHash eventType, VariantMap &eventData)
 {
     using namespace MouseButtonUp;
     int button = eventData[P_BUTTON].GetInt();
-    if (button == MOUSEB_LEFT) {}//Deselect when mouse did not move during click on N_VOID
 }
 
 void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
