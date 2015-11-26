@@ -131,6 +131,7 @@ public:
     SharedPtr<PhysicsWorld> physicsWorld_;
     WeakPtr<ResourceCache> cache_;
     WeakPtr<Graphics> graphics_;
+    SharedPtr<SoundSource> musicSource_;
     SharedPtr<UI> ui_;
     SharedPtr<Renderer> renderer_;
     SharedPtr<XMLFile> defaultStyle_;
@@ -179,7 +180,6 @@ private:
 
     SharedPtr<Sound> menuMusic_;
     SharedPtr<Sound> gameMusic_;
-    SharedPtr<SoundSource> musicSource_;
 
     Light* lobbySpotLight_;
 

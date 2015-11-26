@@ -94,11 +94,6 @@ void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
         }
     }
 }
-void Seeker::Disable()
-{
-    RemoveTail();
-    SceneObject::Disable();
-}
 
 void Seeker::Set(Vector3 position)
 {
@@ -113,10 +108,14 @@ void Seeker::Set(Vector3 position)
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Seeker, HandleSceneUpdate));
     SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Seeker, HandleTriggerStart));
 }
+void Seeker::Disable()
+{
+    RemoveTail();
+    SceneObject::Disable();
+}
 
 void Seeker::AddTail()
 {
-
     tailGen_ = rootNode_->CreateComponent<TailGenerator>();
     tailGen_->SetDrawHorizontal(true);
     tailGen_->SetDrawVertical(false);

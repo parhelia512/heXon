@@ -138,11 +138,12 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
     using namespace KeyDown;
     int key = eventData[P_KEY].GetInt();
 
+    switch (key){
     //Exit when ESC is pressed
-    if (key == KEY_ESC) EjectButtonPressed();
-
+    case KEY_ESC: EjectButtonPressed();
+        break;
     //Take screenshot when 9 is pressed
-    else if (key == KEY_9)
+    case KEY_9:
     {
         Graphics* graphics = GetSubsystem<Graphics>();
         Image screenshot(context_);
@@ -152,13 +153,17 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
                 Time::GetTimeStamp().Replaced(':', '_').Replaced('.', '_').Replaced(' ', '_')+".png";
         //Log::Write(1, fileName);
         screenshot.SavePNG(fileName);
-    }
+    } break;
     //Pause/Unpause game on P or joystick Start
-    else if (key == KEY_P)
+    case KEY_P:
     {
         PauseButtonPressed();
-    }
+    } break;
     //Enter edit mode on E
+    //Toggle music on M
+    case KEY_M: masterControl_->musicSource_->SetGain(masterControl_->musicSource_->GetGain()==0.0f ? 0.32f : 0.0f);
+        break;
+    }
 }
 
 void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
