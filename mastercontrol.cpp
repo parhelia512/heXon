@@ -57,7 +57,7 @@ void MasterControl::Setup()
 //    engineParameters_["VSync"] = true;
 //    engineParameters_["FullScreen"] = false;
 //    engineParameters_["Headless"] = false;
-//    engineParameters_["WindowWidth"] =960;
+//    engineParameters_["WindowWidth"] = 960;
 //    engineParameters_["WindowHeight"] = 900;
 //    engineParameters_["RenderPath"] = "RenderPaths/DeferredHWDepth.xml";
 }

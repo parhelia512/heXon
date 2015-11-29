@@ -81,3 +81,14 @@ var freqenv = Env(
 	)*EnvGen.kr(ampenv, doneAction:2);
 }.play();
 )
+
+//Seeker Hit
+(
+{
+	var time = 0.23;
+	var freq = (55).midicps;
+	var a = VarSaw.ar(freq/2, width: XLine.ar(0.5,1,time)).range(0,XLine.ar(0.666,1/666,time));
+	var tone = SinOsc.ar(freq).fold(-0.23*a,a) * EnvGen.ar(Env([1,0],[time]));
+	Out.ar(0, tone.dup);
+}.play;
+)

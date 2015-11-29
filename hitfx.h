@@ -41,7 +41,6 @@ public:
     void Set(Vector3 position, bool sound = true);
 private:
     SharedPtr<Sound> sample_;
-    SharedPtr<SoundSource> sampleSource_;
 };
 
 #endif // HITFX_H

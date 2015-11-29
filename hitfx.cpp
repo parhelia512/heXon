@@ -28,13 +28,10 @@ HitFX::HitFX(Context *context, MasterControl *masterControl):
 
     sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Hit.ogg");
     sample_->SetLooped(false);
-    sampleSource_ = rootNode_->CreateComponent<SoundSource>();
-    sampleSource_->SetGain(0.23f);
-    sampleSource_->SetSoundType(SOUND_EFFECT);
 }
 
 void HitFX::Set(Vector3 position, bool sound)
 {
-    if (sound) sampleSource_->Play(sample_);
+    if (sound) PlaySample(sample_);
     Effect::Set(position);
 }

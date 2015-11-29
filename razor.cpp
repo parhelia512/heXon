@@ -59,14 +59,14 @@ void Razor::HandleRazorUpdate(StringHash eventType, VariantMap &eventData)
     topModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", GetGlowColor());
     //Get moving
     if (rigidBody_->GetLinearVelocity().Length() < rigidBody_->GetLinearRestThreshold() && IsEmerged()) {
-        rigidBody_->ApplyImpulse(0.5f*(Quaternion(0.0f, Random(360.0f), 0.0f)*Vector3::FORWARD));
+        rigidBody_->ApplyImpulse(0.23f*(Quaternion(0.0f, Random(360.0f), 0.0f)*Vector3::FORWARD));
     }
     //Adjust speed
     else if (rigidBody_->GetLinearVelocity().Length() < aimSpeed_) {
-        rigidBody_->ApplyForce(5.0f * rigidBody_->GetLinearVelocity().Normalized() * (aimSpeed_ - rigidBody_->GetLinearVelocity().Length()));
+        rigidBody_->ApplyForce(4.2f * rigidBody_->GetLinearVelocity().Normalized() * Max(aimSpeed_ - rigidBody_->GetLinearVelocity().Length(), 0.1f));
     }
     else {
-        double overSpeed = rigidBody_->GetLinearVelocity().Length() - aimSpeed_;
+        float overSpeed = rigidBody_->GetLinearVelocity().Length() - aimSpeed_;
         rigidBody_->ApplyForce(-rigidBody_->GetLinearVelocity()*overSpeed);
     }
 }
@@ -74,13 +74,13 @@ void Razor::HandleRazorUpdate(StringHash eventType, VariantMap &eventData)
 void Razor::Hit(float damage, int ownerID)
 {
     Enemy::Hit(damage, ownerID);
-    aimSpeed_ = (0.25 + 0.75 * panic_) * topSpeed_;
+    aimSpeed_ = (0.25f + 0.75f * panic_) * topSpeed_;
 
 }
 
 void Razor::Set(Vector3 position)
 {
-    aimSpeed_ = 0.25 * topSpeed_;
+    aimSpeed_ = 0.25f * topSpeed_;
     Enemy::Set(position);
     SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(Razor, HandleRazorUpdate));
 }
