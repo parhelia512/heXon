@@ -113,7 +113,7 @@ void Enemy::SetHealth(float health)
 void Enemy::CheckHealth()
 {
     //Die
-    if (rootNode_->IsEnabled() && health_ <= 0.0) {
+    if (rootNode_->IsEnabled() && health_ <= 0.0f) {
         masterControl_->player_->AddScore(bonus_ ? worth_ : 2 * worth_ / 3);
         masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), Color(color_.r_*color_.r_, color_.g_*color_.g_, color_.b_*color_.b_), 0.5f*rigidBody_->GetMass());
         Disable();
@@ -133,11 +133,17 @@ Color Enemy::GetGlowColor()
 void Enemy::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
     using namespace SceneUpdate;
+    float time = masterControl_->world.scene->GetElapsedTime() + rootNode_->GetID() * 0.023f;
     float timeStep = eventData[P_TIMESTEP].GetFloat();
     panicTime_ += 3.0f * panic_ * timeStep;
     sinceLastWhack_ += timeStep;
 
     Emerge(timeStep);
+
+    //Animate core
+    centerModel_->GetMaterial()->SetShaderParameter("VOffset",
+                Vector4(0.f, LucKey::Cycle(time * 3.f, 0.f, 1.f), 0.f, 0.f));
+    centerNode_->Rotate(Quaternion((1.f + panic_) * timeStep * 333.f, Vector3::UP));
 }
 
 void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
@@ -154,7 +160,7 @@ void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
             if (otherNameHash == N_PLAYER) {
                 PlaySample(samples_[Random((int)samples_.Size())], 0.16f);
                 masterControl_->player_->Hit(meleeDamage_ + meleeDamage_*panic_);
-                sinceLastWhack_ = 0.0f;
+                sinceLastWhack_ = 0.f;
             }
         }
     }

@@ -1,4 +1,5 @@
 s.boot();
+s.quit();
 //Raw Shot
 (
 {
@@ -44,6 +45,21 @@ s.boot();
 }.play();
 )
 
+//Pickup
+(
+{
+	var ampEnv = Env(
+		levels: [0, 0.9, 0, 0.8, 0, 0.5, 0, 0.8, 0, 0.6, 0],
+		times:[0.0023,0.082],
+		curve: 1);
+	var freqEnv = Env(
+		levels: [120,230, 110, 215],
+		times:[0.1],
+		curve:1);
+	SinOsc.ar(EnvGen.kr(freqEnv),0,EnvGen.kr(ampEnv, doneAction: 1),[0,0]);
+}.play();
+)
+
 //Hit
 (
 {
@@ -56,6 +72,21 @@ s.boot();
 		times:[0.07],
 		curve:1);
 	Pulse.ar(EnvGen.kr(freqEnv),Pulse.kr([100,101], SinOsc.kr([100,102],0,0.25, 0.5),0.25,0.5),EnvGen.kr(ampEnv, doneAction:1));
+}.play();
+)
+
+//Shielded Hit
+(
+{
+	var ampEnv = Env(
+		levels: [0,5, 0.8,0],
+		times:[0.023, 0.01, 0.16],
+		curve: 1);
+	var freqEnv = Env(
+		levels: [[400,410],[411, 408], 10],
+		times:[0.5],
+		curve:1);
+	Pulse.ar(EnvGen.kr(freqEnv),SinOsc.kr([100,101], Pulse.kr([100,102],0,0.25, 0.5),0.25,0.5),EnvGen.kr(ampEnv, doneAction:1));
 }.play();
 )
 

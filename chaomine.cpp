@@ -9,6 +9,7 @@ ChaoMine::ChaoMine(Context *context, MasterControl *masterControl): Enemy(contex
     //Overrides Enemy values
     meleeDamage_ = 0.1f;
     initialHealth_ = 0.05f;
+    worth_ = 1;
 
     countDown_ = Random(1.0f, 5.0f);
     innerNode_ = rootNode_->CreateChild();

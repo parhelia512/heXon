@@ -295,11 +295,13 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     // When in ship mode
     } else {
         //Update shield
-        shieldNode_->Rotate(Quaternion(1010.0f*timeStep, 200.0f*timeStep, Random(10.0f, 100.0f)));
+        Quaternion randomRotation = Quaternion(Random(360.f),Random(360.f),Random(360.f));
+        shieldNode_->SetRotation(shieldNode_->GetRotation().Slerp(randomRotation, Random(1.f)));
         Color shieldColor = shieldMaterial_->GetShaderParameter("MatDiffColor").GetColor();
-        shieldMaterial_->SetShaderParameter("MatDiffColor", Color(shieldColor.r_ * Random(0.6f, 0.9f),
-                                                                  shieldColor.g_ * Random(0.7f, 0.95f),
-                                                                  shieldColor.b_ * Random(0.8f, 0.9f)));
+        Color newColor = Color(shieldColor.r_ * Random(0.6f, 0.9f),
+                               shieldColor.g_ * Random(0.7f, 0.95f),
+                               shieldColor.b_ * Random(0.8f, 0.9f));
+        shieldMaterial_->SetShaderParameter("MatDiffColor", shieldColor.Lerp(newColor, Min(timeStep * 23.5f, 1.f)));
         
         //Float
         ship_.node_->SetPosition(Vector3::UP *masterControl_->Sine(2.3f, -0.1f, 0.1f));
@@ -382,8 +384,8 @@ void Player::FireBullet(Vector3 direction){
         bullets_.Push(bullet);
     }
     bullet->Set(rootNode_->GetPosition() + direction);
-    bullet->rootNode_->LookAt(bullet->rootNode_->GetPosition() + direction*5.0f);
-    bullet->rigidBody_->ApplyForce(direction*(1500.0f+23.0f*weaponLevel_));
+    bullet->rootNode_->LookAt(bullet->rootNode_->GetPosition() + direction * 5.0f);
+    bullet->rigidBody_->ApplyForce(direction * (1500.0f + 23.0f * weaponLevel_));
     bullet->damage_ = 0.15f + 0.00666f * weaponLevel_;
 }
 void Player::MoveMuzzle()
@@ -531,7 +533,7 @@ void Player::Hit(float damage, bool melee)
         shieldMaterial_->SetShaderParameter("MatDiffColor", Color(2.0f, 3.0f, 5.0f, 1.0f));
         PlaySample(shieldHit_s, 0.23f);
     }
-    else if (!melee) PlaySample(seekerHits_s[Random((int)seekerHits_s.Size())], 0.666f);
+    else if (!melee) PlaySample(seekerHits_s[Random((int)seekerHits_s.Size())], 0.75f);
     SetHealth(health_ - damage);
 }
 
