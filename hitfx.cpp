@@ -32,6 +32,6 @@ HitFX::HitFX(Context *context, MasterControl *masterControl):
 
 void HitFX::Set(Vector3 position, bool sound)
 {
-    if (sound) PlaySample(sample_);
+    if (sound) PlaySample(sample_, 0.23f);
     Effect::Set(position);
 }

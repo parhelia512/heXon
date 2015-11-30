@@ -69,12 +69,31 @@ Player::Player(Context *context, MasterControl *masterControl):
     chaoFlash_ = new ChaoFlash(context_, masterControl_);
 
     //Setup player audio
-    shot_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Shot.ogg");
-    shot_->SetLooped(false);
+    shot_s = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Shot.ogg");
+    shot_s->SetLooped(false);
+    shieldHit_s = masterControl_->cache_->GetResource<Sound>("Resources/Samples/ShieldHit.ogg");
+    shieldHit_s->SetLooped(false);
+    pickup_s = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Pickup.ogg");
+    pickup_s->SetLooped(false);
+    powerup_s = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Powerup.ogg");
+    powerup_s->SetLooped(false);
+    multix_s= masterControl_->cache_->GetResource<Sound>("Resources/Samples/MultiX.ogg");
+    multix_s->SetLooped(false);
+    chaoball_s = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Chaos.ogg");
+    chaoball_s->SetLooped(false);
+    for (int s = 1; s < 5; ++s){
+        seekerHits_s.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Resources/Samples/SeekerHit"+String(s)+".ogg")));
+    }
+    //Some extra sources for dem playaz
+    for (int i = 0; i < 5; ++i){
+        SharedPtr<SoundSource> extraSampleSource = SharedPtr<SoundSource>(rootNode_->CreateComponent<SoundSource>());
+        extraSampleSource->SetSoundType(SOUND_EFFECT);
+        sampleSources_.Push(extraSampleSource);
+    }
 
     //Setup player physics
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
-    rigidBody_->SetRestitution(0.666);
+    rigidBody_->SetRestitution(0.666f);
     rigidBody_->SetMass(1.0f);
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
     rigidBody_->SetLinearDamping(0.5f);
@@ -345,7 +364,7 @@ void Player::Shoot(Vector3 fire)
     //Create a single muzzle flash
     if (bulletAmount_ > 0){
         MoveMuzzle();
-        PlaySample(shot_);
+        PlaySample(shot_s, 0.17f);
     }
 }
 
@@ -384,22 +403,28 @@ void Player::Pickup(PickupType pickup)
         heartCount_ = 0;
         AddScore(23);
         if (appleCount_ >= 5){
-            appleCount_ = 0;
             UpgradeWeapons();
+            appleCount_ = 0;
+            PlaySample(powerup_s, 0.42f);
         }
+        else PlaySample(pickup_s, 0.23f);
     } break;
     case PT_HEART: {
         ++heartCount_;
         appleCount_ = 0;
         if (heartCount_ >= 5){
-            heartCount_ = 0;
             SetHealth(15.0);
+            heartCount_ = 0;
+            PlaySample(powerup_s, 0.42f);
         }
-        else SetHealth(Max(health_, Clamp(health_+5.0f, 0.0f, 10.0f)));
+        else {
+            SetHealth(Max(health_, Clamp(health_+5.0f, 0.0f, 10.0f)));
+            PlaySample(pickup_s, 0.23f);
+        }
     } break;
     case PT_MULTIX: {
         multiplier_++;
-        PlaySample(masterControl_->cache_->GetResource<Sound>("Resources/Samples/MultiX.ogg"));
+        PlaySample(multix_s, 0.42f);
     } break;
     case PT_CHAOBALL: {
        PickupChaoBall();
@@ -426,6 +451,7 @@ void Player::PickupChaoBall()
 //    ship_.model_->GetMaterial(0)->SetShaderParameter("MatDiffColor", Color(Random(), Random(), Random()));
 //    ship_.model_->GetMaterial(1)->SetShaderParameter("MatDiffColor", Color(Random(), Random(), Random()));
     chaoFlash_->Set(GetPosition());
+    PlaySample(chaoball_s, 0.8f);
 }
 
 void Player::Die()
@@ -458,6 +484,7 @@ void Player::EnterPlay()
 }
 void Player::EnterLobby()
 {
+    StopAllSound();
     guiNode_->SetEnabledRecursive(false);
     chaoFlash_->Disable();
     SetPilotMode(true);
@@ -500,9 +527,11 @@ Color Player::HealthToColor(float health)
 void Player::Hit(float damage, bool melee)
 {
     if (health_ > 10.0f){
-        damage *= (melee ? 0.9f : 0.5f);
+        damage *= (melee ? 0.75f : 0.25f);
         shieldMaterial_->SetShaderParameter("MatDiffColor", Color(2.0f, 3.0f, 5.0f, 1.0f));
+        PlaySample(shieldHit_s, 0.23f);
     }
+    else if (!melee) PlaySample(seekerHits_s[Random((int)seekerHits_s.Size())], 0.666f);
     SetHealth(health_ - damage);
 }
 

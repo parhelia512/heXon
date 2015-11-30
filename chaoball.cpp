@@ -38,8 +38,5 @@ ChaoBall::ChaoBall(Context *context, MasterControl *masterControl):
     colorFrames.Push(ColorFrame(Color(1.0f, 0.0f, 0.0f, 0.0f), 0.4f));
     particleEmitter_->GetEffect()->SetColorFrames(colorFrames);
 
-    sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Chaos.ogg");
-    sample_->SetLooped(false);
-
     Disable();
 }

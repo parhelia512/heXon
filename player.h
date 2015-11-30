@@ -115,7 +115,13 @@ private:
     Vector<SharedPtr<TailGenerator> > tailGens_;
     Vector<SharedPtr<Bullet> > bullets_;
     SharedPtr<Muzzle> muzzle_;
-    SharedPtr<Sound> shot_;
+    SharedPtr<Sound> shot_s;
+    SharedPtr<Sound> shieldHit_s;
+    SharedPtr<Sound> pickup_s;
+    SharedPtr<Sound> powerup_s;
+    SharedPtr<Sound> multix_s;
+    SharedPtr<Sound> chaoball_s;
+    Vector<SharedPtr<Sound> > seekerHits_s;
 
     String scoreTextName_;
 

@@ -36,15 +36,13 @@ ChaoZap::ChaoZap(Context *context, MasterControl *masterControl):
     samples_.Push(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Mine3.ogg"));
     samples_.Push(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Mine4.ogg"));
     samples_.Push(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Mine5.ogg"));
-    sampleSource_ = rootNode_->CreateComponent<SoundSource>();
-    sampleSource_->SetGain(1.0f);
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
 }
 
 void ChaoZap::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    if (!sampleSource_->IsPlaying()) Disable();
+    if (!IsPlayingSound()) Disable();
     if (!IsEnabled()) return;
 
     using namespace Update;
@@ -71,7 +69,7 @@ void ChaoZap::Set(Vector3 position)
     size_ = 5.0f;
     rootNode_->SetScale(size_);
     rigidBody_->SetMass(size_*0.5);
-    sampleSource_->Play(samples_[ Random(static_cast<int>(samples_.Size())) ]);
+    PlaySample(samples_[ Random(static_cast<int>(samples_.Size())) ], 0.75f);
     PODVector<RigidBody* > hitResults;
     rootNode_->SetEnabled(true);
         chaoMaterial_->SetShaderParameter("MatDiffColor", Color(0.1f, 0.5f, 0.2f, 0.5f));

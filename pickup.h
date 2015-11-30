@@ -47,8 +47,6 @@ protected:
     SharedPtr<RigidBody> triggerBody_;
     SharedPtr<StaticModel> model_;
     SharedPtr<ParticleEmitter> particleEmitter_;
-    SharedPtr<Sound> sample_;
-    SharedPtr<SoundSource> soundSource_;
 
     void HandleTriggerStart(StringHash otherNode, VariantMap &eventData);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);

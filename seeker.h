@@ -47,7 +47,6 @@ public:
 protected:
     RigidBody* rigidBody_;
     SharedPtr<Sound> sample_;
-    SharedPtr<SoundSource> sampleSource_;
     SharedPtr<Node> target_;
     SharedPtr<TailGenerator> tailGen_;
 

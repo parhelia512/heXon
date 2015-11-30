@@ -30,10 +30,10 @@ SceneObject::SceneObject(Context* context, MasterControl* masterControl):
 
     flashSample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Flash.ogg");
     flashSample_->SetLooped(false);
-    for (int i = 0; i < 5; i++){
-        sampleSources_.Push(SharedPtr<SoundSource>(rootNode_->CreateComponent<SoundSource>()));
-        sampleSources_[i]->SetGain(0.3f);
-        sampleSources_[i]->SetSoundType(SOUND_EFFECT);
+    for (int i = 0; i < 5; ++i){
+        SharedPtr<SoundSource> extraSampleSource = SharedPtr<SoundSource>(rootNode_->CreateComponent<SoundSource>());
+        extraSampleSource->SetSoundType(SOUND_EFFECT);
+        sampleSources_.Push(extraSampleSource);
     }
 
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(SceneObject, BlinkCheck));
@@ -54,14 +54,28 @@ void SceneObject::Disable()
     UnsubscribeFromEvent(E_NODECOLLISIONSTART);
 }
 
-void SceneObject::PlaySample(Sound* sample)
+void SceneObject::PlaySample(Sound* sample, float gain)
 {
     for (unsigned i = 0; i < sampleSources_.Size(); ++i){
         if (!sampleSources_[i]->IsPlaying()){
+            sampleSources_[i]->SetGain(gain);
             sampleSources_[i]->Play(sample);
             return;
         }
     }
+}
+void SceneObject::StopAllSound()
+{
+    for (unsigned i = 0; i < sampleSources_.Size(); ++i){
+        sampleSources_[i]->Stop();
+    }
+}
+bool SceneObject::IsPlayingSound()
+{
+    for (unsigned i = 0; i < sampleSources_.Size(); ++i){
+        if (sampleSources_[i]->IsPlaying()) return true;
+    }
+    return false;
 }
 
 void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
@@ -85,7 +99,7 @@ void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
                 Vector3 newPosition = rootNode_->GetPosition()-(1.995f*radius)*hexantNormal;
                 rootNode_->SetPosition(newPosition);
                 masterControl_->spawnMaster_->SpawnFlash(newPosition);
-                PlaySample(flashSample_);
+                PlaySample(flashSample_, 0.16f);
             } else if (rootNode_->GetNameHash() == N_BULLET){
                 masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), false);
                 Disable();

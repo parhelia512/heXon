@@ -33,8 +33,6 @@ ChaoFlash::ChaoFlash(Context *context, MasterControl *masterControl):
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(ChaoFlash, HandleSceneUpdate));
 
     sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Chaos.ogg");
-    sampleSource_ = rootNode_->CreateComponent<SoundSource>();
-    sampleSource_->SetGain(1.0f);
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
     rigidBody_->SetMass(5.0f);
@@ -42,7 +40,7 @@ ChaoFlash::ChaoFlash(Context *context, MasterControl *masterControl):
 
 void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    if (!sampleSource_->IsPlaying()) Disable();
+    if (!IsPlayingSound()) Disable();
     if (!IsEnabled()) return;
 
     using namespace Update;
@@ -66,7 +64,7 @@ void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 void ChaoFlash::Set(Vector3 position)
 {
     SceneObject::Set(position);
-    sampleSource_->Play(sample_);
+    PlaySample(sample_, 0.69f);
     PODVector<RigidBody* > hitResults;
     float radius = 7.666f;
     rootNode_->SetEnabled(true);

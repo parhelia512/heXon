@@ -52,7 +52,9 @@ protected:
     SharedPtr<Node> graphicsNode_;
     Vector<SharedPtr<SoundSource> > sampleSources_;
 
-    void PlaySample(Sound *sample);
+    void PlaySample(Sound *sample, float gain = 0.5f);
+    bool IsPlayingSound();
+    void StopAllSound();
 private:
     SharedPtr<Sound> flashSample_;
     SharedPtr<SoundSource> flashSource_;

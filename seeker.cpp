@@ -49,9 +49,6 @@ Seeker::Seeker(Context *context, MasterControl *masterControl):
 
     sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Seeker.ogg");
     sample_->SetLooped(false);
-    sampleSource_ = rootNode_->CreateComponent<SoundSource>();
-    sampleSource_->SetGain(0.666f);
-    sampleSource_->SetSoundType(SOUND_EFFECT);
 }
 
 void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
@@ -103,7 +100,7 @@ void Seeker::Set(Vector3 position)
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
     AddTail();
-    sampleSource_->Play(sample_);
+    PlaySample(sample_, 0.666f);
 
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Seeker, HandleSceneUpdate));
     SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Seeker, HandleTriggerStart));

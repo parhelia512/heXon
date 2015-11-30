@@ -24,7 +24,7 @@ Enemy::Enemy(Context *context, MasterControl *masterControl):
     initialHealth_{1.0f},
     whackInterval_{0.5f},
     sinceLastWhack_{0.0f},
-    meleeDamage_{0.5f}
+    meleeDamage_{0.44f}
 {
     rootNode_->SetName("Enemy");
 
@@ -59,11 +59,9 @@ Enemy::Enemy(Context *context, MasterControl *masterControl):
     CollisionShape* collider = rootNode_->CreateComponent<CollisionShape>();
     collider->SetSphere(2.0f);
 
-    samples_.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Melee1.ogg")));
-    samples_.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Melee2.ogg")));
-    samples_.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Melee3.ogg")));
-    samples_.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Melee4.ogg")));
-    samples_.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Melee5.ogg")));
+    for (int s = 1; s <= 5; ++s){
+        samples_.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Melee"+String(s)+".ogg")));
+    }
     for (unsigned s = 0; s < samples_.Size(); s++){
         samples_[s]->SetLooped(false);
     }
@@ -154,8 +152,8 @@ void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
             RigidBody* collider = collidingBodies[b];
             StringHash otherNameHash = collider->GetNode()->GetNameHash();
             if (otherNameHash == N_PLAYER) {
-                soundSource_->Play(samples_[Random((int)samples_.Size())]);
-                masterControl_->player_->Hit(meleeDamage_);
+                PlaySample(samples_[Random((int)samples_.Size())], 0.16f);
+                masterControl_->player_->Hit(meleeDamage_ + meleeDamage_*panic_);
                 sinceLastWhack_ = 0.0f;
             }
         }

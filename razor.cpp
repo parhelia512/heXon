@@ -24,7 +24,7 @@ Razor::Razor(Context *context, MasterControl *masterControl):
     aimSpeed_{0.25f*topSpeed_}
 {
     rootNode_->SetName("Razor");
-    meleeDamage_ = 1.0f;
+    meleeDamage_ = 0.9f;
 
     SharedPtr<Material> black = masterControl_->cache_->GetTempResource<Material>("Resources/Materials/Razor.xml");
 
@@ -75,7 +75,6 @@ void Razor::Hit(float damage, int ownerID)
 {
     Enemy::Hit(damage, ownerID);
     aimSpeed_ = (0.25f + 0.75f * panic_) * topSpeed_;
-
 }
 
 void Razor::Set(Vector3 position)

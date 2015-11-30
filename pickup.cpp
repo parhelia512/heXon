@@ -62,12 +62,6 @@ Pickup::Pickup(Context *context, MasterControl *masterControl):
 
     particleEmitter_->SetEffect(masterControl_->cache_->GetTempResource<ParticleEffect>("Resources/Particles/Shine.xml"));
 
-    sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Pickup.ogg");
-    sample_->SetLooped(false);
-    soundSource_ = rootNode_->CreateComponent<SoundSource>();
-    soundSource_->SetGain(0.6f);
-    soundSource_->SetSoundType(SOUND_EFFECT);
-
     SubscribeToEvent(triggerNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Pickup, HandleTriggerStart));
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Pickup, HandleSceneUpdate));
 }
@@ -82,7 +76,6 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
     for (int i = 0; i < collidingBodies.Size(); i++) {
         RigidBody* collider = collidingBodies[i];
         if (collider->GetNode()->GetNameHash() == N_PLAYER) {
-            soundSource_->Play(sample_);
             masterControl_->player_->Pickup(pickupType_);
             masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), false);
             switch (pickupType_){
@@ -158,6 +151,5 @@ void Pickup::Deactivate()
 {
     sinceLastPickup_ = 0.0f; chaoInterval_ = Random(23.0f, 100.0f);
 
-    soundSource_->Stop();
     SceneObject::Disable();
 }

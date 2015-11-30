@@ -45,7 +45,6 @@ private:
     StaticModel* chaoModel_;
     Material* chaoMaterial_;
     Sound* sample_;
-    SoundSource* sampleSource_;
 };
 
 #endif // CHAOFLASH_H

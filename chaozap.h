@@ -40,7 +40,6 @@ private:
     StaticModel* chaoModel_;
     SharedPtr<Material> chaoMaterial_;
     Vector<Sound*> samples_;
-    SoundSource* sampleSource_;
 };
 
 #endif // CHAOZAP_H
