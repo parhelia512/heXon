@@ -24,10 +24,7 @@
 #include "mastercontrol.h"
 
 namespace Urho3D {
-class Drawable;
 class Node;
-class Scene;
-class Sprite;
 class Viewport;
 class RenderPath;
 class Camera;
@@ -53,19 +50,18 @@ public:
 
     Vector3 GetWorldPosition();
     Quaternion GetRotation();
-    void SetGreyScale(bool enabled);
+    void SetGreyScale(const bool enabled);
 private:
     MasterControl* masterControl_;
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     SharedPtr<Node> rootNode_;
 
     SharedPtr<RigidBody> rigidBody_;
-    float yaw_ = 0.0f;
-    float pitch_ = 0.0f;
-    //float roll_ = 0.0f;
-    float yawDelta_ = 0.0f;
-    float pitchDelta_ = 0.0f;
-    float forceMultiplier = 1.0f;
+    float yaw_;
+    float pitch_;
+    float yawDelta_;
+    float pitchDelta_;
+    float forceMultiplier;
     bool closeUp_;
     void SetupViewport();
     void EnterLobby();

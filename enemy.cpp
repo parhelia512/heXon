@@ -45,7 +45,7 @@ Enemy::Enemy(Context *context, MasterControl *masterControl):
     particleEmitter_->SetEffect(particleEffect_);
 
     centerModel_ = centerNode_->CreateComponent<StaticModel>();
-    centerModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/RazorCenter.mdl"));
+    centerModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Core.mdl"));
     centerModel_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/CoreGlow.xml"));
     centerModel_->GetMaterial(0)->SetShaderParameter("MatDiffColor", color_);
     centerModel_->GetMaterial(0)->SetShaderParameter("MatEmissiveColor", color_);
@@ -72,7 +72,7 @@ Enemy::Enemy(Context *context, MasterControl *masterControl):
     soundSource_->SetSoundType(SOUND_EFFECT);
 }
 
-void Enemy::Set(Vector3 position)
+void Enemy::Set(const Vector3 position)
 {
     soundSource_->Stop();
 
@@ -92,7 +92,7 @@ void Enemy::Set(Vector3 position)
 }
 
 // Takes care of dealing damage and keeps track of who deserves how many points.
-void Enemy::Hit(float damage, int ownerID) {
+void Enemy::Hit(const float damage, const int ownerID) {
     if (firstHitBy_ == 0) firstHitBy_ = ownerID;
     else if (firstHitBy_ != ownerID) bonus_ = false;
     lastHitBy_ = ownerID;
@@ -100,7 +100,7 @@ void Enemy::Hit(float damage, int ownerID) {
     SetHealth(health_-damage);
 }
 
-void Enemy::SetHealth(float health)
+void Enemy::SetHealth(const float health)
 {
     health_ = health;
     panic_ = (initialHealth_-health_)/initialHealth_;
@@ -125,9 +125,11 @@ void Enemy::Disable()
     SceneObject::Disable();
 }
 
-Color Enemy::GetGlowColor()
+Color Enemy::GetGlowColor() const
 {
-    return color_*(Sin(200.0f*(masterControl_->world.scene->GetElapsedTime()+panicTime_))*(0.25f+panic_*0.25f)+(panic_*0.5f));
+    float factor = (Sin(200.0f*(masterControl_->world.scene->GetElapsedTime()+panicTime_))*(0.25f+panic_*0.25f)+(panic_*0.5f));
+    factor *= factor * 2.f;
+    return color_*factor;
 }
 
 void Enemy::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
@@ -166,7 +168,7 @@ void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
     }
 }
 
-void Enemy::Emerge(float timeStep)
+void Enemy::Emerge(const float timeStep)
 {
     if (!IsEmerged()) {
         rootNode_->Translate(Vector3::UP * timeStep * (0.25f - rootNode_->GetPosition().y_));

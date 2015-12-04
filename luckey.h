@@ -76,16 +76,6 @@
 
 #include <Urho3D/DebugNew.h>
 
-namespace Urho3D {
-class Drawable;
-class Node;
-class Scene;
-class Sprite;
-class Viewport;
-class RenderPath;
-class Camera;
-}
-
 using namespace Urho3D;
 namespace LucKey {
 

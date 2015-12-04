@@ -1,0 +1,10 @@
+Improve code architecture (with diagrams 'n stuff)
+	- Seperate PilotData as class/struct
+		* Overload << and >> 
+	- SpawnMaster should work with templates
+
+Kernel (Enemy)
+Ejection seat visualisation
+Lobby zero stack
+HoloHighHeavens
+

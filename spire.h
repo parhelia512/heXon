@@ -23,13 +23,6 @@
 
 #include "enemy.h"
 
-namespace Urho3D {
-class Drawable;
-class Node;
-class Scene;
-class Sprite;
-}
-
 using namespace Urho3D;
 
 class Spire : public Enemy

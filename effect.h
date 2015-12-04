@@ -23,13 +23,6 @@
 
 #include "sceneobject.h"
 
-namespace Urho3D {
-class Drawable;
-class Node;
-class Scene;
-class Sprite;
-}
-
 using namespace Urho3D;
 
 class Effect : public SceneObject
@@ -38,7 +31,7 @@ class Effect : public SceneObject
 public:
     Effect(Context* context, MasterControl* masterControl);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-    void Set(Vector3 position);
+    void Set(const Vector3 position);
     void Disable();
 protected:
     SharedPtr<ParticleEmitter> particleEmitter_;

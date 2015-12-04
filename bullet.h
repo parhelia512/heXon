@@ -44,7 +44,7 @@ class Bullet : public SceneObject
     URHO3D_OBJECT(Bullet, SceneObject);
 public:
     Bullet(Context *context, MasterControl* masterControl);
-    void Set(Vector3 position);
+    void Set(const Vector3 position);
 protected:
     SharedPtr<RigidBody> rigidBody_;
     SharedPtr<StaticModel> model_;
@@ -56,7 +56,7 @@ private:
     float lifeTime_;
     bool fading_ = false;
     float damage_;
-    void HitCheck(float timeStep);
+    void HitCheck(const float timeStep);
     void Disable();
 };
 

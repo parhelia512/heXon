@@ -25,7 +25,7 @@ ChaoMine::ChaoMine(Context *context, MasterControl *masterControl): Enemy(contex
 
 }
 
-void ChaoMine::Set(Vector3 position)
+void ChaoMine::Set(const Vector3 position)
 {
     Enemy::Set(position);
     SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(ChaoMine, HandleMineUpdate));

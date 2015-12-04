@@ -23,12 +23,6 @@
 
 #include "sceneobject.h"
 
-namespace Urho3D {
-class Node;
-class Scene;
-class Sprite;
-}
-
 class Pickup : public SceneObject
 {
     URHO3D_OBJECT(Pickup, SceneObject);

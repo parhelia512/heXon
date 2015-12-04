@@ -39,7 +39,7 @@ SceneObject::SceneObject(Context* context, MasterControl* masterControl):
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(SceneObject, BlinkCheck));
 }
 
-void SceneObject::Set(Vector3 position)
+void SceneObject::Set(const Vector3 position)
 {
     rootNode_->SetPosition(position);
     rootNode_->SetEnabledRecursive(true);

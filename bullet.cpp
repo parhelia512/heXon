@@ -62,7 +62,7 @@ void Bullet::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     if (timeStep > 0.0f && !fading_) HitCheck(timeStep);
 }
 
-void Bullet::Set(Vector3 position)
+void Bullet::Set(const Vector3 position)
 {
     age_ = 0.0f;
     timeSinceHit_ = 0.0f;

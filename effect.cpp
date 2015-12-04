@@ -43,7 +43,7 @@ void Effect::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     }
 }
 
-void Effect::Set(Vector3 position)
+void Effect::Set(const Vector3 position)
 {
     SceneObject::Set(position);
     age_ = 0.0f;

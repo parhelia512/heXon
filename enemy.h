@@ -42,9 +42,9 @@ class Enemy : public SceneObject
     URHO3D_OBJECT(Enemy, SceneObject);
 public:
     Enemy(Context* context, MasterControl* masterControl);
-    float GetHealth(){ return health_; }
-    void Hit(float damage, int ownerID);
-    void Set(Vector3 position);
+    float GetHealth() const { return health_; }
+    void Hit(const float damage, const int ownerID);
+    void Set(const Vector3 position);
 protected:
     float panicTime_ = 0.0f;
     float health_;
@@ -56,7 +56,7 @@ protected:
     int lastHitBy_ = 0;
 
     float sinceLastWhack_;
-    float whackInterval_;
+    const float whackInterval_;
     float meleeDamage_;
 
     SharedPtr<Node> centerNode_;
@@ -65,11 +65,12 @@ protected:
     SharedPtr<RigidBody> rigidBody_;
     StaticModel* centerModel_;
     Color color_;
+
     virtual void HandleCollisionStart(StringHash eventType, VariantMap &eventData);
-    void SetHealth(float health);
+    void SetHealth(const float health);
     virtual void CheckHealth();
-    Color GetGlowColor();
-    void Emerge(float timeStep);
+    Color GetGlowColor() const;
+    void Emerge(const float timeStep);
     void Disable();
 private:
     Vector<SharedPtr<Sound> > samples_;

@@ -27,13 +27,6 @@
 #include "chaoflash.h"
 #include "TailGenerator.h"
 
-namespace Urho3D {
-class Drawable;
-class Node;
-class Scene;
-class Sprite;
-}
-
 using namespace Urho3D;
 
 typedef struct Ship
@@ -57,15 +50,15 @@ public:
     Player(Context* context, MasterControl* masterControl);
     Pilot pilot_;
 
-    Vector3 GetPosition() { return rootNode_->GetPosition(); }
-    double GetHealth(){return health_;}
+    Vector3 GetPosition() const { return rootNode_->GetPosition(); }
+    double GetHealth() const noexcept {return health_;}
     void Hit(float damage, bool melee = true);
 
     void AddScore(int points);
     void Die();
     void ResetScore();
-    unsigned GetScore() { return score_; }
-    unsigned GetFlightScore() { return flightScore_; }
+    unsigned GetScore() const { return score_; }
+    unsigned GetFlightScore() const { return flightScore_; }
     void Pickup(PickupType pickup);
     void EnterLobby();
     void EnterPlay();
@@ -78,7 +71,7 @@ private:
     bool pilotMode_;
     int appleCount_;
     int heartCount_;
-    float initialHealth_;
+    const float initialHealth_;
     float health_;
     unsigned score_;
     unsigned flightScore_;
@@ -87,7 +80,7 @@ private:
     int bulletAmount_;
 
 
-    float initialShotInterval_;
+    const float initialShotInterval_;
     float shotInterval_;
     float sinceLastShot_;
 

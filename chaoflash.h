@@ -38,7 +38,7 @@ class ChaoFlash : public SceneObject
 public:
     ChaoFlash(Context* context, MasterControl* masterControl);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-    void Set(Vector3 position);
+    void Set(const Vector3 position);
     void Disable();
 private:
     RigidBody* rigidBody_;

@@ -26,7 +26,6 @@
 namespace Urho3D {
 class Node;
 class Scene;
-class Sprite;
 }
 
 using namespace Urho3D;
@@ -38,11 +37,11 @@ class SceneObject : public Object
     URHO3D_OBJECT(SceneObject, Object);
 public:
     SceneObject(Context *context, MasterControl* masterControl);
-    void Set(Vector3 position);
+    void Set(const Vector3 position);
     void Disable();
 
     Vector3 GetPosition() const { return rootNode_->GetPosition(); }
-    bool IsEmerged() const { return rootNode_->GetPosition().y_ > -0.1f; }
+    bool IsEmerged() const { return GetPosition().y_ > -0.1f; }
     bool IsEnabled() const { return rootNode_->IsEnabled(); }
 protected:
     bool blink_;
@@ -52,7 +51,7 @@ protected:
     SharedPtr<Node> graphicsNode_;
     Vector<SharedPtr<SoundSource> > sampleSources_;
 
-    void PlaySample(Sound *sample, float gain = 0.5f);
+    void PlaySample(Sound *sample, const float gain = 0.5f);
     bool IsPlayingSound();
     void StopAllSound();
 private:

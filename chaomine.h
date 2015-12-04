@@ -37,7 +37,7 @@ class ChaoMine : public Enemy
     URHO3D_OBJECT(ChaoMine, Enemy);
 public:
     ChaoMine(Context* context, MasterControl* masterControl);
-    void Set(Vector3 position);
+    void Set(const Vector3 position);
 protected:
     Node* innerNode_;
     Node* outerNode_;
