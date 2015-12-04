@@ -20,7 +20,7 @@
 
 Flash::Flash(Context *context, MasterControl *masterControl):
     Effect(context, masterControl),
-    initialBrightness_{2.0}
+    initialBrightness_{2.f}
 {  
     rootNode_->SetName("Flash");
 
@@ -29,17 +29,17 @@ Flash::Flash(Context *context, MasterControl *masterControl):
     particleEmitter_->SetEffect(particleEffect);
 
     light_ = rootNode_->CreateComponent<Light>();
-    light_->SetRange(10.0f);
+    light_->SetRange(10.f);
     light_->SetColor(Color::WHITE);
     light_->SetBrightness(initialBrightness_);
 }
 
 void Flash::UpdateFlash(StringHash eventType, VariantMap &eventData)
 {
-    light_->SetBrightness(Max(initialBrightness_*(0.25f - age_)/0.25f,0.0f));
+    light_->SetBrightness(Max(initialBrightness_*(0.25f - age_)/0.25f,0.f));
 }
 
-void Flash::Set(Vector3 position)
+void Flash::Set(const Vector3 position)
 {
     SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(Flash, UpdateFlash));
     Effect::Set(position);

@@ -38,14 +38,14 @@ heXoCam::heXoCam(Context *context, MasterControl *masterControl):
     stereoCam_.second_ = rightEye->CreateComponent<Camera>();
 
     camera_ = rootNode_->CreateComponent<Camera>();
-    camera_->SetFarClip(128.0f);
+    camera_->SetFarClip(128.f);
     rootNode_->SetPosition(Vector3(0.f, 42.f, -23.f));
     rootNode_->SetRotation(Quaternion(65.f, 0.f, 0.f));
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
-    rigidBody_->SetAngularDamping(10.0f);
+    rigidBody_->SetAngularDamping(10.f);
     CollisionShape* collisionShape = rootNode_->CreateComponent<CollisionShape>();
     collisionShape->SetSphere(0.1f);
-    rigidBody_->SetMass(1.0f);
+    rigidBody_->SetMass(1.f);
 
     SetupViewport();
 }
@@ -104,7 +104,7 @@ void heXoCam::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
                                    , 5.f * timeStep));
 }
 
-void heXoCam::SetGreyScale(bool enabled)
+void heXoCam::SetGreyScale(const bool enabled)
 {
     effectRenderPath_->SetEnabled("GreyScale", enabled);
 }

@@ -23,17 +23,17 @@ MultiX::MultiX(Context *context, MasterControl *masterControl):
 {
     rootNode_->SetName("MultiX");
     pickupType_ = PT_MULTIX;
-    initialPosition_ = Vector3::DOWN*42.0f;
+    initialPosition_ = Vector3::DOWN*42.f;
     rootNode_->SetPosition(initialPosition_);
     model_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/X.mdl"));
     model_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/BlueGlowEnvmap.xml"));
 
-    rigidBody_->SetMass(2.0f);
+    rigidBody_->SetMass(2.f);
 
     Vector<ColorFrame> colorFrames;
-    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
+    colorFrames.Push(ColorFrame(Color(0.f, 0.f, 0.f, 0.f), 0.f));
     colorFrames.Push(ColorFrame(Color(0.05f, 0.23f, 0.75f, 0.42f), 0.1f));
-    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
+    colorFrames.Push(ColorFrame(Color(0.f, 0.f, 0.f, 0.f), 0.4f));
     particleEmitter_->GetEffect()->SetColorFrames(colorFrames);
     particleEmitter_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/Rift.xml"));
 

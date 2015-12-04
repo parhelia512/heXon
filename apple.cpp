@@ -29,8 +29,8 @@ Apple::Apple(Context *context, MasterControl *masterControl):
     model_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/GoldEnvmap.xml"));
 
     Vector<ColorFrame> colorFrames;
-    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
+    colorFrames.Push(ColorFrame(Color(0.f, 0.f, 0.f, 0.f), 0.f));
     colorFrames.Push(ColorFrame(Color(0.5f, 0.5f, 0.23f, 0.42f), 0.1f));
-    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
+    colorFrames.Push(ColorFrame(Color(0.f, 0.f, 0.f, 0.f), 0.4f));
     particleEmitter_->GetEffect()->SetColorFrames(colorFrames);
 }

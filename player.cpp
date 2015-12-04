@@ -32,7 +32,7 @@ Player::Player(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
     appleCount_{0},
     heartCount_{0},
-    initialHealth_{1.0f},
+    initialHealth_{1.f},
     health_{initialHealth_},
     score_{0},
     flightScore_{0},
@@ -41,7 +41,7 @@ Player::Player(Context *context, MasterControl *masterControl):
     bulletAmount_{1},
     initialShotInterval_{0.30f},
     shotInterval_{initialShotInterval_},
-    sinceLastShot_{0.0f}
+    sinceLastShot_{0.f}
 {
     LoadScore();
 
@@ -52,7 +52,7 @@ Player::Player(Context *context, MasterControl *masterControl):
 
     //Setup pilot
     pilot_.node_ = rootNode_->CreateChild("Pilot");
-    pilot_.node_->Translate(Vector3(0.0f, -0.5f, 0.0f));
+    pilot_.node_->Translate(Vector3(0.f, -0.5f, 0.f));
     pilot_.model_ = pilot_.node_->CreateComponent<AnimatedModel>();
     pilot_.model_->SetCastShadows(true);
     LoadPilot();
@@ -94,7 +94,7 @@ Player::Player(Context *context, MasterControl *masterControl):
     //Setup player physics
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
     rigidBody_->SetRestitution(0.666f);
-    rigidBody_->SetMass(1.0f);
+    rigidBody_->SetMass(1.f);
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
     rigidBody_->SetLinearDamping(0.5f);
     rigidBody_->SetAngularFactor(Vector3::ZERO);
@@ -102,7 +102,7 @@ Player::Player(Context *context, MasterControl *masterControl):
     rigidBody_->SetAngularRestThreshold(0.1f);
 
     collisionShape_ = rootNode_->CreateComponent<CollisionShape>();
-    collisionShape_->SetSphere(2.0f);
+    collisionShape_->SetSphere(2.f);
 
     masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 
@@ -123,7 +123,7 @@ void Player::CreateGUI()
     scoreTextName_ = scoreText->GetName();
     scoreText->SetText(String(score_));
     scoreText->SetFont(masterControl_->cache_->GetResource<Font>("Resources/Fonts/skirmishergrad.ttf"), 32);
-    scoreText->SetColor(Color(0.5f, 0.95f, 1.0f, 0.666f));
+    scoreText->SetColor(Color(0.5f, 0.95f, 1.f, 0.666f));
     scoreText->SetHorizontalAlignment(HA_CENTER);
     scoreText->SetVerticalAlignment(VA_CENTER);
     scoreText->SetPosition(0, ui->GetRoot()->GetHeight()/2.5f);
@@ -131,21 +131,21 @@ void Player::CreateGUI()
     //Setup 3D GUI elements
     guiNode_ = masterControl_->world.scene->CreateChild("GUI3D");
     healthBarNode_ = guiNode_->CreateChild("HealthBar");
-    healthBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
-    healthBarNode_->SetScale(Vector3(health_, 1.0f, 1.0f));
+    healthBarNode_->SetPosition(Vector3(0.f, 1.f, 21.f));
+    healthBarNode_->SetScale(Vector3(health_, 1.f, 1.f));
     healthBarModel_ = healthBarNode_->CreateComponent<StaticModel>();
     healthBarModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Bar.mdl"));
     healthBarModel_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/GreenGlowEnvmap.xml"));
 
     shieldBarNode_ = guiNode_->CreateChild("HealthBar");
-    shieldBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
+    shieldBarNode_->SetPosition(Vector3(0.f, 1.f, 21.f));
     shieldBarNode_->SetScale(Vector3(health_, 0.9f, 0.9f));
     shieldBarModel_ = shieldBarNode_->CreateComponent<StaticModel>();
     shieldBarModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Bar.mdl"));
     shieldBarModel_->SetMaterial(masterControl_->cache_->GetResource<Material>("Resources/Materials/BlueGlowEnvmap.xml"));
 
     Node* healthBarHolderNode = guiNode_->CreateChild("HealthBarHolder");
-    healthBarHolderNode->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
+    healthBarHolderNode->SetPosition(Vector3(0.f, 1.f, 21.f));
     StaticModel* healthBarHolderModel = healthBarHolderNode->CreateComponent<StaticModel>();
     healthBarHolderModel->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/BarHolder.mdl"));
     healthBarHolderModel->SetMaterial(masterControl_->cache_->GetResource<Material>("Resources/Materials/Metal.xml"));
@@ -154,7 +154,7 @@ void Player::CreateGUI()
     for (int a = 0; a < 5; a++){
         appleCounter_[a] = appleCounterRoot_->CreateChild();
         appleCounter_[a]->SetEnabled(false);
-        appleCounter_[a]->SetPosition(Vector3(-(a + 8.0f), 1.0f, 21.0f));
+        appleCounter_[a]->SetPosition(Vector3(-(a + 8.f), 1.f, 21.f));
         appleCounter_[a]->SetScale(0.333f);
         StaticModel* apple = appleCounter_[a]->CreateComponent<StaticModel>();
         apple->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Apple.mdl"));
@@ -165,7 +165,7 @@ void Player::CreateGUI()
     for (int h = 0; h < 5; h++){
         heartCounter_[h] = heartCounterRoot_->CreateChild();
         heartCounter_[h]->SetEnabled(false);
-        heartCounter_[h]->SetPosition(Vector3(h + 8.0f, 1.0f, 21.0f));
+        heartCounter_[h]->SetPosition(Vector3(h + 8.f, 1.f, 21.f));
         heartCounter_[h]->SetScale(0.333f);
         StaticModel* heart = heartCounter_[h]->CreateComponent<StaticModel>();
         heart->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Heart.mdl"));
@@ -227,8 +227,8 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     Vector3 move = Vector3::ZERO;
     Vector3 moveJoy = Vector3::ZERO;
     Vector3 moveKey = Vector3::ZERO;
-    float thrust = pilotMode_ ? 256.0f : 2323.0f;
-    float maxSpeed = pilotMode_? 1.8f : 23.0f;    //Firing values
+    float thrust = pilotMode_ ? 256.f : 2323.f;
+    float maxSpeed = pilotMode_? 1.8f : 23.f;    //Firing values
     Vector3 fire = Vector3::ZERO;
     Vector3 fireJoy = Vector3::ZERO;
     Vector3 fireKey = Vector3::ZERO;
@@ -248,21 +248,21 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
             Vector3::RIGHT * (input->GetKeyDown(KEY_L) || input->GetKeyDown(KEY_KP_6)) +
             Vector3::FORWARD * (input->GetKeyDown(KEY_I) || input->GetKeyDown(KEY_KP_8)) +
             Vector3::BACK * (input->GetKeyDown(KEY_K) || input->GetKeyDown(KEY_KP_2) || input->GetKeyDown(KEY_KP_5)) +
-            Quaternion(45.0f, Vector3::UP)*Vector3::LEFT * input->GetKeyDown(KEY_KP_7) +
-            Quaternion(45.0f, Vector3::UP)*Vector3::RIGHT * input->GetKeyDown(KEY_KP_3) +
-            Quaternion(45.0f, Vector3::UP)*Vector3::FORWARD * input->GetKeyDown(KEY_KP_9) +
-            Quaternion(45.0f, Vector3::UP)*Vector3::BACK * input->GetKeyDown(KEY_KP_1);
+            Quaternion(45.f, Vector3::UP)*Vector3::LEFT * input->GetKeyDown(KEY_KP_7) +
+            Quaternion(45.f, Vector3::UP)*Vector3::RIGHT * input->GetKeyDown(KEY_KP_3) +
+            Quaternion(45.f, Vector3::UP)*Vector3::FORWARD * input->GetKeyDown(KEY_KP_9) +
+            Quaternion(45.f, Vector3::UP)*Vector3::BACK * input->GetKeyDown(KEY_KP_1);
 
     //Pick most significant input
     moveJoy.Length() > moveKey.Length() ? move = moveJoy : move = moveKey;
     fireJoy.Length() > fireKey.Length() ? fire = fireJoy : fire = fireKey;
 
     //Restrict move vector length
-    if (move.Length() > 1.0f) move /= move.Length();
+    if (move.Length() > 1.f) move /= move.Length();
     //Deadzone
-    else if (move.Length() < 0.1f) move *= 0.0f;
+    else if (move.Length() < 0.1f) move *= 0.f;
 
-    if (fire.Length() < 0.1f) fire *= 0.0f;
+    if (fire.Length() < 0.1f) fire *= 0.f;
     else fire.Normalize();
 
     //When in pilot mode
@@ -270,17 +270,17 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         //Apply movement
         Vector3 force = move * thrust * timeStep;
         if (rigidBody_->GetLinearVelocity().Length() < maxSpeed ||
-                (rigidBody_->GetLinearVelocity().Normalized() + force.Normalized()).Length() < 1.0f) {
+                (rigidBody_->GetLinearVelocity().Normalized() + force.Normalized()).Length() < 1.f) {
             rigidBody_->ApplyForce(force);
         }
 
         //Update rotation according to direction of the player's movement.
         Vector3 velocity = rigidBody_->GetLinearVelocity();
-        Vector3 lookDirection = velocity + 2.0f*fire;
+        Vector3 lookDirection = velocity + 2.f*fire;
         Quaternion rotation = rootNode_->GetWorldRotation();
         Quaternion aimRotation = rotation;
         aimRotation.FromLookRotation(lookDirection);
-        rootNode_->SetRotation(rotation.Slerp(aimRotation, 7.0f * timeStep * velocity.Length()));
+        rootNode_->SetRotation(rotation.Slerp(aimRotation, 7.f * timeStep * velocity.Length()));
 
         //Update animation
         if (velocity.Length() > 0.05f){
@@ -308,7 +308,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         //Apply movement
         Vector3 force = move * thrust * timeStep;
         if (rigidBody_->GetLinearVelocity().Length() < maxSpeed ||
-                (rigidBody_->GetLinearVelocity().Normalized() + force.Normalized()).Length() < 1.0f) {
+                (rigidBody_->GetLinearVelocity().Normalized() + force.Normalized()).Length() < 1.f) {
             rigidBody_->ApplyForce(force);
         }
 
@@ -330,10 +330,10 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 void Player::UpdateGUI(float timeStep)
 {
     for (int i = 0; i < 5; i++){
-        appleCounter_[i]->Rotate(Quaternion(0.0f, (i*i+10.0f) * 23.0f * timeStep, 0.0f));
-        appleCounter_[i]->SetScale(masterControl_->Sine((1.0f+(appleCount_))*2.0f, 0.2f, 0.4, -i));
-        heartCounter_[i]->Rotate(Quaternion(0.0f, (i*i+10.0f) * 23.0f * timeStep, 0.0f));
-        heartCounter_[i]->SetScale(masterControl_->Sine((1.0f+(heartCount_))*2.0f, 0.2f, 0.4, -i));
+        appleCounter_[i]->Rotate(Quaternion(0.f, (i*i+10.f) * 23.f * timeStep, 0.f));
+        appleCounter_[i]->SetScale(masterControl_->Sine((1.f+(appleCount_))*2.f, 0.2f, 0.4, -i));
+        heartCounter_[i]->Rotate(Quaternion(0.f, (i*i+10.f) * 23.f * timeStep, 0.f));
+        heartCounter_[i]->SetScale(masterControl_->Sine((1.f+(heartCount_))*2.f, 0.2f, 0.4, -i));
     }
     //Update HealthBar color
     healthBarModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", HealthToColor(health_));
@@ -342,20 +342,20 @@ void Player::UpdateGUI(float timeStep)
 void Player::Shoot(Vector3 fire)
 {
     for (int i = 0; i < bulletAmount_; i++) {
-        float angle = 0.0f;
+        float angle = 0.f;
         switch (i) {
         case 0: angle = (bulletAmount_ == 2 || bulletAmount_ == 3) ?
-                        -5.0f : 0.0f;
+                        -5.f : 0.f;
             break;
         case 1: angle = bulletAmount_ < 4 ?
-                        5.0f : 7.5f;
+                        5.f : 7.5f;
             break;
         case 2: angle = bulletAmount_ < 5 ?
-                        180.0f : 175.0f;
+                        180.f : 175.f;
             break;
         case 3: angle = -7.5f;
             break;
-        case 4: angle = 185.0f;
+        case 4: angle = 185.f;
             break;
         default: break;
         }
@@ -384,8 +384,8 @@ void Player::FireBullet(Vector3 direction){
         bullets_.Push(bullet);
     }
     bullet->Set(rootNode_->GetPosition() + direction);
-    bullet->rootNode_->LookAt(bullet->rootNode_->GetPosition() + direction * 5.0f);
-    bullet->rigidBody_->ApplyForce(direction * (1500.0f + 23.0f * weaponLevel_));
+    bullet->rootNode_->LookAt(bullet->rootNode_->GetPosition() + direction * 5.f);
+    bullet->rigidBody_->ApplyForce(direction * (1500.f + 23.f * weaponLevel_));
     bullet->damage_ = 0.15f + 0.00666f * weaponLevel_;
 }
 void Player::MoveMuzzle()
@@ -420,7 +420,7 @@ void Player::Pickup(PickupType pickup)
             PlaySample(powerup_s, 0.42f);
         }
         else {
-            SetHealth(Max(health_, Clamp(health_+5.0f, 0.0f, 10.0f)));
+            SetHealth(Max(health_, Clamp(health_+5.f, 0.f, 10.f)));
             PlaySample(pickup_s, 0.23f);
         }
     } break;
@@ -459,7 +459,7 @@ void Player::PickupChaoBall()
 void Player::Die()
 {
     Disable();
-    masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), Color::GREEN, 2.0f);
+    masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), Color::GREEN, 2.f);
     masterControl_->SetGameState(GS_DEAD);
 }
 
@@ -468,7 +468,7 @@ void Player::EnterPlay()
     guiNode_->SetEnabledRecursive(true);
     Pickup(PT_RESET);
 
-    rootNode_->SetRotation(Quaternion(180.0f, Vector3::UP));
+    rootNode_->SetRotation(Quaternion(180.f, Vector3::UP));
     rigidBody_->ResetForces();
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     shieldMaterial_->SetShaderParameter("MatDiffColor", Color::BLACK);
@@ -490,8 +490,8 @@ void Player::EnterLobby()
     guiNode_->SetEnabledRecursive(false);
     chaoFlash_->Disable();
     SetPilotMode(true);
-    rootNode_->SetPosition(Vector3::BACK*7.0f);
-    rigidBody_->SetLinearVelocity(Vector3::FORWARD*5.0f);
+    rootNode_->SetPosition(Vector3::BACK*7.f);
+    rigidBody_->SetLinearVelocity(Vector3::FORWARD*5.f);
     rigidBody_->ResetForces();
 }
 void Player::SetPilotMode(bool pilotMode){
@@ -500,37 +500,37 @@ void Player::SetPilotMode(bool pilotMode){
     pilot_.node_->SetEnabledRecursive(pilotMode_);
     ship_.node_->SetEnabledRecursive(!pilotMode_);
     shieldNode_->SetEnabled(!pilotMode_);
-    collisionShape_->SetSphere(pilotMode_? 0.666f : 2.0f);
+    collisionShape_->SetSphere(pilotMode_? 0.666f : 2.f);
     rigidBody_->SetLinearDamping(pilotMode_? 0.75f : 0.5f);
 }
 
 void Player::SetHealth(float health)
 {
-    health_ = Clamp(health, 0.0f, 15.0f);
-    healthBarNode_->SetScale(Vector3(Min(health_, 10.0f), 1.0f, 1.0f));
+    health_ = Clamp(health, 0.f, 15.f);
+    healthBarNode_->SetScale(Vector3(Min(health_, 10.f), 1.f, 1.f));
     shieldBarNode_->SetScale(Vector3(health_, 0.95f, 0.95f));
 
-    if (health_ <= 0.0f){
+    if (health_ <= 0.f){
         Die();
     }
 }
 
 Color Player::HealthToColor(float health)
 {
-    Color color(1.0f, 1.0f, 0.05f, 1.0f);
-    health = Clamp(health, 0.0f, 10.0f);
+    Color color(1.f, 1.f, 0.05f, 1.f);
+    health = Clamp(health, 0.f, 10.f);
     float maxBright = 0.666f;
-    if (health < 5.0f) maxBright = masterControl_->Sine(2.0f+3.0f*(5.0f-health), 0.2f*health, 1.0f);
-    color.r_ = Clamp((3.0f - (health - 3.0f))/3.0f, 0.0f, maxBright);
-    color.g_ = Clamp((health - 3.0f)/4.0f, 0.0f, maxBright);
+    if (health < 5.f) maxBright = masterControl_->Sine(2.f+3.f*(5.f-health), 0.2f*health, 1.f);
+    color.r_ = Clamp((3.f - (health - 3.f))/3.f, 0.f, maxBright);
+    color.g_ = Clamp((health - 3.f)/4.f, 0.f, maxBright);
     return color;
 }
 
 void Player::Hit(float damage, bool melee)
 {
-    if (health_ > 10.0f){
+    if (health_ > 10.f){
         damage *= (melee ? 0.75f : 0.25f);
-        shieldMaterial_->SetShaderParameter("MatDiffColor", Color(2.0f, 3.0f, 5.0f, 1.0f));
+        shieldMaterial_->SetShaderParameter("MatDiffColor", Color(2.f, 3.f, 5.f, 1.f));
         PlaySample(shieldHit_s, 0.23f);
     }
     else if (!melee) PlaySample(seekerHits_s[Random((int)seekerHits_s.Size())], 0.75f);
@@ -590,8 +590,8 @@ void Player::UpdatePilot()
         pilot_.model_->SetMaterial(m, masterControl_->cache_->GetTempResource<Material>("Resources/Materials/Basic.xml"));
         Color diffColor = pilot_.colors_[m];
         pilot_.model_->GetMaterial(m)->SetShaderParameter("MatDiffColor", diffColor);
-        Color specColor = diffColor*(1.0f-0.1f*m);
-        specColor.a_ = 23.0f - 2.0f * m;
+        Color specColor = diffColor*(1.f-0.1f*m);
+        specColor.a_ = 23.f - 2.f * m;
         pilot_.model_->GetMaterial(m)->SetShaderParameter("MatSpecColor", specColor);
     }
 }
@@ -599,7 +599,7 @@ void Player::UpdatePilot()
 void Player::CreateNewPilot()
 {
     pilot_.male_ = Random(2);
-    pilot_.node_->SetRotation(Quaternion(0.0f, 0.0f, 0.0f));
+    pilot_.node_->SetRotation(Quaternion(0.f, 0.f, 0.f));
 
     pilot_.colors_.Clear();
     for (int c = 0; c < 5; c++)
@@ -648,9 +648,9 @@ void Player::SetupShip()
     ParticleEmitter* particleEmitter = ship_.node_->CreateComponent<ParticleEmitter>();
     SharedPtr<ParticleEffect> particleEffect = masterControl_->cache_->GetTempResource<ParticleEffect>("Resources/Particles/Shine.xml");
     Vector<ColorFrame> colorFrames;
-    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
+    colorFrames.Push(ColorFrame(Color(0.f, 0.f, 0.f, 0.f), 0.f));
     colorFrames.Push(ColorFrame(Color(0.42f, 0.7f, 0.23f, 0.23f), 0.2f));
-    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
+    colorFrames.Push(ColorFrame(Color(0.f, 0.f, 0.f, 0.f), 0.4f));
     particleEffect->SetColorFrames(colorFrames);
     particleEmitter->SetEffect(particleEffect);
 
@@ -662,15 +662,15 @@ void Player::CreateTails()
     for (int n = 0; n < 3; n++)
     {
         Node* tailNode = ship_.node_->CreateChild("Tail");
-        tailNode->SetPosition(Vector3(-0.85f+0.85f*n, n==1? 0.0f : -0.5f, n==1? -0.5f : -0.23f));
+        tailNode->SetPosition(Vector3(-0.85f+0.85f*n, n==1? 0.f : -0.5f, n==1? -0.5f : -0.23f));
         TailGenerator* tailGen = tailNode->CreateComponent<TailGenerator>();
         tailGen->SetDrawHorizontal(true);
         tailGen->SetDrawVertical(n==1?true:false);
         tailGen->SetTailLength(n==1? 0.1f : 0.075f);
         tailGen->SetNumTails(n==1? 23 : 16);
         tailGen->SetWidthScale(n==1? 0.666f : 0.23f);
-        tailGen->SetColorForHead(Color(0.9f, 1.0f, 0.5f));
-        tailGen->SetColorForTip(Color(0.0f, 1.0f, 0.0f));
+        tailGen->SetColorForHead(Color(0.9f, 1.f, 0.5f));
+        tailGen->SetColorForTip(Color(0.f, 1.f, 0.f));
         tailGens_.Push(SharedPtr<TailGenerator>(tailGen));
     }
 }

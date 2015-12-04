@@ -30,7 +30,7 @@ HitFX::HitFX(Context *context, MasterControl *masterControl):
     sample_->SetLooped(false);
 }
 
-void HitFX::Set(Vector3 position, bool sound)
+void HitFX::Set(const Vector3 position, const bool sound)
 {
     if (sound) PlaySample(sample_, 0.23f);
     Effect::Set(position);

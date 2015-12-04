@@ -26,15 +26,15 @@
 SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
     Object(context),
     spawning_{false},
-    razorInterval_{2.0f},
-    sinceRazorSpawn_{0.0f},
-    spireInterval_{23.0f},
-    sinceSpireSpawn_{0.0f}
+    razorInterval_{2.f},
+    sinceRazorSpawn_{0.f},
+    spireInterval_{23.f},
+    sinceSpireSpawn_{0.f}
 {
     masterControl_ = masterControl;
 
     Audio* audio = GetSubsystem<Audio>();
-    audio->SetMasterGain(SOUND_EFFECT, 0.0f);
+    audio->SetMasterGain(SOUND_EFFECT, 0.f);
     for (int r = 0; r < 23; r++) {
         Razor* newRazor = new Razor(context_, masterControl_);
         razors_[newRazor->rootNode_->GetID()] = SharedPtr<Razor>(newRazor);
@@ -69,7 +69,7 @@ SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
         chaoZaps_.Push(SharedPtr<ChaoZap>(newChaoZap));
     }
     Clear();
-    audio->SetMasterGain(SOUND_EFFECT, 1.0f);
+    audio->SetMasterGain(SOUND_EFFECT, 1.f);
 }
 
 void SpawnMaster::Activate()
@@ -124,10 +124,10 @@ void SpawnMaster::Clear()
 void SpawnMaster::Restart()
 {
     Clear();
-    razorInterval_ = 2.0f;
-    sinceRazorSpawn_ = 0.0f;
-    spireInterval_ = 23.0f;
-    sinceSpireSpawn_  = 0.0f;
+    razorInterval_ = 2.f;
+    sinceRazorSpawn_ = 0.f;
+    spireInterval_ = 23.f;
+    sinceSpireSpawn_  = 0.f;
     Activate();
 }
 
@@ -136,9 +136,9 @@ Vector3 SpawnMaster::SpawnPoint()
     WeakPtr<Tile> randomTile = masterControl_->tileMaster_->GetRandomTile();
     if (randomTile) {
         Vector3 tilePosition = randomTile->rootNode_->GetPosition();
-        return Vector3(tilePosition.x_, -23.0f, tilePosition.z_);
+        return Vector3(tilePosition.x_, -23.f, tilePosition.z_);
     }
-    else return Vector3(Random(-5.0f, 5.0f), -42.0f, Random(-5.0f, 5.0f));
+    else return Vector3(Random(-5.f, 5.f), -42.f, Random(-5.f, 5.f));
 }
 
 void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
@@ -179,13 +179,13 @@ int SpawnMaster::CountActiveSpires() //Crash
 
 void SpawnMaster::SpawnRazor(const Vector3 &position)
 {
-    sinceRazorSpawn_ = 0.0f;
+    sinceRazorSpawn_ = 0.f;
     if (!RespawnRazor(position)){
         Razor* newRazor = new Razor(context_, masterControl_);
         newRazor->Set(position);
         razors_[newRazor->rootNode_->GetID()] = SharedPtr<Razor>(newRazor);
     }
-    razorInterval_ = 7.0f * pow(0.95f, ((masterControl_->world.scene->GetElapsedTime() - masterControl_->world.lastReset) + 10.0f) / 10.0f);
+    razorInterval_ = 7.f * pow(0.95f, ((masterControl_->world.scene->GetElapsedTime() - masterControl_->world.lastReset) + 10.f) / 10.f);
 }
 bool SpawnMaster::RespawnRazor(const Vector3 &position)
 {
@@ -202,13 +202,13 @@ bool SpawnMaster::RespawnRazor(const Vector3 &position)
 
 void SpawnMaster::SpawnSpire(const Vector3 &position)
 {
-    sinceSpireSpawn_ = 0.0f;
+    sinceSpireSpawn_ = 0.f;
     if (!RespawnSpire(position)){
         Spire* newSpire = new Spire(context_, masterControl_);
         newSpire->Set(position);
         spires_[newSpire->rootNode_->GetID()] = SharedPtr<Spire>(newSpire);
     }
-    spireInterval_ = 23.0f * pow(0.95f, ((masterControl_->world.scene->GetElapsedTime() - masterControl_->world.lastReset) + 42.0f) / 42.0f);
+    spireInterval_ = 23.f * pow(0.95f, ((masterControl_->world.scene->GetElapsedTime() - masterControl_->world.lastReset) + 42.f) / 42.f);
 }
 bool SpawnMaster::RespawnSpire(const Vector3 &position)
 {

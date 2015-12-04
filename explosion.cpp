@@ -21,8 +21,8 @@
 
 Explosion::Explosion(Context *context, MasterControl *masterControl):
     Effect(context, masterControl),
-    initialMass_{3.0f},
-    initialBrightness_{8.0f}
+    initialMass_{3.f},
+    initialBrightness_{8.f}
 {
     rootNode_->SetName("Explosion");
 
@@ -31,7 +31,7 @@ Explosion::Explosion(Context *context, MasterControl *masterControl):
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
 
     light_ = rootNode_->CreateComponent<Light>();
-    light_->SetRange(13.0f);
+    light_->SetRange(13.f);
     light_->SetBrightness(initialBrightness_);
 
     particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
@@ -49,11 +49,11 @@ void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
     float timeStep = eventData[P_TIMESTEP].GetFloat();
 
     rigidBody_->SetMass(Max(initialMass_*((0.1f - age_)/0.1f),0.01f));
-    light_->SetBrightness(Max(initialBrightness_*(0.32f - age_)/0.32f,0.0f));
+    light_->SetBrightness(Max(initialBrightness_*(0.32f - age_)/0.32f,0.f));
 
     if (rootNode_->IsEnabled() && masterControl_->world.scene->IsUpdateEnabled()) {
         PODVector<RigidBody* > hitResults;
-        float radius = 2.0f * initialMass_ + age_ * 7.0f;
+        float radius = 2.f * initialMass_ + age_ * 7.f;
         if (masterControl_->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), radius, M_MAX_UNSIGNED)){
             for (int i = 0; i < hitResults.Size(); i++){
                 Vector3 hitNodeWorldPos = hitResults[i]->GetNode()->GetWorldPosition();
@@ -61,8 +61,8 @@ void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
                     //positionDelta is used for force calculation
                     Vector3 positionDelta = hitNodeWorldPos - rootNode_->GetWorldPosition();
                     float distance = positionDelta.Length();
-                    Vector3 force = positionDelta.Normalized() * Max(radius-distance, 0.0f)
-                            * timeStep * 2342.0f * rigidBody_->GetMass();
+                    Vector3 force = positionDelta.Normalized() * Max(radius-distance, 0.f)
+                            * timeStep * 2342.f * rigidBody_->GetMass();
                     hitResults[i]->ApplyForce(force);
                     //Deal damage
                     unsigned hitID = hitResults[i]->GetNode()->GetID();
@@ -79,25 +79,25 @@ void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
     }
 }
 
-void Explosion::Set(Vector3 position, Color color, float size)
+void Explosion::Set(const Vector3 position, const Color color, const float size)
 {
     Effect::Set(position);
     rootNode_->SetScale(size);
-    initialMass_ = 3.0f * size;
+    initialMass_ = 3.f * size;
     rigidBody_->SetMass(initialMass_);
     light_->SetColor(color);
     light_->SetBrightness(initialBrightness_);
 
     ParticleEffect* particleEffect = particleEmitter_->GetEffect();
     Vector<ColorFrame> colorFrames;
-    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
+    colorFrames.Push(ColorFrame(Color(0.f, 0.f, 0.f, 0.f), 0.f));
     Color mixColor = 0.5f * (color + particleEffect->GetColorFrame(1)->color_);
     colorFrames.Push(ColorFrame(mixColor, 0.1f));
     colorFrames.Push(ColorFrame(mixColor*0.1f, 0.35f));
-    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
+    colorFrames.Push(ColorFrame(Color(0.f, 0.f, 0.f, 0.f), 0.f));
     particleEffect->SetColorFrames(colorFrames);
 
-    sampleSource_->SetGain(Min(0.5f*size, 1.0f));
+    sampleSource_->SetGain(Min(0.5f*size, 1.f));
     sampleSource_->Play(sample_);
 
     masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));

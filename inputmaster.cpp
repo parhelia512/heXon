@@ -54,27 +54,27 @@ void InputMaster::Init()
     SubscribeToEvents();
 }
 
-void InputMaster::SetMouseSensitivity(float sensitivity)
+void InputMaster::SetMouseSensitivity(const float sensitivity)
 {
     _mouseSensitivity = sensitivity;
 }
 
-void InputMaster::SetJoystickSensitivity(int axis, float sensitivity)
+void InputMaster::SetJoystickSensitivity(const int axis, const float sensitivity)
 {
     _joystickSensitivity[axis] = sensitivity;
 }
 
-void InputMaster::BindControllerAction(int button, int action)
+void InputMaster::BindControllerAction(const int button, const int action)
 {
     _controllerActions[button] = action;
 }
 
-void InputMaster::BindControllerAxis(int axis, int axisAction, float threshold)
+void InputMaster::BindControllerAxis(const int axis, const int axisAction, const float threshold)
 {
     _controllerAxis[axis] = axisAction;
 }
 
-void InputMaster::BindControllerAxisAction(int axis, int negative_action, int positive_action, float threshold)
+void InputMaster::BindControllerAxisAction(const int axis, const int negative_action, const int positive_action, const float threshold)
 {
     ControllerAxisAction definition;
     definition.negative_action = negative_action;
@@ -161,7 +161,7 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
     } break;
     //Enter edit mode on E
     //Toggle music on M
-    case KEY_M: masterControl_->musicSource_->SetGain(masterControl_->musicSource_->GetGain()==0.0f ? 0.32f : 0.0f);
+    case KEY_M: masterControl_->musicSource_->SetGain(masterControl_->musicSource_->GetGain()==0.f ? 0.32f : 0.f);
         break;
     }
 }

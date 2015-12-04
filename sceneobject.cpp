@@ -83,12 +83,12 @@ void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
     if (masterControl_->GetPaused()) return;
 
     Vector3 flatPosition = LucKey::Scale(rootNode_->GetPosition(), Vector3::ONE-Vector3::UP);
-    float radius = 20.0f;
+    float radius = 20.f;
     if (flatPosition.Length() > radius){
         Vector3 hexantNormal = Vector3::FORWARD;
         int sides = 6;
         for (int h = 0; h < sides; h++){
-            Vector3 otherHexantNormal = Quaternion(h * (360.0f/sides), Vector3::UP)*Vector3::FORWARD;
+            Vector3 otherHexantNormal = Quaternion(h * (360.f/sides), Vector3::UP)*Vector3::FORWARD;
             hexantNormal = flatPosition.Angle(otherHexantNormal) < flatPosition.Angle(hexantNormal)
                     ? otherHexantNormal : hexantNormal;
         }
