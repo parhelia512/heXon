@@ -22,6 +22,7 @@
 #include "tilemaster.h"
 #include "tile.h"
 #include "player.h"
+#include <algorithm>
 
 SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
     Object(context),
@@ -32,7 +33,6 @@ SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
     sinceSpireSpawn_{0.f}
 {
     masterControl_ = masterControl;
-
     Audio* audio = GetSubsystem<Audio>();
     audio->SetMasterGain(SOUND_EFFECT, 0.f);
     for (int r = 0; r < 23; r++) {
@@ -65,7 +65,7 @@ SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
         flashes_.Push(SharedPtr<Flash>(newFlash));
     }
     for (int z = 0; z < 5; z++) {
-        ChaoZap* newChaoZap= new ChaoZap(context_, masterControl_);
+        ChaoZap* newChaoZap = new ChaoZap(context_, masterControl_);
         chaoZaps_.Push(SharedPtr<ChaoZap>(newChaoZap));
     }
     Clear();
@@ -83,9 +83,9 @@ void SpawnMaster::Deactivate()
 void SpawnMaster::Clear()
 {
     Vector<SharedPtr<Razor> > razors = razors_.Values();
-    for (unsigned r = 0; r < razors.Size(); r++){
-        if (razors[r]->IsEnabled())
-            razors[r]->Disable();
+    for (auto r : razors){
+        if (r->IsEnabled())
+            r->Disable();
     }
     Vector<SharedPtr<Spire> > spires = spires_.Values();
     for (unsigned s = 0; s < spires.Size(); s++){
@@ -145,7 +145,7 @@ void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
     using namespace SceneUpdate;
 
-    double timeStep = eventData[P_TIMESTEP].GetFloat();
+    const float timeStep = eventData[P_TIMESTEP].GetFloat();
 
     sinceRazorSpawn_ += timeStep;
     sinceSpireSpawn_ += timeStep;
@@ -158,7 +158,7 @@ void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     }
 }
 
-int SpawnMaster::CountActiveRazors() //Crash
+int SpawnMaster::CountActiveRazors()
 {
     int razorCount = 0;
     Vector<SharedPtr<Razor> > razors = razors_.Values();
@@ -167,7 +167,7 @@ int SpawnMaster::CountActiveRazors() //Crash
     }
     return razorCount;
 }
-int SpawnMaster::CountActiveSpires() //Crash
+int SpawnMaster::CountActiveSpires()
 {
     int spireCount = 0;
     Vector<SharedPtr<Spire> > spires = spires_.Values();
