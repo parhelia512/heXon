@@ -5,9 +5,9 @@ hēXōn is a free and open source dual stick arcade shooter created using the Ur
 ###Installation
 ####Linux
 
-1. Either run CloneMakeUrho3D.sh; This script will clone the Urho3D game engine into your heXon folder, compile it and create symlinks to the Data and CoreData folders.
-Or, if you already have Urho3D compiled on your system place three symlinks in the heXon folder pointing to the root folder of the Urho3D game engine and both it's Data and CoreData folders.
+1. Run CloneMakeUrho3D.sh; This script will clone the Urho3D game engine into your heXon folder, install its dependencies and compile it.
 2. Now you can compile heXon using qmake. Either open heXon.pro using QtCreator and run it or run `qmake heXon.pro` and then `make` from within the heXon folder.
+3. Add symlinks to the Resources, Urho3D/bin/Data and Urho3D/bin/CoreData folders where the executable is ran.
 
 ###Pickups
 * Golden apple / Provides 23 points. Collect five apples in a row to get a weapon upgrade.
