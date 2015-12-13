@@ -23,7 +23,7 @@ Touching the edge of the net will send most object to the opposite side.
 
 ###Controls
 ####Controller
-Preferably a [SIXAXIS](https://help.ubuntu.com/community/Sixaxis) or other game controller with two analog sticks.
+hēXōn is best played with a controller that has at least two analog sticks. These days, most controllers work perfectly well out-of-the-box on Linux. Make sure it is connected before you start the game.
 ####Keyboard
 * Movement / WASD
 * Firing / Numpad or IJKL
