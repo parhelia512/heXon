@@ -32,9 +32,9 @@ TailGenerator::TailGenerator(Context* context) :
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     SetMaterial(cache->GetResource<Material>("Resources/Materials/TailGenerator.xml"));
     tailLength_ = 0.25f;
-    scale_ = 1.f; // default side scale
-    tailTipColor = Color(1.f, 1.f, 1.f, 1.f);
-    tailHeadColor = Color(1.f, 1.f, 1.f, 1.f);
+    scale_ = 1.0f; // default side scale
+    tailTipColor = Color(1.0f, 1.0f, 1.0f, 1.0f);
+    tailHeadColor = Color(1.0f, 1.0f, 1.0f, 1.0f);
 
     forceUpdateVertexBuffer_ = false;
 
@@ -56,7 +56,7 @@ void TailGenerator::RegisterObject(Context* context)
 	URHO3D_MIXED_ACCESSOR_ATTRIBUTE("Material", GetMaterialAttr, SetMaterialAttr, ResourceRef, ResourceRef(Material::GetTypeStatic()), AM_DEFAULT);
 	URHO3D_ACCESSOR_ATTRIBUTE("Segments", GetNumTails, SetNumTails, unsigned int, 10, AM_DEFAULT);
 	URHO3D_ACCESSOR_ATTRIBUTE("Length", GetTailLength, SetTailLength, float, 0.25f, AM_DEFAULT);
-	URHO3D_ACCESSOR_ATTRIBUTE("Width", GetWidthScale, SetWidthScale, float, 1.f, AM_DEFAULT);
+	URHO3D_ACCESSOR_ATTRIBUTE("Width", GetWidthScale, SetWidthScale, float, 1.0f, AM_DEFAULT);
 	URHO3D_ACCESSOR_ATTRIBUTE("Start Color", GetColorForHead, SetColorForHead, Color, Color::WHITE, AM_DEFAULT);
 	URHO3D_ACCESSOR_ATTRIBUTE("End Color", GetColorForTip, SetColorForTip, Color, Color::WHITE, AM_DEFAULT);
 	URHO3D_ACCESSOR_ATTRIBUTE("Draw Vertical", GetDrawVertical, SetDrawVertical, bool, true, AM_DEFAULT);
@@ -288,7 +288,7 @@ void TailGenerator::UpdateVertexBuffer(const FrameInfo& frame)
     // generate strips of tris
     TailVertex v;
 
-    float mixFactor = 1.f / activeTails.Size();
+    float mixFactor = 1.0f / activeTails.Size();
 
 
     // Forward part of tail (strip in xz plane)
@@ -299,12 +299,12 @@ void TailGenerator::UpdateVertexBuffer(const FrameInfo& frame)
             unsigned sub = i < activeTails.Size() ? i : activeTails.Size() - 1;
             Color c = tailTipColor.Lerp(tailHeadColor, mixFactor * i);
             v.color_ = c.ToUInt();
-            v.uv_ = Vector2(1.f, 0.f);
+            v.uv_ = Vector2(1.0f, 0.0f);
             v.position_ = t[sub].position + t[sub].worldRight * scale_;
             tailMesh.Push(v);
 
             //v.color_ = c.ToUInt();
-            v.uv_ = Vector2(0.f, 1.f);
+            v.uv_ = Vector2(0.0f, 1.0f);
             v.position_ = t[sub].position - t[sub].worldRight * scale_;
             tailMesh.Push(v);
         }
@@ -318,14 +318,14 @@ void TailGenerator::UpdateVertexBuffer(const FrameInfo& frame)
             unsigned sub = i < activeTails.Size() ? i : activeTails.Size() - 1;
             Color c = tailTipColor.Lerp(tailHeadColor, mixFactor * i);
             v.color_ = c.ToUInt();
-            v.uv_ = Vector2(1.f, 0.f);
+            v.uv_ = Vector2(1.0f, 0.0f);
             Vector3 up = t[sub].forward.CrossProduct(t[sub].worldRight);
             up.Normalize();
             v.position_ = t[sub].position + up * scale_;
             tailMesh.Push(v);
 
             //v.color_ = c.ToUInt();
-            v.uv_ = Vector2(0.f, 1.f);
+            v.uv_ = Vector2(0.0f, 1.0f);
             v.position_ = t[sub].position - up * scale_;
             tailMesh.Push(v);
 
@@ -361,12 +361,12 @@ void TailGenerator::SetTailLength(float length)
 
 void TailGenerator::SetColorForTip(const Color& c)
 {
-    tailTipColor = Color(c.r_, c.g_, c.b_, 0.f);
+    tailTipColor = Color(c.r_, c.g_, c.b_, 0.0f);
 }
 
 void TailGenerator::SetColorForHead(const Color& c)
 {
-    tailHeadColor = Color(c.r_, c.g_, c.b_, 1.f);
+    tailHeadColor = Color(c.r_, c.g_, c.b_, 1.0f);
 }
 
 void TailGenerator::SetNumTails(unsigned num) 

@@ -21,9 +21,9 @@
 
 Enemy::Enemy(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
-    initialHealth_{1.f},
+    initialHealth_{1.0f},
     whackInterval_{0.5f},
-    sinceLastWhack_{0.f},
+    sinceLastWhack_{0.0f},
     meleeDamage_{0.44f}
 {
     rootNode_->SetName("Enemy");
@@ -32,15 +32,15 @@ Enemy::Enemy(Context *context, MasterControl *masterControl):
 
     //Generate random color
     int randomizer = Random(6);
-    color_ = Color(0.5f + (randomizer * 0.075f), 0.9f - (randomizer * 0.075f), 0.5f+Max(randomizer-3.f, 3.f)/6.f, 1.f);
+    color_ = Color(0.5f + (randomizer * 0.075f), 0.9f - (randomizer * 0.075f), 0.5f+Max(randomizer-3.0f, 3.0f)/6.0f, 1.0f);
 
     centerNode_ = rootNode_->CreateChild("SmokeTrail");
     particleEmitter_ = centerNode_->CreateComponent<ParticleEmitter>();
     particleEffect_ = masterControl_->cache_->GetTempResource<ParticleEffect>("Resources/Particles/Enemy.xml");
     Vector<ColorFrame> colorFrames;
-    colorFrames.Push(ColorFrame(Color(0.f, 0.f, 0.f, 0.f), 0.f));
+    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
     colorFrames.Push(ColorFrame(Color(color_.r_*0.666f, color_.g_*0.666f, color_.b_*0.666f, 0.5f), 0.1f));
-    colorFrames.Push(ColorFrame(Color(0.f, 0.f, 0.f, 0.f), 1.f));
+    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 1.0f));
     particleEffect_->SetColorFrames(colorFrames);
     particleEmitter_->SetEffect(particleEffect_);
 
@@ -53,11 +53,11 @@ Enemy::Enemy(Context *context, MasterControl *masterControl):
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
     rigidBody_->SetRestitution(0.666f);
     rigidBody_->SetLinearDamping(0.1f);
-    rigidBody_->SetMass(2.f);
+    rigidBody_->SetMass(2.0f);
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
     rigidBody_->SetAngularFactor(Vector3::ZERO);
     CollisionShape* collider = rootNode_->CreateComponent<CollisionShape>();
-    collider->SetSphere(2.f);
+    collider->SetSphere(2.0f);
 
     for (int s = 1; s <= 5; ++s){
         samples_.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Melee"+String(s)+".ogg")));
@@ -82,7 +82,7 @@ void Enemy::Set(const Vector3 position)
     firstHitBy_ = lastHitBy_ = 0;
     bonus_ = true;
     health_ = initialHealth_;
-    panic_ = 0.f;
+    panic_ = 0.0f;
 
     particleEmitter_->RemoveAllParticles();
     SceneObject::Set(position);
@@ -104,8 +104,8 @@ void Enemy::SetHealth(const float health)
 {
     health_ = health;
     panic_ = (initialHealth_-health_)/initialHealth_;
-    panic_ < 0.f ? panic_ = 0.f : panic_ = panic_;
-    particleEffect_->SetMinEmissionRate(7.f+23.f*panic_);
+    panic_ < 0.0f ? panic_ = 0.0f : panic_ = panic_;
+    particleEffect_->SetMinEmissionRate(7.0f+23.0f*panic_);
 
     CheckHealth();
 }
@@ -113,7 +113,7 @@ void Enemy::SetHealth(const float health)
 void Enemy::CheckHealth()
 {
     //Die
-    if (rootNode_->IsEnabled() && health_ <= 0.f) {
+    if (rootNode_->IsEnabled() && health_ <= 0.0f) {
         masterControl_->player_->AddScore(bonus_ ? worth_ : 2 * worth_ / 3);
         masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), Color(color_.r_*color_.r_, color_.g_*color_.g_, color_.b_*color_.b_), 0.5f*rigidBody_->GetMass());
         Disable();
@@ -127,8 +127,8 @@ void Enemy::Disable()
 
 Color Enemy::GetGlowColor() const
 {
-    float factor = (Sin(200.f*(masterControl_->world.scene->GetElapsedTime()+panicTime_))*(0.25f+panic_*0.25f)+(panic_*0.5f));
-    factor *= factor * 2.f;
+    float factor = (Sin(200.0f*(masterControl_->world.scene->GetElapsedTime()+panicTime_))*(0.25f+panic_*0.25f)+(panic_*0.5f));
+    factor *= factor * 2.0f;
     return color_*factor;
 }
 
@@ -137,15 +137,15 @@ void Enemy::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     using namespace SceneUpdate;
     float time = masterControl_->world.scene->GetElapsedTime() + rootNode_->GetID() * 0.023f;
     float timeStep = eventData[P_TIMESTEP].GetFloat();
-    panicTime_ += 3.f * panic_ * timeStep;
+    panicTime_ += 3.0f * panic_ * timeStep;
     sinceLastWhack_ += timeStep;
 
     Emerge(timeStep);
 
     //Animate core
     centerModel_->GetMaterial()->SetShaderParameter("VOffset",
-                Vector4(0.f, LucKey::Cycle(time * 3.f, 0.f, 1.f), 0.f, 0.f));
-    centerNode_->Rotate(Quaternion((1.f + panic_) * timeStep * 333.f, Vector3::UP));
+                Vector4(0.0f, LucKey::Cycle(time * 3.0f, 0.0f, 1.0f), 0.0f, 0.0f));
+    centerNode_->Rotate(Quaternion((1.0f + panic_) * timeStep * 333.0f, Vector3::UP));
 }
 
 void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
@@ -162,7 +162,7 @@ void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
             if (otherNameHash == N_PLAYER) {
                 PlaySample(samples_[Random((int)samples_.Size())], 0.16f);
                 masterControl_->player_->Hit(meleeDamage_ + meleeDamage_*panic_);
-                sinceLastWhack_ = 0.f;
+                sinceLastWhack_ = 0.0f;
             }
         }
     }

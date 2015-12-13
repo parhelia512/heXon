@@ -51,8 +51,8 @@ protected:
 
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 private:
-    float age_ = 0.f;
-    float timeSinceHit_ = 0.f;
+    float age_ = 0.0f;
+    float timeSinceHit_ = 0.0f;
     float lifeTime_;
     bool fading_ = false;
     float damage_;

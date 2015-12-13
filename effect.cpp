@@ -20,7 +20,7 @@
 
 Effect::Effect(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
-    age_{0.f},
+    age_{0.0f},
     emitTime_{0.1f}
 {
     blink_ = false;
@@ -46,7 +46,7 @@ void Effect::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 void Effect::Set(const Vector3 position)
 {
     SceneObject::Set(position);
-    age_ = 0.f;
+    age_ = 0.0f;
     particleEmitter_->SetEmitting(true);
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Effect, HandleSceneUpdate));
 }

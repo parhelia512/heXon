@@ -20,14 +20,14 @@
 
 Bullet::Bullet(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
-    lifeTime_{1.f},
-    damage_{0.f}
+    lifeTime_{1.0f},
+    damage_{0.0f}
 {
     blink_ = false;
 
     rootNode_->SetName("Bullet");
     rootNode_->SetEnabled(false);
-    rootNode_->SetScale(Vector3(1.f+damage_, 1.f+damage_, 0.1f));
+    rootNode_->SetScale(Vector3(1.0f+damage_, 1.0f+damage_, 0.1f));
     model_ = rootNode_->CreateComponent<StaticModel>();
     model_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Bullet.mdl"));
     model_->SetMaterial(masterControl_->cache_->GetResource<Material>("Resources/Materials/Bullet.xml"));
@@ -35,11 +35,11 @@ Bullet::Bullet(Context *context, MasterControl *masterControl):
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
     rigidBody_->SetMass(0.5f);
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
-    rigidBody_->SetFriction(0.f);
+    rigidBody_->SetFriction(0.0f);
 
     Light* light = rootNode_->CreateComponent<Light>();
     light->SetRange(6.66f);
-    light->SetColor(Color(0.6f, 1.f+damage_, 0.2f));
+    light->SetColor(Color(0.6f, 1.0f+damage_, 0.2f));
 
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Bullet, HandleSceneUpdate));
 }
@@ -51,21 +51,21 @@ void Bullet::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     float timeStep = eventData[P_TIMESTEP].GetFloat();
 
     age_ += timeStep;
-    rootNode_->SetScale(Vector3(Max(1.75f - 10.f*age_, 1.f+damage_),
-                                Max(1.75f - 10.f*age_, 1.f+damage_),
-                                Min(Min(35.f*age_, 2.f), Max(2.f-timeSinceHit_*42.f, 0.1f))
+    rootNode_->SetScale(Vector3(Max(1.75f - 10.0f*age_, 1.0f+damage_),
+                                Max(1.75f - 10.0f*age_, 1.0f+damage_),
+                                Min(Min(35.0f*age_, 2.0f), Max(2.0f-timeSinceHit_*42.0f, 0.1f))
                                 ));
     if (age_ > lifeTime_) {
         Disable();
     }
 
-    if (timeStep > 0.f && !fading_) HitCheck(timeStep);
+    if (timeStep > 0.0f && !fading_) HitCheck(timeStep);
 }
 
 void Bullet::Set(const Vector3 position)
 {
-    age_ = 0.f;
-    timeSinceHit_ = 0.f;
+    age_ = 0.0f;
+    timeSinceHit_ = 0.0f;
     fading_ = false;
 
     rigidBody_->SetLinearVelocity(Vector3::ZERO);

@@ -23,7 +23,7 @@
 
 Seeker::Seeker(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
-    age_{0.f},
+    age_{0.0f},
     lifeTime_{7.5f},
     damage_{2.3f}
 {
@@ -35,7 +35,7 @@ Seeker::Seeker(Context *context, MasterControl *masterControl):
     rigidBody_->SetTrigger(true);
 
     CollisionShape* trigger = rootNode_->CreateComponent<CollisionShape>();
-    trigger->SetSphere(1.f);
+    trigger->SetSphere(1.0f);
 
     ParticleEmitter* particleEmitter = rootNode_->CreateComponent<ParticleEmitter>();
     particleEmitter->SetEffect(masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/Seeker.xml"));
@@ -45,7 +45,7 @@ Seeker::Seeker(Context *context, MasterControl *masterControl):
     Light* light = rootNode_->CreateComponent<Light>();
     light->SetRange(6.66f);
     light->SetBrightness(2.3f);
-    light->SetColor(Color(1.f, 1.f, 1.f));
+    light->SetColor(Color(1.0f, 1.0f, 1.0f));
 
     sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Seeker.ogg");
     sample_->SetLooped(false);
@@ -67,7 +67,7 @@ void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     if (target_ == nullptr) {
         target_ = masterControl_->player_->rootNode_;
     }
-    else rigidBody_->ApplyForce((target_->GetPosition() - rootNode_->GetPosition()).Normalized() * timeStep * 666.f);
+    else rigidBody_->ApplyForce((target_->GetPosition() - rootNode_->GetPosition()).Normalized() * timeStep * 666.0f);
 }
 
 void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
@@ -94,7 +94,7 @@ void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
 
 void Seeker::Set(Vector3 position)
 {
-    age_= 0.f;
+    age_= 0.0f;
     SceneObject::Set(position);
     rigidBody_->ResetForces();
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
@@ -120,7 +120,7 @@ void Seeker::AddTail()
     tailGen_->SetNumTails(9);
     tailGen_->SetWidthScale(0.666f);
     tailGen_->SetColorForHead(Color(0.5f, 0.23f, 0.666f));
-    tailGen_->SetColorForTip(Color(0.f, 0.1f, 0.23f));
+    tailGen_->SetColorForTip(Color(0.0f, 0.1f, 0.23f));
 }
 void Seeker::RemoveTail()
 {

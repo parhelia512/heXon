@@ -23,8 +23,8 @@
 
 Pickup::Pickup(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
-    sinceLastPickup_{0.f},
-    chaoInterval_{Random(23.f, 100.f)}
+    sinceLastPickup_{0.0f},
+    chaoInterval_{Random(23.0f, 100.0f)}
 {
     rootNode_->SetName("Pickup");
     graphicsNode_ = rootNode_->CreateChild("Graphics");
@@ -38,12 +38,12 @@ Pickup::Pickup(Context *context, MasterControl *masterControl):
     rigidBody_->SetMass(0.666f);
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
     rigidBody_->SetLinearDamping(0.5f);
-    rigidBody_->SetFriction(0.f);
+    rigidBody_->SetFriction(0.0f);
     rigidBody_->SetAngularFactor(Vector3::UP);
-    rigidBody_->SetAngularDamping(0.f);
-    rigidBody_->ApplyTorque(Vector3::UP * 32.f);
-    rigidBody_->SetLinearRestThreshold(0.f);
-    rigidBody_->SetAngularRestThreshold(0.f);
+    rigidBody_->SetAngularDamping(0.0f);
+    rigidBody_->ApplyTorque(Vector3::UP * 32.0f);
+    rigidBody_->SetLinearRestThreshold(0.0f);
+    rigidBody_->SetAngularRestThreshold(0.0f);
 
     CollisionShape* collisionShape = rootNode_->CreateComponent<CollisionShape>();
     collisionShape->SetSphere(1.5f);
@@ -53,7 +53,7 @@ Pickup::Pickup(Context *context, MasterControl *masterControl):
     triggerNode_ = masterControl_->world.scene->CreateChild("PickupTrigger");
     triggerBody_ = triggerNode_->CreateComponent<RigidBody>();
     triggerBody_->SetTrigger(true);
-    triggerBody_->SetMass(0.f);
+    triggerBody_->SetMass(0.0f);
     triggerBody_->SetLinearFactor(Vector3::ZERO);
     CollisionShape* triggerShape = triggerNode_->CreateComponent<CollisionShape>();
     triggerShape->SetSphere(2.5f);
@@ -101,9 +101,9 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
         rootNode_->Translate(Vector3::UP * timeStep * (0.23f - rootNode_->GetPosition().y_), TS_WORLD);
     }
 
-    float xSpin = 0.f;
-    float ySpin = 100.f;
-    float zSpin = 0.f;
+    float xSpin = 0.0f;
+    float ySpin = 100.0f;
+    float zSpin = 0.0f;
     float frequency = 2.5f;
     float shift = 0.5f;
 
@@ -111,17 +111,17 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     case PT_APPLE: shift = 0.23f; break;
     case PT_HEART: break;
     case PT_MULTIX:
-        xSpin = 64.f; zSpin = 10.f; frequency = 5.f;
+        xSpin = 64.0f; zSpin = 10.0f; frequency = 5.0f;
         if (IsEmerged() && masterControl_->GetGameState() == GS_PLAY)
-            rigidBody_->ApplyForce(2.f*masterControl_->player_->GetPosition() - rigidBody_->GetLinearVelocity()); break;
+            rigidBody_->ApplyForce(2.0f*masterControl_->player_->GetPosition() - rigidBody_->GetLinearVelocity()); break;
     case PT_CHAOBALL: {
-        xSpin = 23.f; zSpin = 42.f; frequency = 5.f; shift = 0.23f;
+        xSpin = 23.0f; zSpin = 42.0f; frequency = 5.0f; shift = 0.23f;
         if (!rootNode_->IsEnabled() && masterControl_->GetGameState() == GS_PLAY) {
             if (sinceLastPickup_ > chaoInterval_) Respawn();
             else sinceLastPickup_ += timeStep;
         }
         else if (IsEmerged() && masterControl_->GetGameState() == GS_PLAY)
-            rigidBody_->ApplyForce(-3.f*masterControl_->player_->GetPosition() - rigidBody_->GetLinearVelocity()); break;
+            rigidBody_->ApplyForce(-3.0f*masterControl_->player_->GetPosition() - rigidBody_->GetLinearVelocity()); break;
     } break;
     default: break;
     }
@@ -149,7 +149,7 @@ void Pickup::Respawn(bool restart)
 }
 void Pickup::Deactivate()
 {
-    sinceLastPickup_ = 0.f; chaoInterval_ = Random(23.f, 100.f);
+    sinceLastPickup_ = 0.0f; chaoInterval_ = Random(23.0f, 100.0f);
 
     SceneObject::Disable();
 }

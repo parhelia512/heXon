@@ -24,7 +24,7 @@ ChaoFlash::ChaoFlash(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl)
 {
     rootNode_->SetName("ChaoFlash");
-    rootNode_->SetScale(7.f);
+    rootNode_->SetScale(7.0f);
     chaoModel_ = rootNode_->CreateComponent<StaticModel>();
     chaoModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/ChaoFlash.mdl"));
     chaoMaterial_ = masterControl_->cache_->GetResource<Material>("Resources/Materials/ChaoFlash.xml");
@@ -35,7 +35,7 @@ ChaoFlash::ChaoFlash(Context *context, MasterControl *masterControl):
     sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Chaos.ogg");
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
-    rigidBody_->SetMass(5.f);
+    rigidBody_->SetMass(5.0f);
 }
 
 void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
@@ -52,13 +52,13 @@ void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
                                chaoColor.g_ * Random(0.23f, 0.9f),
                                chaoColor.b_ * Random(0.16f, 0.5f),
                                chaoColor.a_ * Random(0.42f , 0.9f));
-    chaoMaterial_->SetShaderParameter("MatDiffColor", chaoColor.Lerp(newDiffColor, Clamp(23.f*timeStep, 0.f, 1.f)));
+    chaoMaterial_->SetShaderParameter("MatDiffColor", chaoColor.Lerp(newDiffColor, Clamp(23.0f*timeStep, 0.0f, 1.0f)));
     Color newSpecColor = Color(Random(0.3f, 1.5f),
                                Random(0.5f, 1.8f),
                                Random(0.4f, 1.4f),
-                               Random(4.f, 64.f));
+                               Random(4.0f, 64.0f));
     chaoMaterial_->SetShaderParameter("MatSpecColor", newSpecColor);
-    rootNode_->SetRotation(Quaternion(Random(360.f), Random(360.f), Random(360.f)));
+    rootNode_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
 }
 
 void ChaoFlash::Set(const Vector3 position)

@@ -11,7 +11,7 @@ ChaoMine::ChaoMine(Context *context, MasterControl *masterControl): Enemy(contex
     initialHealth_ = 0.05f;
     worth_ = 1;
 
-    countDown_ = Random(1.f, 5.f);
+    countDown_ = Random(1.0f, 5.0f);
     innerNode_ = rootNode_->CreateChild();
     innerModel_ = innerNode_->CreateComponent<StaticModel>();
     innerModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/MineInner.mdl"));
@@ -38,13 +38,13 @@ void ChaoMine::HandleMineUpdate(StringHash eventType, VariantMap &eventData)
     float timeStep = eventData[P_TIMESTEP].GetFloat();
 
     //Spin
-    innerNode_->Rotate(Quaternion(50.f*timeStep, 80.f*timeStep, 92.f*timeStep));
-    outerNode_->Rotate(Quaternion(-60.f*timeStep,-101.f*timeStep, -95.f*timeStep));
+    innerNode_->Rotate(Quaternion(50.0f*timeStep, 80.0f*timeStep, 92.0f*timeStep));
+    outerNode_->Rotate(Quaternion(-60.0f*timeStep,-101.0f*timeStep, -95.0f*timeStep));
 }
 
 void ChaoMine::CheckHealth()
 {
-    if (rootNode_->IsEnabled() && health_ <= 0 || panicTime_ > 23.f){
+    if (rootNode_->IsEnabled() && health_ <= 0 || panicTime_ > 23.0f){
         masterControl_->spawnMaster_->SpawnChaoZap(GetPosition());
         Disable();
     }
@@ -61,7 +61,7 @@ void ChaoMine::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
         StringHash colliderNodeNameHash = collidingBodies[b]->GetNode()->GetNameHash();
         if (    colliderNodeNameHash == N_RAZOR ||
                 colliderNodeNameHash == N_SPIRE   ) {
-            SetHealth(0.f);
+            SetHealth(0.0f);
         }
     }
 }

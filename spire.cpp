@@ -24,15 +24,15 @@
 
 Spire::Spire(Context *context, MasterControl *masterControl):
     Enemy(context, masterControl),
-    initialShotInterval_{5.f},
+    initialShotInterval_{5.0f},
     shotInterval_{initialShotInterval_},
-    sinceLastShot_{0.f}
+    sinceLastShot_{0.0f}
 {
     rootNode_->SetName("Spire");
 
     health_ = initialHealth_ = 5.0;
     worth_ = 10;
-    rigidBody_->SetMass(3.f);
+    rigidBody_->SetMass(3.0f);
     rigidBody_->SetLinearFactor(Vector3::ZERO);
 
     SharedPtr<Material> black = masterControl_->cache_->GetTempResource<Material>("Resources/Materials/Spire.xml");
@@ -60,14 +60,14 @@ void Spire::HandleSpireUpdate(StringHash eventType, VariantMap &eventData)
         //Pulse
         topModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", GetGlowColor());
         //Spin
-        topNode_->Rotate(Quaternion(0.f, timeStep*(50.f+panic_*300.f), 0.f));
-        bottomNode_->Rotate(Quaternion(0.f, timeStep*-(50.f+panic_*300.f), 0.f));
+        topNode_->Rotate(Quaternion(0.0f, timeStep*(50.0f+panic_*300.0f), 0.0f));
+        bottomNode_->Rotate(Quaternion(0.0f, timeStep*-(50.0f+panic_*300.0f), 0.0f));
 
         if (masterControl_->GetGameState() == GS_PLAY && IsEmerged()){
             //Shoot
             sinceLastShot_ += timeStep;
             if (sinceLastShot_ > shotInterval_){
-                sinceLastShot_ = 0.f;
+                sinceLastShot_ = 0.0f;
                 masterControl_->spawnMaster_->SpawnSeeker(rootNode_->GetPosition());
             }
         }
@@ -77,7 +77,7 @@ void Spire::HandleSpireUpdate(StringHash eventType, VariantMap &eventData)
 void Spire::Hit(float damage, int ownerID)
 {
     Enemy::Hit(damage, ownerID);
-    shotInterval_ = initialShotInterval_ - 3.f * panic_;
+    shotInterval_ = initialShotInterval_ - 3.0f * panic_;
 }
 
 void Spire::Set(Vector3 position)

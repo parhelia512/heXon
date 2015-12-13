@@ -20,11 +20,11 @@
 
 heXoCam::heXoCam(Context *context, MasterControl *masterControl):
     Object(context),
-    yaw_{0.f},
-    pitch_{0.f},
-    yawDelta_{0.f},
-    pitchDelta_{0.f},
-    forceMultiplier{1.f}
+    yaw_{0.0f},
+    pitch_{0.0f},
+    yawDelta_{0.0f},
+    pitchDelta_{0.0f},
+    forceMultiplier{1.0f}
 {
     masterControl_ = masterControl;
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(heXoCam, HandleSceneUpdate));
@@ -38,14 +38,14 @@ heXoCam::heXoCam(Context *context, MasterControl *masterControl):
     stereoCam_.second_ = rightEye->CreateComponent<Camera>();
 
     camera_ = rootNode_->CreateComponent<Camera>();
-    camera_->SetFarClip(128.f);
-    rootNode_->SetPosition(Vector3(0.f, 42.f, -23.f));
-    rootNode_->SetRotation(Quaternion(65.f, 0.f, 0.f));
+    camera_->SetFarClip(128.0f);
+    rootNode_->SetPosition(Vector3(0.0f, 42.0f, -23.0f));
+    rootNode_->SetRotation(Quaternion(65.0f, 0.0f, 0.0f));
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
-    rigidBody_->SetAngularDamping(10.f);
+    rigidBody_->SetAngularDamping(10.0f);
     CollisionShape* collisionShape = rootNode_->CreateComponent<CollisionShape>();
     collisionShape->SetSphere(0.1f);
-    rigidBody_->SetMass(1.f);
+    rigidBody_->SetMass(1.0f);
 
     SetupViewport();
 }
@@ -99,9 +99,9 @@ void heXoCam::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
     rootNode_->SetPosition(rootNode_->GetPosition().Lerp(
                                closeUp_?
-                                   Vector3(0.f, 16.f, -10.f) :
-                                   Vector3(0.f, 42.f, -23.f)
-                                   , 5.f * timeStep));
+                                   Vector3(0.0f, 16.0f, -10.0f) :
+                                   Vector3(0.0f, 42.0f, -23.0f)
+                                   , 5.0f * timeStep));
 }
 
 void heXoCam::SetGreyScale(const bool enabled)

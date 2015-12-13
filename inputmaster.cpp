@@ -41,8 +41,8 @@ void InputMaster::Init()
 
     BindControllerAxis(Urho3D::CONTROLLER_AXIS_RIGHTX, AXIS_LOOK_X);
     BindControllerAxis(Urho3D::CONTROLLER_AXIS_RIGHTY, AXIS_LOOK_Y);
-    SetJoystickSensitivity(Urho3D::CONTROLLER_AXIS_RIGHTX, 10.f);
-    SetJoystickSensitivity(Urho3D::CONTROLLER_AXIS_RIGHTY, 10.f);
+    SetJoystickSensitivity(Urho3D::CONTROLLER_AXIS_RIGHTX, 10.0f);
+    SetJoystickSensitivity(Urho3D::CONTROLLER_AXIS_RIGHTY, 10.0f);
 
     //BindControllerAxisAction(Urho3D::CONTROLLER_AXIS_LEFTY, ACTION_MOVE_FORWARD, -1, 0.5f);
     BindControllerAxisAction(Urho3D::CONTROLLER_AXIS_LEFTY, ACTION_MOVE_FORWARD, ACTION_MOVE_BACKWARD, 0.5f);
@@ -161,7 +161,7 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
     } break;
     //Enter edit mode on E
     //Toggle music on M
-    case KEY_M: masterControl_->musicSource_->SetGain(masterControl_->musicSource_->GetGain()==0.f ? 0.32f : 0.f);
+    case KEY_M: masterControl_->musicSource_->SetGain(masterControl_->musicSource_->GetGain()==0.0f ? 0.32f : 0.0f);
         break;
     }
 }

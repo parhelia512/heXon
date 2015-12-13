@@ -153,10 +153,10 @@ public:
     void Exit();
 
     void CreateSineLookupTable();
-    float Sine(float x) { return sine_[(int)round(sine_.Size() * LucKey::Cycle((float)(x/(2.f*M_PI)), 0.f, 1.f))%sine_.Size()]; }
-    float Sine(float freq, float min, float max, float shift = 0.f);
+    float Sine(float x) { return sine_[(int)round(sine_.Size() * LucKey::Cycle((float)(x/(2.0f*M_PI)), 0.0f, 1.0f))%sine_.Size()]; }
+    float Sine(float freq, float min, float max, float shift = 0.0f);
     float Cosine(float x) { return Sine(x+(0.5f*M_PI)); }
-    float Cosine(float freq, float min, float max, float shift = 0.f){ return Sine(freq, min, max, shift+0.5f*M_PI); }
+    float Cosine(float freq, float min, float max, float shift = 0.0f){ return Sine(freq, min, max, shift+0.5f*M_PI); }
 
     void SetGameState(GameState newState);
     GameState GetGameState(){ return currentState_; }

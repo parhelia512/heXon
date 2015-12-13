@@ -45,11 +45,11 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
 
     //Switch curcuit
     if (Random(23)==0)
-        rootNode_->SetRotation(Quaternion(Random(3)*120.f + 60.f*flipped_, Vector3::UP));
+        rootNode_->SetRotation(Quaternion(Random(3)*120.0f + 60.0f*flipped_, Vector3::UP));
 
     //Alien Chaos - Disorder = time * 1.0525
     //Talpa - Unusual Chair  = time * 1.444
-    wave_ = 6.0*pow(masterControl_->Sine(Abs(centerDistExp_ - elapsedTime * 5.2625f)), 4.f);
+    wave_ = 6.0*pow(masterControl_->Sine(Abs(centerDistExp_ - elapsedTime * 5.2625f)), 4.0f);
 
     unsigned nHexAffectors = tileMaster_->hexAffectors_.Size();
     if (nHexAffectors) {
@@ -58,7 +58,7 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
             float hexAffectorMass = tileMaster_->hexAffectors_[hexAffector]->GetMass();
             if (hexAffector->IsEnabled()) {
                 float offsetYPart = sqrt(hexAffectorMass) - (0.1f * LucKey::Distance(referencePosition_, hexAffector->GetPosition()));
-                if (offsetYPart > 0.f) {
+                if (offsetYPart > 0.0f) {
                     offsetYPart = pow(offsetYPart, 4);
                     offsetY += offsetYPart;
                 }
@@ -72,9 +72,9 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     lastOffsetY_ = offsetY;
 
     Vector3 lastPos = rootNode_->GetPosition();
-    Vector3 newPos = Vector3(lastPos.x_, referencePosition_.y_ - Min(offsetY, 4.f), lastPos.z_);
+    Vector3 newPos = Vector3(lastPos.x_, referencePosition_.y_ - Min(offsetY, 4.0f), lastPos.z_);
     rootNode_->SetPosition(newPos);
 
-    float color = Clamp((0.23f * offsetY) + 0.25f, 0.f, 1.f);
+    float color = Clamp((0.23f * offsetY) + 0.25f, 0.0f, 1.0f);
     model_->GetMaterial(0)->SetShaderParameter("MatDiffColor", Color(color+Random(0.1f), color, color, color + (0.023f * wave_)));
 }

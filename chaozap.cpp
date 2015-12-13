@@ -22,7 +22,7 @@
 
 ChaoZap::ChaoZap(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
-    size_{5.f}
+    size_{5.0f}
 {
     rootNode_->SetName("ChaoZap");
     rootNode_->SetEnabled(false);
@@ -55,13 +55,13 @@ void ChaoZap::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
                                chaoColor.g_ * Random(0.23f, 0.9f),
                                chaoColor.b_ * Random(0.16f, 0.5f),
                                chaoColor.a_ * Random(0.42f , 0.9f));
-    chaoMaterial_->SetShaderParameter("MatDiffColor", chaoColor.Lerp(newDiffColor, Clamp(23.f*timeStep, 0.f, 1.f)));
+    chaoMaterial_->SetShaderParameter("MatDiffColor", chaoColor.Lerp(newDiffColor, Clamp(23.0f*timeStep, 0.0f, 1.0f)));
     Color newSpecColor = Color(Random(0.3f, 1.5f),
                                Random(0.5f, 1.8f),
                                Random(0.4f, 1.4f),
-                               Random(4.f , 64.f));
+                               Random(4.0f , 64.0f));
     chaoMaterial_->SetShaderParameter("MatSpecColor", newSpecColor);
-    rootNode_->SetRotation(Quaternion(Random(360.f), Random(360.f), Random(360.f)));
+    rootNode_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
 }
 
 void ChaoZap::Set(const Vector3 position)

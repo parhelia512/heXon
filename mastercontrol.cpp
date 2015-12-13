@@ -162,14 +162,14 @@ void MasterControl::CreateScene()
     //Create a Zone component for ambient ing & fog control
     Node* zoneNode = world.scene->CreateChild("Zone");
     Zone* zone = zoneNode->CreateComponent<Zone>();
-    zone->SetBoundingBox(BoundingBox(Vector3(-100.f, -50.f, -100.f),Vector3(100.f, 5.f, 100.f)));
-    zone->SetFogColor(Color(0.f, 0.f, 0.f));
+    zone->SetBoundingBox(BoundingBox(Vector3(-100.0f, -50.0f, -100.0f),Vector3(100.0f, 5.0f, 100.0f)));
+    zone->SetFogColor(Color(0.0f, 0.0f, 0.0f));
     zone->SetFogStart(56.8f);
     zone->SetFogEnd(61.8f);
 
     //Create cursor
     world.cursor.sceneCursor = world.scene->CreateChild("Cursor");
-    //world.cursor.sceneCursor->SetPosition(Vector3(0.f,0.f,0.f));
+    //world.cursor.sceneCursor->SetPosition(Vector3(0.0f,0.0f,0.0f));
     StaticModel* cursorObject = world.cursor.sceneCursor->CreateComponent<StaticModel>();
     cursorObject->SetModel(cache_->GetResource<Model>("Resources/Models/Hexagon.mdl"));
     cursorObject->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Glow.xml"));
@@ -178,7 +178,7 @@ void MasterControl::CreateScene()
     //Create an invisible plane for mouse raycasting
     world.voidNode = world.scene->CreateChild("MouseHitPlane");
     //Location is set in update since the plane moves with the camera.
-    world.voidNode->SetScale(Vector3(1000.f, 1.f, 1000.f));
+    world.voidNode->SetScale(Vector3(1000.0f, 1.0f, 1000.0f));
     StaticModel* planeObject = world.voidNode->CreateComponent<StaticModel>();
     planeObject->SetModel(cache_->GetResource<Model>("Models/Plane.mdl"));
     planeObject->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Invisible.xml"));
@@ -191,20 +191,20 @@ void MasterControl::CreateScene()
 
     //Create heXon logo
     Node* logoNode = world.scene->CreateChild("heXon");
-    logoNode->SetWorldPosition(Vector3(0.f, -4.f, 0.f));
-    logoNode->SetRotation(Quaternion(0.f, 180.f, 0.f));
-    logoNode->SetScale(16.f);
+    logoNode->SetWorldPosition(Vector3(0.0f, -4.0f, 0.0f));
+    logoNode->SetRotation(Quaternion(0.0f, 180.0f, 0.0f));
+    logoNode->SetScale(16.0f);
     StaticModel* logoModel = logoNode->CreateComponent<StaticModel>();
     logoModel->SetModel(cache_->GetResource<Model>("Resources/Models/heXon.mdl"));
     logoModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Loglow.xml"));
 
     //Construct lobby
     lobbyNode_ = world.scene->CreateChild("Lobby");
-    lobbyNode_->Rotate(Quaternion(0.f, 180.f, 0.f));
+    lobbyNode_->Rotate(Quaternion(0.0f, 180.0f, 0.0f));
     Node* floorNode = lobbyNode_->CreateChild("Floor");
-    floorNode->SetPosition(Vector3(0.f, -0.5f, 0.f));
-    floorNode->SetScale(10.f);
-    floorNode->Rotate(Quaternion(0.f, 30.f, 0.f));
+    floorNode->SetPosition(Vector3(0.0f, -0.5f, 0.0f));
+    floorNode->SetScale(10.0f);
+    floorNode->Rotate(Quaternion(0.0f, 30.0f, 0.0f));
     StaticModel* floorModel = floorNode->CreateComponent<StaticModel>();
     floorModel->SetModel(cache_->GetResource<Model>("Resources/Models/Hexagon.mdl"));
     floorModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Black.xml"));
@@ -218,26 +218,26 @@ void MasterControl::CreateScene()
     RigidBody* lobbyBody = lobbyNode_->CreateComponent<RigidBody>();
     lobbyBody->SetTrigger(true);
     CollisionShape* shipShape = lobbyNode_->CreateComponent<CollisionShape>();
-    shipShape->SetCylinder(1.8f, 1.f);
+    shipShape->SetCylinder(1.8f, 1.0f);
 
     SubscribeToEvent(lobbyNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandlePlayTrigger));
 
     //Add a point light to the lobby. Enable cascaded shadows on it
     Node* lobbySpotLightNode = lobbyNode_->CreateChild("PointLight");
-    lobbySpotLightNode->SetPosition(Vector3::UP*5.f);
-    lobbySpotLightNode->SetRotation(Quaternion(90.f, 0.f, 0.f));
+    lobbySpotLightNode->SetPosition(Vector3::UP*5.0f);
+    lobbySpotLightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
     lobbySpotLight_ = lobbySpotLightNode->CreateComponent<Light>();
     lobbySpotLight_->SetLightType(LIGHT_SPOT);
-    lobbySpotLight_->SetFov(120.f);
-    lobbySpotLight_->SetBrightness(1.f);
-    lobbySpotLight_->SetRange(10.f);
-    lobbySpotLight_->SetColor(Color(0.3f, 0.5f, 1.f));
+    lobbySpotLight_->SetFov(120.0f);
+    lobbySpotLight_->SetBrightness(1.0f);
+    lobbySpotLight_->SetRange(10.0f);
+    lobbySpotLight_->SetColor(Color(0.3f, 0.5f, 1.0f));
     lobbySpotLight_->SetCastShadows(true);
     lobbySpotLight_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
     for (int i = 0; i < 6; i++){
         Node* edgeNode = floorNode->CreateChild("LobbyEdge");
-        edgeNode->Rotate(Quaternion(0.f, (60.f * i), 0.f));
+        edgeNode->Rotate(Quaternion(0.0f, (60.0f * i), 0.0f));
         Model* model = cache_->GetResource<Model>("Resources/Models/ArenaEdgeSegment.mdl");
         edgeNode->CreateComponent<RigidBody>();
         CollisionShape* collider = edgeNode->CreateComponent<CollisionShape>();
@@ -331,17 +331,17 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
     if (currentState_ == GS_LOBBY) {
         Color spotColor;
         unsigned score = player_->GetScore();
-        spotColor.FromHSV(LucKey::Cycle(((score/20000)+0.1f)*world.scene->GetElapsedTime(), 0.f, 1.f), Min(1.f, score/5000), 1.f);
+        spotColor.FromHSV(LucKey::Cycle(((score/20000)+0.1f)*world.scene->GetElapsedTime(), 0.0f, 1.0f), Min(1.0f, score/5000), 1.0f);
         lobbySpotLight_->SetColor(spotColor);
-        lobbySpotLight_->SetBrightness(1.f + Min(10.f, (score/10000)));
+        lobbySpotLight_->SetBrightness(1.0f + Min(10.0f, (score/10000)));
     }
 }
 
 void MasterControl::UpdateCursor(const float timeStep)
 {
-    world.cursor.sceneCursor->Rotate(Quaternion(0.f,100.f*timeStep,0.f));
+    world.cursor.sceneCursor->Rotate(Quaternion(0.0f,100.0f*timeStep,0.0f));
     //world.cursor.sceneCursor->SetScale((world.cursor.sceneCursor->GetWorldPosition() - world.camera->GetWorldPosition()).Length()*0.05f);
-    if (CursorRayCast(250.f, world.cursor.hitResults))
+    if (CursorRayCast(250.0f, world.cursor.hitResults))
     {
         for (unsigned i = 0; i < world.cursor.hitResults.Size(); i++)
         {

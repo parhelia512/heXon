@@ -46,10 +46,10 @@ public:
     void Hit(const float damage, const int ownerID);
     void Set(const Vector3 position);
 protected:
-    float panicTime_ = 0.f;
+    float panicTime_ = 0.0f;
     float health_;
     float initialHealth_;
-    float panic_ = 0.f;
+    float panic_ = 0.0f;
     int worth_ = 5;
     bool bonus_ = true;
     int firstHitBy_ = 0;
