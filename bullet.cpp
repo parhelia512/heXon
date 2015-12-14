@@ -46,9 +46,7 @@ Bullet::Bullet(Context *context, MasterControl *masterControl):
 
 void Bullet::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
 {
-    using namespace Update;
-
-    float timeStep = eventData[P_TIMESTEP].GetFloat();
+    float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
 
     age_ += timeStep;
     rootNode_->SetScale(Vector3(Max(1.75f - 10.0f*age_, 1.0f+damage_),

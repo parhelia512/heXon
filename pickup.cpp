@@ -68,8 +68,6 @@ Pickup::Pickup(Context *context, MasterControl *masterControl):
 
 void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
 {
-    using namespace NodeCollisionStart;
-
     PODVector<RigidBody*> collidingBodies;
     triggerBody_->GetCollidingBodies(collidingBodies);
 
@@ -89,8 +87,7 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
 
 void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
 {
-    using namespace Update;
-    float timeStep = eventData[P_TIMESTEP].GetFloat();
+    float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
 
     //Move trigger along
     triggerNode_->SetPosition(rootNode_->GetPosition());

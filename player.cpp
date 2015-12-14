@@ -173,7 +173,6 @@ void Player::CreateGUI()
     }
 }
 
-
 void Player::SetScore(int points)
 {
     score_ = points;
@@ -211,10 +210,8 @@ void Player::LoadScore()
 
 void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    using namespace Update;
-
     //Take the frame time step, which is stored as a double
-    float timeStep = eventData[P_TIMESTEP].GetFloat();
+    float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
     //Pulse and spin the counters' apples and hearts
     UpdateGUI(timeStep);
 
@@ -450,8 +447,6 @@ void Player::Pickup(PickupType pickup)
 
 void Player::PickupChaoBall()
 {
-//    ship_.model_->GetMaterial(0)->SetShaderParameter("MatDiffColor", Color(Random(), Random(), Random()));
-//    ship_.model_->GetMaterial(1)->SetShaderParameter("MatDiffColor", Color(Random(), Random(), Random()));
     chaoFlash_->Set(GetPosition());
     PlaySample(chaoball_s, 0.8f);
 }

@@ -135,8 +135,7 @@ void InputMaster::HandleMouseUp(StringHash eventType, VariantMap &eventData)
 void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
 {
     //Get the triggering key
-    using namespace KeyDown;
-    int key = eventData[P_KEY].GetInt();
+    int key = eventData[KeyDown::P_KEY].GetInt();
 
     switch (key){
     //Exit when ESC is pressed
@@ -168,10 +167,8 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
 
 void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
 {
-    using namespace Urho3D::JoystickButtonDown;
-
-    unsigned joystick = eventData[P_JOYSTICKID].GetInt();		//int
-    int button = eventData[P_BUTTON].GetInt();		//int
+    unsigned joystick = eventData[JoystickButtonDown::P_JOYSTICKID].GetInt();		//int
+    int button = eventData[JoystickButtonDown::P_BUTTON].GetInt();		//int
     // Process game event
     switch (button){
     case JB_START: PauseButtonPressed();
@@ -202,10 +199,8 @@ void InputMaster::EjectButtonPressed()
 
 void InputMaster::HandleJoystickButtonUp(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
 {
-    using namespace Urho3D::JoystickButtonUp;
-
-    int joyID = eventData[P_JOYSTICKID].GetInt();		//int
-    int button = eventData[P_BUTTON].GetInt();		//int
+    int joyID = eventData[JoystickButtonUp::P_JOYSTICKID].GetInt();		//int
+    int button = eventData[JoystickButtonUp::P_BUTTON].GetInt();		//int
 
     // Process game event
     if(_controllerActions.Contains(button))
@@ -216,11 +211,9 @@ void InputMaster::HandleJoystickButtonUp(Urho3D::StringHash eventType, Urho3D::V
 
 void InputMaster::HandleJoystickAxisMove(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
 {
-    using namespace Urho3D::JoystickAxisMove;
-
-    eventData[P_JOYSTICKID];		//int
-    int axis = eventData[P_AXIS].GetInt();			//int
-    float pos = eventData[P_POSITION].GetFloat();		//float
+    eventData[JoystickAxisMove::P_JOYSTICKID];		//int
+    int axis = eventData[JoystickAxisMove::P_AXIS].GetInt();			//int
+    float pos = eventData[JoystickAxisMove::P_POSITION].GetFloat();		//float
 
         // Process game event
     if(_controllerAxisActions.Contains(axis))

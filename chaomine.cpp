@@ -33,9 +33,7 @@ void ChaoMine::Set(const Vector3 position)
 
 void ChaoMine::HandleMineUpdate(StringHash eventType, VariantMap &eventData)
 {
-    using namespace ScenePostUpdate;
-
-    float timeStep = eventData[P_TIMESTEP].GetFloat();
+    float timeStep = eventData[ScenePostUpdate::P_TIMESTEP].GetFloat();
 
     //Spin
     innerNode_->Rotate(Quaternion(50.0f*timeStep, 80.0f*timeStep, 92.0f*timeStep));
@@ -52,8 +50,6 @@ void ChaoMine::CheckHealth()
 
 void ChaoMine::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
 {
-    using namespace NodeCollisionStart;
-
     PODVector<RigidBody*> collidingBodies;
     rigidBody_->GetCollidingBodies(collidingBodies);
 

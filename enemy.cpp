@@ -134,9 +134,8 @@ Color Enemy::GetGlowColor() const
 
 void Enemy::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    using namespace SceneUpdate;
     float time = masterControl_->world.scene->GetElapsedTime() + rootNode_->GetID() * 0.023f;
-    float timeStep = eventData[P_TIMESTEP].GetFloat();
+    float timeStep = eventData[SceneUpdate::P_TIMESTEP].GetFloat();
     panicTime_ += 3.0f * panic_ * timeStep;
     sinceLastWhack_ += timeStep;
 
@@ -150,8 +149,6 @@ void Enemy::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
 void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
 {
-    using namespace NodeCollisionStart;
-
     PODVector<RigidBody*> collidingBodies;
     rigidBody_->GetCollidingBodies(collidingBodies);
 
@@ -162,6 +159,9 @@ void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
             if (otherNameHash == N_PLAYER) {
                 PlaySample(samples_[Random((int)samples_.Size())], 0.16f);
                 masterControl_->player_->Hit(meleeDamage_ + meleeDamage_*panic_);
+//                Vector3 hitPos = eventData[NodeCollisionStart::P_CONTACTS].GetBuffer().At(0);
+                Vector3 hitPos = (masterControl_->player_->GetPosition() + GetPosition()) * 0.5f;
+                masterControl_->spawnMaster_->SpawnHitFX(hitPos, false);
                 sinceLastWhack_ = 0.0f;
             }
         }

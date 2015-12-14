@@ -31,9 +31,9 @@ SceneObject::SceneObject(Context* context, MasterControl* masterControl):
     flashSample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Flash.ogg");
     flashSample_->SetLooped(false);
     for (int i = 0; i < 5; ++i){
-        SharedPtr<SoundSource> extraSampleSource = SharedPtr<SoundSource>(rootNode_->CreateComponent<SoundSource>());
-        extraSampleSource->SetSoundType(SOUND_EFFECT);
-        sampleSources_.Push(extraSampleSource);
+        SharedPtr<SoundSource> sampleSource = SharedPtr<SoundSource>(rootNode_->CreateComponent<SoundSource>());
+        sampleSource->SetSoundType(SOUND_EFFECT);
+        sampleSources_.Push(sampleSource);
     }
 
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(SceneObject, BlinkCheck));
@@ -54,7 +54,7 @@ void SceneObject::Disable()
     UnsubscribeFromEvent(E_NODECOLLISIONSTART);
 }
 
-void SceneObject::PlaySample(Sound* sample, float gain)
+void SceneObject::PlaySample(Sound* sample, const float gain)
 {
     for (unsigned i = 0; i < sampleSources_.Size(); ++i){
         if (!sampleSources_[i]->IsPlaying()){

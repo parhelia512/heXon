@@ -30,7 +30,7 @@ Spire::Spire(Context *context, MasterControl *masterControl):
 {
     rootNode_->SetName("Spire");
 
-    health_ = initialHealth_ = 5.0;
+    health_ = initialHealth_ = 5.0f;
     worth_ = 10;
     rigidBody_->SetMass(3.0f);
     rigidBody_->SetLinearFactor(Vector3::ZERO);
@@ -52,24 +52,22 @@ Spire::Spire(Context *context, MasterControl *masterControl):
 
 void Spire::HandleSpireUpdate(StringHash eventType, VariantMap &eventData)
 {
-    if (rootNode_->IsEnabled()){
-        using namespace ScenePostUpdate;
+    if (!rootNode_->IsEnabled()) return;
 
-        double timeStep = eventData[P_TIMESTEP].GetFloat();
+    double timeStep = eventData[ScenePostUpdate::P_TIMESTEP].GetFloat();
 
-        //Pulse
-        topModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", GetGlowColor());
-        //Spin
-        topNode_->Rotate(Quaternion(0.0f, timeStep*(50.0f+panic_*300.0f), 0.0f));
-        bottomNode_->Rotate(Quaternion(0.0f, timeStep*-(50.0f+panic_*300.0f), 0.0f));
+    //Pulse
+    topModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", GetGlowColor());
+    //Spin
+    topNode_->Rotate(Quaternion(0.0f, timeStep*(50.0f+panic_*300.0f), 0.0f));
+    bottomNode_->Rotate(Quaternion(0.0f, timeStep*-(50.0f+panic_*300.0f), 0.0f));
 
-        if (masterControl_->GetGameState() == GS_PLAY && IsEmerged()){
-            //Shoot
-            sinceLastShot_ += timeStep;
-            if (sinceLastShot_ > shotInterval_){
-                sinceLastShot_ = 0.0f;
-                masterControl_->spawnMaster_->SpawnSeeker(rootNode_->GetPosition());
-            }
+    if (masterControl_->GetGameState() == GS_PLAY && IsEmerged()){
+        //Shoot
+        sinceLastShot_ += timeStep;
+        if (sinceLastShot_ > shotInterval_){
+            sinceLastShot_ = 0.0f;
+            masterControl_->spawnMaster_->SpawnSeeker(rootNode_->GetPosition());
         }
     }
 }

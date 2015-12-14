@@ -212,8 +212,8 @@ void MasterControl::CreateScene()
     //Create central ship
     StaticModel* ship = lobbyNode_->CreateChild("Ship")->CreateComponent<StaticModel>();
     ship->SetModel(resources.models.ships.swift);
-    ship->SetMaterial(0, resources.materials.shipSecondary /*cache_->GetResource<Material>("Resources/Materials/GreenGlow.xml")*/);
-    ship->SetMaterial(1, resources.materials.shipPrimary /*cache_->GetResource<Material>("Resources/Materials/Green.xml")*/);
+    ship->SetMaterial(0, resources.materials.shipSecondary);
+    ship->SetMaterial(1, resources.materials.shipPrimary);
     ship->SetCastShadows(true);
     RigidBody* lobbyBody = lobbyNode_->CreateComponent<RigidBody>();
     lobbyBody->SetTrigger(true);
@@ -324,8 +324,7 @@ void MasterControl::Eject()
 
 void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    using namespace Update;
-    double timeStep = eventData[P_TIMESTEP].GetFloat();
+    double timeStep = eventData[Update::P_TIMESTEP].GetFloat();
     UpdateCursor(timeStep);
 
     if (currentState_ == GS_LOBBY) {
@@ -387,14 +386,13 @@ bool MasterControl::PhysicsSphereCast(PODVector<RigidBody*> &hitResults, const V
 
 void MasterControl::Exit()
 {
-    using namespace std;
     //Save score to file
-    ofstream fScore;
+    std::ofstream fScore;
     fScore.open ("Resources/.heXon.lks");
     fScore << player_->GetScore();
     fScore.close();
     //Save pilot to file
-    ofstream fPilot;
+    std::ofstream fPilot;
     fPilot.open("Resources/Pilot.lkp");
     fPilot << player_->pilot_.male_ << '\n';
     for (unsigned c = 0; c < player_->pilot_.colors_.Size(); c++){

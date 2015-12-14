@@ -93,9 +93,7 @@ Quaternion heXoCam::GetRotation()
 
 void heXoCam::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    using namespace Update;
-
-    float timeStep = eventData[P_TIMESTEP].GetFloat();
+    float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
 
     rootNode_->SetPosition(rootNode_->GetPosition().Lerp(
                                closeUp_?

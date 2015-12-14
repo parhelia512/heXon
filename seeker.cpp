@@ -55,8 +55,7 @@ void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
     if (!IsEnabled()) return;
 
-    using namespace SceneUpdate;
-    float timeStep = eventData[P_TIMESTEP].GetFloat();
+    float timeStep = eventData[SceneUpdate::P_TIMESTEP].GetFloat();
 
     age_ += timeStep;
     if (age_ > lifeTime_ && rootNode_->IsEnabled()) {
@@ -72,8 +71,6 @@ void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
 void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
 {
-    using namespace NodeCollisionStart;
-
     PODVector<RigidBody*> collidingBodies;
     rigidBody_->GetCollidingBodies(collidingBodies);
 

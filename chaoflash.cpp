@@ -43,8 +43,7 @@ void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     if (!IsPlayingSound()) Disable();
     if (!IsEnabled()) return;
 
-    using namespace Update;
-    float timeStep = eventData[P_TIMESTEP].GetFloat();
+    float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
 
     Color chaoColor = chaoMaterial_->GetShaderParameter("MatDiffColor").GetColor();
     rigidBody_->SetMass(chaoColor.a_);

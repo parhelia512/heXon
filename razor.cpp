@@ -46,11 +46,7 @@ Razor::Razor(Context *context, MasterControl *masterControl):
 
 void Razor::HandleRazorUpdate(StringHash eventType, VariantMap &eventData)
 {
-
-
-    using namespace ScenePostUpdate;
-
-    float timeStep = eventData[P_TIMESTEP].GetFloat();
+    float timeStep = eventData[ScenePostUpdate::P_TIMESTEP].GetFloat();
 
     //Spin
     topNode_->Rotate(Quaternion(0.0f, timeStep*50.0f*aimSpeed_, 0.0f));

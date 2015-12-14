@@ -31,8 +31,7 @@ Effect::Effect(Context *context, MasterControl *masterControl):
 
 void Effect::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    using namespace Update;
-    float timeStep = eventData[P_TIMESTEP].GetFloat();
+    float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
     age_ += timeStep;
 
     if (age_ > emitTime_ + particleEmitter_->GetEffect()->GetMaxTimeToLive()){

@@ -45,8 +45,7 @@ Explosion::Explosion(Context *context, MasterControl *masterControl):
 
 void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
 {
-    using namespace Update;
-    float timeStep = eventData[P_TIMESTEP].GetFloat();
+    float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
 
     rigidBody_->SetMass(Max(initialMass_*((0.1f - age_)/0.1f),0.01f));
     light_->SetBrightness(Max(initialBrightness_*(0.32f - age_)/0.32f,0.0f));
