@@ -49,24 +49,6 @@ public:
     Node* rootNode_;
     RigidBody* rigidBody_;
 
-    bool CheckEmpty(Vector3 coords, bool checkTiles) const { return CheckEmpty(IntVector2(round(coords.x_), round(coords.z_)), checkTiles); }
-    bool CheckEmpty(IntVector2 coords, bool checkTiles) const;
-    bool CheckEmptyNeighbour(IntVector2 coords, TileElement element, bool tileMap) const;
-    IntVector2 GetNeighbourCoords(IntVector2 coords, TileElement element) const;
-    CornerType PickCornerType(IntVector2 tileCoords, TileElement element) const;
-    TileType GetBuildingType(IntVector2 coords);
-    TileType GetNeighbourType(IntVector2 coords, TileElement element);
-
-    void AddMissingSlots();
-    void FixFringe();
-    void FixFringe(IntVector2 coords);
-
-    void AddTile(IntVector2 newTileCoords);
-    bool DisableSlot(IntVector2 coords);
-    bool EnableSlot(IntVector2 coords);
-    void EnableSlots();
-    void DisableSlots();
-
     void AddToAffectors(WeakPtr<Node> affector, WeakPtr<RigidBody> rigidBody) { hexAffectors_[affector] = rigidBody; }
     void RemoveFromAffectors(WeakPtr<Node> affector) { if (hexAffectors_.Contains(affector) ) hexAffectors_.Erase(affector); }
     HashMap<WeakPtr<Node>, WeakPtr<RigidBody> >* GetAffectors() { return &hexAffectors_; }
@@ -75,24 +57,9 @@ public:
 private:
     HashMap<WeakPtr<Node>, WeakPtr<RigidBody> > hexAffectors_;
     HashMap<IntVector2, SharedPtr<Tile> > tileMap_;
-    HashMap<IntVector2, TileType> buildingMap_;
-
-    bool selected_ = false;
-    Vector3 moveTarget_;
 
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
 
-
-
-    void Select();
-    void Deselect();
-    void SetSelected(bool selected);
-    bool IsSelected() const;
-
-    void SetBuilding(IntVector2 coords, TileType type = B_ENGINE);
-    void RemoveBuilding(IntVector2 coords) {SetBuilding(coords, B_EMPTY);}
-    void UpdateCenterOfMass();
-    void Move(double timeStep);
     void Restart();
     void HideArena();
 };

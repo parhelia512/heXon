@@ -93,13 +93,13 @@ Quaternion heXoCam::GetRotation()
 
 void heXoCam::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
+    float timeStep = eventData[SceneUpdate::P_TIMESTEP].GetFloat();
 
     rootNode_->SetPosition(rootNode_->GetPosition().Lerp(
                                closeUp_?
                                    Vector3(0.0f, 16.0f, -10.0f) :
                                    Vector3(0.0f, 42.0f, -23.0f)
-                                   , 5.0f * timeStep));
+                                   , 13.0f * timeStep));
 }
 
 void heXoCam::SetGreyScale(const bool enabled)

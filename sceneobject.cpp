@@ -35,22 +35,20 @@ SceneObject::SceneObject(Context* context, MasterControl* masterControl):
         sampleSource->SetSoundType(SOUND_EFFECT);
         sampleSources_.Push(sampleSource);
     }
-
-    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(SceneObject, BlinkCheck));
 }
 
 void SceneObject::Set(const Vector3 position)
 {
-    rootNode_->SetPosition(position);
     rootNode_->SetEnabledRecursive(true);
-    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(SceneObject, BlinkCheck));
+    rootNode_->SetPosition(position);
+    SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(SceneObject, BlinkCheck));
 }
 
 void SceneObject::Disable()
 {
     masterControl_->tileMaster_->RemoveFromAffectors(rootNode_);
     rootNode_->SetEnabledRecursive(false);
-    UnsubscribeFromEvent(E_UPDATE);
+    UnsubscribeFromEvent(E_POSTRENDERUPDATE);
     UnsubscribeFromEvent(E_NODECOLLISIONSTART);
 }
 
@@ -80,7 +78,7 @@ bool SceneObject::IsPlayingSound()
 
 void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
 {
-    if (masterControl_->GetPaused()) return;
+    if (masterControl_->GetPaused() || rootNode_->IsDirty()) return;
 
     Vector3 flatPosition = LucKey::Scale(rootNode_->GetPosition(), Vector3::ONE-Vector3::UP);
     float radius = 20.0f;

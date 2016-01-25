@@ -256,7 +256,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
     //Restrict move vector length
     if (move.Length() > 1.0f) move /= move.Length();
-    //Deadzone
+    //Deadzones
     else if (move.Length() < 0.1f) move *= 0.0f;
 
     if (fire.Length() < 0.1f) fire *= 0.0f;
@@ -280,7 +280,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         rootNode_->SetRotation(rotation.Slerp(aimRotation, 7.0f * timeStep * velocity.Length()));
 
         //Update animation
-        if (velocity.Length() > 0.05f){
+        if (velocity.Length() > 0.1f){
             animCtrl_->PlayExclusive("Resources/Models/WalkRelax.ani", 0, true, 0.15f);
             animCtrl_->SetSpeed("Resources/Models/WalkRelax.ani", velocity.Length()*2.3f);
             animCtrl_->SetStartBone("Resources/Models/WalkRelax.ani", "MasterBone");

@@ -87,7 +87,7 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
 
 void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
 {
-    float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
+    float timeStep = eventData[SceneUpdate::P_TIMESTEP].GetFloat();
 
     //Move trigger along
     triggerNode_->SetPosition(rootNode_->GetPosition());
@@ -95,7 +95,7 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     if (!IsEmerged()) {
         rigidBody_->ResetForces();
         rigidBody_->SetLinearVelocity(Vector3::ZERO);
-        rootNode_->Translate(Vector3::UP * timeStep * (0.23f - rootNode_->GetPosition().y_), TS_WORLD);
+        rootNode_->Translate(2.3f*Vector3::UP * timeStep * (0.23f - rootNode_->GetPosition().y_), TS_WORLD);
     }
 
     float xSpin = 0.0f;

@@ -171,6 +171,6 @@ void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
 void Enemy::Emerge(const float timeStep)
 {
     if (!IsEmerged()) {
-        rootNode_->Translate(Vector3::UP * timeStep * (0.25f - rootNode_->GetPosition().y_));
+        rootNode_->Translate(2.3f*Vector3::UP * timeStep * (0.23f - rootNode_->GetPosition().y_));
     }
 }

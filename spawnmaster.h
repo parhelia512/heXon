@@ -19,6 +19,8 @@
 #ifndef SPAWNMASTER_H
 #define SPAWNMASTER_H
 
+#include <algorithm>
+
 #include <Urho3D/Urho3D.h>
 
 #include "mastercontrol.h"
@@ -29,6 +31,7 @@
 #include "seeker.h"
 #include "flash.h"
 #include "explosion.h"
+
 
 class SpawnMaster : public Object
 {
@@ -57,6 +60,33 @@ public:
     void SpawnHitFX(const Vector3& position, bool sound = true);
     void SpawnFlash(const Vector3& position);
     bool SpawnExplosion(const Vector3& position, const Color &color, float size);
+
+
+//    template <class T>
+//    T* Create()
+//    {
+//        static_assert(std::is_base_of<T,SceneObject>(),"Must be SceneObject");
+
+//        auto sceneObject = new T();
+//        census_[T].Push(sceneObject);
+//        return sceneObject;
+//    }
+
+//    template <class T>
+//    T* Spawn(const Vector3& position)
+//    {
+//        WeakPtr<T> sceneObject = nullptr;
+//        for (unsigned t = 0; t < census_[T].Size(); ++t){
+//            if (!census_[T][t]->IsEnabled()){
+//                sceneObject = census_[T][t];
+//            }
+//        }
+//        if (sceneObject == nullptr) sceneObject = Create<T>();
+
+//        sceneObject->Set(position);
+//        return sceneObject;
+//    }
+
 private:
     MasterControl* masterControl_;
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);

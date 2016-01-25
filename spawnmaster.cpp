@@ -22,7 +22,6 @@
 #include "tilemaster.h"
 #include "tile.h"
 #include "player.h"
-#include <algorithm>
 
 SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
     Object(context),

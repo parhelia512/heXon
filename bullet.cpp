@@ -40,8 +40,6 @@ Bullet::Bullet(Context *context, MasterControl *masterControl):
     Light* light = rootNode_->CreateComponent<Light>();
     light->SetRange(6.66f);
     light->SetColor(Color(0.6f, 1.0f+damage_, 0.2f));
-
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Bullet, HandleSceneUpdate));
 }
 
 void Bullet::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
@@ -75,13 +73,14 @@ void Bullet::Set(const Vector3 position)
 void Bullet::Disable()
 {
     fading_ = true;
-    rootNode_->SetEnabled(false);
+    SceneObject::Disable();
+    UnsubscribeFromEvent(E_SCENEUPDATE);
 }
 
 void Bullet::HitCheck(float timeStep) {
     float velocity = rigidBody_->GetLinearVelocity().Length();
     if (!fading_) {
-        PODVector<PhysicsRaycastResult> hitResults;
+        PODVector<PhysicsRaycastResult> hitResults{};
         Ray bulletRay(rootNode_->GetPosition() - rigidBody_->GetLinearVelocity()*timeStep*0.5f, rootNode_->GetDirection());
         if (masterControl_->PhysicsRayCast(hitResults, bulletRay, 1.5f*velocity*timeStep, M_MAX_UNSIGNED)){
             for (int i = 0; i < hitResults.Size(); i++){

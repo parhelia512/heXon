@@ -36,8 +36,6 @@ Makefile*
 # Urho3D
 
 /Urho3D
-/CoreData
-/Data
 heXon
 
 # LucKey

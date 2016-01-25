@@ -46,7 +46,7 @@ Object(context),
             }
         }
     }
-    //Add a directional light to the arena. Enable cascaded shadows on it
+    //Add a directional light to the arena.
     Node* lightNode = rootNode_->CreateChild("Sun");
     lightNode->SetPosition(Vector3::UP*5.0f);
     lightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
