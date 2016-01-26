@@ -395,6 +395,8 @@ void Player::MoveMuzzle()
 
 void Player::Pickup(PickupType pickup)
 {
+    if (health_ <= 0.0f) return;
+
     switch (pickup) {
     case PT_APPLE: {
         bulletAmount_ = (bulletAmount_ == 0)?1:bulletAmount_;
@@ -461,7 +463,6 @@ void Player::Die()
 void Player::EnterPlay()
 {
     guiNode_->SetEnabledRecursive(true);
-    Pickup(PT_RESET);
 
     rootNode_->SetRotation(Quaternion(180.0f, Vector3::UP));
     rigidBody_->ResetForces();
@@ -469,6 +470,7 @@ void Player::EnterPlay()
     shieldMaterial_->SetShaderParameter("MatDiffColor", Color::BLACK);
 
     SetHealth(initialHealth_);
+    Pickup(PT_RESET);
     flightScore_ = 0;
     multiplier_ = 1;
     weaponLevel_ = 0;

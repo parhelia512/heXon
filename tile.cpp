@@ -71,9 +71,9 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
 
     Vector3 lastPos = rootNode_->GetPosition();
     Vector3 newPos = Vector3(lastPos.x_, referencePosition_.y_ - Min(offsetY, 4.0f), lastPos.z_);
-    rootNode_->SetPosition(newPos + Random(0.0235f)*Vector3::DOWN);
+    rootNode_->SetPosition(newPos);
 
     float brightness = Clamp((0.23f * offsetY) + 0.25f, 0.0f, 1.0f);
-    Color color = Color(brightness+Random(0.23f), brightness-Random(0.1f), brightness, brightness + (0.023f * wave_));
+    Color color = Color(brightness, brightness, brightness, brightness + (0.023f * wave_));
     model_->GetMaterial(0)->SetShaderParameter("MatDiffColor", color);
 }
