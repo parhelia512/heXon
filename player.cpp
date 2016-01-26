@@ -267,7 +267,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         //Apply movement
         Vector3 force = move * thrust * timeStep;
         if (rigidBody_->GetLinearVelocity().Length() < maxSpeed ||
-                (rigidBody_->GetLinearVelocity().Normalized() + force.Normalized()).Length() < 1.0f) {
+                (rigidBody_->GetLinearVelocity().Normalized() + force.Normalized()).Length() < 1.4142f) {
             rigidBody_->ApplyForce(force);
         }
 

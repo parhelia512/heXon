@@ -53,7 +53,7 @@ public:
     void RemoveFromAffectors(WeakPtr<Node> affector) { if (hexAffectors_.Contains(affector) ) hexAffectors_.Erase(affector); }
     HashMap<WeakPtr<Node>, WeakPtr<RigidBody> >* GetAffectors() { return &hexAffectors_; }
 
-    WeakPtr<Tile> GetRandomTile();
+    Tile* GetRandomTile();
 private:
     HashMap<WeakPtr<Node>, WeakPtr<RigidBody> > hexAffectors_;
     HashMap<IntVector2, SharedPtr<Tile> > tileMap_;

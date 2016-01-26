@@ -37,10 +37,10 @@ Object(context),
     int bigHexSize = 23;
     for (int i = 0; i < bigHexSize; i++) {
         for (int j = 0; j < bigHexSize; j++) {
-            if (i < (bigHexSize - bigHexSize / 4) + j / 2 &&  //Exclude bottom right
-                    i > (bigHexSize / 4) - (j + 1) / 2 &&  //Exclude bottom left
-                    i + 1 < (bigHexSize - bigHexSize / 4) + ((bigHexSize - j + 1)) / 2 &&  //Exclude top right
-                    i - 1 > (bigHexSize / 4) - ((bigHexSize - j + 2) / 2)) { //Exclude top left
+            if (    i < (bigHexSize - bigHexSize / 4) + j / 2 &&                            //Exclude bottom right
+                    i > (bigHexSize / 4) - (j + 1) / 2 &&                                   //Exclude bottom left
+                    i + 1 < (bigHexSize - bigHexSize / 4) + ((bigHexSize - j + 1)) / 2 &&   //Exclude top right
+                    i - 1 > (bigHexSize / 4) - ((bigHexSize - j + 2) / 2)) {                //Exclude top left
                 Vector3 tilePos = Vector3((-bigHexSize / 2.0f + i) * 2.0f + j % 2, -0.1f, (-bigHexSize / 2.0f + j + 0.5f) * 1.8f);
                 tileMap_[IntVector2(i, j)] = new Tile(context_, this, tilePos);
             }
@@ -71,7 +71,7 @@ void TileMaster::HideArena()
     rootNode_->SetEnabledRecursive(false);
 }
 
-WeakPtr<Tile> TileMaster::GetRandomTile()
+Tile* TileMaster::GetRandomTile()
 {
     Vector<SharedPtr<Tile> > tiles = tileMap_.Values();
     if (tiles.Size()){
@@ -84,6 +84,6 @@ WeakPtr<Tile> TileMaster::GetRandomTile()
                 tile = tryTile;
             }
         }
-        return WeakPtr<Tile>(tile);
+        return tile.Get();
     }
 }

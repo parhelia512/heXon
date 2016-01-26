@@ -4,8 +4,8 @@
 - SpawnMaster should probably work with templates
 
 #### New features
-- Ejection seat visualisation
 - Kernel (Enemy)
+- Ejection seat visualisation
 - Lobby zero stack
 - HoloHighHeavens
 - 2 player modes

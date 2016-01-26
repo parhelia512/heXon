@@ -44,11 +44,9 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     float offsetY = 0.0;
 
     //Switch curcuit
-    if (Random(23)==0)
+    if (Random(23)==5)
         rootNode_->SetRotation(Quaternion(Random(3)*120.0f + 60.0f*flipped_, Vector3::UP));
 
-    //Alien Chaos - Disorder = time * 1.0525
-    //Talpa - Unusual Chair  = time * 1.444
     wave_ = 6.0*pow(masterControl_->Sine(Abs(centerDistExp_ - elapsedTime * 5.2625f)), 4.0f);
 
     unsigned nHexAffectors = tileMaster_->hexAffectors_.Size();
@@ -73,8 +71,9 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
 
     Vector3 lastPos = rootNode_->GetPosition();
     Vector3 newPos = Vector3(lastPos.x_, referencePosition_.y_ - Min(offsetY, 4.0f), lastPos.z_);
-    rootNode_->SetPosition(newPos);
+    rootNode_->SetPosition(newPos + Random(0.0235f)*Vector3::DOWN);
 
-    float color = Clamp((0.23f * offsetY) + 0.25f, 0.0f, 1.0f);
-    model_->GetMaterial(0)->SetShaderParameter("MatDiffColor", Color(color+Random(0.1f), color, color, color + (0.023f * wave_)));
+    float brightness = Clamp((0.23f * offsetY) + 0.25f, 0.0f, 1.0f);
+    Color color = Color(brightness+Random(0.23f), brightness-Random(0.1f), brightness, brightness + (0.023f * wave_));
+    model_->GetMaterial(0)->SetShaderParameter("MatDiffColor", color);
 }
