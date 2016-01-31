@@ -202,7 +202,7 @@ void MasterControl::CreateScene()
     lobbyNode_ = world.scene->CreateChild("Lobby");
     lobbyNode_->Rotate(Quaternion(0.0f, 180.0f, 0.0f));
     Node* floorNode = lobbyNode_->CreateChild("Floor");
-    floorNode->SetPosition(Vector3(0.0f, -0.5f, 0.0f));
+    floorNode->SetPosition(Vector3(0.0f, -0.666f, 0.0f));
     floorNode->SetScale(10.0f);
     floorNode->Rotate(Quaternion(0.0f, 30.0f, 0.0f));
     StaticModel* floorModel = floorNode->CreateComponent<StaticModel>();

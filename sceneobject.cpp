@@ -78,7 +78,7 @@ bool SceneObject::IsPlayingSound()
 
 void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
 {
-    if (masterControl_->GetPaused() || rootNode_->IsDirty()) return;
+    if (masterControl_->GetPaused()) return;
 
     Vector3 flatPosition = LucKey::Scale(rootNode_->GetPosition(), Vector3::ONE-Vector3::UP);
     float radius = 20.0f;
@@ -103,5 +103,12 @@ void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
                 Disable();
             }
         }
+    }
+}
+
+void SceneObject::Emerge(const float timeStep)
+{
+    if (!IsEmerged()) {
+        rootNode_->Translate(2.3f*Vector3::UP * timeStep * (0.23f - rootNode_->GetPosition().y_), TS_WORLD);
     }
 }

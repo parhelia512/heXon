@@ -70,7 +70,6 @@ protected:
     void SetHealth(const float health);
     virtual void CheckHealth();
     Color GetGlowColor() const;
-    void Emerge(const float timeStep);
     void Disable();
 private:
     Vector<SharedPtr<Sound> > samples_;

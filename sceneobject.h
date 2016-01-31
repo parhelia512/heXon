@@ -51,12 +51,15 @@ protected:
     SharedPtr<Node> graphicsNode_;
     Vector<SharedPtr<SoundSource> > sampleSources_;
 
+    void Emerge(const float timeStep);
+
     void PlaySample(Sound *sample, const float gain = 0.5f);
     bool IsPlayingSound();
     void StopAllSound();
 private:
     SharedPtr<Sound> flashSample_;
     SharedPtr<SoundSource> flashSource_;
+
     void BlinkCheck(StringHash eventType, VariantMap &eventData);
 };
 

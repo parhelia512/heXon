@@ -109,6 +109,7 @@ StringHash const N_APPLE = StringHash("Apple");
 StringHash const N_HEART = StringHash("Heart");
 StringHash const N_MULTIX = StringHash("MultiX");
 StringHash const N_CHAOBALL = StringHash("ChaoBall");
+StringHash const N_CHAOMINE = StringHash("ChaoMine");
 StringHash const N_RESET = StringHash("Reset");
 StringHash const N_SEEKER = StringHash("Seeker");
 StringHash const N_SPIRE = StringHash("Spire");

@@ -82,6 +82,9 @@ void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
             collider->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.5f);
             Disable();
         }
+        else if (collider->GetNode()->GetNameHash() == N_CHAOMINE){
+            masterControl_->spawnMaster_->chaoMines_[collider->GetNode()->GetID()]->Hit(damage_, 0);
+        }
         else if (collider->GetNode()->GetNameHash() == N_SEEKER){
             masterControl_->spawnMaster_->SpawnHitFX(rootNode_->GetPosition(), false);
             Disable();

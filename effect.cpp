@@ -46,6 +46,7 @@ void Effect::Set(const Vector3 position)
 {
     SceneObject::Set(position);
     age_ = 0.0f;
+    particleEmitter_->RemoveAllParticles();
     particleEmitter_->SetEmitting(true);
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Effect, HandleSceneUpdate));
 }

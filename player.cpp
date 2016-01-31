@@ -52,7 +52,7 @@ Player::Player(Context *context, MasterControl *masterControl):
 
     //Setup pilot
     pilot_.node_ = rootNode_->CreateChild("Pilot");
-    pilot_.node_->Translate(Vector3(0.0f, -0.5f, 0.0f));
+    pilot_.node_->Translate(Vector3(0.0f, -0.666f, 0.0f));
     pilot_.model_ = pilot_.node_->CreateComponent<AnimatedModel>();
     pilot_.model_->SetCastShadows(true);
     LoadPilot();

@@ -92,10 +92,10 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     //Move trigger along
     triggerNode_->SetPosition(rootNode_->GetPosition());
     //Emerge
+    Emerge(timeStep);
     if (!IsEmerged()) {
         rigidBody_->ResetForces();
         rigidBody_->SetLinearVelocity(Vector3::ZERO);
-        rootNode_->Translate(2.3f*Vector3::UP * timeStep * (0.23f - rootNode_->GetPosition().y_), TS_WORLD);
     }
 
     float xSpin = 0.0f;
