@@ -232,10 +232,11 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
     //Read input
     if (input->GetJoystickByIndex(0)){
-        moveJoy = Vector3::RIGHT * input->GetJoystickByIndex(0)->GetAxisPosition(0) +
-                Vector3::BACK * input->GetJoystickByIndex(0)->GetAxisPosition(1);
-        fireJoy = Vector3::RIGHT * input->GetJoystickByIndex(0)->GetAxisPosition(2) +
-                Vector3::BACK * input->GetJoystickByIndex(0)->GetAxisPosition(3);
+        JoystickState* joystick0 = input->GetJoystickByIndex(0);
+        moveJoy = Vector3::RIGHT * joystick0->GetAxisPosition(0) +
+                Vector3::BACK * joystick0->GetAxisPosition(1);
+        fireJoy = Vector3::RIGHT * joystick0->GetAxisPosition(2) +
+                Vector3::BACK * joystick0->GetAxisPosition(3);
     }
     moveKey = Vector3::LEFT * input->GetKeyDown(KEY_A) +
             Vector3::RIGHT * input->GetKeyDown(KEY_D) +
@@ -400,9 +401,10 @@ void Player::Pickup(PickupType pickup)
     switch (pickup) {
     case PT_APPLE: {
         bulletAmount_ = (bulletAmount_ == 0)?1:bulletAmount_;
-        ++appleCount_;
         heartCount_ = 0;
         AddScore(23);
+        if (weaponLevel_ < 23)
+            ++appleCount_;
         if (appleCount_ >= 5){
             UpgradeWeapons();
             appleCount_ = 0;
@@ -536,11 +538,9 @@ void Player::Hit(float damage, bool melee)
 
 void Player::UpgradeWeapons()
 {
-    if (weaponLevel_ < 23){
-        ++weaponLevel_;
-        bulletAmount_ = 1 + ((weaponLevel_+5) / 6);
-        shotInterval_ = initialShotInterval_ - 0.0042f*weaponLevel_;
-    }
+    ++weaponLevel_;
+    bulletAmount_ = 1 + ((weaponLevel_+5) / 6);
+    shotInterval_ = initialShotInterval_ - 0.0042f*weaponLevel_;
 }
 
 void Player::LoadPilot()
