@@ -21,7 +21,8 @@
 #include "chaoflash.h"
 
 ChaoFlash::ChaoFlash(Context *context, MasterControl *masterControl):
-    SceneObject(context, masterControl)
+    SceneObject(context, masterControl),
+    age_{0.0f}
 {
     rootNode_->SetName("ChaoFlash");
     rootNode_->SetScale(7.0f);
@@ -29,6 +30,14 @@ ChaoFlash::ChaoFlash(Context *context, MasterControl *masterControl):
     chaoModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/ChaoFlash.mdl"));
     chaoMaterial_ = masterControl_->cache_->GetResource<Material>("Resources/Materials/ChaoFlash.xml");
     chaoModel_->SetMaterial(chaoMaterial_);
+
+    Node* sunNode = masterControl_->world.scene->CreateChild("SunDisk");
+    sunNode->SetTransform(Vector3::UP, Quaternion::IDENTITY, 42.0f);
+    StaticModel* sunPlane = sunNode->CreateComponent<StaticModel>();
+    sunPlane->SetModel(masterControl_->cache_->GetResource<Model>("Models/Plane.mdl"));;
+    sunMaterial_ = masterControl_->cache_->GetResource<Material>("Resources/Materials/SunDisc.xml");
+    sunPlane->SetMaterial(sunMaterial_);
+
     rootNode_->SetEnabled(false);
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(ChaoFlash, HandleSceneUpdate));
 
@@ -42,8 +51,8 @@ void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
     if (!IsPlayingSound()) Disable();
     if (!IsEnabled()) return;
-
     float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
+    age_ += timeStep;
 
     Color chaoColor = chaoMaterial_->GetShaderParameter("MatDiffColor").GetColor();
     rigidBody_->SetMass(chaoColor.a_);
@@ -58,11 +67,15 @@ void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
                                Random(4.0f, 64.0f));
     chaoMaterial_->SetShaderParameter("MatSpecColor", newSpecColor);
     rootNode_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
+
+    if (age_ > 0.1f)
+        sunMaterial_->SetShaderParameter("MatDiffColor", Color(Random(1.0f), Random(1.0f), Random(1.0f), Max(0.23f - 5.0f*(age_-0.1f), 0.0f)));
 }
 
 void ChaoFlash::Set(const Vector3 position)
 {
     SceneObject::Set(position);
+    age_ = 0.0f;
     PlaySample(sample_, 0.69f);
     PODVector<RigidBody* > hitResults;
     float radius = 7.666f;

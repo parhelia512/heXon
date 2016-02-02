@@ -224,7 +224,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     Vector3 move = Vector3::ZERO;
     Vector3 moveJoy = Vector3::ZERO;
     Vector3 moveKey = Vector3::ZERO;
-    float thrust = pilotMode_ ? 256.0f : 2323.0f;
+    float thrust = pilotMode_ ? 256.0f : 2342.0f;
     float maxSpeed = pilotMode_? 1.8f : 23.0f;    //Firing values
     Vector3 fire = Vector3::ZERO;
     Vector3 fireJoy = Vector3::ZERO;

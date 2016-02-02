@@ -41,9 +41,11 @@ public:
     void Set(const Vector3 position);
     void Disable();
 private:
+    float age_;
     RigidBody* rigidBody_;
     StaticModel* chaoModel_;
     Material* chaoMaterial_;
+    Material* sunMaterial_;
     Sound* sample_;
 };
 

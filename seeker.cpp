@@ -71,7 +71,7 @@ void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
 void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
 {
-    PODVector<RigidBody*> collidingBodies;
+    PODVector<RigidBody*> collidingBodies{};
     rigidBody_->GetCollidingBodies(collidingBodies);
 
     for (int i = 0; i < collidingBodies.Size(); i++) {
