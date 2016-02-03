@@ -68,8 +68,8 @@ void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     chaoMaterial_->SetShaderParameter("MatSpecColor", newSpecColor);
     rootNode_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
 
-    if (age_ > 0.1f)
-        sunMaterial_->SetShaderParameter("MatDiffColor", Color(Random(1.0f), Random(1.0f), Random(1.0f), Max(0.23f - 5.0f*(age_-0.1f), 0.0f)));
+    if (age_ > 0.16f)
+        sunMaterial_->SetShaderParameter("MatDiffColor", Color(Random(1.0f), Random(1.0f), Random(1.0f), Max(0.23f - age_, 0.0f)));
 }
 
 void ChaoFlash::Set(const Vector3 position)
