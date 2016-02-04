@@ -330,9 +330,9 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
     if (currentState_ == GS_LOBBY) {
         Color spotColor;
         unsigned score = player_->GetScore();
-        spotColor.FromHSV(LucKey::Cycle(((score/20000)+0.1f)*world.scene->GetElapsedTime(), 0.0f, 1.0f), Min(1.0f, score/5000), 1.0f);
+        spotColor.FromHSV(LucKey::Cycle(((score/1000000)+0.23f)*world.scene->GetElapsedTime(), 0.0f, 1.0f), Min(1.0f, score/50000), 1.0f);
         lobbySpotLight_->SetColor(spotColor);
-        lobbySpotLight_->SetBrightness(1.0f + Min(10.0f, (score/10000)));
+        lobbySpotLight_->SetBrightness(1.0f + Min(5.0f, (score/100000)));
     }
 }
 
