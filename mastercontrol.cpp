@@ -139,6 +139,7 @@ void MasterControl::LoadResources()
     resources.models.pilots.female = cache_->GetResource<Model>("Resources/Models/Female.mdl");
     resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Resources/Models/Mohawk.mdl")));
     resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Resources/Models/Seagull.mdl")));
+    resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Resources/Models/Mustain.mdl")));
 
     resources.models.ships.swift = cache_->GetResource<Model>("Resources/Models/KlåMk10.mdl");
 
@@ -230,9 +231,9 @@ void MasterControl::CreateScene()
     lobbySpotLightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
     lobbySpotLight_ = lobbySpotLightNode->CreateComponent<Light>();
     lobbySpotLight_->SetLightType(LIGHT_SPOT);
-    lobbySpotLight_->SetFov(120.0f);
+    lobbySpotLight_->SetFov(123.0f);
     lobbySpotLight_->SetBrightness(1.0f);
-    lobbySpotLight_->SetRange(10.0f);
+    lobbySpotLight_->SetRange(16.0f);
     lobbySpotLight_->SetColor(Color(0.3f, 0.5f, 1.0f));
     lobbySpotLight_->SetCastShadows(true);
     lobbySpotLight_->SetShadowBias(BiasParameters(0.0001f, 0.1f));

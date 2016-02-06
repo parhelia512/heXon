@@ -133,9 +133,6 @@ private:
     void CreateGUI();
     void SetPilotMode(bool pilotMode);
     void MoveMuzzle();
-    Color RandomHairColor();
-    Color RandomSkinColor();
-    Color RandomColor();
     void LoadPilot();
 };
 

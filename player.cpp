@@ -609,7 +609,7 @@ void Player::UpdatePilot()
         pilot_.hairModel_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/Basic.xml"));
         Color diffColor = pilot_.colors_[4];
         pilot_.hairModel_->GetMaterial()->SetShaderParameter("MatDiffColor", diffColor);
-        Color specColor = diffColor;
+        Color specColor = diffColor*0.23f;
         specColor.a_ = 23.0f;
         pilot_.hairModel_->GetMaterial()->SetShaderParameter("MatSpecColor", specColor);
     }
@@ -627,35 +627,15 @@ void Player::CreateNewPilot()
     {
         switch (c){
         case 0:{
-            pilot_.colors_.Push(RandomSkinColor());
+            pilot_.colors_.Push(LucKey::RandomSkinColor());
         } break;
         case 4:{
-            pilot_.colors_.Push(RandomHairColor());
+            pilot_.colors_.Push(LucKey::RandomHairColor());
         } break;
-        default: pilot_.colors_.Push(RandomColor()); break;
+        default: pilot_.colors_.Push(LucKey::RandomColor()); break;
         }
     }
     UpdatePilot();
-}
-
-Color Player::RandomHairColor()
-{
-    Color hairColor{};
-    hairColor.FromHSV(Random(0.1666f), Random(0.05f, 0.7f), Random(0.9f));
-    return hairColor;
-}
-
-Color Player::RandomSkinColor()
-{
-    Color skinColor{};
-    skinColor.FromHSV(Random(0.05f, 0.18f), Random(0.5f, 0.75f), Random(0.23f, 0.8f));
-    return skinColor;
-}
-Color Player::RandomColor()
-{
-    Color color{};
-    color.FromHSV(Random(), Random(), Random());
-    return color;
 }
 
 void Player::SetupShip()
