@@ -38,8 +38,10 @@ typedef struct Pilot
 {
     Node* node_;
     bool male_;
+    int hairStyle_;
     Vector<Color> colors_;
-    AnimatedModel* model_;
+    AnimatedModel* bodyModel_;
+    StaticModel* hairModel_;
 } Pilot;
 
 class Player : public SceneObject

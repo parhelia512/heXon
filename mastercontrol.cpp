@@ -137,6 +137,8 @@ void MasterControl::LoadResources()
     //Load models
     resources.models.pilots.male = cache_->GetResource<Model>("Resources/Models/Male.mdl");
     resources.models.pilots.female = cache_->GetResource<Model>("Resources/Models/Female.mdl");
+    resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Resources/Models/Mohawk.mdl")));
+    resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Resources/Models/Seagull.mdl")));
 
     resources.models.ships.swift = cache_->GetResource<Model>("Resources/Models/KlåMk10.mdl");
 
@@ -395,6 +397,7 @@ void MasterControl::Exit()
     std::ofstream fPilot;
     fPilot.open("Resources/Pilot.lkp");
     fPilot << player_->pilot_.male_ << '\n';
+    fPilot << player_->pilot_.hairStyle_ << '\n';
     for (unsigned c = 0; c < player_->pilot_.colors_.Size(); c++){
         fPilot << player_->pilot_.colors_[c].r_ << ' '
                << player_->pilot_.colors_[c].g_ << ' '

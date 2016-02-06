@@ -53,8 +53,11 @@ Player::Player(Context *context, MasterControl *masterControl):
     //Setup pilot
     pilot_.node_ = rootNode_->CreateChild("Pilot");
     pilot_.node_->Translate(Vector3(0.0f, -0.666f, 0.0f));
-    pilot_.model_ = pilot_.node_->CreateComponent<AnimatedModel>();
-    pilot_.model_->SetCastShadows(true);
+    pilot_.bodyModel_ = pilot_.node_->CreateComponent<AnimatedModel>();
+    pilot_.bodyModel_->SetModel(masterControl_->resources.models.pilots.male);
+    pilot_.bodyModel_->SetCastShadows(true);
+    pilot_.hairModel_ = pilot_.node_->GetChild("Head", true)->CreateComponent<StaticModel>();
+    pilot_.hairModel_->SetCastShadows(true);
     LoadPilot();
     animCtrl_ = pilot_.node_->CreateComponent<AnimationController>();
 
@@ -549,6 +552,7 @@ void Player::LoadPilot()
     ifstream fPilot("Resources/Pilot.lkp");
     while (!fPilot.eof()){
         string gender_str;
+        string hairStyle_str;
         string color1_r_str, color1_g_str, color1_b_str;
         string color2_r_str, color2_g_str, color2_b_str;
         string color3_r_str, color3_g_str, color3_b_str;
@@ -557,6 +561,7 @@ void Player::LoadPilot()
         fPilot >> gender_str;
         if (gender_str.empty()) break;
         fPilot >>
+                hairStyle_str >>
                 color1_r_str >> color1_g_str >> color1_b_str >>
                 color2_r_str >> color2_g_str >> color2_b_str >>
                 color3_r_str >> color3_g_str >> color3_b_str >>
@@ -564,6 +569,7 @@ void Player::LoadPilot()
                 color5_r_str >> color5_g_str >> color5_b_str;
 
         pilot_.male_ = stoi(gender_str);
+        pilot_.hairStyle_ = stoi(hairStyle_str);
         pilot_.colors_.Clear();
         pilot_.colors_.Push(Color(stof(color1_r_str),stof(color1_g_str),stof(color1_b_str)));
         pilot_.colors_.Push(Color(stof(color2_r_str),stof(color2_g_str),stof(color2_b_str)));
@@ -577,25 +583,43 @@ void Player::LoadPilot()
 
 void Player::UpdatePilot()
 {
+    //Set body model
     if (pilot_.male_){
-        pilot_.model_->SetModel(masterControl_->resources.models.pilots.male);}
+        pilot_.bodyModel_->SetModel(masterControl_->resources.models.pilots.male);}
     else{
-        pilot_.model_->SetModel(masterControl_->resources.models.pilots.female);
+        pilot_.bodyModel_->SetModel(masterControl_->resources.models.pilots.female);
     }
 
-    for (unsigned m = 0; m < pilot_.model_->GetNumGeometries(); m++){
-        pilot_.model_->SetMaterial(m, masterControl_->cache_->GetTempResource<Material>("Resources/Materials/Basic.xml"));
+    //Set colors for body model
+    for (unsigned m = 0; m < pilot_.bodyModel_->GetNumGeometries(); m++){
+        pilot_.bodyModel_->SetMaterial(m, masterControl_->cache_->GetTempResource<Material>("Resources/Materials/Basic.xml"));
         Color diffColor = pilot_.colors_[m];
-        pilot_.model_->GetMaterial(m)->SetShaderParameter("MatDiffColor", diffColor);
+        pilot_.bodyModel_->GetMaterial(m)->SetShaderParameter("MatDiffColor", diffColor);
         Color specColor = diffColor*(1.0f-0.1f*m);
         specColor.a_ = 23.0f - 2.0f * m;
-        pilot_.model_->GetMaterial(m)->SetShaderParameter("MatSpecColor", specColor);
+        pilot_.bodyModel_->GetMaterial(m)->SetShaderParameter("MatSpecColor", specColor);
+    }
+
+    //Set hair model
+    if (!pilot_.hairStyle_)
+        pilot_.hairModel_->SetModel(nullptr);
+    else {
+        pilot_.hairModel_->SetModel(masterControl_->resources.models.pilots.hairStyles[pilot_.hairStyle_ - 1]);
+        //Set color for hair model
+        pilot_.hairModel_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/Basic.xml"));
+        Color diffColor = pilot_.colors_[4];
+        pilot_.hairModel_->GetMaterial()->SetShaderParameter("MatDiffColor", diffColor);
+        Color specColor = diffColor;
+        specColor.a_ = 23.0f;
+        pilot_.hairModel_->GetMaterial()->SetShaderParameter("MatSpecColor", specColor);
     }
 }
 
 void Player::CreateNewPilot()
 {
     pilot_.male_ = Random(2);
+    pilot_.hairStyle_ = Random((int)masterControl_->resources.models.pilots.hairStyles.Size() + 1);
+
     pilot_.node_->SetRotation(Quaternion(0.0f, 0.0f, 0.0f));
 
     pilot_.colors_.Clear();
