@@ -503,7 +503,7 @@ void Player::SetPilotMode(bool pilotMode){
     ship_.node_->SetEnabledRecursive(!pilotMode_);
     shieldNode_->SetEnabled(!pilotMode_);
     collisionShape_->SetSphere(pilotMode_? 0.666f : 2.0f);
-    rigidBody_->SetLinearDamping(pilotMode_? 0.75f : 0.5f);
+    rigidBody_->SetLinearDamping(pilotMode_? 0.88f : 0.5f);
 }
 
 void Player::SetHealth(float health)

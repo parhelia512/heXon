@@ -162,7 +162,7 @@ void MasterControl::CreateScene()
     physicsWorld_->SetGravity(Vector3::ZERO);
     world.scene->CreateComponent<DebugRenderer>();
 
-    //Create a Zone component for ambient ing & fog control
+    //Create a Zone component for fog control
     Node* zoneNode = world.scene->CreateChild("Zone");
     Zone* zone = zoneNode->CreateComponent<Zone>();
     zone->SetBoundingBox(BoundingBox(Vector3(-100.0f, -50.0f, -100.0f),Vector3(100.0f, 5.0f, 100.0f)));
@@ -231,9 +231,9 @@ void MasterControl::CreateScene()
     lobbySpotLightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
     lobbySpotLight_ = lobbySpotLightNode->CreateComponent<Light>();
     lobbySpotLight_->SetLightType(LIGHT_SPOT);
-    lobbySpotLight_->SetFov(123.0f);
+    lobbySpotLight_->SetFov(120.0f);
     lobbySpotLight_->SetBrightness(1.0f);
-    lobbySpotLight_->SetRange(16.0f);
+    lobbySpotLight_->SetRange(10.0f);
     lobbySpotLight_->SetColor(Color(0.3f, 0.5f, 1.0f));
     lobbySpotLight_->SetCastShadows(true);
     lobbySpotLight_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
