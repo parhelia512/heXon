@@ -97,7 +97,7 @@ void heXoCam::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
     rootNode_->SetPosition(rootNode_->GetPosition().Lerp(
                                closeUp_?
-                                   Vector3(0.0f, 16.0f, -10.0f) :
+                                   Vector3(0.0f, 13.5f, -6.23f) :
                                    Vector3(0.0f, 42.0f, -23.0f)
                                    , 13.0f * timeStep));
 }

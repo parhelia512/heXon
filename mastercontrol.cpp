@@ -172,7 +172,6 @@ void MasterControl::CreateScene()
 
     //Create cursor
     world.cursor.sceneCursor = world.scene->CreateChild("Cursor");
-    //world.cursor.sceneCursor->SetPosition(Vector3(0.0f,0.0f,0.0f));
     StaticModel* cursorObject = world.cursor.sceneCursor->CreateComponent<StaticModel>();
     cursorObject->SetModel(cache_->GetResource<Model>("Resources/Models/Hexagon.mdl"));
     cursorObject->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Glow.xml"));
@@ -204,49 +203,90 @@ void MasterControl::CreateScene()
     //Construct lobby
     lobbyNode_ = world.scene->CreateChild("Lobby");
     lobbyNode_->Rotate(Quaternion(0.0f, 180.0f, 0.0f));
-    Node* floorNode = lobbyNode_->CreateChild("Floor");
-    floorNode->SetPosition(Vector3(0.0f, -0.666f, 0.0f));
-    floorNode->SetScale(10.0f);
-    floorNode->Rotate(Quaternion(0.0f, 30.0f, 0.0f));
-    StaticModel* floorModel = floorNode->CreateComponent<StaticModel>();
-    floorModel->SetModel(cache_->GetResource<Model>("Resources/Models/Hexagon.mdl"));
-    floorModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Black.xml"));
-    floorModel->SetCastShadows(true);
-    //Create central ship
-    StaticModel* ship = lobbyNode_->CreateChild("Ship")->CreateComponent<StaticModel>();
-    ship->SetModel(resources.models.ships.swift);
-    ship->SetMaterial(0, resources.materials.shipSecondary);
-    ship->SetMaterial(1, resources.materials.shipPrimary);
-    ship->SetCastShadows(true);
+    Node* chamberNode = lobbyNode_->CreateChild("Chamber");
+    StaticModel* chamberModel = chamberNode->CreateComponent<StaticModel>();
+    chamberModel->SetModel(cache_->GetResource<Model>("Resources/Models/Chamber.mdl"));
+    chamberModel->SetMaterial(0, cache_->GetResource<Material>("Resources/Materials/Basic.xml"));
+    chamberModel->SetMaterial(1, cache_->GetResource<Material>("Resources/Materials/PitchBlack.xml"));
+    chamberModel->SetCastShadows(true);
+
+    //Create player 1 ship
+    Node* shipNode1 = lobbyNode_->CreateChild("Ship");
+    shipNode1->SetWorldPosition(Vector3(-4.2f, 0.6f, 0.0f));
+    shipNode1->Rotate(Quaternion(270.0f, Vector3::UP));
+    StaticModel* ship1 = shipNode1->CreateComponent<StaticModel>();
+    ship1->SetModel(resources.models.ships.swift);
+    ship1->SetMaterial(0, resources.materials.shipSecondary);
+    ship1->SetMaterial(1, resources.materials.shipPrimary);
+    ship1->SetCastShadows(true);
+
+    //Create player 2 ship
+    Node* shipNode2 = lobbyNode_->CreateChild("Ship");
+    shipNode2->SetWorldPosition(Vector3(4.2f, 0.6f, 0.0f));
+    shipNode2->Rotate(Quaternion(90.0f, Vector3::UP));
+    StaticModel* ship2 = shipNode2->CreateComponent<StaticModel>();
+    ship2->SetModel(resources.models.ships.swift);
+    ship2->SetMaterial(0, resources.materials.shipSecondary);
+    ship2->SetMaterial(1, resources.materials.shipPrimary);
+    ship2->SetCastShadows(true);
+
     RigidBody* lobbyBody = lobbyNode_->CreateComponent<RigidBody>();
     lobbyBody->SetTrigger(true);
     CollisionShape* shipShape = lobbyNode_->CreateComponent<CollisionShape>();
-    shipShape->SetCylinder(1.8f, 1.0f);
+    shipShape->SetCylinder(2.3f, 1.0f);
 
     SubscribeToEvent(lobbyNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandlePlayTrigger));
 
-    //Add a point light to the lobby. Enable cascaded shadows on it
-    Node* lobbySpotLightNode = lobbyNode_->CreateChild("PointLight");
-    lobbySpotLightNode->SetPosition(Vector3::UP*5.0f);
-    lobbySpotLightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
-    lobbySpotLight_ = lobbySpotLightNode->CreateComponent<Light>();
-    lobbySpotLight_->SetLightType(LIGHT_SPOT);
-    lobbySpotLight_->SetFov(120.0f);
-    lobbySpotLight_->SetBrightness(1.0f);
-    lobbySpotLight_->SetRange(10.0f);
-    lobbySpotLight_->SetColor(Color(0.3f, 0.5f, 1.0f));
-    lobbySpotLight_->SetCastShadows(true);
-    lobbySpotLight_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
-    for (int i = 0; i < 6; i++){
-        Node* edgeNode = floorNode->CreateChild("LobbyEdge");
-        edgeNode->Rotate(Quaternion(0.0f, (60.0f * i), 0.0f));
-        Model* model = cache_->GetResource<Model>("Resources/Models/ArenaEdgeSegment.mdl");
-        edgeNode->CreateComponent<RigidBody>();
-        CollisionShape* collider = edgeNode->CreateComponent<CollisionShape>();
-        collider->SetConvexHull(model);
-        SubscribeToEvent(edgeNode, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandleExitTrigger));
-    }
+    Node* leftPointLightNode1 = lobbyNode_->CreateChild("PointLight");
+    leftPointLightNode1->SetPosition(Vector3(2.0f, 3.0f, 1.0f));
+    Light* leftPointLight1 = leftPointLightNode1->CreateComponent<Light>();
+    leftPointLight1->SetLightType(LIGHT_POINT);
+    leftPointLight1->SetBrightness(0.23f);
+    leftPointLight1->SetColor(Color(0.0f, 1.0f, 0.0f));
+    leftPointLight1->SetRange(6.66f);
+    leftPointLight1->SetCastShadows(true);
+    leftPointLight1->SetShadowBias(BiasParameters(0.0001f, 0.1f));
+
+    Node* leftPointLightNode2 = lobbyNode_->CreateChild("PointLight");
+    leftPointLightNode2->SetPosition(Vector3(2.0f, 3.0f, -1.0f));
+    Light* leftPointLight2 = leftPointLightNode2->CreateComponent<Light>();
+    leftPointLight2->SetLightType(LIGHT_POINT);
+    leftPointLight2->SetBrightness(0.23f);
+    leftPointLight2->SetColor(Color(0.0f, 1.0f, 0.0f));
+    leftPointLight2->SetRange(6.66f);
+    leftPointLight2->SetCastShadows(true);
+    leftPointLight2->SetShadowBias(BiasParameters(0.0001f, 0.1f));
+
+    Node* rightPointLightNode1 = lobbyNode_->CreateChild("PointLight");
+    rightPointLightNode1->SetPosition(Vector3(-2.0f, 3.0f, 1.0f));
+    Light* rightPointLight1 = rightPointLightNode1->CreateComponent<Light>();
+    rightPointLight1->SetLightType(LIGHT_POINT);
+    rightPointLight1->SetBrightness(0.23f);
+    rightPointLight1->SetColor(Color(0.23f, 0.0f, 1.0f));
+    rightPointLight1->SetRange(6.66f);
+    rightPointLight1->SetCastShadows(true);
+    rightPointLight1->SetShadowBias(BiasParameters(0.0001f, 0.1f));
+
+    Node* rightPointLightNode2 = lobbyNode_->CreateChild("PointLight");
+    rightPointLightNode2->SetPosition(Vector3(-2.0f, 3.0f, -1.0f));
+    Light* rightPointLight2 = rightPointLightNode2->CreateComponent<Light>();
+    rightPointLight2->SetLightType(LIGHT_POINT);
+    rightPointLight2->SetBrightness(0.23f);
+    rightPointLight2->SetColor(Color(0.23f, 0.0f, 1.0f));
+    rightPointLight2->SetRange(6.66f);
+    rightPointLight2->SetCastShadows(true);
+    rightPointLight2->SetShadowBias(BiasParameters(0.0001f, 0.1f));
+
+//    for (int i = 0; i < 6; i++){
+//        Node* edgeNode = floorNode->CreateChild("LobbyEdge");
+//        edgeNode->Rotate(Quaternion(0.0f, (60.0f * i), 0.0f));
+//        Model* model = cache_->GetResource<Model>("Resources/Models/ArenaEdgeSegment.mdl");
+//        edgeNode->CreateComponent<RigidBody>();
+//        CollisionShape* collider = edgeNode->CreateComponent<CollisionShape>();
+//        collider->SetConvexHull(model);
+//        SubscribeToEvent(edgeNode, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandleExitTrigger));
+//    }
     //Create game elements
     spawnMaster_ = new SpawnMaster(context_, this);
     player_ = new Player(context_, this);
@@ -294,6 +334,7 @@ void MasterControl::EnterGameState()
         world.camera->EnterLobby();
         spawnMaster_->Clear();
         tileMaster_->HideArena();
+
         apple_->Disable();
         heart_->Disable();
         multiX_->Disable();
@@ -303,10 +344,12 @@ void MasterControl::EnterGameState()
         musicSource_->Play(gameMusic_);
         player_->EnterPlay();
         world.camera->EnterPlay();
+
         apple_->Respawn(true);
         heart_->Respawn(true);
         multiX_->Deactivate();
         chaoBall_->Deactivate();
+
         world.lastReset = world.scene->GetElapsedTime();
         spawnMaster_->Restart();
         tileMaster_->Restart();

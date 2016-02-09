@@ -5,9 +5,5 @@
 
 #### New features
 - Kernel (Enemy)
-- Ejection seat visualisation
-- Lobby zero stack
-- HoloHighHeavens
-- 2 player modes
-	- Coop
-    - Battle
+- 2 Player Lobby
+- Baphomech boss (silver coin on defeat)

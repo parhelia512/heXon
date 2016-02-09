@@ -192,7 +192,7 @@ private:
 
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void HandlePlayTrigger(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY); }
-    void HandleExitTrigger(StringHash otherNode, VariantMap &eventData){ Exit(); }
+    void HandleExitTrigger(StringHash otherNode, VariantMap &eventData){ /*Exit();*/ }
 
     void UpdateCursor(const float timeStep);
     bool CursorRayCast(const float maxDistance, PODVector<RayQueryResult> &hitResults);

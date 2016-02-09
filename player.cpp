@@ -52,7 +52,7 @@ Player::Player(Context *context, MasterControl *masterControl):
 
     //Setup pilot
     pilot_.node_ = rootNode_->CreateChild("Pilot");
-    pilot_.node_->Translate(Vector3(0.0f, -0.666f, 0.0f));
+//    pilot_.node_->Translate(Vector3(0.0f, -0.666f, 0.0f));
     pilot_.bodyModel_ = pilot_.node_->CreateComponent<AnimatedModel>();
     pilot_.bodyModel_->SetModel(masterControl_->resources.models.pilots.male);
     pilot_.bodyModel_->SetCastShadows(true);
@@ -493,8 +493,8 @@ void Player::EnterLobby()
     guiNode_->SetEnabledRecursive(false);
     chaoFlash_->Disable();
     SetPilotMode(true);
-    rootNode_->SetPosition(Vector3::BACK*7.0f);
-    rigidBody_->SetLinearVelocity(Vector3::FORWARD*5.0f);
+    rootNode_->SetPosition(Vector3(-2.23f, 0.0f, 7.0f));
+    rigidBody_->SetLinearVelocity(Vector3::BACK*5.0f);
     rigidBody_->ResetForces();
 }
 void Player::SetPilotMode(bool pilotMode){
