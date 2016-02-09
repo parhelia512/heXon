@@ -78,11 +78,10 @@ void Bullet::Disable()
 }
 
 void Bullet::HitCheck(float timeStep) {
-    float velocity = rigidBody_->GetLinearVelocity().Length();
     if (!fading_) {
         PODVector<PhysicsRaycastResult> hitResults{};
-        Ray bulletRay(rootNode_->GetPosition() - rigidBody_->GetLinearVelocity()*timeStep*0.5f, rootNode_->GetDirection());
-        if (masterControl_->PhysicsRayCast(hitResults, bulletRay, 1.5f*velocity*timeStep, M_MAX_UNSIGNED)){
+        Ray bulletRay(rootNode_->GetPosition() - rigidBody_->GetLinearVelocity()*timeStep, rootNode_->GetDirection());
+        if (masterControl_->PhysicsRayCast(hitResults, bulletRay, 1.5f*rigidBody_->GetLinearVelocity().Length()*timeStep, M_MAX_UNSIGNED)){
             for (int i = 0; i < hitResults.Size(); i++){
                 if (!hitResults[i].body_->IsTrigger() && hitResults[i].body_->GetNode()->GetNameHash() != N_PLAYER){
                     hitResults[i].body_->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.05f);

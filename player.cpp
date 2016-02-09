@@ -455,6 +455,7 @@ void Player::Pickup(PickupType pickup)
 void Player::PickupChaoBall()
 {
     chaoFlash_->Set(GetPosition());
+    rootNode_->Translate(Quaternion(Random(360.0f), Vector3::UP) * Vector3::FORWARD * Random(5.0f));
     PlaySample(chaoball_s, 0.8f);
 }
 

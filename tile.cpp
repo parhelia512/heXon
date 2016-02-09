@@ -74,6 +74,6 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     rootNode_->SetPosition(newPos);
 
     float brightness = Clamp((0.23f * offsetY) + 0.25f, 0.0f, 1.0f);
-    Color color = Color(brightness, brightness, brightness, brightness + (0.023f * wave_));
+    Color color = Color(brightness, brightness + offsetY * 0.00042f * (masterControl_->Sine(23.0f, -23.0f, 23.0f, 23.0f) * wave_), brightness, brightness + (0.023f * wave_));
     model_->GetMaterial(0)->SetShaderParameter("MatDiffColor", color);
 }
