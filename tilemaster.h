@@ -55,13 +55,18 @@ public:
 
     Tile* GetRandomTile();
 private:
+    Vector3 targetPosition_;
+    Vector3 targetScale_;
+    Node* logoNode_;
+    Material* logoMaterial_;
+    Light* playLight_;
     HashMap<WeakPtr<Node>, WeakPtr<RigidBody> > hexAffectors_;
     HashMap<IntVector2, SharedPtr<Tile> > tileMap_;
 
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
 
-    void Restart();
-    void HideArena();
+    void EnterPlayState();
+    void EnterLobbyState();
 };
 
 #endif // TILEMASTER_H

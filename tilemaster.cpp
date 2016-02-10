@@ -29,9 +29,14 @@ template <> unsigned MakeHash(const IntVector2& value)
 
 TileMaster::TileMaster(Context *context, MasterControl* masterControl):
 Object(context),
-  masterControl_{masterControl}
+  masterControl_{masterControl},
+  targetPosition_{Vector3::UP * 0.666f},
+  targetScale_{Vector3::ONE * 0.05f}
 {
     rootNode_ = masterControl_->world.scene->CreateChild("TileMaster");
+    rootNode_->SetPosition(targetPosition_);
+    rootNode_->SetScale(targetScale_);
+
     //Create hexagonal field
     //Lays a field of hexagons at the origin
     int bigHexSize = 23;
@@ -50,25 +55,57 @@ Object(context),
     Node* lightNode = rootNode_->CreateChild("Sun");
     lightNode->SetPosition(Vector3::UP*5.0f);
     lightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
-    Light* playLight = lightNode->CreateComponent<Light>();
-    playLight->SetLightType(LIGHT_DIRECTIONAL);
-    playLight->SetBrightness(0.8f);
-    playLight->SetRange(10.0f);
-    playLight->SetColor(Color(1.0f, 0.9f, 0.95f));
-    playLight->SetCastShadows(false);
+    playLight_ = lightNode->CreateComponent<Light>();
+    playLight_->SetLightType(LIGHT_DIRECTIONAL);
+    playLight_->SetBrightness(0.0f);
+    playLight_->SetRange(10.0f);
+    playLight_->SetColor(Color(1.0f, 0.9f, 0.95f));
+    playLight_->SetCastShadows(false);
+
+    //Create heXon logo
+    logoNode_ = rootNode_->CreateChild("heXon");
+    logoNode_->SetPosition(Vector3(0.0f, -4.0f, 0.0f));
+    logoNode_->SetRotation(Quaternion(0.0f, 180.0f, 0.0f));
+    logoNode_->SetScale(16.0f);
+    StaticModel* logoModel = logoNode_->CreateComponent<StaticModel>();
+    logoModel->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/heXon.mdl"));
+    logoMaterial_ = masterControl_->cache_->GetResource<Material>("Resources/Materials/Loglow.xml");
+    logoModel->SetMaterial(logoMaterial_);
+
+    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(TileMaster, HandleUpdate));
 }
 
-void TileMaster::Restart()
+void TileMaster::EnterPlayState()
 {
-    rootNode_->SetEnabledRecursive(true);
+    targetPosition_ = Vector3::ZERO;
+    targetScale_ = Vector3::ONE;
     Vector<SharedPtr<Tile> > tiles = tileMap_.Values();
     for (unsigned t = 0; t < tiles.Size(); t++){
         tiles[t]->lastOffsetY_ = 2.3f;
     }
 }
-void TileMaster::HideArena()
+void TileMaster::EnterLobbyState()
 {
-    rootNode_->SetEnabledRecursive(false);
+    targetPosition_ = Vector3::UP * 0.45f;
+    targetScale_ = Vector3::ONE * 0.05f;
+}
+
+void TileMaster::HandleUpdate(StringHash eventType, VariantMap& eventData)
+{
+    float timestep = eventData[Update::P_TIMESTEP].GetFloat();
+    float lerpFactor = masterControl_->GetGameState() == GS_LOBBY ? 23.0f : 8.8f ;
+    float t = Min(1.0f, timestep * lerpFactor);
+    rootNode_->SetPosition(rootNode_->GetPosition().Lerp(targetPosition_, t));
+    rootNode_->SetScale(rootNode_->GetScale().Lerp(targetScale_, pow(t, 0.42f) ));
+
+    logoNode_->SetPosition(logoNode_->GetPosition().Lerp(masterControl_->GetGameState() == GS_LOBBY
+                                                         ? Vector3::UP * 4.0f * masterControl_->Sine(5.0f, -0.1f, 1.23f)
+                                                         : Vector3::UP * -4.0f, t));
+    logoMaterial_->SetShaderParameter("MatDiffColor", logoMaterial_->GetShaderParameter("MatDiffColor").GetColor().Lerp(
+                                          masterControl_->GetGameState() == GS_LOBBY
+                                          ? Color(0.42f, 0.666f, 0.666f, 1.0) * masterControl_->Sine(5.0f, 0.42f, 1.0f, 0.23f)
+                                          : Color(0.0666f, 0.16f, 0.16f, 0.23f), t));
+    playLight_->SetBrightness(masterControl_->GetGameState() == GS_PLAY? 0.8f : 0.0f);
 }
 
 Tile* TileMaster::GetRandomTile()

@@ -73,7 +73,7 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     Vector3 newPos = Vector3(lastPos.x_, referencePosition_.y_ - Min(offsetY, 4.0f), lastPos.z_);
     rootNode_->SetPosition(newPos);
 
-    float brightness = Clamp((0.23f * offsetY) + 0.25f, 0.0f, 1.0f);
+    float brightness = Clamp((0.23f * offsetY) + 0.25f, 0.0f, 1.0f) + 0.42f*(float)(masterControl_->GetGameState() == GS_LOBBY);
     Color color = Color(brightness, brightness + offsetY * 0.00042f * (masterControl_->Sine(23.0f, -23.0f, 23.0f, 23.0f) * wave_), brightness, brightness + (0.023f * wave_));
     model_->GetMaterial(0)->SetShaderParameter("MatDiffColor", color);
 }

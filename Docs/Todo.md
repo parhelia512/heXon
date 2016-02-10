@@ -6,4 +6,4 @@
 #### New features
 - Kernel (Enemy)
 - 2 Player Lobby
-- Baphomech boss (silver coin on defeat)
+- Baphomech boss (trophy: coin)

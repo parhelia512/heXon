@@ -82,19 +82,20 @@ void MasterControl::Start()
     //Create the UI content
     CreateUI();
     //Hook up to the frame update and render post-update events
-    SubscribeToEvents();
 
-    menuMusic_ = cache_->GetResource<Sound>("Resources/Music/Eddy J - Webbed Gloves in Neon Brights.ogg");
-    menuMusic_->SetLooped(true);
+//    menuMusic_ = cache_->GetResource<Sound>("Resources/Music/Eddy J - Webbed Gloves in Neon Brights.ogg");
+//    menuMusic_->SetLooped(true);
     gameMusic_ = cache_->GetResource<Sound>("Resources/Music/Alien Chaos - Disorder.ogg");
     gameMusic_->SetLooped(true);
     Node* musicNode = world.scene->CreateChild("Music");
     musicSource_ = musicNode->CreateComponent<SoundSource>();
     musicSource_->SetGain(0.32f);
     musicSource_->SetSoundType(SOUND_MUSIC);
-    musicSource_->Play(menuMusic_);
+//    musicSource_->Play(menuMusic_);
 
     SetGameState(GS_LOBBY);
+
+    SubscribeToEvents();
 }
 void MasterControl::Stop()
 {
@@ -148,6 +149,7 @@ void MasterControl::LoadResources()
 
     //Load materials
     resources.materials.basic = SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/Basic.xml"));
+    resources.materials.basic->SetShaderParameter("MatDiffColor", Color(0.05f, 0.05f, 0.05f, 1.0));
 
     resources.materials.shipPrimary = cache_->GetResource<Material>("Resources/Materials/GreenEnvmap.xml");
     resources.materials.shipSecondary = cache_->GetResource<Material>("Resources/Materials/GreenGlowEnvmap.xml");
@@ -191,22 +193,13 @@ void MasterControl::CreateScene()
     //Create arena
     tileMaster_ = new TileMaster(context_, this);
 
-    //Create heXon logo
-    Node* logoNode = world.scene->CreateChild("heXon");
-    logoNode->SetWorldPosition(Vector3(0.0f, -4.0f, 0.0f));
-    logoNode->SetRotation(Quaternion(0.0f, 180.0f, 0.0f));
-    logoNode->SetScale(16.0f);
-    StaticModel* logoModel = logoNode->CreateComponent<StaticModel>();
-    logoModel->SetModel(cache_->GetResource<Model>("Resources/Models/heXon.mdl"));
-    logoModel->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Loglow.xml"));
-
     //Construct lobby
     lobbyNode_ = world.scene->CreateChild("Lobby");
     lobbyNode_->Rotate(Quaternion(0.0f, 180.0f, 0.0f));
     Node* chamberNode = lobbyNode_->CreateChild("Chamber");
     StaticModel* chamberModel = chamberNode->CreateComponent<StaticModel>();
     chamberModel->SetModel(cache_->GetResource<Model>("Resources/Models/Chamber.mdl"));
-    chamberModel->SetMaterial(0, cache_->GetResource<Material>("Resources/Materials/Basic.xml"));
+    chamberModel->SetMaterial(0, resources.materials.basic);
     chamberModel->SetMaterial(1, cache_->GetResource<Material>("Resources/Materials/PitchBlack.xml"));
     chamberModel->SetCastShadows(true);
 
@@ -216,8 +209,8 @@ void MasterControl::CreateScene()
     shipNode1->Rotate(Quaternion(270.0f, Vector3::UP));
     StaticModel* ship1 = shipNode1->CreateComponent<StaticModel>();
     ship1->SetModel(resources.models.ships.swift);
-    ship1->SetMaterial(0, resources.materials.shipSecondary);
-    ship1->SetMaterial(1, resources.materials.shipPrimary);
+    ship1->SetMaterial(0, cache_->GetResource<Material>("Resources/Materials/GreenGlow.xml"));
+    ship1->SetMaterial(1, cache_->GetResource<Material>("Resources/Materials/Green.xml"));
     ship1->SetCastShadows(true);
 
     //Create player 2 ship
@@ -226,8 +219,8 @@ void MasterControl::CreateScene()
     shipNode2->Rotate(Quaternion(90.0f, Vector3::UP));
     StaticModel* ship2 = shipNode2->CreateComponent<StaticModel>();
     ship2->SetModel(resources.models.ships.swift);
-    ship2->SetMaterial(0, resources.materials.shipSecondary);
-    ship2->SetMaterial(1, resources.materials.shipPrimary);
+    ship2->SetMaterial(0, cache_->GetResource<Material>("Resources/Materials/PurpleGlow.xml"));
+    ship2->SetMaterial(1, cache_->GetResource<Material>("Resources/Materials/Purple.xml"));
     ship2->SetCastShadows(true);
 
     RigidBody* lobbyBody = lobbyNode_->CreateComponent<RigidBody>();
@@ -239,42 +232,42 @@ void MasterControl::CreateScene()
 
 
     Node* leftPointLightNode1 = lobbyNode_->CreateChild("PointLight");
-    leftPointLightNode1->SetPosition(Vector3(2.0f, 3.0f, 1.0f));
+    leftPointLightNode1->SetPosition(Vector3(2.3f, 2.3f, 3.2f));
     Light* leftPointLight1 = leftPointLightNode1->CreateComponent<Light>();
     leftPointLight1->SetLightType(LIGHT_POINT);
-    leftPointLight1->SetBrightness(0.23f);
-    leftPointLight1->SetColor(Color(0.0f, 1.0f, 0.0f));
-    leftPointLight1->SetRange(6.66f);
+    leftPointLight1->SetBrightness(1.0f);
+    leftPointLight1->SetColor(Color(0.42f, 1.0f, 0.1f));
+    leftPointLight1->SetRange(10.0f);
     leftPointLight1->SetCastShadows(true);
     leftPointLight1->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
     Node* leftPointLightNode2 = lobbyNode_->CreateChild("PointLight");
-    leftPointLightNode2->SetPosition(Vector3(2.0f, 3.0f, -1.0f));
+    leftPointLightNode2->SetPosition(Vector3(2.3f, 2.3f, -3.2f));
     Light* leftPointLight2 = leftPointLightNode2->CreateComponent<Light>();
     leftPointLight2->SetLightType(LIGHT_POINT);
-    leftPointLight2->SetBrightness(0.23f);
-    leftPointLight2->SetColor(Color(0.0f, 1.0f, 0.0f));
-    leftPointLight2->SetRange(6.66f);
+    leftPointLight2->SetBrightness(1.0f);
+    leftPointLight2->SetColor(Color(0.42f, 1.0f, 0.1f));
+    leftPointLight2->SetRange(10.0f);
     leftPointLight2->SetCastShadows(true);
     leftPointLight2->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
     Node* rightPointLightNode1 = lobbyNode_->CreateChild("PointLight");
-    rightPointLightNode1->SetPosition(Vector3(-2.0f, 3.0f, 1.0f));
+    rightPointLightNode1->SetPosition(Vector3(-2.3f, 2.3f, 3.2f));
     Light* rightPointLight1 = rightPointLightNode1->CreateComponent<Light>();
     rightPointLight1->SetLightType(LIGHT_POINT);
-    rightPointLight1->SetBrightness(0.23f);
-    rightPointLight1->SetColor(Color(0.23f, 0.0f, 1.0f));
-    rightPointLight1->SetRange(6.66f);
+    rightPointLight1->SetBrightness(1.0f);
+    rightPointLight1->SetColor(Color(0.42f, 0.1f, 1.0f));
+    rightPointLight1->SetRange(10.0f);
     rightPointLight1->SetCastShadows(true);
     rightPointLight1->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
     Node* rightPointLightNode2 = lobbyNode_->CreateChild("PointLight");
-    rightPointLightNode2->SetPosition(Vector3(-2.0f, 3.0f, -1.0f));
+    rightPointLightNode2->SetPosition(Vector3(-2.3f, 2.3f, -3.2f));
     Light* rightPointLight2 = rightPointLightNode2->CreateComponent<Light>();
     rightPointLight2->SetLightType(LIGHT_POINT);
-    rightPointLight2->SetBrightness(0.23f);
-    rightPointLight2->SetColor(Color(0.23f, 0.0f, 1.0f));
-    rightPointLight2->SetRange(6.66f);
+    rightPointLight2->SetBrightness(1.0f);
+    rightPointLight2->SetColor(Color(0.42f, 0.1f, 1.0f));
+    rightPointLight2->SetRange(10.0f);
     rightPointLight2->SetCastShadows(true);
     rightPointLight2->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
@@ -328,12 +321,13 @@ void MasterControl::EnterGameState()
     switch (currentState_){
     case GS_INTRO : break;
     case GS_LOBBY : {
-        musicSource_->Play(menuMusic_);
+//        musicSource_->Play(menuMusic_);
+        musicSource_->Stop();
         lobbyNode_->SetEnabledRecursive(true);
         player_->EnterLobby();
         world.camera->EnterLobby();
         spawnMaster_->Clear();
-        tileMaster_->HideArena();
+        tileMaster_->EnterLobbyState();
 
         apple_->Disable();
         heart_->Disable();
@@ -352,14 +346,13 @@ void MasterControl::EnterGameState()
 
         world.lastReset = world.scene->GetElapsedTime();
         spawnMaster_->Restart();
-        tileMaster_->Restart();
+        tileMaster_->EnterPlayState();
     } break;
     case GS_DEAD : {
         spawnMaster_->Deactivate();
         world.camera->SetGreyScale(true);
     } break;
-    case GS_EDIT : break; //Activate EditMaster
-        default: break;
+    default: break;
     }
 }
 
@@ -370,16 +363,22 @@ void MasterControl::Eject()
 
 void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    double timeStep = eventData[Update::P_TIMESTEP].GetFloat();
+    double timeStep = Min (1.0f, eventData[Update::P_TIMESTEP].GetFloat());
     UpdateCursor(timeStep);
 
-    if (currentState_ == GS_LOBBY) {
-        Color spotColor;
-        unsigned score = player_->GetScore();
-        spotColor.FromHSV(LucKey::Cycle(((score/1000000)+0.23f)*world.scene->GetElapsedTime(), 0.0f, 1.0f), Min(1.0f, score/50000), 1.0f);
-        lobbySpotLight_->SetColor(spotColor);
-        lobbySpotLight_->SetBrightness(1.0f + Min(5.0f, (score/100000)));
-    }
+    resources.materials.basic->SetShaderParameter("MatDiffColor", resources.materials.basic->GetShaderParameter("MatDiffColor").GetColor().Lerp(
+                                          GetGameState() == GS_LOBBY
+                                          ? Color(0.142f, 0.132f, 0.13f, 1.0f) * Sine(5.0f, 0.88f, 1.0f, 0.666f)
+                                          : Color(0.0f, 0.0f, 0.0f, 0.0f), timeStep));
+
+
+//    if (currentState_ == GS_LOBBY) {
+//        Color spotColor;
+//        unsigned score = player_->GetScore();
+//        spotColor.FromHSV(LucKey::Cycle(((score/1000000)+0.23f)*world.scene->GetElapsedTime(), 0.0f, 1.0f), Min(1.0f, score/50000), 1.0f);
+//        lobbySpotLight_->SetColor(spotColor);
+//        lobbySpotLight_->SetBrightness(1.0f + Min(5.0f, (score/100000)));
+//    }
 }
 
 void MasterControl::UpdateCursor(const float timeStep)
