@@ -44,7 +44,6 @@ Player::Player(Context *context, MasterControl *masterControl, int playerID):
     shotInterval_{initialShotInterval_},
     sinceLastShot_{0.0f}
 {
-    LoadScore();
 
     rootNode_->SetName("Player");
     CreateGUI();
@@ -120,19 +119,26 @@ Player::Player(Context *context, MasterControl *masterControl, int playerID):
 
 void Player::CreateGUI()
 {
-    UI* ui = GetSubsystem<UI>();
-    Text* scoreText = ui->GetRoot()->CreateChild<Text>();
-    scoreText->SetName("Score");
-    scoreTextName_ = scoreText->GetName();
-    scoreText->SetText(String(score_));
-    scoreText->SetFont(masterControl_->cache_->GetResource<Font>("Resources/Fonts/skirmishergrad.ttf"), 32);
-    scoreText->SetColor(Color(0.5f, 0.95f, 1.0f, 0.666f));
-    scoreText->SetHorizontalAlignment(HA_CENTER);
-    scoreText->SetVerticalAlignment(VA_CENTER);
-    scoreText->SetPosition(0, ui->GetRoot()->GetHeight()/2.5f);
-
     //Setup 3D GUI elements
     guiNode_ = masterControl_->world.scene->CreateChild("GUI3D");
+
+    scoreNode_ = guiNode_->CreateChild("Score");
+    for (int d = 0; d < 10; ++d){
+        scoreDigits_[d] = scoreNode_->CreateChild("Digit");
+        scoreDigits_[d]->SetEnabled( d == 0 );
+        scoreDigits_[d]->Translate(Vector3::RIGHT * (playerID_ == 2 ? -0.5f : 0.5f) * d);
+        scoreDigits_[d]->Rotate(Quaternion(playerID_ == 2 ? 0.0f : 180.0f, Vector3::UP), TS_WORLD);
+        StaticModel* digitModel = scoreDigits_[d]->CreateComponent<StaticModel>();
+        digitModel->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/0.mdl"));
+        digitModel->SetMaterial(playerID_==2
+                                ? masterControl_->resources.materials.ship2Secondary
+                                : masterControl_->resources.materials.ship1Secondary);
+    }
+    scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 5.94252f : -5.94252f, 0.88069f, 0.82951f));
+    scoreNode_->Rotate(Quaternion(-90.0f, Vector3::RIGHT));
+    scoreNode_->Rotate(Quaternion(playerID_ == 2 ? 60.0f : -60.0f, Vector3::UP), TS_WORLD);
+
+
     healthBarNode_ = guiNode_->CreateChild("HealthBar");
     healthBarNode_->SetPosition(Vector3(0.0f, 1.0f, playerID_ == 2 ? -21.0f : 21.0f));
     healthBarNode_->SetScale(Vector3(health_, 1.0f, 1.0f));
@@ -179,10 +185,15 @@ void Player::CreateGUI()
 void Player::SetScore(int points)
 {
     score_ = points;
-    UI* ui = GetSubsystem<UI>();
-    UIElement* scoreElement = ui->GetRoot()->GetChild(scoreTextName_);
-    Text* scoreText = (Text*)scoreElement;
-    scoreText->SetText(String(points));
+
+    for (int d = 0; d < 10; ++d){
+        StaticModel* digitModel = scoreDigits_[d]->GetComponent<StaticModel>();
+        digitModel->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/"+String((int)(score_ / pow(10, d))%10)+".mdl"));
+        scoreDigits_[d]->SetEnabled( score_ >= pow(10, d) );
+        digitModel->SetMaterial(playerID_==2
+                                ? masterControl_->resources.materials.ship2Secondary
+                                : masterControl_->resources.materials.ship1Secondary);
+    }
 }
 void Player::ResetScore()
 {
@@ -198,17 +209,6 @@ void Player::AddScore(int points)
 
     SetScore(GetScore()+points);
     flightScore_ += points;
-}
-void Player::LoadScore()
-{
-    std::ifstream f_score("Resources/.heXon.lks");
-    std::string score_str;
-    f_score >> score_str;
-    if (!score_str.empty()){
-        unsigned long score = stoul(score_str, 0, 10);
-        score_ = score;
-    }
-    f_score.close();
 }
 
 void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
@@ -468,7 +468,7 @@ void Player::Die()
 
 void Player::EnterPlay()
 {
-    guiNode_->SetEnabledRecursive(true);
+//    guiNode_->SetEnabledRecursive(true);
 
     rootNode_->SetRotation(Quaternion(playerID_==2 ? -90.0f : 90.0f, Vector3::UP));
     rigidBody_->ResetForces();
@@ -490,7 +490,7 @@ void Player::EnterPlay()
 void Player::EnterLobby()
 {
     StopAllSound();
-    guiNode_->SetEnabledRecursive(false);
+//    guiNode_->SetEnabledRecursive(false);
     chaoFlash_->Disable();
     SetPilotMode(true);
     rootNode_->SetPosition(Vector3(playerID_==2 ? 2.23f : -2.23f, 0.0f, 7.0f));
@@ -582,7 +582,7 @@ void Player::LoadPilot()
         pilot_.colors_.Push(Color(stof(color5_r_str),stof(color5_g_str),stof(color5_b_str)));
 
         unsigned long score = stoul(score_str, 0, 10);
-        score_ = score;
+        SetScore(score);
     }
     if (!pilot_.colors_.Size()) CreateNewPilot();
     UpdatePilot();

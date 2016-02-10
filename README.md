@@ -46,5 +46,3 @@ hēXōn is best played with a controller that has at least two analog sticks. Th
 ### Soundtrack
 Alien Chaos - Disorder
 from [Discovering the Code](http://www.ektoplazm.com/free-music/alien-chaos-discovering-the-code)
-
-[Eddy J - Webbed Gloves in Neon Brights](https://www.jamendo.com/en/list/a137551/webbed-gloves-in-neon-brights-chill-jazz-reggea)

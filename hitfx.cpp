@@ -23,15 +23,17 @@ HitFX::HitFX(Context *context, MasterControl *masterControl):
 {
     rootNode_->SetName("HitFX");
     particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
-    ParticleEffect* particleEffect = masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/HitFX.xml");
-    particleEmitter_->SetEffect(particleEffect);
+    greenHitFX_ = masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/GreenHitFX.xml");
+    purpleHitFX_ = masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/PurpleHitFX.xml");
 
     sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Hit.ogg");
     sample_->SetLooped(false);
 }
 
-void HitFX::Set(const Vector3 position, const bool sound)
+void HitFX::Set(const Vector3 position, const bool sound, int playerID)
 {
+    particleEmitter_->SetEffect(playerID == 2 ? purpleHitFX_ : greenHitFX_);
+
     if (sound) PlaySample(sample_, 0.23f);
     Effect::Set(position);
 }

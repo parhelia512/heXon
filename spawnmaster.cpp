@@ -287,20 +287,20 @@ bool SpawnMaster::RespawnChaoZap(const Vector3& position, int playerID)
     return false;
 }
 
-void SpawnMaster::SpawnHitFX(const Vector3 &position, bool sound)
+void SpawnMaster::SpawnHitFX(const Vector3 &position, bool sound, int playerID)
 {
-    if (!RespawnHitFX(position, sound)){
+    if (!RespawnHitFX(position, sound, playerID)){
         HitFX* newHitFX = new HitFX(context_, masterControl_);
-        newHitFX->Set(position, sound);
+        newHitFX->Set(position, sound, playerID);
         hitFXs_.Push(SharedPtr<HitFX>(newHitFX));
     }
 }
-bool SpawnMaster::RespawnHitFX(const Vector3& position, bool sound)
+bool SpawnMaster::RespawnHitFX(const Vector3& position, bool sound, int playerID)
 {
     for (unsigned h = 0; h < hitFXs_.Size(); ++h){
         if (!hitFXs_[h]->IsEnabled()){
             SharedPtr<HitFX> hitFX = hitFXs_[h];
-            hitFX->Set(position, sound);
+            hitFX->Set(position, sound, playerID);
             return true;
         }
     }

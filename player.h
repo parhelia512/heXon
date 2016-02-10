@@ -67,7 +67,6 @@ public:
     void CreateNewPilot();
     void UpdateGUI(float timeStep);
     void PickupChaoBall();
-    void LoadScore();
     void UpdatePilot();
 private:
     int playerID_;
@@ -98,6 +97,7 @@ private:
     AnimationController* animCtrl_;
 
     Node* guiNode_;
+    Node* scoreNode_;
     Node* healthBarNode_;
     StaticModel* healthBarModel_;
     Node* shieldBarNode_;
@@ -107,6 +107,7 @@ private:
     Node* appleCounter_[5];
     Node* heartCounterRoot_;
     Node* heartCounter_[5];
+    Node* scoreDigits_[10];
 
     Vector<SharedPtr<TailGenerator> > tailGens_;
     Vector<SharedPtr<Bullet> > bullets_;
@@ -118,8 +119,6 @@ private:
     SharedPtr<Sound> multix_s;
     SharedPtr<Sound> chaoball_s;
     Vector<SharedPtr<Sound> > seekerHits_s;
-
-    String scoreTextName_;
 
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void Shoot(Vector3 fire);

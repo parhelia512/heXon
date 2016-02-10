@@ -18,7 +18,7 @@
 
 #include "bullet.h"
 
-Bullet::Bullet(Context *context, MasterControl *masterControl, int playerID = 1):
+Bullet::Bullet(Context *context, MasterControl *masterControl, int playerID):
     SceneObject(context, masterControl),
     playerID_{playerID},
     lifeTime_{1.0f},
@@ -31,7 +31,7 @@ Bullet::Bullet(Context *context, MasterControl *masterControl, int playerID = 1)
     rootNode_->SetScale(Vector3(1.0f+damage_, 1.0f+damage_, 0.1f));
     model_ = rootNode_->CreateComponent<StaticModel>();
     model_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Bullet.mdl"));
-    model_->SetMaterial((playerID_-1)
+    model_->SetMaterial(playerID_ == 2
                         ? masterControl_->cache_->GetResource<Material>("Resources/Materials/PurpleBullet.xml")
                         : masterControl_->cache_->GetResource<Material>("Resources/Materials/GreenBullet.xml"));
 
@@ -42,7 +42,7 @@ Bullet::Bullet(Context *context, MasterControl *masterControl, int playerID = 1)
 
     Light* light = rootNode_->CreateComponent<Light>();
     light->SetRange(6.66f);
-    light->SetColor((playerID_-1)? Color(1.0f + damage_, 0.6f, 0.2f) : Color(0.6f, 1.0f+damage_, 0.2f));
+    light->SetColor( playerID_ == 2 ? Color(1.0f + damage_, 0.6f, 0.2f) : Color(0.6f, 1.0f+damage_, 0.2f));
 }
 
 void Bullet::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
@@ -88,7 +88,7 @@ void Bullet::HitCheck(float timeStep) {
             for (int i = 0; i < hitResults.Size(); i++){
                 if (!hitResults[i].body_->IsTrigger() && hitResults[i].body_->GetNode()->GetNameHash() != N_PLAYER){
                     hitResults[i].body_->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.05f);
-                    masterControl_->spawnMaster_->SpawnHitFX(hitResults[i].position_);
+                    masterControl_->spawnMaster_->SpawnHitFX(hitResults[i].position_, playerID_);
                     //Deal damage
                     unsigned hitID = hitResults[i].body_->GetNode()->GetID();
                     if(masterControl_->spawnMaster_->spires_.Keys().Contains(hitID)){
