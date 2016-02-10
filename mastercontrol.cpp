@@ -86,7 +86,7 @@ void MasterControl::Start()
 
 //    menuMusic_ = cache_->GetResource<Sound>("Resources/Music/Eddy J - Webbed Gloves in Neon Brights.ogg");
 //    menuMusic_->SetLooped(true);
-    gameMusic_ = cache_->GetResource<Sound>("Resources/Music/Modanung - Cavalry.ogg");
+    gameMusic_ = cache_->GetResource<Sound>("Resources/Music/Alien Chaos - Disorder.ogg");
     gameMusic_->SetLooped(true);
     Node* musicNode = world.scene->CreateChild("Music");
     musicSource_ = musicNode->CreateComponent<SoundSource>();
@@ -152,8 +152,10 @@ void MasterControl::LoadResources()
     resources.materials.basic = SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/Basic.xml"));
     resources.materials.basic->SetShaderParameter("MatDiffColor", Color(0.05f, 0.05f, 0.05f, 1.0));
 
-    resources.materials.shipPrimary = cache_->GetResource<Material>("Resources/Materials/GreenEnvmap.xml");
-    resources.materials.shipSecondary = cache_->GetResource<Material>("Resources/Materials/GreenGlowEnvmap.xml");
+    resources.materials.ship1Primary = cache_->GetResource<Material>("Resources/Materials/GreenEnvmap.xml");
+    resources.materials.ship1Secondary = cache_->GetResource<Material>("Resources/Materials/GreenGlowEnvmap.xml");
+    resources.materials.ship2Primary = cache_->GetResource<Material>("Resources/Materials/PurpleEnvmap.xml");
+    resources.materials.ship2Secondary = cache_->GetResource<Material>("Resources/Materials/PurpleGlowEnvmap.xml");
 }
 
 void MasterControl::CreateScene()
@@ -283,7 +285,8 @@ void MasterControl::CreateScene()
 //    }
     //Create game elements
     spawnMaster_ = new SpawnMaster(context_, this);
-    player_ = new Player(context_, this);
+    player1_ = new Player(context_, this, 1);
+    player2_ = new Player(context_, this, 2);
     apple_ = new Apple(context_, this);
     heart_ = new Heart(context_, this);
     multiX_ = new MultiX(context_, this);
@@ -310,8 +313,10 @@ void MasterControl::LeaveGameState()
         spawnMaster_->Deactivate();
     } break; //Eject when alive
     case GS_DEAD : {
-        player_->CreateNewPilot();
-        player_->ResetScore();
+        player1_->CreateNewPilot();
+        player1_->ResetScore();
+        player2_->CreateNewPilot();
+        player2_->ResetScore();
         world.camera->SetGreyScale(false);
     } break;
     case GS_EDIT : break; //Disable EditMaster
@@ -326,7 +331,8 @@ void MasterControl::EnterGameState()
 //        musicSource_->Play(menuMusic_);
         musicSource_->Stop();
         lobbyNode_->SetEnabledRecursive(true);
-        player_->EnterLobby();
+        player1_->EnterLobby();
+        player2_->EnterLobby();
         world.camera->EnterLobby();
         spawnMaster_->Clear();
         tileMaster_->EnterLobbyState();
@@ -338,7 +344,8 @@ void MasterControl::EnterGameState()
     } break;
     case GS_PLAY : {
         musicSource_->Play(gameMusic_);
-        player_->EnterPlay();
+        player1_->EnterPlay();
+        player2_->EnterPlay();
         world.camera->EnterPlay();
 
         apple_->Respawn(true);
@@ -376,23 +383,15 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
 
     switch (currentState_){
     case GS_LOBBY: {
-        musicSource_->SetGain(Max(0.0f, 1.0f - sinceStateChange_));
+//        musicSource_->SetGain(Max(0.0f, 1.0f - sinceStateChange_));
         lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) / (128.0f * sinceStateChange_+23.0f));
     }
         break;
     case GS_PLAY: {
-        musicSource_->SetGain(Min(0.666f, sinceStateChange_ * 0.023f));
+//        musicSource_->SetGain(Min(0.666f, sinceStateChange_ * 0.023f));
         lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) * Min(1.0f, sinceStateChange_));
     } break;
     }
-
-//    if (currentState_ == GS_LOBBY) {
-//        Color spotColor;
-//        unsigned score = player_->GetScore();
-//        spotColor.FromHSV(LucKey::Cycle(((score/1000000)+0.23f)*world.scene->GetElapsedTime(), 0.0f, 1.0f), Min(1.0f, score/50000), 1.0f);
-//        lobbySpotLight_->SetColor(spotColor);
-//        lobbySpotLight_->SetBrightness(1.0f + Min(5.0f, (score/100000)));
-//    }
 }
 
 void MasterControl::UpdateCursor(const float timeStep)
@@ -445,22 +444,33 @@ bool MasterControl::PhysicsSphereCast(PODVector<RigidBody*> &hitResults, const V
 
 void MasterControl::Exit()
 {
-    //Save score to file
-    std::ofstream fScore;
-    fScore.open ("Resources/.heXon.lks");
-    fScore << player_->GetScore();
-    fScore.close();
-    //Save pilot to file
-    std::ofstream fPilot;
-    fPilot.open("Resources/Pilot.lkp");
-    fPilot << player_->pilot_.male_ << '\n';
-    fPilot << player_->pilot_.hairStyle_ << '\n';
-    for (unsigned c = 0; c < player_->pilot_.colors_.Size(); c++){
-        fPilot << player_->pilot_.colors_[c].r_ << ' '
-               << player_->pilot_.colors_[c].g_ << ' '
-               << player_->pilot_.colors_[c].b_ << ' '
+
+    //Save player1 pilot to file
+    std::ofstream fPilot1;
+    fPilot1.open("Resources/Pilot1.lkp");
+    fPilot1 << player1_->pilot_.male_ << '\n';
+    fPilot1 << player1_->pilot_.hairStyle_ << '\n';
+    for (unsigned c = 0; c < player1_->pilot_.colors_.Size(); c++){
+        fPilot1 << player1_->pilot_.colors_[c].r_ << ' '
+               << player1_->pilot_.colors_[c].g_ << ' '
+               << player1_->pilot_.colors_[c].b_ << ' '
                << '\n';
     }
+    fPilot1 << player1_->GetScore();
+
+    //Save player2 pilot to file
+    std::ofstream fPilot2;
+    fPilot2.open("Resources/Pilot2.lkp");
+    fPilot2 << player2_->pilot_.male_ << '\n';
+    fPilot2 << player2_->pilot_.hairStyle_ << '\n';
+    for (unsigned c = 0; c < player1_->pilot_.colors_.Size(); c++){
+        fPilot2 << player2_->pilot_.colors_[c].r_ << ' '
+               << player2_->pilot_.colors_[c].g_ << ' '
+               << player2_->pilot_.colors_[c].b_ << ' '
+               << '\n';
+    }
+    fPilot2 << player2_->GetScore();
+
     //And exit
     engine_->Exit();
 }

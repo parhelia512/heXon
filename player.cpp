@@ -28,8 +28,9 @@
 #include "explosion.h"
 #include "player.h"
 
-Player::Player(Context *context, MasterControl *masterControl):
+Player::Player(Context *context, MasterControl *masterControl, int playerID):
     SceneObject(context, masterControl),
+    playerID_{playerID},
     appleCount_{0},
     heartCount_{0},
     initialHealth_{1.0f},
@@ -52,7 +53,6 @@ Player::Player(Context *context, MasterControl *masterControl):
 
     //Setup pilot
     pilot_.node_ = rootNode_->CreateChild("Pilot");
-//    pilot_.node_->Translate(Vector3(0.0f, -0.666f, 0.0f));
     pilot_.bodyModel_ = pilot_.node_->CreateComponent<AnimatedModel>();
     pilot_.bodyModel_->SetModel(masterControl_->resources.models.pilots.male);
     pilot_.bodyModel_->SetCastShadows(true);
@@ -65,11 +65,11 @@ Player::Player(Context *context, MasterControl *masterControl):
     shieldNode_ = rootNode_->CreateChild("Shield");
     shieldModel_ = shieldNode_->CreateComponent<StaticModel>();
     shieldModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Shield.mdl"));
-    shieldMaterial_ = masterControl_->cache_->GetResource<Material>("Resources/Materials/Shield.xml");
+    shieldMaterial_ = masterControl_->cache_->GetTempResource<Material>("Resources/Materials/Shield.xml");
     shieldModel_->SetMaterial(shieldMaterial_);
     
     //Setup ChaoFlash
-    chaoFlash_ = new ChaoFlash(context_, masterControl_);
+    chaoFlash_ = new ChaoFlash(context_, masterControl_, playerID_);
 
     //Setup player audio
     shot_s = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Shot.ogg");
@@ -87,7 +87,7 @@ Player::Player(Context *context, MasterControl *masterControl):
     for (int s = 1; s < 5; ++s){
         seekerHits_s.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Resources/Samples/SeekerHit"+String(s)+".ogg")));
     }
-    //Some extra sources for dem playaz
+    //Some extra sources for the players
     for (int i = 0; i < 5; ++i){
         SharedPtr<SoundSource> extraSampleSource = SharedPtr<SoundSource>(rootNode_->CreateComponent<SoundSource>());
         extraSampleSource->SetSoundType(SOUND_EFFECT);
@@ -113,7 +113,7 @@ Player::Player(Context *context, MasterControl *masterControl):
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Player, HandleSceneUpdate));
 
     for (int b = 0; b < 64; b++){
-        Bullet* bullet = new Bullet(context_, masterControl_);
+        Bullet* bullet = new Bullet(context_, masterControl_, playerID_);
         bullets_.Push(SharedPtr<Bullet>(bullet));
     }
 }
@@ -134,7 +134,7 @@ void Player::CreateGUI()
     //Setup 3D GUI elements
     guiNode_ = masterControl_->world.scene->CreateChild("GUI3D");
     healthBarNode_ = guiNode_->CreateChild("HealthBar");
-    healthBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
+    healthBarNode_->SetPosition(Vector3(0.0f, 1.0f, playerID_ == 2 ? -21.0f : 21.0f));
     healthBarNode_->SetScale(Vector3(health_, 1.0f, 1.0f));
     healthBarModel_ = healthBarNode_->CreateComponent<StaticModel>();
     healthBarModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Bar.mdl"));
@@ -381,7 +381,7 @@ void Player::FireBullet(Vector3 direction){
         }
     }
     if (bullet == nullptr){
-        bullet = new Bullet(context_, masterControl_);
+        bullet = new Bullet(context_, masterControl_, playerID_);
         bullets_.Push(bullet);
     }
     bullet->Set(rootNode_->GetPosition() + direction);
@@ -470,7 +470,7 @@ void Player::EnterPlay()
 {
     guiNode_->SetEnabledRecursive(true);
 
-    rootNode_->SetRotation(Quaternion(180.0f, Vector3::UP));
+    rootNode_->SetRotation(Quaternion(playerID_==2 ? -90.0f : 90.0f, Vector3::UP));
     rigidBody_->ResetForces();
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     shieldMaterial_->SetShaderParameter("MatDiffColor", Color::BLACK);
@@ -484,7 +484,7 @@ void Player::EnterPlay()
     shotInterval_ = initialShotInterval_;
     RemoveTails();
     CreateTails();
-    Set(Vector3::ZERO);
+    Set(Vector3(playerID_==2 ? 4.2f : -4.2f, 0.6f, 0.0f));
     SetPilotMode(false);
 }
 void Player::EnterLobby()
@@ -493,7 +493,7 @@ void Player::EnterLobby()
     guiNode_->SetEnabledRecursive(false);
     chaoFlash_->Disable();
     SetPilotMode(true);
-    rootNode_->SetPosition(Vector3(-2.23f, 0.0f, 7.0f));
+    rootNode_->SetPosition(Vector3(playerID_==2 ? 2.23f : -2.23f, 0.0f, 7.0f));
     rigidBody_->SetLinearVelocity(Vector3::BACK*5.0f);
     rigidBody_->ResetForces();
 }
@@ -550,7 +550,7 @@ void Player::UpgradeWeapons()
 void Player::LoadPilot()
 {
     using namespace std;
-    ifstream fPilot("Resources/Pilot.lkp");
+    ifstream fPilot("Resources/Pilot"+to_string(playerID_)+".lkp");
     while (!fPilot.eof()){
         string gender_str;
         string hairStyle_str;
@@ -559,6 +559,8 @@ void Player::LoadPilot()
         string color3_r_str, color3_g_str, color3_b_str;
         string color4_r_str, color4_g_str, color4_b_str;
         string color5_r_str, color5_g_str, color5_b_str;
+        string score_str;
+
         fPilot >> gender_str;
         if (gender_str.empty()) break;
         fPilot >>
@@ -567,7 +569,8 @@ void Player::LoadPilot()
                 color2_r_str >> color2_g_str >> color2_b_str >>
                 color3_r_str >> color3_g_str >> color3_b_str >>
                 color4_r_str >> color4_g_str >> color4_b_str >>
-                color5_r_str >> color5_g_str >> color5_b_str;
+                color5_r_str >> color5_g_str >> color5_b_str >>
+                score_str;
 
         pilot_.male_ = stoi(gender_str);
         pilot_.hairStyle_ = stoi(hairStyle_str);
@@ -577,6 +580,9 @@ void Player::LoadPilot()
         pilot_.colors_.Push(Color(stof(color3_r_str),stof(color3_g_str),stof(color3_b_str)));
         pilot_.colors_.Push(Color(stof(color4_r_str),stof(color4_g_str),stof(color4_b_str)));
         pilot_.colors_.Push(Color(stof(color5_r_str),stof(color5_g_str),stof(color5_b_str)));
+
+        unsigned long score = stoul(score_str, 0, 10);
+        score_ = score;
     }
     if (!pilot_.colors_.Size()) CreateNewPilot();
     UpdatePilot();
@@ -644,14 +650,14 @@ void Player::SetupShip()
     ship_.node_ = rootNode_->CreateChild("Ship");
     ship_.model_ = ship_.node_->CreateComponent<StaticModel>();
     ship_.model_->SetModel(masterControl_->resources.models.ships.swift);
-    ship_.model_->SetMaterial(0, masterControl_->resources.materials.shipSecondary);
-    ship_.model_->SetMaterial(1, masterControl_->resources.materials.shipPrimary);
+    ship_.model_->SetMaterial(0, playerID_==2 ? masterControl_->resources.materials.ship2Secondary : masterControl_->resources.materials.ship1Secondary);
+    ship_.model_->SetMaterial(1, playerID_==2 ? masterControl_->resources.materials.ship2Primary : masterControl_->resources.materials.ship1Primary);
 
     ParticleEmitter* particleEmitter = ship_.node_->CreateComponent<ParticleEmitter>();
     SharedPtr<ParticleEffect> particleEffect = masterControl_->cache_->GetTempResource<ParticleEffect>("Resources/Particles/Shine.xml");
     Vector<ColorFrame> colorFrames;
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
-    colorFrames.Push(ColorFrame(Color(0.42f, 0.7f, 0.23f, 0.23f), 0.2f));
+    colorFrames.Push(ColorFrame(playerID_==2 ? Color(0.42f, 0.23f, 0.7f, 0.23f) : Color(0.42f, 0.7f, 0.23f, 0.23f), 0.2f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
     particleEffect->SetColorFrames(colorFrames);
     particleEmitter->SetEffect(particleEffect);
@@ -671,8 +677,8 @@ void Player::CreateTails()
         tailGen->SetTailLength(n==1? 0.1f : 0.075f);
         tailGen->SetNumTails(n==1? 23 : 16);
         tailGen->SetWidthScale(n==1? 0.666f : 0.23f);
-        tailGen->SetColorForHead(Color(0.9f, 1.0f, 0.5f));
-        tailGen->SetColorForTip(Color(0.0f, 1.0f, 0.0f));
+        tailGen->SetColorForHead(playerID_==2 ? Color(1.0f, 0.666f, 0.23f) : Color(0.666f, 1.0f, 0.5f));
+        tailGen->SetColorForTip(playerID_==2 ? Color(1.0f, 0.23f, 0.0f) : Color(0.23f, 1.0f, 0.0f));
         tailGens_.Push(SharedPtr<TailGenerator>(tailGen));
     }
 }

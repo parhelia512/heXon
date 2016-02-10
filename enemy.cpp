@@ -114,7 +114,8 @@ void Enemy::CheckHealth()
 {
     //Die
     if (rootNode_->IsEnabled() && health_ <= 0.0f) {
-        masterControl_->player_->AddScore(bonus_ ? worth_ : 2 * worth_ / 3);
+        if (lastHitBy_ != 0) masterControl_->GetPlayer(lastHitBy_)->AddScore(bonus_ ? worth_ : 2 * worth_ / 3);
+
         masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), Color(color_.r_*color_.r_, color_.g_*color_.g_, color_.b_*color_.b_), 0.5f*rigidBody_->GetMass());
         Disable();
     }
@@ -158,9 +159,12 @@ void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
             StringHash otherNameHash = collider->GetNode()->GetNameHash();
             if (otherNameHash == N_PLAYER) {
                 PlaySample(samples_[Random((int)samples_.Size())], 0.16f);
-                masterControl_->player_->Hit(meleeDamage_ + meleeDamage_*panic_);
+                if (LucKey::Distance(rootNode_->GetPosition(), masterControl_->GetPlayer(1)->GetPosition()) <
+                        LucKey::Distance(rootNode_->GetPosition(), masterControl_->GetPlayer(2)->GetPosition())){
+                    masterControl_->player1_->Hit(meleeDamage_ + meleeDamage_*panic_);
+                } else masterControl_->player2_->Hit(meleeDamage_ + meleeDamage_*panic_);
 //                Vector3 hitPos = eventData[NodeCollisionStart::P_CONTACTS].GetBuffer().At(0);
-                Vector3 hitPos = (masterControl_->player_->GetPosition() + GetPosition()) * 0.5f;
+                Vector3 hitPos = (masterControl_->player1_->GetPosition() + GetPosition()) * 0.5f;
                 masterControl_->spawnMaster_->SpawnHitFX(hitPos, false);
                 sinceLastWhack_ = 0.0f;
             }

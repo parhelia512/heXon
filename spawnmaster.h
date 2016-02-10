@@ -54,8 +54,8 @@ public:
 
     int CountActiveRazors();
     int CountActiveSpires();
-    void SpawnChaoZap(const Vector3 &position);
-    void SpawnChaoMine(const Vector3 &position);
+    void SpawnChaoZap(const Vector3 &position, int playerID);
+    void SpawnChaoMine(const Vector3 &position, int playerID);
     void SpawnSeeker(const Vector3& position);
     void SpawnHitFX(const Vector3& position, bool sound = true);
     void SpawnFlash(const Vector3& position);
@@ -104,8 +104,8 @@ private:
     void SpawnSpire(const Vector3& position);
     bool RespawnSpire(const Vector3& position);
 
-    bool RespawnChaoZap(const Vector3& position);
-    bool RespawnChaoMine(const Vector3& position);
+    bool RespawnChaoZap(const Vector3& position, int playerID);
+    bool RespawnChaoMine(const Vector3& position, int playerID);
     bool RespawnSeeker(const Vector3& position);
     bool RespawnFlash(const Vector3& position);
     bool RespawnExplosion(const Vector3& position, const Color& color, float size);

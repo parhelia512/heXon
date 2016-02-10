@@ -37,7 +37,7 @@ class ChaoMine : public Enemy
     URHO3D_OBJECT(ChaoMine, Enemy);
 public:
     ChaoMine(Context* context, MasterControl* masterControl);
-    void Set(const Vector3 position);
+    void Set(const Vector3 position, int playerID);
 protected:
     Node* innerNode_;
     Node* outerNode_;
@@ -48,6 +48,7 @@ protected:
     void CheckHealth();
     void HandleCollisionStart(StringHash eventType, VariantMap &eventData);
 private:
+    int playerID_;
     void HandleMineUpdate(StringHash eventType, VariantMap &eventData);
 };
 

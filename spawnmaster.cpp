@@ -153,7 +153,7 @@ void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     sinceRazorSpawn_ += timeStep;
     sinceSpireSpawn_ += timeStep;
 
-    if (masterControl_->player_->IsEnabled()){
+    if (masterControl_->player1_->IsEnabled()){
         if (sinceRazorSpawn_ > razorInterval_ && CountActiveRazors() < 23)
             SpawnRazor(SpawnPoint());
         if (sinceSpireSpawn_ > spireInterval_ && CountActiveSpires() < 7)
@@ -247,40 +247,40 @@ bool SpawnMaster::RespawnSeeker(const Vector3& position)
     return false;
 }
 
-void SpawnMaster::SpawnChaoMine(const Vector3& position)
+void SpawnMaster::SpawnChaoMine(const Vector3& position, int playerID)
 {
-    if (!RespawnChaoMine(position)){
+    if (!RespawnChaoMine(position, playerID)){
         ChaoMine* newChaoMine = new ChaoMine(context_, masterControl_);
-        newChaoMine->Set(position);
+        newChaoMine->Set(position, playerID);
         chaoMines_[newChaoMine->rootNode_->GetID()] = SharedPtr<ChaoMine>(newChaoMine);
     }
 }
-bool SpawnMaster::RespawnChaoMine(const Vector3& position)
+bool SpawnMaster::RespawnChaoMine(const Vector3& position, int playerID)
 {
     Vector<SharedPtr<ChaoMine> > chaoMines = chaoMines_.Values();
     for (unsigned cm = 0; cm < chaoMines.Size(); ++cm){
         if (!chaoMines[cm]->IsEnabled()){
             SharedPtr<ChaoMine> chaoMine = chaoMines[cm];
-            chaoMine->Set(position);
+            chaoMine->Set(position, playerID);
             return true;
         }
     }
     return false;
 }
-void SpawnMaster::SpawnChaoZap(const Vector3& position)
+void SpawnMaster::SpawnChaoZap(const Vector3& position, int playerID)
 {
-    if (!RespawnChaoZap(position)){
+    if (!RespawnChaoZap(position, playerID)){
         ChaoZap* newZap = new ChaoZap(context_, masterControl_);
-        newZap->Set(position);
+        newZap->Set(position, playerID);
         chaoZaps_.Push(SharedPtr<ChaoZap>(newZap));
     }
 }
-bool SpawnMaster::RespawnChaoZap(const Vector3& position)
+bool SpawnMaster::RespawnChaoZap(const Vector3& position, int playerID)
 {
     for (unsigned cz = 0; cz < chaoZaps_.Size(); ++cz){
         if (!chaoZaps_[cz]->IsEnabled()){
             SharedPtr<ChaoZap> chaoZap = chaoZaps_[cz];
-            chaoZap->Set(position);
+            chaoZap->Set(position, playerID);
             return true;
         }
     }

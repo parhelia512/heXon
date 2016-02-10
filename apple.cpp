@@ -23,7 +23,7 @@ Apple::Apple(Context *context, MasterControl *masterControl):
 {
     rootNode_->SetName("Apple");
     pickupType_ = PT_APPLE;
-    initialPosition_ = Vector3::LEFT*10.0;
+    initialPosition_ = Vector3::FORWARD*10.0f;
     rootNode_->SetPosition(initialPosition_);
     model_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Apple.mdl"));
     model_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/GoldEnvmap.xml"));

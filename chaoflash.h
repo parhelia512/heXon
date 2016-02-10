@@ -36,11 +36,12 @@ class ChaoFlash : public SceneObject
 {
     URHO3D_OBJECT(ChaoFlash, SceneObject);
 public:
-    ChaoFlash(Context* context, MasterControl* masterControl);
+    ChaoFlash(Context* context, MasterControl* masterControl, int playerID = 1);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void Set(const Vector3 position);
     void Disable();
 private:
+    int playerID_;
     float age_;
     RigidBody* rigidBody_;
     StaticModel* chaoModel_;

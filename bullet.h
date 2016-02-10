@@ -43,7 +43,7 @@ class Bullet : public SceneObject
     friend class SpawnMaster;
     URHO3D_OBJECT(Bullet, SceneObject);
 public:
-    Bullet(Context *context, MasterControl* masterControl);
+    Bullet(Context *context, MasterControl* masterControl, int playerID);
     void Set(const Vector3 position);
 protected:
     SharedPtr<RigidBody> rigidBody_;
@@ -51,6 +51,7 @@ protected:
 
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 private:
+    bool playerID_;
     float age_ = 0.0f;
     float timeSinceHit_ = 0.0f;
     float lifeTime_;

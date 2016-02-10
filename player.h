@@ -49,7 +49,7 @@ class Player : public SceneObject
     friend class ChaoMine;
     URHO3D_OBJECT(Player, SceneObject);
 public:
-    Player(Context* context, MasterControl* masterControl);
+    Player(Context* context, MasterControl* masterControl, int playerID);
     Pilot pilot_;
 
     Vector3 GetPosition() const { return rootNode_->GetPosition(); }
@@ -70,6 +70,7 @@ public:
     void LoadScore();
     void UpdatePilot();
 private:
+    int playerID_;
     bool pilotMode_;
     int appleCount_;
     int heartCount_;

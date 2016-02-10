@@ -20,8 +20,9 @@
 #include "spawnmaster.h"
 #include "chaoflash.h"
 
-ChaoFlash::ChaoFlash(Context *context, MasterControl *masterControl):
+ChaoFlash::ChaoFlash(Context *context, MasterControl *masterControl, int playerID):
     SceneObject(context, masterControl),
+    playerID_{playerID},
     age_{0.0f}
 {
     rootNode_->SetName("ChaoFlash");
@@ -87,19 +88,19 @@ void ChaoFlash::Set(const Vector3 position)
             if(masterControl_->spawnMaster_->spires_.Contains(hitID)){
                 WeakPtr<Spire> spire = masterControl_->spawnMaster_->spires_[hitID];
                 spire->Disable();
-                masterControl_->spawnMaster_->SpawnChaoMine(spire->GetPosition());
-                masterControl_->player_->AddScore(Random(42, 100));
+                masterControl_->spawnMaster_->SpawnChaoMine(spire->GetPosition(), playerID_);
+                masterControl_->GetPlayer(playerID_)->AddScore(Random(42, 100));
             }
             else if(masterControl_->spawnMaster_->razors_.Contains(hitID)){
                 WeakPtr<Razor> razor = masterControl_->spawnMaster_->razors_[hitID];
                 razor->Disable();
-                masterControl_->spawnMaster_->SpawnChaoMine(razor->GetPosition());
-                masterControl_->player_->AddScore(Random(23, 42));
+                masterControl_->spawnMaster_->SpawnChaoMine(razor->GetPosition(), playerID_);
+                masterControl_->GetPlayer(playerID_)->AddScore(Random(23, 42));
             }
             else if(masterControl_->spawnMaster_->seekers_.Contains(hitID)){
                 WeakPtr<Seeker> seeker = masterControl_->spawnMaster_->seekers_[hitID];
                 seeker->Disable();
-                masterControl_->player_->AddScore(Random(5, 23));
+                masterControl_->GetPlayer(playerID_)->AddScore(Random(5, 23));
             }
         }
     }

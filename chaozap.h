@@ -31,10 +31,11 @@ class ChaoZap : public SceneObject
 public:
     ChaoZap(Context* context, MasterControl* masterControl);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-    void Set(const Vector3 position);
+    void Set(const Vector3 position, int playerID);
 protected:
     void Disable();
 private:
+    int playerID_;
     const float size_;
     RigidBody* rigidBody_;
     StaticModel* chaoModel_;

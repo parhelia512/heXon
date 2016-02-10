@@ -90,7 +90,7 @@ s.quit();
 }.play();
 )
 
-//Fire
+//Explosion
 (
 {
 var ampenv = Env(
@@ -115,11 +115,14 @@ var freqenv = Env(
 
 //Seeker Hit
 (
-{
+play{
 	var time = 0.23;
 	var freq = (55).midicps;
 	var a = VarSaw.ar(freq/2, width: XLine.ar(0.5,1,time)).range(0,XLine.ar(0.666,1/666,time));
 	var tone = SinOsc.ar(freq).fold(-0.23*a,a) * EnvGen.ar(Env([1,0],[time]));
 	Out.ar(0, tone.dup);
-}.play;
+};
 )
+
+//Baphomech
+play{SinOsc.ar(Pulse.kr(55, 0.23, SinOsc.ar(235,[0.0, 3.14],2,23)), Saw.ar(100, SinOsc.kr(10, 0, 0.023, 0.05)**0.666, 0.01), 0.42);}

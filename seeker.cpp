@@ -63,10 +63,11 @@ void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         Disable();
     }
 
-    if (target_ == nullptr) {
-        target_ = masterControl_->player_->rootNode_;
-    }
-    else rigidBody_->ApplyForce((target_->GetPosition() - rootNode_->GetPosition()).Normalized() * timeStep * 666.0f);
+    target_ = LucKey::Distance(rootNode_->GetPosition(), masterControl_->player1_->rootNode_->GetPosition()) <
+            LucKey::Distance(rootNode_->GetPosition(), masterControl_->player2_->rootNode_->GetPosition())
+            ? masterControl_->player1_->rootNode_
+            : masterControl_->player2_->rootNode_;
+    rigidBody_->ApplyForce((target_->GetPosition() - rootNode_->GetPosition()).Normalized() * timeStep * 666.0f);
 }
 
 void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
@@ -77,7 +78,7 @@ void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
     for (int i = 0; i < collidingBodies.Size(); i++) {
         RigidBody* collider = collidingBodies[i];
         if (collider->GetNode()->GetNameHash() == N_PLAYER) {
-            masterControl_->player_->Hit(2.3f, false);
+            masterControl_->player1_->Hit(2.3f, false);
             masterControl_->spawnMaster_->SpawnHitFX(rootNode_->GetPosition(), true);
             collider->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.5f);
             Disable();

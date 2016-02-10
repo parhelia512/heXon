@@ -18,8 +18,9 @@
 
 #include "bullet.h"
 
-Bullet::Bullet(Context *context, MasterControl *masterControl):
+Bullet::Bullet(Context *context, MasterControl *masterControl, int playerID = 1):
     SceneObject(context, masterControl),
+    playerID_{playerID},
     lifeTime_{1.0f},
     damage_{0.0f}
 {
@@ -30,7 +31,9 @@ Bullet::Bullet(Context *context, MasterControl *masterControl):
     rootNode_->SetScale(Vector3(1.0f+damage_, 1.0f+damage_, 0.1f));
     model_ = rootNode_->CreateComponent<StaticModel>();
     model_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Bullet.mdl"));
-    model_->SetMaterial(masterControl_->cache_->GetResource<Material>("Resources/Materials/Bullet.xml"));
+    model_->SetMaterial((playerID_-1)
+                        ? masterControl_->cache_->GetResource<Material>("Resources/Materials/PurpleBullet.xml")
+                        : masterControl_->cache_->GetResource<Material>("Resources/Materials/GreenBullet.xml"));
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
     rigidBody_->SetMass(0.5f);
@@ -39,7 +42,7 @@ Bullet::Bullet(Context *context, MasterControl *masterControl):
 
     Light* light = rootNode_->CreateComponent<Light>();
     light->SetRange(6.66f);
-    light->SetColor(Color(0.6f, 1.0f+damage_, 0.2f));
+    light->SetColor((playerID_-1)? Color(1.0f + damage_, 0.6f, 0.2f) : Color(0.6f, 1.0f+damage_, 0.2f));
 }
 
 void Bullet::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
@@ -89,13 +92,13 @@ void Bullet::HitCheck(float timeStep) {
                     //Deal damage
                     unsigned hitID = hitResults[i].body_->GetNode()->GetID();
                     if(masterControl_->spawnMaster_->spires_.Keys().Contains(hitID)){
-                        masterControl_->spawnMaster_->spires_[hitID]->Hit(damage_, 1);
+                        masterControl_->spawnMaster_->spires_[hitID]->Hit(damage_, playerID_);
                     }
                     else if(masterControl_->spawnMaster_->razors_.Keys().Contains(hitID)){
-                        masterControl_->spawnMaster_->razors_[hitID]->Hit(damage_, 1);
+                        masterControl_->spawnMaster_->razors_[hitID]->Hit(damage_, playerID_);
                     }
                     else if(masterControl_->spawnMaster_->chaoMines_.Keys().Contains(hitID)){
-                        masterControl_->spawnMaster_->chaoMines_[hitID]->Hit(damage_, 1);
+                        masterControl_->spawnMaster_->chaoMines_[hitID]->Hit(damage_, playerID_);
                     }
                     Disable();
                 }

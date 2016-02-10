@@ -86,8 +86,10 @@ typedef struct Resources
     } models;
     struct {
         SharedPtr<Material> basic;
-        SharedPtr<Material> shipPrimary;
-        SharedPtr<Material> shipSecondary;
+        SharedPtr<Material> ship1Primary;
+        SharedPtr<Material> ship1Secondary;
+        SharedPtr<Material> ship2Primary;
+        SharedPtr<Material> ship2Secondary;
     } materials;
 } Resources;
 
@@ -139,7 +141,8 @@ public:
     SharedPtr<InputMaster> inputMaster_;
     SharedPtr<SpawnMaster> spawnMaster_;
 
-    SharedPtr<Player> player_;
+    SharedPtr<Player> player1_;
+    SharedPtr<Player> player2_;
     SharedPtr<Apple> apple_;
     SharedPtr<Heart> heart_;
     SharedPtr<MultiX> multiX_;
@@ -160,6 +163,7 @@ public:
     float Cosine(float x) { return Sine(x+(0.5f*M_PI)); }
     float Cosine(float freq, float min, float max, float shift = 0.0f){ return Sine(freq, min, max, shift+0.5f*M_PI); }
 
+    Player* GetPlayer(int playerID){ return playerID == 1 ? player1_.Get() : player2_.Get(); }
     void SetGameState(GameState newState);
     GameState GetGameState(){ return currentState_; }
     bool GetPaused() { return paused_; }

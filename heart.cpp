@@ -23,7 +23,7 @@ Heart::Heart(Context *context, MasterControl *masterControl):
 {
     rootNode_->SetName("Heart");
     pickupType_ = PT_HEART;
-    initialPosition_ = Vector3::RIGHT*10.0f;
+    initialPosition_ = Vector3::BACK*10.0f;
     rootNode_->SetPosition(initialPosition_);
     model_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Heart.mdl"));
     model_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/RedEnvmap.xml"));

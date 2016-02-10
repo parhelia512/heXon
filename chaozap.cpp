@@ -22,6 +22,7 @@
 
 ChaoZap::ChaoZap(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),
+    playerID_{0},
     size_{5.0f}
 {
     rootNode_->SetName("ChaoZap");
@@ -63,8 +64,9 @@ void ChaoZap::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     rootNode_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
 }
 
-void ChaoZap::Set(const Vector3 position)
+void ChaoZap::Set(const Vector3 position, int playerID)
 {
+    playerID_ = playerID;
     SceneObject::Set(position);
     rootNode_->SetScale(size_);
     rigidBody_->SetMass(size_*0.5f);
@@ -79,17 +81,17 @@ void ChaoZap::Set(const Vector3 position)
             if(masterControl_->spawnMaster_->spires_.Contains(hitID)){
                 WeakPtr<Spire> spire = masterControl_->spawnMaster_->spires_[hitID];
                 spire->Hit(spire->GetHealth(), 1);
-                masterControl_->player_->AddScore(Random(23, 42));
+                masterControl_->GetPlayer(playerID)->AddScore(Random(23, 42));
             }
             else if(masterControl_->spawnMaster_->razors_.Contains(hitID)){
                 WeakPtr<Razor> razor = masterControl_->spawnMaster_->razors_[hitID];
                 razor->Hit(razor->GetHealth(), 1);
-                masterControl_->player_->AddScore(Random(5, 23));
+                masterControl_->GetPlayer(playerID)->AddScore(Random(5, 23));
             }
             else if(masterControl_->spawnMaster_->seekers_.Contains(hitID)){
                 WeakPtr<Seeker> seeker = masterControl_->spawnMaster_->seekers_[hitID];
                 seeker->Disable();
-                masterControl_->player_->AddScore(Random(2, 3));
+                masterControl_->GetPlayer(playerID)->AddScore(Random(2, 3));
             }
         }
     }
