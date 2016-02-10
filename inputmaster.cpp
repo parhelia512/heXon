@@ -194,7 +194,7 @@ void InputMaster::EjectButtonPressed()
 {
     if (masterControl_->GetGameState()==GS_PLAY && !masterControl_->GetPaused()) {
         masterControl_->Eject();
-    }
+    } else if (masterControl_->GetGameState()==GS_LOBBY) masterControl_->Exit();
 }
 
 void InputMaster::HandleJoystickButtonUp(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)

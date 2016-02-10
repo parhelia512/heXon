@@ -77,7 +77,7 @@ Object(context),
 
 void TileMaster::EnterPlayState()
 {
-    targetPosition_ = Vector3::ZERO;
+    targetPosition_ = Vector3::DOWN * 0.23f;
     targetScale_ = Vector3::ONE;
     Vector<SharedPtr<Tile> > tiles = tileMap_.Values();
     for (unsigned t = 0; t < tiles.Size(); t++){
@@ -93,10 +93,10 @@ void TileMaster::EnterLobbyState()
 void TileMaster::HandleUpdate(StringHash eventType, VariantMap& eventData)
 {
     float timestep = eventData[Update::P_TIMESTEP].GetFloat();
-    float lerpFactor = masterControl_->GetGameState() == GS_LOBBY ? 23.0f : 8.8f ;
+    float lerpFactor = masterControl_->GetGameState() == GS_LOBBY ? 13.0f : 2.3f ;
     float t = Min(1.0f, timestep * lerpFactor);
     rootNode_->SetPosition(rootNode_->GetPosition().Lerp(targetPosition_, t));
-    rootNode_->SetScale(rootNode_->GetScale().Lerp(targetScale_, pow(t, 0.42f) ));
+    rootNode_->SetScale(rootNode_->GetScale().Lerp(targetScale_, pow(t, 0.88f) ));
 
     logoNode_->SetPosition(logoNode_->GetPosition().Lerp(masterControl_->GetGameState() == GS_LOBBY
                                                          ? Vector3::UP * 4.0f * masterControl_->Sine(5.0f, -0.1f, 1.23f)

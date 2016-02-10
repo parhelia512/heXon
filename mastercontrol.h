@@ -177,6 +177,7 @@ private:
 
     bool paused_;
     GameState currentState_;
+    float sinceStateChange_;
 
     SharedPtr<Sound> menuMusic_;
     SharedPtr<Sound> gameMusic_;

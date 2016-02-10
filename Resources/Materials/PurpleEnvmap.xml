@@ -4,10 +4,10 @@
 	<texture unit="environment" name="Resources/Materials/Cubemap.xml" />
 	<parameter name="UOffset" value="1 0 0 0" />
 	<parameter name="VOffset" value="0 1 0 0" />
-	<parameter name="MatDiffColor" value="0.1 0.3 0.05 1" />
+	<parameter name="MatDiffColor" value="0.16 0.0 0.32 1" />
 	<parameter name="MatEmissiveColor" value="0 0 0" />
-	<parameter name="MatEnvMapColor" value="0.4 0.5 0.4" />
-	<parameter name="MatSpecColor" value="1 1 0.9 32" />
+	<parameter name="MatEnvMapColor" value="0.23 0.23 0.23" />
+	<parameter name="MatSpecColor" value="0.42 0.23 0.32 32" />
 	<cull value="ccw" />
 	<shadowcull value="ccw" />
 	<depthbias constant="0" slopescaled="0" />

@@ -44,7 +44,8 @@ MasterControl::MasterControl(Context *context):
     Application(context),
     currentState_{GS_INTRO},
     paused_{false},
-    editMode_{false}
+    editMode_{false},
+    sinceStateChange_{0.0f}
 {
 }
 
@@ -85,11 +86,11 @@ void MasterControl::Start()
 
 //    menuMusic_ = cache_->GetResource<Sound>("Resources/Music/Eddy J - Webbed Gloves in Neon Brights.ogg");
 //    menuMusic_->SetLooped(true);
-    gameMusic_ = cache_->GetResource<Sound>("Resources/Music/Alien Chaos - Disorder.ogg");
+    gameMusic_ = cache_->GetResource<Sound>("Resources/Music/Modanung - Cavalry.ogg");
     gameMusic_->SetLooped(true);
     Node* musicNode = world.scene->CreateChild("Music");
     musicSource_ = musicNode->CreateComponent<SoundSource>();
-    musicSource_->SetGain(0.32f);
+    musicSource_->SetGain(1.0f);
     musicSource_->SetSoundType(SOUND_MUSIC);
 //    musicSource_->Play(menuMusic_);
 
@@ -294,6 +295,7 @@ void MasterControl::SetGameState(const GameState newState)
     if (newState != currentState_){
         LeaveGameState();
         currentState_ = newState;
+        sinceStateChange_ = 0.0f;
         EnterGameState();
     }
 }
@@ -363,14 +365,26 @@ void MasterControl::Eject()
 
 void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    double timeStep = Min (1.0f, eventData[Update::P_TIMESTEP].GetFloat());
+    double timeStep = eventData[Update::P_TIMESTEP].GetFloat();
+    sinceStateChange_ += timeStep;
     UpdateCursor(timeStep);
 
     resources.materials.basic->SetShaderParameter("MatDiffColor", resources.materials.basic->GetShaderParameter("MatDiffColor").GetColor().Lerp(
                                           GetGameState() == GS_LOBBY
-                                          ? Color(0.142f, 0.132f, 0.13f, 1.0f) * Sine(5.0f, 0.88f, 1.0f, 0.666f)
+                                          ? Color(0.142f, 0.132f, 0.13f) * Sine(5.0f, 0.75f, 1.0f, 1.23f) * Min(2.3f * sinceStateChange_, 1.0f)
                                           : Color(0.0f, 0.0f, 0.0f, 0.0f), timeStep));
 
+    switch (currentState_){
+    case GS_LOBBY: {
+        musicSource_->SetGain(Max(0.0f, 1.0f - sinceStateChange_));
+        lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) / (128.0f * sinceStateChange_+23.0f));
+    }
+        break;
+    case GS_PLAY: {
+        musicSource_->SetGain(Min(0.666f, sinceStateChange_ * 0.023f));
+        lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) * Min(1.0f, sinceStateChange_));
+    } break;
+    }
 
 //    if (currentState_ == GS_LOBBY) {
 //        Color spotColor;
