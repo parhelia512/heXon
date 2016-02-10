@@ -36,8 +36,7 @@ hēXōn is best played with a controller that has at least two analog sticks. Th
 * ...
 
 ### Screenshots
-![heXon screenshot](https://raw.githubusercontent.com/LucKeyProductions/heXon/master/Screenshots/Screenshot_Wed_Feb_10_18_09_45_2016.png
-)
+![heXon screenshot](https://raw.githubusercontent.com/LucKeyProductions/heXon/master/Screenshots/Screenshot_Wed_Feb_10_23_14_19_2016.png)
 ![heXon screenshot](https://raw.githubusercontent.com/LucKeyProductions/heXon/master/Screenshots/Screenshot_Wed_Feb_10_18_06_58_2016.png)
 
 ### Tools
