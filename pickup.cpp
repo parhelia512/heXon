@@ -46,7 +46,7 @@ Pickup::Pickup(Context *context, MasterControl *masterControl):
     rigidBody_->SetAngularRestThreshold(0.0f);
 
     CollisionShape* collisionShape = rootNode_->CreateComponent<CollisionShape>();
-    collisionShape->SetSphere(1.5f);
+    collisionShape->SetSphere(2.3f);
 
     masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 

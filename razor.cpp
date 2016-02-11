@@ -55,7 +55,7 @@ void Razor::HandleRazorUpdate(StringHash eventType, VariantMap &eventData)
     topModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", GetGlowColor());
     //Get moving
     if (rigidBody_->GetLinearVelocity().Length() < rigidBody_->GetLinearRestThreshold() && IsEmerged()) {
-        rigidBody_->ApplyImpulse(0.23f*(Quaternion(0.0f, Random(360.0f), 0.0f)*Vector3::FORWARD));
+        rigidBody_->ApplyImpulse(0.23f*(Quaternion(Random(6)*60.0f, Vector3::UP)*Vector3::FORWARD));
     }
     //Adjust speed
     else if (rigidBody_->GetLinearVelocity().Length() < aimSpeed_) {
