@@ -59,12 +59,13 @@ void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
     age_ += timeStep;
     if (age_ > lifeTime_ && rootNode_->IsEnabled()) {
-        masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), false);
+        masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), 0, false);
         Disable();
     }
 
-    target_ = LucKey::Distance(rootNode_->GetPosition(), masterControl_->player1_->rootNode_->GetPosition()) <
-            LucKey::Distance(rootNode_->GetPosition(), masterControl_->player2_->rootNode_->GetPosition())
+    target_ = LucKey::Distance(rootNode_->GetPosition(), masterControl_->GetPlayer(1)->rootNode_->GetPosition()) <
+            LucKey::Distance(rootNode_->GetPosition(), masterControl_->GetPlayer(2)->rootNode_->GetPosition()) &&
+            masterControl_->GetPlayer(1)->IsAlive()
             ? masterControl_->player1_->rootNode_
             : masterControl_->player2_->rootNode_;
     rigidBody_->ApplyForce((target_->GetPosition() - rootNode_->GetPosition()).Normalized() * timeStep * 666.0f);

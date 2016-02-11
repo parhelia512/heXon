@@ -187,6 +187,8 @@ private:
     SharedPtr<Sound> gameMusic_;
 
     Light* lobbySpotLight_;
+    Material* lobbyGlowGreen_;
+    Material* lobbyGlowPurple_;
 
     void SetWindowTitleAndIcon();
     void CreateConsoleAndDebugHud();

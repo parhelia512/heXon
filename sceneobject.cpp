@@ -19,6 +19,7 @@
 #include "tilemaster.h"
 #include "sceneobject.h"
 #include "spawnmaster.h"
+#include "bullet.h"
 
 SceneObject::SceneObject(Context* context, MasterControl* masterControl):
     Object(context),
@@ -99,7 +100,7 @@ void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
                 masterControl_->spawnMaster_->SpawnFlash(newPosition);
                 PlaySample(flashSample_, 0.16f);
             } else if (rootNode_->GetNameHash() == N_BULLET){
-                masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), false);
+                masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), 0, false);
                 Disable();
             }
         }

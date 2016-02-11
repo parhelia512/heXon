@@ -45,6 +45,7 @@ class Bullet : public SceneObject
 public:
     Bullet(Context *context, MasterControl* masterControl, int playerID);
     void Set(const Vector3 position);
+    int GetPlayerID() const noexcept { return playerID_; }
 protected:
     SharedPtr<RigidBody> rigidBody_;
     SharedPtr<StaticModel> model_;

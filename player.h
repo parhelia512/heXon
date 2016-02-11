@@ -53,7 +53,8 @@ public:
     Pilot pilot_;
 
     Vector3 GetPosition() const { return rootNode_->GetPosition(); }
-    double GetHealth() const noexcept {return health_;}
+    double GetHealth() const noexcept { return health_; }
+    bool IsAlive() const noexcept { return alive_; }
     void Hit(float damage, bool melee = true);
 
     void AddScore(int points);

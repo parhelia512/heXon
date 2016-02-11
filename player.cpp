@@ -466,9 +466,13 @@ void Player::PickupChaoBall()
 void Player::Die()
 {
     alive_ = false;
+
     Disable();
     masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), playerID_ == 2 ? Color(1.0f, 0.42f, 0.0f) : Color(0.23f, 1.0f, 0.0f), 2.0f);
-//    masterControl_->SetGameState(GS_DEAD);
+
+    int otherplayer = playerID_ == 2 ? 1 : 2;
+    if (!masterControl_->GetPlayer(otherplayer)->IsAlive())
+        masterControl_->SetGameState(GS_DEAD);
 }
 
 void Player::EnterPlay()
@@ -498,8 +502,8 @@ void Player::EnterLobby()
     StopAllSound();
     chaoFlash_->Disable();
     SetPilotMode(true);
-    rootNode_->SetPosition(Vector3(playerID_==2 ? 2.23f : -2.23f, 0.0f, 7.0f));
-    rigidBody_->SetLinearVelocity(Vector3::BACK*5.0f);
+    rootNode_->SetPosition(Vector3(playerID_==2 ? 2.23f + 0.5f*alive_ : -2.23f - 0.5f*alive_, 0.0f, !alive_ * 5.5f));
+    rigidBody_->SetLinearVelocity(!alive_ * Vector3::BACK*2.3f + alive_ * ((playerID_ == 2) ? Vector3::LEFT : Vector3::RIGHT));
     rigidBody_->ResetForces();
 
     scoreNode_->SetWorldScale(1.0f);
@@ -632,6 +636,8 @@ void Player::UpdatePilot()
 
 void Player::CreateNewPilot()
 {
+    alive_ = true;
+
     pilot_.male_ = Random(2);
     pilot_.hairStyle_ = Random((int)masterControl_->resources.models.pilots.hairStyles.Size() + 1);
 

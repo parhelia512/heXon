@@ -139,7 +139,7 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
 
     switch (key){
     //Exit when ESC is pressed
-    case KEY_ESC: EjectButtonPressed();
+    case KEY_ESC: if (masterControl_->GetPlayer(1)->IsAlive()) EjectButtonPressed();
         break;
     //Take screenshot when 9 is pressed
     case KEY_9:
@@ -174,7 +174,8 @@ void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D:
     case JB_START: PauseButtonPressed();
         break;
     case JB_L2: case JB_R2: if (input_->GetJoystickByIndex(joystick)->GetButtonDown(JB_L2) &&
-                                input_->GetJoystickByIndex(joystick)->GetButtonDown(JB_R2)) EjectButtonPressed();
+                                input_->GetJoystickByIndex(joystick)->GetButtonDown(JB_R2) &&
+                                masterControl_->GetPlayer(2)->IsAlive()) EjectButtonPressed();
         break;
     default: break;
     }
@@ -195,6 +196,7 @@ void InputMaster::EjectButtonPressed()
     if (masterControl_->GetGameState()==GS_PLAY && !masterControl_->GetPaused()) {
         masterControl_->Eject();
     } else if (masterControl_->GetGameState()==GS_LOBBY) masterControl_->Exit();
+    else if (masterControl_->GetGameState()==GS_DEAD) masterControl_->SetGameState(GS_LOBBY);
 }
 
 void InputMaster::HandleJoystickButtonUp(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)

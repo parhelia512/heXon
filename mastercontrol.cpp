@@ -204,6 +204,10 @@ void MasterControl::CreateScene()
     chamberModel->SetModel(cache_->GetResource<Model>("Resources/Models/Chamber.mdl"));
     chamberModel->SetMaterial(0, resources.materials.basic);
     chamberModel->SetMaterial(1, cache_->GetResource<Material>("Resources/Materials/PitchBlack.xml"));
+    lobbyGlowGreen_ = cache_->GetResource<Material>("Resources/Materials/GreenGlow.xml");
+    chamberModel->SetMaterial(2, lobbyGlowGreen_);
+    lobbyGlowPurple_ = cache_->GetResource<Material>("Resources/Materials/PurpleGlow.xml");
+    chamberModel->SetMaterial(3, lobbyGlowPurple_);
     chamberModel->SetCastShadows(true);
 
     //Create player 1 ship
@@ -243,6 +247,10 @@ void MasterControl::CreateScene()
     lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Side1.mdl"));
     lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Side2.mdl"));
 
+    CollisionShape* edge1Shape = lobbyNode_->CreateComponent<CollisionShape>();
+    edge1Shape->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Edge1.mdl"));
+    edge1Shape->SetPosition(Vector3::BACK * 1.23f);
+    edge1Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
     CollisionShape* edge2Shape = lobbyNode_->CreateComponent<CollisionShape>();
     edge2Shape->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Edge2.mdl"));
     edge2Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
@@ -257,7 +265,7 @@ void MasterControl::CreateScene()
     leftPointLightNode1->SetPosition(Vector3(2.3f, 2.3f, 3.2f));
     Light* leftPointLight1 = leftPointLightNode1->CreateComponent<Light>();
     leftPointLight1->SetLightType(LIGHT_POINT);
-    leftPointLight1->SetBrightness(1.0f);
+    leftPointLight1->SetBrightness(0.83f);
     leftPointLight1->SetColor(Color(0.42f, 1.0f, 0.1f));
     leftPointLight1->SetRange(10.0f);
     leftPointLight1->SetCastShadows(true);
@@ -267,7 +275,7 @@ void MasterControl::CreateScene()
     leftPointLightNode2->SetPosition(Vector3(2.3f, 2.3f, -3.2f));
     Light* leftPointLight2 = leftPointLightNode2->CreateComponent<Light>();
     leftPointLight2->SetLightType(LIGHT_POINT);
-    leftPointLight2->SetBrightness(1.0f);
+    leftPointLight2->SetBrightness(0.83f);
     leftPointLight2->SetColor(Color(0.42f, 1.0f, 0.1f));
     leftPointLight2->SetRange(10.0f);
     leftPointLight2->SetCastShadows(true);
@@ -330,16 +338,8 @@ void MasterControl::LeaveGameState()
     } break;
     case GS_PLAY : {
         spawnMaster_->Deactivate();
-//        player1_->CreateNewPilot();
-//        player1_->ResetScore();
-//        player2_->CreateNewPilot();
-//        player2_->ResetScore();
     } break; //Eject when alive
     case GS_DEAD : {
-        player1_->CreateNewPilot();
-        player1_->ResetScore();
-        player2_->CreateNewPilot();
-        player2_->ResetScore();
         world.camera->SetGreyScale(false);
     } break;
     case GS_EDIT : break; //Disable EditMaster
@@ -351,11 +351,23 @@ void MasterControl::EnterGameState()
     switch (currentState_){
     case GS_INTRO : break;
     case GS_LOBBY : {
+        Player* player1 = GetPlayer(1);
+        player1->EnterLobby();
+        if (!player1->IsAlive()){
+            player1->CreateNewPilot();
+            player1->ResetScore();
+        }
+
+        Player* player2 = GetPlayer(2);
+        player2->EnterLobby();
+        if (!player2->IsAlive()){
+            player2->CreateNewPilot();
+            player2->ResetScore();
+        }
+
 //        musicSource_->Play(menuMusic_);
         musicSource_->Stop();
         lobbyNode_->SetEnabledRecursive(true);
-        player1_->EnterLobby();
-        player2_->EnterLobby();
         world.camera->EnterLobby();
         spawnMaster_->Clear();
         tileMaster_->EnterLobbyState();
@@ -408,6 +420,7 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
     case GS_LOBBY: {
 //        musicSource_->SetGain(Max(0.0f, 1.0f - sinceStateChange_));
         lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) / (128.0f * sinceStateChange_+23.0f));
+
     }
         break;
     case GS_PLAY: {

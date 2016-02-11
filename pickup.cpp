@@ -91,6 +91,9 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
 void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
 {
     float timeStep = eventData[SceneUpdate::P_TIMESTEP].GetFloat();
+    Player* player1 = masterControl_->GetPlayer(1);
+    Player* player2 = masterControl_->GetPlayer(2);
+
 
     //Move trigger along
     triggerNode_->SetPosition(rootNode_->GetPosition());
@@ -113,15 +116,21 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     case PT_MULTIX:
         xSpin = 64.0f; zSpin = 10.0f; frequency = 5.0f;
         if (IsEmerged() && masterControl_->GetGameState() == GS_PLAY)
-            rigidBody_->ApplyForce(2.0f*masterControl_->GetPlayer(Random(2)+1)->GetPosition() - rigidBody_->GetLinearVelocity()); break;
+            rigidBody_->ApplyForce(player1->IsAlive() * player1->GetPosition() +
+                                   player1->IsAlive() * player2->GetPosition() -
+                                   rigidBody_->GetLinearVelocity()); break;
     case PT_CHAOBALL: {
         xSpin = 23.0f; zSpin = 42.0f; frequency = 5.0f; shift = 0.23f;
         if (!rootNode_->IsEnabled() && masterControl_->GetGameState() == GS_PLAY) {
             if (sinceLastPickup_ > chaoInterval_) Respawn();
             else sinceLastPickup_ += timeStep;
         }
-        else if (IsEmerged() && masterControl_->GetGameState() == GS_PLAY)
-            rigidBody_->ApplyForce(-3.0f*masterControl_->GetPlayer(Random(2)+1)->GetPosition() - rigidBody_->GetLinearVelocity()); break;
+        else if (IsEmerged() && masterControl_->GetGameState() == GS_PLAY){
+            Vector3 force{};
+            force += player1->IsAlive() * -3.0f*player1->GetPosition() - rigidBody_->GetLinearVelocity();
+            force += player2->IsAlive() * -3.0f*player2->GetPosition() - rigidBody_->GetLinearVelocity();
+            rigidBody_->ApplyForce(force);
+        } break;
     } break;
     default: break;
     }

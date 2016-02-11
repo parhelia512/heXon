@@ -93,7 +93,7 @@ void TileMaster::EnterLobbyState()
 void TileMaster::HandleUpdate(StringHash eventType, VariantMap& eventData)
 {
     float timestep = eventData[Update::P_TIMESTEP].GetFloat();
-    float lerpFactor = masterControl_->GetGameState() == GS_LOBBY ? 13.0f : 2.3f ;
+    float lerpFactor = masterControl_->GetGameState() == GS_LOBBY ? 13.0f : 6.66f ;
     float t = Min(1.0f, timestep * lerpFactor);
     rootNode_->SetPosition(rootNode_->GetPosition().Lerp(targetPosition_, t));
     rootNode_->SetScale(rootNode_->GetScale().Lerp(targetScale_, pow(t, 0.88f) ));

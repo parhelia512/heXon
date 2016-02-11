@@ -34,11 +34,14 @@ void Effect::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
     age_ += timeStep;
 
-    if (age_ > emitTime_ + particleEmitter_->GetEffect()->GetMaxTimeToLive()){
-        Disable();
-    }
-    else if (age_ > emitTime_){
-        particleEmitter_->SetEmitting(false);
+    ParticleEffect* effect = particleEmitter_->GetEffect();
+    if (effect){
+        if (age_ > emitTime_ + effect->GetMaxTimeToLive()){
+            Disable();
+        }
+        else if (age_ > emitTime_){
+            particleEmitter_->SetEmitting(false);
+        }
     }
 }
 

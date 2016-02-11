@@ -35,11 +35,9 @@ class HitFX : public Effect
 public:
     HitFX(Context* context, MasterControl* masterControl);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-    void Set(Vector3 position, bool sound = true, int playerID = 1);
+    void Set(Vector3 position, int playerID, bool sound = true);
 private:
     SharedPtr<Sound> sample_;
-    ParticleEffect* greenHitFX_;
-    ParticleEffect* purpleHitFX_;
 };
 
 #endif // HITFX_H
