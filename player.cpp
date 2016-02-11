@@ -138,19 +138,22 @@ void Player::CreateGUI()
     scoreNode_->Rotate(Quaternion(-90.0f, Vector3::RIGHT));
     scoreNode_->Rotate(Quaternion(playerID_ == 2 ? 60.0f : -60.0f, Vector3::UP), TS_WORLD);
 
+    Model* barModel = (playerID_ == 2)
+            ? masterControl_->cache_->GetResource<Model>("Resources/Models/BarRight.mdl")
+            : masterControl_->cache_->GetResource<Model>("Resources/Models/BarLeft.mdl");
 
     healthBarNode_ = guiNode_->CreateChild("HealthBar");
-    healthBarNode_->SetPosition(Vector3(0.0f, 1.0f, playerID_ == 2 ? -21.0f : 21.0f));
+    healthBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
     healthBarNode_->SetScale(Vector3(health_, 1.0f, 1.0f));
     healthBarModel_ = healthBarNode_->CreateComponent<StaticModel>();
-    healthBarModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Bar.mdl"));
+    healthBarModel_->SetModel(barModel);
     healthBarModel_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/GreenGlowEnvmap.xml"));
 
     shieldBarNode_ = guiNode_->CreateChild("HealthBar");
     shieldBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
     shieldBarNode_->SetScale(Vector3(health_, 0.9f, 0.9f));
     shieldBarModel_ = shieldBarNode_->CreateComponent<StaticModel>();
-    shieldBarModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Bar.mdl"));
+    shieldBarModel_->SetModel(barModel);
     shieldBarModel_->SetMaterial(masterControl_->cache_->GetResource<Material>("Resources/Materials/BlueGlowEnvmap.xml"));
 
     Node* healthBarHolderNode = guiNode_->CreateChild("HealthBarHolder");
@@ -163,7 +166,7 @@ void Player::CreateGUI()
     for (int a = 0; a < 5; a++){
         appleCounter_[a] = appleCounterRoot_->CreateChild();
         appleCounter_[a]->SetEnabled(false);
-        appleCounter_[a]->SetPosition(Vector3(-(a + 8.0f), 1.0f, 21.0f));
+        appleCounter_[a]->SetPosition(Vector3(playerID_ == 2 ? (a + 8.0f) : -(a + 8.0f), 1.0f, 21.0f));
         appleCounter_[a]->SetScale(0.333f);
         StaticModel* apple = appleCounter_[a]->CreateComponent<StaticModel>();
         apple->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Apple.mdl"));
@@ -174,7 +177,7 @@ void Player::CreateGUI()
     for (int h = 0; h < 5; h++){
         heartCounter_[h] = heartCounterRoot_->CreateChild();
         heartCounter_[h]->SetEnabled(false);
-        heartCounter_[h]->SetPosition(Vector3(h + 8.0f, 1.0f, 21.0f));
+        heartCounter_[h]->SetPosition(Vector3(playerID_ == 2 ? (h + 8.0f) : -(h + 8.0f), 1.0f, 21.0f));
         heartCounter_[h]->SetScale(0.333f);
         StaticModel* heart = heartCounter_[h]->CreateComponent<StaticModel>();
         heart->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Heart.mdl"));
@@ -255,8 +258,8 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
             Quaternion(45.0f, Vector3::UP)*Vector3::BACK * input->GetKeyDown(KEY_KP_1);
 
     //Pick most significant input
-    moveJoy.Length() > moveKey.Length() ? move = moveJoy : move = moveKey;
-    fireJoy.Length() > fireKey.Length() ? fire = fireJoy : fire = fireKey;
+    /*moveJoy.Length() > moveKey.Length()*/playerID_ == 2 ? move = moveJoy : move = moveKey;
+    /*fireJoy.Length() > fireKey.Length()*/playerID_ == 2 ? fire = fireJoy : fire = fireKey;
 
     //Restrict move vector length
     if (move.Length() > 1.0f) move /= move.Length();
@@ -462,14 +465,12 @@ void Player::PickupChaoBall()
 void Player::Die()
 {
     Disable();
-    masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), Color::GREEN, 2.0f);
-    masterControl_->SetGameState(GS_DEAD);
+    masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), playerID_ == 2 ? Color(1.0f, 0.666f, 0.0f) : Color::GREEN, 2.0f);
+//    masterControl_->SetGameState(GS_DEAD);
 }
 
 void Player::EnterPlay()
 {
-//    guiNode_->SetEnabledRecursive(true);
-
     rootNode_->SetRotation(Quaternion(playerID_==2 ? -90.0f : 90.0f, Vector3::UP));
     rigidBody_->ResetForces();
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
@@ -486,16 +487,21 @@ void Player::EnterPlay()
     CreateTails();
     Set(Vector3(playerID_==2 ? 4.2f : -4.2f, 0.6f, 0.0f));
     SetPilotMode(false);
+
+    scoreNode_->SetWorldScale(4.2f);
+    scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 21.8f : -21.8f, 2.3, 2.3f));
 }
 void Player::EnterLobby()
 {
     StopAllSound();
-//    guiNode_->SetEnabledRecursive(false);
     chaoFlash_->Disable();
     SetPilotMode(true);
     rootNode_->SetPosition(Vector3(playerID_==2 ? 2.23f : -2.23f, 0.0f, 7.0f));
     rigidBody_->SetLinearVelocity(Vector3::BACK*5.0f);
     rigidBody_->ResetForces();
+
+    scoreNode_->SetWorldScale(1.0f);
+    scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 5.94252f : -5.94252f, 0.88069f, 0.82951f));
 }
 void Player::SetPilotMode(bool pilotMode){
     pilotMode_ = pilotMode;
@@ -503,7 +509,7 @@ void Player::SetPilotMode(bool pilotMode){
     pilot_.node_->SetEnabledRecursive(pilotMode_);
     ship_.node_->SetEnabledRecursive(!pilotMode_);
     shieldNode_->SetEnabled(!pilotMode_);
-    collisionShape_->SetSphere(pilotMode_? 0.666f : 2.0f);
+    collisionShape_->SetSphere(pilotMode_? 0.23f : 2.0f);
     rigidBody_->SetLinearDamping(pilotMode_? 0.88f : 0.5f);
 }
 

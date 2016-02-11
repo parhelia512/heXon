@@ -207,32 +207,51 @@ void MasterControl::CreateScene()
     chamberModel->SetCastShadows(true);
 
     //Create player 1 ship
-    Node* shipNode1 = lobbyNode_->CreateChild("Ship");
-    shipNode1->SetWorldPosition(Vector3(-4.2f, 0.6f, 0.0f));
-    shipNode1->Rotate(Quaternion(270.0f, Vector3::UP));
-    StaticModel* ship1 = shipNode1->CreateComponent<StaticModel>();
+    Node* ship1Node = lobbyNode_->CreateChild("Ship");
+    ship1Node->SetWorldPosition(Vector3(-4.2f, 0.6f, 0.0f));
+    ship1Node->Rotate(Quaternion(270.0f, Vector3::UP));
+    StaticModel* ship1 = ship1Node->CreateComponent<StaticModel>();
     ship1->SetModel(resources.models.ships.swift);
     ship1->SetMaterial(0, cache_->GetResource<Material>("Resources/Materials/GreenGlow.xml"));
     ship1->SetMaterial(1, cache_->GetResource<Material>("Resources/Materials/Green.xml"));
     ship1->SetCastShadows(true);
+    RigidBody* ship1Body = ship1Node->CreateComponent<RigidBody>();
+    ship1Body->SetTrigger(true);
+    ship1Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
+    SubscribeToEvent(ship1Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandlePlayTrigger1));
+
 
     //Create player 2 ship
-    Node* shipNode2 = lobbyNode_->CreateChild("Ship");
-    shipNode2->SetWorldPosition(Vector3(4.2f, 0.6f, 0.0f));
-    shipNode2->Rotate(Quaternion(90.0f, Vector3::UP));
-    StaticModel* ship2 = shipNode2->CreateComponent<StaticModel>();
+    Node* ship2Node = lobbyNode_->CreateChild("Ship");
+    ship2Node->SetWorldPosition(Vector3(4.2f, 0.6f, 0.0f));
+    ship2Node->Rotate(Quaternion(90.0f, Vector3::UP));
+    StaticModel* ship2 = ship2Node->CreateComponent<StaticModel>();
     ship2->SetModel(resources.models.ships.swift);
     ship2->SetMaterial(0, cache_->GetResource<Material>("Resources/Materials/PurpleGlow.xml"));
     ship2->SetMaterial(1, cache_->GetResource<Material>("Resources/Materials/Purple.xml"));
     ship2->SetCastShadows(true);
+    RigidBody* ship2Body = ship2Node->CreateComponent<RigidBody>();
+    ship2Body->SetTrigger(true);
+    ship2Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
+    SubscribeToEvent(ship2Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandlePlayTrigger2));
 
-    RigidBody* lobbyBody = lobbyNode_->CreateComponent<RigidBody>();
-    lobbyBody->SetTrigger(true);
-    CollisionShape* shipShape = lobbyNode_->CreateComponent<CollisionShape>();
-    shipShape->SetCylinder(2.3f, 1.0f);
+    lobbyNode_->CreateComponent<RigidBody>();
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Center.mdl"));
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_CentralBox.mdl"));
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Edge1.mdl"));
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Edge2.mdl"));
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Side1.mdl"));
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Side2.mdl"));
 
-    SubscribeToEvent(lobbyNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandlePlayTrigger));
-
+    CollisionShape* edge2Shape = lobbyNode_->CreateComponent<CollisionShape>();
+    edge2Shape->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Edge2.mdl"));
+    edge2Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
+    CollisionShape* side1Shape = lobbyNode_->CreateComponent<CollisionShape>();
+    side1Shape->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Side1.mdl"));
+    side1Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
+    CollisionShape* side2Shape = lobbyNode_->CreateComponent<CollisionShape>();
+    side2Shape->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Side2.mdl"));
+    side2Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
 
     Node* leftPointLightNode1 = lobbyNode_->CreateChild("PointLight");
     leftPointLightNode1->SetPosition(Vector3(2.3f, 2.3f, 3.2f));

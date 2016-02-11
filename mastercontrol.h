@@ -196,6 +196,8 @@ private:
     void SubscribeToEvents();
 
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
+    void HandlePlayTrigger1(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY); }
+    void HandlePlayTrigger2(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY); }
     void HandlePlayTrigger(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY); }
     void HandleExitTrigger(StringHash otherNode, VariantMap &eventData){ /*Exit();*/ }
 

@@ -51,7 +51,7 @@ protected:
 
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 private:
-    bool playerID_;
+    int playerID_;
     float age_ = 0.0f;
     float timeSinceHit_ = 0.0f;
     float lifeTime_;

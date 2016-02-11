@@ -30,7 +30,7 @@ Bullet::Bullet(Context *context, MasterControl *masterControl, int playerID):
     rootNode_->SetEnabled(false);
     rootNode_->SetScale(Vector3(1.0f+damage_, 1.0f+damage_, 0.1f));
     model_ = rootNode_->CreateComponent<StaticModel>();
-    model_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Bullet.mdl"));
+    model_->SetModel(masterControl_->cache_->GetTempResource<Model>("Resources/Models/Bullet.mdl"));
     model_->SetMaterial(playerID_ == 2
                         ? masterControl_->cache_->GetResource<Material>("Resources/Materials/PurpleBullet.xml")
                         : masterControl_->cache_->GetResource<Material>("Resources/Materials/GreenBullet.xml"));
