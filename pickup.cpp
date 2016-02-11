@@ -75,7 +75,8 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
         RigidBody* collider = collidingBodies[i];
         if (collider->GetNode()->GetNameHash() == N_PLAYER) {
             if (LucKey::Distance(rootNode_->GetPosition(), masterControl_->GetPlayer(1)->GetPosition()) <
-                    LucKey::Distance(rootNode_->GetPosition(), masterControl_->GetPlayer(2)->GetPosition())){
+                    LucKey::Distance(rootNode_->GetPosition(), masterControl_->GetPlayer(2)->GetPosition()) &&
+                    masterControl_->GetPlayer(1)->IsAlive()){
                 masterControl_->player1_->Pickup(pickupType_);
             } else masterControl_->player2_->Pickup(pickupType_);
             masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), false);

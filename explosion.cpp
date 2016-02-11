@@ -21,6 +21,7 @@
 
 Explosion::Explosion(Context *context, MasterControl *masterControl):
     Effect(context, masterControl),
+    playerID_{0},
     initialMass_{3.0f},
     initialBrightness_{8.0f}
 {
@@ -67,10 +68,10 @@ void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
                     unsigned hitID = hitResults[i]->GetNode()->GetID();
                     float damage = rigidBody_->GetMass()*timeStep;
                     if(masterControl_->spawnMaster_->spires_.Keys().Contains(hitID)){
-                        masterControl_->spawnMaster_->spires_[hitID]->Hit(damage, 1);
+                        masterControl_->spawnMaster_->spires_[hitID]->Hit(damage, playerID_);
                     }
                     else if(masterControl_->spawnMaster_->razors_.Keys().Contains(hitID)){
-                        masterControl_->spawnMaster_->razors_[hitID]->Hit(damage, 1);
+                        masterControl_->spawnMaster_->razors_[hitID]->Hit(damage, playerID_);
                     }
                 }
             }
@@ -78,8 +79,9 @@ void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
     }
 }
 
-void Explosion::Set(const Vector3 position, const Color color, const float size)
+void Explosion::Set(const Vector3 position, const Color color, const float size, int playerID)
 {
+    playerID_ = playerID;
     Effect::Set(position);
     rootNode_->SetScale(size);
     initialMass_ = 3.0f * size;

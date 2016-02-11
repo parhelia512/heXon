@@ -59,7 +59,7 @@ public:
     void SpawnSeeker(const Vector3& position);
     void SpawnHitFX(const Vector3& position, int playerID, bool sound = true);
     void SpawnFlash(const Vector3& position);
-    bool SpawnExplosion(const Vector3& position, const Color &color, float size);
+    bool SpawnExplosion(const Vector3& position, const Color &color, float size, int playerID);
 
 
 //    template <class T>
@@ -108,7 +108,7 @@ private:
     bool RespawnChaoMine(const Vector3& position, int playerID);
     bool RespawnSeeker(const Vector3& position);
     bool RespawnFlash(const Vector3& position);
-    bool RespawnExplosion(const Vector3& position, const Color& color, float size);
+    bool RespawnExplosion(const Vector3& position, const Color& color, float size, int playerID);
     bool RespawnHitFX(const Vector3& position, int playerID, bool sound = true);
 
     void Activate();

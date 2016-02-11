@@ -327,21 +327,21 @@ bool SpawnMaster::RespawnFlash(const Vector3& position)
     return false;
 }
 
-bool SpawnMaster::SpawnExplosion(const Vector3& position, const Color& color, float size)
+bool SpawnMaster::SpawnExplosion(const Vector3& position, const Color& color, float size, int playerID)
 {
-    if (!RespawnExplosion(position, color, size)){
+    if (!RespawnExplosion(position, color, size, playerID)){
         Explosion* explosion = new Explosion(context_, masterControl_);
-        explosion->Set(position, color, size);
+        explosion->Set(position, color, size, playerID);
         explosions_.Push(SharedPtr<Explosion>(explosion));
     }
     return false;
 }
-bool SpawnMaster::RespawnExplosion(const Vector3& position, const Color& color, float size)
+bool SpawnMaster::RespawnExplosion(const Vector3& position, const Color& color, float size, int playerID)
 {
     for (unsigned e = 0; e < explosions_.Size(); ++e){
         if (!explosions_[e]->IsEnabled()){
             WeakPtr<Explosion> explosion = explosions_[e];
-            explosion->Set(position, color, size);
+            explosion->Set(position, color, size, playerID);
             return true;
         }
     }

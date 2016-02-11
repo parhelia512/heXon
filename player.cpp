@@ -468,7 +468,7 @@ void Player::Die()
     alive_ = false;
 
     Disable();
-    masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), playerID_ == 2 ? Color(1.0f, 0.42f, 0.0f) : Color(0.23f, 1.0f, 0.0f), 2.0f);
+    masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), playerID_ == 2 ? Color(1.0f, 0.42f, 0.0f) : Color(0.23f, 1.0f, 0.0f), 2.0f, playerID_);
 
     int otherplayer = playerID_ == 2 ? 1 : 2;
     if (!masterControl_->GetPlayer(otherplayer)->IsAlive())

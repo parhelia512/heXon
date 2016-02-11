@@ -92,10 +92,10 @@ void Enemy::Set(const Vector3 position)
 }
 
 // Takes care of dealing damage and keeps track of who deserves how many points.
-void Enemy::Hit(const float damage, const int ownerID) {
-    if (firstHitBy_ == 0) firstHitBy_ = ownerID;
-    else if (firstHitBy_ != ownerID) bonus_ = false;
-    lastHitBy_ = ownerID;
+void Enemy::Hit(const float damage, const int playerID) {
+    if (firstHitBy_ == 0) firstHitBy_ = playerID;
+    else if (firstHitBy_ != playerID) bonus_ = false;
+    lastHitBy_ = playerID;
 
     SetHealth(health_-damage);
 }
@@ -116,7 +116,10 @@ void Enemy::CheckHealth()
     if (rootNode_->IsEnabled() && health_ <= 0.0f) {
         if (lastHitBy_ != 0) masterControl_->GetPlayer(lastHitBy_)->AddScore(bonus_ ? worth_ : 2 * worth_ / 3);
 
-        masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), Color(color_.r_*color_.r_, color_.g_*color_.g_, color_.b_*color_.b_), 0.5f*rigidBody_->GetMass());
+        masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(),
+                                                     Color(color_.r_*color_.r_, color_.g_*color_.g_, color_.b_*color_.b_),
+                                                     0.5f*rigidBody_->GetMass(),
+                                                     lastHitBy_);
         Disable();
     }
 }
@@ -160,12 +163,17 @@ void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
             if (otherNameHash == N_PLAYER) {
                 PlaySample(samples_[Random((int)samples_.Size())], 0.16f);
                 if (LucKey::Distance(rootNode_->GetPosition(), masterControl_->GetPlayer(1)->GetPosition()) <
-                        LucKey::Distance(rootNode_->GetPosition(), masterControl_->GetPlayer(2)->GetPosition())){
+                        LucKey::Distance(rootNode_->GetPosition(), masterControl_->GetPlayer(2)->GetPosition()) &&
+                        masterControl_->GetPlayer(1)->IsAlive()){
                     masterControl_->player1_->Hit(meleeDamage_ + meleeDamage_*panic_);
-                } else masterControl_->player2_->Hit(meleeDamage_ + meleeDamage_*panic_);
+                    masterControl_->spawnMaster_->SpawnHitFX(
+                                masterControl_->GetPlayer(1)->GetPosition() + GetPosition() * 0.5f, 0, false);
+                } else {
+                    masterControl_->player2_->Hit(meleeDamage_ + meleeDamage_*panic_);
+                    masterControl_->spawnMaster_->SpawnHitFX(
+                                masterControl_->GetPlayer(2)->GetPosition() + GetPosition() * 0.5f, 0, false);
+                }
 //                Vector3 hitPos = eventData[NodeCollisionStart::P_CONTACTS].GetBuffer().At(0);
-                Vector3 hitPos = (masterControl_->player1_->GetPosition() + GetPosition()) * 0.5f;
-                masterControl_->spawnMaster_->SpawnHitFX(hitPos, false);
                 sinceLastWhack_ = 0.0f;
             }
         }
