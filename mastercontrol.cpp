@@ -330,6 +330,10 @@ void MasterControl::LeaveGameState()
     } break;
     case GS_PLAY : {
         spawnMaster_->Deactivate();
+        player1_->CreateNewPilot();
+        player1_->ResetScore();
+        player2_->CreateNewPilot();
+        player2_->ResetScore();
     } break; //Eject when alive
     case GS_DEAD : {
         player1_->CreateNewPilot();

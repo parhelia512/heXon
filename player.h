@@ -71,6 +71,7 @@ public:
 private:
     int playerID_;
     bool pilotMode_;
+    bool alive_;
     int appleCount_;
     int heartCount_;
     const float initialHealth_;
@@ -104,9 +105,9 @@ private:
     StaticModel* shieldBarModel_;
 
     Node* appleCounterRoot_;
-    Node* appleCounter_[5];
+    Node* appleCounter_[4];
     Node* heartCounterRoot_;
-    Node* heartCounter_[5];
+    Node* heartCounter_[4];
     Node* scoreDigits_[10];
 
     Vector<SharedPtr<TailGenerator> > tailGens_;

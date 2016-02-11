@@ -31,6 +31,7 @@
 Player::Player(Context *context, MasterControl *masterControl, int playerID):
     SceneObject(context, masterControl),
     playerID_{playerID},
+    alive_{true},
     appleCount_{0},
     heartCount_{0},
     initialHealth_{1.0f},
@@ -163,7 +164,7 @@ void Player::CreateGUI()
     healthBarHolderModel->SetMaterial(masterControl_->cache_->GetResource<Material>("Resources/Materials/Metal.xml"));
 
     appleCounterRoot_ = guiNode_->CreateChild("AppleCounter");
-    for (int a = 0; a < 5; a++){
+    for (int a = 0; a < 4; a++){
         appleCounter_[a] = appleCounterRoot_->CreateChild();
         appleCounter_[a]->SetEnabled(false);
         appleCounter_[a]->SetPosition(Vector3(playerID_ == 2 ? (a + 8.0f) : -(a + 8.0f), 1.0f, 21.0f));
@@ -174,7 +175,7 @@ void Player::CreateGUI()
     }
 
     heartCounterRoot_ = guiNode_->CreateChild("HeartCounter");
-    for (int h = 0; h < 5; h++){
+    for (int h = 0; h < 4; h++){
         heartCounter_[h] = heartCounterRoot_->CreateChild();
         heartCounter_[h]->SetEnabled(false);
         heartCounter_[h]->SetPosition(Vector3(playerID_ == 2 ? (h + 8.0f) : -(h + 8.0f), 1.0f, 21.0f));
@@ -192,7 +193,7 @@ void Player::SetScore(int points)
     for (int d = 0; d < 10; ++d){
         StaticModel* digitModel = scoreDigits_[d]->GetComponent<StaticModel>();
         digitModel->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/"+String((int)(score_ / pow(10, d))%10)+".mdl"));
-        scoreDigits_[d]->SetEnabled( score_ >= pow(10, d) );
+        scoreDigits_[d]->SetEnabled( score_ >= pow(10, d) || d == 0 );
         digitModel->SetMaterial(playerID_==2
                                 ? masterControl_->resources.materials.ship2Secondary
                                 : masterControl_->resources.materials.ship1Secondary);
@@ -333,7 +334,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
 void Player::UpdateGUI(float timeStep)
 {
-    for (int i = 0; i < 5; i++){
+    for (int i = 0; i < 4; i++){
         appleCounter_[i]->Rotate(Quaternion(0.0f, (i*i+10.0f) * 23.0f * timeStep, 0.0f));
         appleCounter_[i]->SetScale(masterControl_->Sine((1.0f+(appleCount_))*2.0f, 0.2f, 0.4, -i));
         heartCounter_[i]->Rotate(Quaternion(0.0f, (i*i+10.0f) * 23.0f * timeStep, 0.0f));
@@ -445,11 +446,11 @@ void Player::Pickup(PickupType pickup)
     }
 
     //Update Pickup GUI elements
-    for (int a = 0; a < 5; a++){
+    for (int a = 0; a < 4; a++){
         if (appleCount_ > a) appleCounter_[a]->SetEnabled(true);
         else appleCounter_[a]->SetEnabled(false);
     }
-    for (int h = 0; h < 5; h++){
+    for (int h = 0; h < 4; h++){
         if (heartCount_ > h) heartCounter_[h]->SetEnabled(true);
         else heartCounter_[h]->SetEnabled(false);
     }
@@ -464,8 +465,9 @@ void Player::PickupChaoBall()
 
 void Player::Die()
 {
+    alive_ = false;
     Disable();
-    masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), playerID_ == 2 ? Color(1.0f, 0.666f, 0.0f) : Color::GREEN, 2.0f);
+    masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), playerID_ == 2 ? Color(1.0f, 0.42f, 0.0f) : Color(0.23f, 1.0f, 0.0f), 2.0f);
 //    masterControl_->SetGameState(GS_DEAD);
 }
 
@@ -489,7 +491,7 @@ void Player::EnterPlay()
     SetPilotMode(false);
 
     scoreNode_->SetWorldScale(4.2f);
-    scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 21.8f : -21.8f, 2.3, 2.3f));
+    scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 23.5f : -23.5f, 2.23, 1.23f));
 }
 void Player::EnterLobby()
 {

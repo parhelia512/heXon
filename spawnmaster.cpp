@@ -153,7 +153,7 @@ void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     sinceRazorSpawn_ += timeStep;
     sinceSpireSpawn_ += timeStep;
 
-    if (masterControl_->GetPlayer(2)->IsEnabled() || masterControl_->GetPlayer(2)->IsEnabled()){
+    if (masterControl_->GetPlayer(1)->IsEnabled() || masterControl_->GetPlayer(2)->IsEnabled()){
         if (sinceRazorSpawn_ > razorInterval_ && CountActiveRazors() < 23)
             SpawnRazor(SpawnPoint());
         if (sinceSpireSpawn_ > spireInterval_ && CountActiveSpires() < 7)
