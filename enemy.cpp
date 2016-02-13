@@ -58,6 +58,7 @@ Enemy::Enemy(Context *context, MasterControl *masterControl):
     rigidBody_->SetAngularFactor(Vector3::ZERO);
     CollisionShape* collider = rootNode_->CreateComponent<CollisionShape>();
     collider->SetSphere(2.0f);
+    collider->SetPosition(Vector3::UP * 0.23f);
 
     for (int s = 1; s <= 5; ++s){
         samples_.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Melee"+String(s)+".ogg")));

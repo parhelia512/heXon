@@ -388,7 +388,7 @@ void Player::FireBullet(Vector3 direction){
         bullet = new Bullet(context_, masterControl_, playerID_);
         bullets_.Push(bullet);
     }
-    bullet->Set(rootNode_->GetPosition() + direction);
+    bullet->Set(rootNode_->GetPosition() + direction + Vector3::DOWN*0.42f);
     bullet->rootNode_->LookAt(bullet->rootNode_->GetPosition() + direction * 5.0f);
     bullet->rigidBody_->ApplyForce(direction * (1500.0f + 23.0f * weaponLevel_));
     bullet->damage_ = 0.15f + 0.00666f * weaponLevel_;
@@ -671,7 +671,7 @@ void Player::SetupShip()
     SharedPtr<ParticleEffect> particleEffect = masterControl_->cache_->GetTempResource<ParticleEffect>("Resources/Particles/Shine.xml");
     Vector<ColorFrame> colorFrames;
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
-    colorFrames.Push(ColorFrame(playerID_==2 ? Color(0.42f, 0.23f, 0.7f, 0.23f) : Color(0.42f, 0.7f, 0.23f, 0.23f), 0.2f));
+    colorFrames.Push(ColorFrame(playerID_==2 ? Color(0.666f, 0.23f, 0.88f, 0.23f) : Color(0.42f, 0.7f, 0.23f, 0.23f), 0.2f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
     particleEffect->SetColorFrames(colorFrames);
     particleEmitter->SetEffect(particleEffect);
@@ -691,8 +691,8 @@ void Player::CreateTails()
         tailGen->SetTailLength(n==1? 0.1f : 0.075f);
         tailGen->SetNumTails(n==1? 23 : 16);
         tailGen->SetWidthScale(n==1? 0.666f : 0.23f);
-        tailGen->SetColorForHead(playerID_==2 ? Color(1.0f, 0.666f, 0.23f) : Color(0.666f, 1.0f, 0.5f));
-        tailGen->SetColorForTip(playerID_==2 ? Color(1.0f, 0.23f, 0.0f) : Color(0.23f, 1.0f, 0.0f));
+        tailGen->SetColorForHead(playerID_==2 ? Color(1.0f, 0.666f, 0.23f) : Color(1.0f, 1.0f, 0.23f));
+        tailGen->SetColorForTip(playerID_==2 ? Color(1.0f, 0.23f, 0.0f) : Color(0.42f, 1.0f, 0.0f));
         tailGens_.Push(SharedPtr<TailGenerator>(tailGen));
     }
 }
