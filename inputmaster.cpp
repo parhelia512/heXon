@@ -158,7 +158,6 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
     {
         PauseButtonPressed();
     } break;
-    //Enter edit mode on E
     //Toggle music on M
     case KEY_M: masterControl_->musicSource_->SetGain(masterControl_->musicSource_->GetGain()==0.0f ? 0.32f : 0.0f);
         break;
@@ -175,7 +174,7 @@ void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D:
         break;
     case JB_L2: case JB_R2: if (input_->GetJoystickByIndex(joystick)->GetButtonDown(JB_L2) &&
                                 input_->GetJoystickByIndex(joystick)->GetButtonDown(JB_R2) &&
-                                masterControl_->GetPlayer(2)->IsAlive()) EjectButtonPressed();
+                                masterControl_->GetPlayer((int)joystick+1)->IsAlive()) EjectButtonPressed();
         break;
     default: break;
     }

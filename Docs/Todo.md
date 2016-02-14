@@ -3,6 +3,8 @@
 	* Overload << and >> 
 - SpawnMaster should probably work with templates
 
+Remove score leaks
+
 #### New features
 - Kernel (Enemy)
 - 2 Player Lobby

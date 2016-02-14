@@ -95,16 +95,17 @@ void Enemy::Set(const Vector3 position)
 // Takes care of dealing damage and keeps track of who deserves how many points.
 void Enemy::Hit(const float damage, const int playerID) {
     if (firstHitBy_ == 0) firstHitBy_ = playerID;
-    else if (firstHitBy_ != playerID) bonus_ = false;
+    else if (firstHitBy_ != playerID && playerID != 0) bonus_ = false;
+
     lastHitBy_ = playerID;
 
-    SetHealth(health_-damage);
+    SetHealth(health_ - damage);
 }
 
 void Enemy::SetHealth(const float health)
 {
     health_ = health;
-    panic_ = (initialHealth_-health_)/initialHealth_;
+    panic_ = (initialHealth_ - health_) / initialHealth_;
     panic_ < 0.0f ? panic_ = 0.0f : panic_ = panic_;
     particleEffect_->SetMinEmissionRate(7.0f+23.0f*panic_);
 

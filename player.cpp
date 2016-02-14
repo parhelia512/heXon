@@ -238,29 +238,30 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     Vector3 fireKey = Vector3::ZERO;
 
     //Read input
-    if (input->GetJoystickByIndex(0)){
-        JoystickState* joystick0 = input->GetJoystickByIndex(0);
-        moveJoy = Vector3::RIGHT * joystick0->GetAxisPosition(0) +
-                Vector3::BACK * joystick0->GetAxisPosition(1);
-        fireJoy = Vector3::RIGHT * joystick0->GetAxisPosition(2) +
-                Vector3::BACK * joystick0->GetAxisPosition(3);
+    if (input->GetJoystickByIndex(playerID_ - 1)){
+        JoystickState* joystick = input->GetJoystickByIndex(playerID_ - 1);
+        moveJoy = Vector3::RIGHT * joystick->GetAxisPosition(0) +
+                Vector3::BACK * joystick->GetAxisPosition(1);
+        fireJoy = Vector3::RIGHT * joystick->GetAxisPosition(2) +
+                Vector3::BACK * joystick->GetAxisPosition(3);
+    } else {
+        moveKey = Vector3::LEFT * input->GetKeyDown(KEY_A) +
+                Vector3::RIGHT * input->GetKeyDown(KEY_D) +
+                Vector3::FORWARD * input->GetKeyDown(KEY_W) +
+                Vector3::BACK * input->GetKeyDown(KEY_S);
+        fireKey = Vector3::LEFT * (input->GetKeyDown(KEY_J) || input->GetKeyDown(KEY_KP_4)) +
+                Vector3::RIGHT * (input->GetKeyDown(KEY_L) || input->GetKeyDown(KEY_KP_6)) +
+                Vector3::FORWARD * (input->GetKeyDown(KEY_I) || input->GetKeyDown(KEY_KP_8)) +
+                Vector3::BACK * (input->GetKeyDown(KEY_K) || input->GetKeyDown(KEY_KP_2) || input->GetKeyDown(KEY_KP_5)) +
+                Quaternion(45.0f, Vector3::UP)*Vector3::LEFT * input->GetKeyDown(KEY_KP_7) +
+                Quaternion(45.0f, Vector3::UP)*Vector3::RIGHT * input->GetKeyDown(KEY_KP_3) +
+                Quaternion(45.0f, Vector3::UP)*Vector3::FORWARD * input->GetKeyDown(KEY_KP_9) +
+                Quaternion(45.0f, Vector3::UP)*Vector3::BACK * input->GetKeyDown(KEY_KP_1);
     }
-    moveKey = Vector3::LEFT * input->GetKeyDown(KEY_A) +
-            Vector3::RIGHT * input->GetKeyDown(KEY_D) +
-            Vector3::FORWARD * input->GetKeyDown(KEY_W) +
-            Vector3::BACK * input->GetKeyDown(KEY_S);
-    fireKey = Vector3::LEFT * (input->GetKeyDown(KEY_J) || input->GetKeyDown(KEY_KP_4)) +
-            Vector3::RIGHT * (input->GetKeyDown(KEY_L) || input->GetKeyDown(KEY_KP_6)) +
-            Vector3::FORWARD * (input->GetKeyDown(KEY_I) || input->GetKeyDown(KEY_KP_8)) +
-            Vector3::BACK * (input->GetKeyDown(KEY_K) || input->GetKeyDown(KEY_KP_2) || input->GetKeyDown(KEY_KP_5)) +
-            Quaternion(45.0f, Vector3::UP)*Vector3::LEFT * input->GetKeyDown(KEY_KP_7) +
-            Quaternion(45.0f, Vector3::UP)*Vector3::RIGHT * input->GetKeyDown(KEY_KP_3) +
-            Quaternion(45.0f, Vector3::UP)*Vector3::FORWARD * input->GetKeyDown(KEY_KP_9) +
-            Quaternion(45.0f, Vector3::UP)*Vector3::BACK * input->GetKeyDown(KEY_KP_1);
 
     //Pick most significant input
-    /*moveJoy.Length() > moveKey.Length()*/playerID_ == 2 ? move = moveJoy : move = moveKey;
-    /*fireJoy.Length() > fireKey.Length()*/playerID_ == 2 ? fire = fireJoy : fire = fireKey;
+    moveJoy.Length() > moveKey.Length() ? move = moveJoy : move = moveKey;
+    fireJoy.Length() > fireKey.Length() ? fire = fireJoy : fire = fireKey;
 
     //Restrict move vector length
     if (move.Length() > 1.0f) move /= move.Length();
