@@ -16,27 +16,25 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef APPLE_H
-#define APPLE_H
+#ifndef BUBBLE_H
+#define BUBBLE_H
 
 #include <Urho3D/Urho3D.h>
-
-#include "pickup.h"
-
-namespace Urho3D {
-class Drawable;
-class Node;
-class Scene;
-class Sprite;
-}
+#include "sceneobject.h"
 
 using namespace Urho3D;
 
-class Apple : public Pickup
+class Bubble : public Object
 {
-    URHO3D_OBJECT(Apple, Pickup);
+    URHO3D_OBJECT(Bubble, Object);
 public:
-    Apple(Context* context, MasterControl* masterControl);
+    Bubble(Context* context, MasterControl* masterControl);
+    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
+    void Set(const Vector3 position);
+    void Disable();
+private:
+    MasterControl* masterControl_;
+    Node* rootNode_;
 };
 
-#endif // APPLE_H
+#endif // BUBBLE_H

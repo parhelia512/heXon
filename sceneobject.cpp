@@ -1,5 +1,5 @@
 /* heXon
-// Copyright (C) 2015 LucKey Productions (luckeyproductions.nl)
+// Copyright (C) 2016 LucKey Productions (luckeyproductions.nl)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -42,14 +42,16 @@ void SceneObject::Set(const Vector3 position)
 {
     rootNode_->SetEnabledRecursive(true);
     rootNode_->SetPosition(position);
-    SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(SceneObject, BlinkCheck));
+    if (blink_)
+        SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(SceneObject, BlinkCheck));
 }
 
 void SceneObject::Disable()
 {
     masterControl_->tileMaster_->RemoveFromAffectors(rootNode_);
     rootNode_->SetEnabledRecursive(false);
-    UnsubscribeFromEvent(E_POSTRENDERUPDATE);
+    if (blink_)
+        UnsubscribeFromEvent(E_POSTRENDERUPDATE);
     UnsubscribeFromEvent(E_NODECOLLISIONSTART);
 }
 

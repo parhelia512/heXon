@@ -1,5 +1,5 @@
 /* heXon
-// Copyright (C) 2015 LucKey Productions (luckeyproductions.nl)
+// Copyright (C) 2016 LucKey Productions (luckeyproductions.nl)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -42,28 +42,28 @@ SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
         Spire* newSpire = new Spire(context_, masterControl_);
         spires_[newSpire->rootNode_->GetID()] = SharedPtr<Spire>(newSpire);
     }
-    for (int m = 0; m < 5; ++m) {
+    for (int m = 0; m < 8; ++m) {
         ChaoMine* newChaoMine = new ChaoMine(context_, masterControl_);
         chaoMines_[newChaoMine->rootNode_->GetID()] = SharedPtr<ChaoMine>(newChaoMine);
     }
 
-    for (int s = 0; s < 20; ++s) {
+    for (int s = 0; s < 13; ++s) {
         Seeker* newSeeker = new Seeker(context_, masterControl_);
         seekers_[newSeeker->rootNode_->GetID()] = SharedPtr<Seeker>(newSeeker);
     }
-    for (int h = 0; h < 15; ++h) {
+    for (int h = 0; h < 16; ++h) {
         HitFX* newHitFX = new HitFX(context_, masterControl_);
         hitFXs_.Push(SharedPtr<HitFX>(newHitFX));
     }
-    for (int e = 0; e < 5; ++e) {
+    for (int e = 0; e < 9; ++e) {
         Explosion* newExplosion = new Explosion(context_, masterControl_);
         explosions_.Push(SharedPtr<Explosion>(newExplosion));
     }
-    for (int f = 0; f < 10; ++f) {
+    for (int f = 0; f < 13; ++f) {
         Flash* newFlash= new Flash(context_, masterControl_);
         flashes_.Push(SharedPtr<Flash>(newFlash));
     }
-    for (int z = 0; z < 5; ++z) {
+    for (int z = 0; z < 8; ++z) {
         ChaoZap* newChaoZap = new ChaoZap(context_, masterControl_);
         chaoZaps_.Push(SharedPtr<ChaoZap>(newChaoZap));
     }

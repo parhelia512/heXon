@@ -17,7 +17,7 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
-    *.cpp
+    *.cpp \
 
 HEADERS += \
-    *.h
+    *.h \
