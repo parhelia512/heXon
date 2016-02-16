@@ -1,4 +1,4 @@
-# :four_leaf_clover: hēXōn
+:four_leaf_clover: ![hēXōn logo](https://raw.githubusercontent.com/LucKeyProductions/heXon/master/Docs/Guide/images/heXonLogo_trans.png)
 ### Summary
 hēXōn is a free and open source dual stick arcade shooter created using the [Urho3D](http://urho3d.github.io) game engine.
 
