@@ -169,11 +169,11 @@ void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
                         masterControl_->GetPlayer(1)->IsAlive()){
                     masterControl_->player1_->Hit(meleeDamage_ + meleeDamage_*panic_);
                     masterControl_->spawnMaster_->SpawnHitFX(
-                                masterControl_->GetPlayer(1)->GetPosition() + GetPosition() * 0.5f, 0, false);
+                                (masterControl_->GetPlayer(1)->GetPosition() + GetPosition()) * 0.5f, 0, false);
                 } else {
                     masterControl_->player2_->Hit(meleeDamage_ + meleeDamage_*panic_);
                     masterControl_->spawnMaster_->SpawnHitFX(
-                                masterControl_->GetPlayer(2)->GetPosition() + GetPosition() * 0.5f, 0, false);
+                                (masterControl_->GetPlayer(2)->GetPosition() + GetPosition()) * 0.5f, 0, false);
                 }
 //                Vector3 hitPos = eventData[NodeCollisionStart::P_CONTACTS].GetBuffer().At(0);
                 sinceLastWhack_ = 0.0f;

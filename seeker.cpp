@@ -63,12 +63,18 @@ void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         Disable();
     }
 
-    target_ = LucKey::Distance(rootNode_->GetPosition(), masterControl_->GetPlayer(1)->rootNode_->GetPosition()) <
-            LucKey::Distance(rootNode_->GetPosition(), masterControl_->GetPlayer(2)->rootNode_->GetPosition()) &&
-            masterControl_->GetPlayer(1)->IsAlive()
-            ? masterControl_->player1_->rootNode_
-            : masterControl_->player2_->rootNode_;
-    rigidBody_->ApplyForce((target_->GetPosition() - rootNode_->GetPosition()).Normalized() * timeStep * 666.0f);
+    Vector3 targetPosition = Vector3::ZERO;
+    Player* player1 = masterControl_->GetPlayer(1);
+    Player* player2 = masterControl_->GetPlayer(2);
+    if (player1->IsAlive() && player2->IsAlive())
+        targetPosition =
+                LucKey::Distance(rootNode_->GetPosition(), player1->GetPosition()) <
+                LucKey::Distance(rootNode_->GetPosition(), player2->GetPosition())
+                ? player1->GetPosition()
+                : player2->GetPosition();
+    else if (player1->IsAlive()) targetPosition = player1->GetPosition();
+    else if (player2->IsAlive()) targetPosition = player2->GetPosition();
+    rigidBody_->ApplyForce((targetPosition - rootNode_->GetPosition()).Normalized() * timeStep * 666.0f);
 }
 
 void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)

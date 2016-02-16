@@ -244,7 +244,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
                 Vector3::BACK * joystick->GetAxisPosition(1);
         fireJoy = Vector3::RIGHT * joystick->GetAxisPosition(2) +
                 Vector3::BACK * joystick->GetAxisPosition(3);
-    } else {
+    } else if (playerID_ == 1 || input->GetJoystickByIndex(0)) {
         moveKey = Vector3::LEFT * input->GetKeyDown(KEY_A) +
                 Vector3::RIGHT * input->GetKeyDown(KEY_D) +
                 Vector3::FORWARD * input->GetKeyDown(KEY_W) +
