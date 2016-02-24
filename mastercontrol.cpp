@@ -142,6 +142,7 @@ void MasterControl::LoadResources()
     resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Resources/Models/Mohawk.mdl")));
     resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Resources/Models/Seagull.mdl")));
     resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Resources/Models/Mustain.mdl")));
+    resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Resources/Models/Frotoad.mdl")));
 
     resources.models.ships.swift = cache_->GetResource<Model>("Resources/Models/KlåMk10.mdl");
 

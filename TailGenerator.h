@@ -70,7 +70,7 @@ public:
     void SetWidthScale(float scale);
     /// Set vertex blended color for tip of all tail. The alpha-value of new color resets by default to zero.
     void SetColorForTip(const Color& c);
-    // Set vertex blended color for head of all tail. The alpha-value of new color resets by default to one.
+    /// Set vertex blended color for head of all tail. The alpha-value of new color resets by default to one.
     void SetColorForHead(const Color& c);
     /// Set material attribute.
     void SetMaterialAttr(const ResourceRef& value);

@@ -322,6 +322,16 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         if (rigidBody_->GetLinearVelocity().Length() > 0.1f)
             rootNode_->LookAt(rootNode_->GetPosition()+rigidBody_->GetLinearVelocity());
 
+        //Update tails
+        for (int t = 0; t < 3; t++)
+        {
+            float velocityToScale = Clamp(0.23f * rigidBody_->GetLinearVelocity().Length(), 0.0f, 1.0f);
+            TailGenerator* tailGen = tailGens_[t];
+            tailGen->SetTailLength(t==1? velocityToScale * 0.1f : velocityToScale * 0.075f);
+//            tailGen->SetNumTails(t==1? (int)(velocityToScale * 23) : (int)(velocityToScale * 16));
+            tailGen->SetWidthScale(t==1? velocityToScale * 0.666f : velocityToScale * 0.23f);
+        }
+
         //Shooting
         sinceLastShot_ += timeStep;
         if (fire.Length()) {
@@ -343,6 +353,7 @@ void Player::UpdateGUI(float timeStep)
     }
     //Update HealthBar color
     healthBarModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", HealthToColor(health_));
+    healthBarModel_->GetMaterial()->SetShaderParameter("MatSpecularColor", HealthToColor(health_));
 }
 
 void Player::Shoot(Vector3 fire)
@@ -535,7 +546,7 @@ Color Player::HealthToColor(float health)
 {
     Color color(1.0f, 1.0f, 0.05f, 1.0f);
     health = Clamp(health, 0.0f, 10.0f);
-    float maxBright = 0.666f;
+    float maxBright = 1.0f;
     if (health < 5.0f) maxBright = masterControl_->Sine(2.0f+3.0f*(5.0f-health), 0.2f*health, 1.0f);
     color.r_ = Clamp((3.0f - (health - 3.0f))/3.0f, 0.0f, maxBright);
     color.g_ = Clamp((health - 3.0f)/4.0f, 0.0f, maxBright);

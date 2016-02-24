@@ -31,6 +31,7 @@
 #include "seeker.h"
 #include "flash.h"
 #include "explosion.h"
+#include "bubble.h"
 
 
 class SpawnMaster : public Object
@@ -48,6 +49,7 @@ public:
     Vector<SharedPtr<ChaoZap> > chaoZaps_;
     Vector<SharedPtr<Flash> > flashes_;
     Vector<SharedPtr<Explosion> > explosions_;
+    Vector<SharedPtr<Bubble> > bubbles_;
 
     void Clear();
     Vector3 SpawnPoint();
@@ -59,6 +61,7 @@ public:
     void SpawnSeeker(const Vector3& position);
     void SpawnHitFX(const Vector3& position, int playerID, bool sound = true);
     void SpawnFlash(const Vector3& position);
+    void SpawnBubble(const Vector3& position);
     bool SpawnExplosion(const Vector3& position, const Color &color, float size, int playerID);
 
 
@@ -99,6 +102,9 @@ private:
     float spireInterval_;
     float sinceSpireSpawn_;
 
+    float bubbleInterval_;
+    float sinceBubbleSpawn_;
+
     void SpawnRazor(const Vector3& position);
     bool RespawnRazor(const Vector3& position);
     void SpawnSpire(const Vector3& position);
@@ -108,8 +114,11 @@ private:
     bool RespawnChaoMine(const Vector3& position, int playerID);
     bool RespawnSeeker(const Vector3& position);
     bool RespawnFlash(const Vector3& position);
+    bool RespawnBubble(const Vector3& position);
     bool RespawnExplosion(const Vector3& position, const Color& color, float size, int playerID);
     bool RespawnHitFX(const Vector3& position, int playerID, bool sound = true);
+
+    Vector3 BubbleSpawnPoint();
 
     void Activate();
     void Deactivate();

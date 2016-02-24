@@ -1,9 +1,9 @@
-#### Improvement of code architecture
+#### Improvements
 - Seperate PilotData as class/struct
 	* Overload << and >> 
 - SpawnMaster should probably work with templates
-
-Remove score leaks
+- Solidify damage dealing to players -> MasterControl should map players by rootnode ID
+- Decently handle input
 
 #### New features
 - Kernel (Enemy)

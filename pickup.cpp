@@ -84,7 +84,7 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
                 masterControl_->player2_->Pickup(pickupType_);
                 pID = 2;
             }
-            masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), pID);
+            masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), pID, false);
             switch (pickupType_){
             case PT_MULTIX: case PT_CHAOBALL: Deactivate(); break;
             case PT_APPLE: case PT_HEART: Respawn(); break;

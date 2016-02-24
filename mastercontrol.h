@@ -120,7 +120,9 @@ StringHash const N_RAZOR = StringHash("Razor");
 }
 
 enum GameState {GS_INTRO, GS_LOBBY, GS_PLAY, GS_DEAD, GS_EDIT};
-enum JoyStickButton {JB_SELECT, JB_LEFTSTICK, JB_RIGHTSTICK, JB_START, JB_DPAD_UP, JB_DPAD_RIGHT, JB_DPAD_DOWN, JB_DPAD_LEFT, JB_L2, JB_R2, JB_L1, JB_R1, JB_TRIANGLE, JB_CIRCLE, JB_CROSS, JB_SQUARE};
+enum JoyStickButton {JB_SELECT, JB_LEFTSTICK, JB_RIGHTSTICK, JB_START,
+                     JB_DPAD_UP, JB_DPAD_RIGHT, JB_DPAD_DOWN, JB_DPAD_LEFT,
+                     JB_L2, JB_R2, JB_L1, JB_R1, JB_TRIANGLE, JB_CIRCLE, JB_CROSS, JB_SQUARE};
 enum PickupType {PT_RESET, PT_APPLE, PT_HEART, PT_MULTIX, PT_CHAOBALL};
 
 class MasterControl : public Application
@@ -164,6 +166,7 @@ public:
     float Cosine(float freq, float min, float max, float shift = 0.0f){ return Sine(freq, min, max, shift+0.5f*M_PI); }
 
     Player* GetPlayer(int playerID){ return playerID == 1 ? player1_.Get() : player2_.Get(); }
+    float SinceLastReset() const { return world.scene->GetElapsedTime() - world.lastReset; }
     void SetGameState(GameState newState);
     GameState GetGameState(){ return currentState_; }
     bool GetPaused() { return paused_; }

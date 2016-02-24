@@ -29,7 +29,9 @@ SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
     razorInterval_{2.0f},
     sinceRazorSpawn_{0.0f},
     spireInterval_{23.0f},
-    sinceSpireSpawn_{0.0f}
+    sinceSpireSpawn_{0.0f},
+    bubbleInterval_{0.23f},
+    sinceBubbleSpawn_{bubbleInterval_}
 {
     masterControl_ = masterControl;
     Audio* audio = GetSubsystem<Audio>();
@@ -62,6 +64,10 @@ SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
     for (int f = 0; f < 13; ++f) {
         Flash* newFlash= new Flash(context_, masterControl_);
         flashes_.Push(SharedPtr<Flash>(newFlash));
+    }
+    for (int b = 0; b < 42; ++b) {
+        Bubble* newBubble= new Bubble(context_, masterControl_);
+        bubbles_.Push(SharedPtr<Bubble>(newBubble));
     }
     for (int z = 0; z < 8; ++z) {
         ChaoZap* newChaoZap = new ChaoZap(context_, masterControl_);
@@ -119,6 +125,10 @@ void SpawnMaster::Clear()
         if (flashes_[f]->IsEnabled())
             flashes_[f]->Disable();
     }
+    for (unsigned b = 0; b < bubbles_.Size(); ++b){
+        if (bubbles_[b]->IsEnabled())
+            bubbles_[b]->Disable();
+    }
     for (unsigned z = 0; z < chaoZaps_.Size(); ++z){
         if (chaoZaps_[z]->IsEnabled())
             chaoZaps_[z]->Disable();
@@ -159,6 +169,12 @@ void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         if (sinceSpireSpawn_ > spireInterval_ && CountActiveSpires() < 7)
             SpawnSpire(SpawnPoint());
     }
+
+    sinceBubbleSpawn_ += timeStep;
+
+    if (sinceBubbleSpawn_ > bubbleInterval_){
+        SpawnBubble(BubbleSpawnPoint());
+    }
 }
 
 int SpawnMaster::CountActiveRazors()
@@ -188,7 +204,7 @@ void SpawnMaster::SpawnRazor(const Vector3 &position)
         newRazor->Set(position);
         razors_[newRazor->rootNode_->GetID()] = SharedPtr<Razor>(newRazor);
     }
-    razorInterval_ = 7.0f * pow(0.95f, ((masterControl_->world.scene->GetElapsedTime() - masterControl_->world.lastReset) + 10.0f) / 10.0f);
+    razorInterval_ = 7.0f * pow(0.95f, ((masterControl_->SinceLastReset()) + 10.0f) / 10.0f);
 }
 bool SpawnMaster::RespawnRazor(const Vector3 &position)
 {
@@ -325,6 +341,34 @@ bool SpawnMaster::RespawnFlash(const Vector3& position)
         }
     }
     return false;
+}
+
+void SpawnMaster::SpawnBubble(const Vector3& position)
+{
+    sinceBubbleSpawn_ = 0.0f;
+    bubbleInterval_ = Random(23.0f, 42.0f) / (masterControl_->SinceLastReset() + 88);
+    if (!RespawnBubble(position)){
+        Bubble* newBubble = new Bubble(context_, masterControl_);
+        newBubble->Set(position);
+        bubbles_.Push(SharedPtr<Bubble>(newBubble));
+    }
+}
+bool SpawnMaster::RespawnBubble(const Vector3& position)
+{
+    for (unsigned b = 0; b < bubbles_.Size(); ++b){
+        if (!bubbles_[b]->IsEnabled()){
+            SharedPtr<Bubble> bubble = bubbles_[b];
+            bubble->Set(position);
+            return true;
+        }
+    }
+    return false;
+}
+Vector3 SpawnMaster::BubbleSpawnPoint()
+{
+    return Quaternion((Random(5)-2)*60.0f, Vector3::UP) *
+            (Vector3::FORWARD * 21.0f + Vector3::RIGHT * Random(-10.0f, 10.0f))
+            + Vector3::DOWN * 23.0f;
 }
 
 bool SpawnMaster::SpawnExplosion(const Vector3& position, const Color& color, float size, int playerID)

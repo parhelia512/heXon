@@ -21,3 +21,6 @@ SOURCES += \
 
 HEADERS += \
     *.h \
+
+OTHER_FILES += \
+    Docs/Todo.md \

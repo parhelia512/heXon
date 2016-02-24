@@ -95,15 +95,15 @@ void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
         }
         float boundsCheck = flatPosition.Length() * masterControl_->Cosine(M_DEGTORAD * flatPosition.Angle(hexantNormal));
         if (boundsCheck > radius){
-            if (blink_){
+            if (rootNode_->GetNameHash() == N_BULLET){
+                masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), 0, false);
+                Disable();
+            } else if (blink_){
                 masterControl_->spawnMaster_->SpawnFlash(rootNode_->GetPosition());
                 Vector3 newPosition = rootNode_->GetPosition()-(1.995f*radius)*hexantNormal;
                 rootNode_->SetPosition(newPosition);
                 masterControl_->spawnMaster_->SpawnFlash(newPosition);
                 PlaySample(flashSample_, 0.16f);
-            } else if (rootNode_->GetNameHash() == N_BULLET){
-                masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), 0, false);
-                Disable();
             }
         }
     }

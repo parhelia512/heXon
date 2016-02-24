@@ -24,8 +24,6 @@ Bullet::Bullet(Context *context, MasterControl *masterControl, int playerID):
     lifeTime_{1.0f},
     damage_{0.0f}
 {
-    blink_ = false;
-
     rootNode_->SetName("Bullet");
     rootNode_->SetEnabled(false);
     rootNode_->SetScale(Vector3(1.0f+damage_, 1.0f+damage_, 0.1f));
