@@ -145,6 +145,7 @@ public:
 
     SharedPtr<Player> player1_;
     SharedPtr<Player> player2_;
+    HashMap<unsigned, SharedPtr<Player> > players_;
     SharedPtr<Apple> apple_;
     SharedPtr<Heart> heart_;
     SharedPtr<MultiX> multiX_;

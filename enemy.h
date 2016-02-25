@@ -66,7 +66,7 @@ protected:
     StaticModel* centerModel_;
     Color color_;
 
-    virtual void HandleCollisionStart(StringHash eventType, VariantMap &eventData);
+    virtual void HandleCollision(StringHash eventType, VariantMap &eventData);
     void SetHealth(const float health);
     virtual void CheckHealth();
     Color GetGlowColor() const;

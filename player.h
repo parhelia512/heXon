@@ -52,6 +52,8 @@ public:
     Player(Context* context, MasterControl* masterControl, int playerID);
     Pilot pilot_;
 
+    unsigned GetRootNodeID() const { return rootNode_->GetID(); }
+    int GetPlayerID() const { return playerID_; }
     Vector3 GetPosition() const { return rootNode_->GetPosition(); }
     double GetHealth() const noexcept { return health_; }
     bool IsAlive() const noexcept { return alive_; }

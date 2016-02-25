@@ -85,11 +85,9 @@ void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
     for (int i = 0; i < collidingBodies.Size(); i++) {
         RigidBody* collider = collidingBodies[i];
         if (collider->GetNode()->GetNameHash() == N_PLAYER) {
-            LucKey::Distance(rootNode_->GetPosition(), masterControl_->player1_->rootNode_->GetPosition()) <
-                    LucKey::Distance(rootNode_->GetPosition(), masterControl_->player2_->rootNode_->GetPosition()) &&
-                    masterControl_->GetPlayer(1)->IsAlive()
-                    ? masterControl_->player1_->Hit(2.3f, false)
-                    : masterControl_->player2_->Hit(2.3f, false);
+            Player* hitPlayer = masterControl_->players_[collider->GetNode()->GetID()];
+
+            hitPlayer->Hit(2.3f, false);
             masterControl_->spawnMaster_->SpawnHitFX(rootNode_->GetPosition(), 0, false);
             collider->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.5f);
             Disable();

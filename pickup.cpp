@@ -74,17 +74,9 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
     for (int i = 0; i < collidingBodies.Size(); i++) {
         RigidBody* collider = collidingBodies[i];
         if (collider->GetNode()->GetNameHash() == N_PLAYER) {
-            int pID = 0;
-            if (LucKey::Distance(rootNode_->GetPosition(), masterControl_->GetPlayer(1)->GetPosition()) <
-                    LucKey::Distance(rootNode_->GetPosition(), masterControl_->GetPlayer(2)->GetPosition()) &&
-                    masterControl_->GetPlayer(1)->IsAlive()){
-                masterControl_->player1_->Pickup(pickupType_);
-                pID = 1;
-            } else {
-                masterControl_->player2_->Pickup(pickupType_);
-                pID = 2;
-            }
-            masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), pID, false);
+            Player* hitPlayer = masterControl_->players_[collider->GetNode()->GetID()];
+            hitPlayer->Pickup(pickupType_);
+            masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), hitPlayer->GetPlayerID(), false);
             switch (pickupType_){
             case PT_MULTIX: case PT_CHAOBALL: Deactivate(); break;
             case PT_APPLE: case PT_HEART: Respawn(); break;
@@ -99,7 +91,6 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     float timeStep = eventData[SceneUpdate::P_TIMESTEP].GetFloat();
     Player* player1 = masterControl_->GetPlayer(1);
     Player* player2 = masterControl_->GetPlayer(2);
-
 
     //Move trigger along
     triggerNode_->SetPosition(rootNode_->GetPosition());

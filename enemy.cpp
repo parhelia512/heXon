@@ -89,7 +89,7 @@ void Enemy::Set(const Vector3 position)
     SceneObject::Set(position);
     masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Enemy, HandleSceneUpdate));
-    SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Enemy, HandleCollisionStart));
+    SubscribeToEvent(rootNode_, E_NODECOLLISION, URHO3D_HANDLER(Enemy, HandleCollision));
 }
 
 // Takes care of dealing damage and keeps track of who deserves how many points.
@@ -153,7 +153,7 @@ void Enemy::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     centerNode_->Rotate(Quaternion((1.0f + panic_) * timeStep * 333.0f, Vector3::UP));
 }
 
-void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
+void Enemy::HandleCollision(StringHash eventType, VariantMap &eventData)
 {
     PODVector<RigidBody*> collidingBodies;
     rigidBody_->GetCollidingBodies(collidingBodies);
@@ -164,20 +164,16 @@ void Enemy::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
             StringHash otherNameHash = collider->GetNode()->GetNameHash();
             if (otherNameHash == N_PLAYER) {
                 PlaySample(samples_[Random((int)samples_.Size())], 0.16f);
-                if (LucKey::Distance(rootNode_->GetPosition(), masterControl_->GetPlayer(1)->GetPosition()) <
-                        LucKey::Distance(rootNode_->GetPosition(), masterControl_->GetPlayer(2)->GetPosition()) &&
-                        masterControl_->GetPlayer(1)->IsAlive()){
-                    masterControl_->player1_->Hit(meleeDamage_ + meleeDamage_*panic_);
-                    masterControl_->spawnMaster_->SpawnHitFX(
-                                (masterControl_->GetPlayer(1)->GetPosition() + GetPosition()) * 0.5f, 0, false);
-                } else {
-                    masterControl_->player2_->Hit(meleeDamage_ + meleeDamage_*panic_);
-                    masterControl_->spawnMaster_->SpawnHitFX(
-                                (masterControl_->GetPlayer(2)->GetPosition() + GetPosition()) * 0.5f, 0, false);
-                }
-//                Vector3 hitPos = eventData[NodeCollisionStart::P_CONTACTS].GetBuffer().At(0);
-                sinceLastWhack_ = 0.0f;
+
+                Player* hitPlayer = masterControl_->players_[collider->GetNode()->GetID()];
+
+                hitPlayer->Hit(meleeDamage_ + meleeDamage_*panic_);
+                masterControl_->spawnMaster_->SpawnHitFX(
+                            (hitPlayer->GetPosition() + GetPosition()) * 0.5f, 0, false);
             }
+            // Vector3 hitPos = eventData[NodeCollision::P_CONTACTS].GetBuffer().At(0);
+            sinceLastWhack_ = 0.0f;
         }
     }
 }
+

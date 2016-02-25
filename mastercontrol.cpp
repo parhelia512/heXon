@@ -313,8 +313,12 @@ void MasterControl::CreateScene()
 //    }
     //Create game elements
     spawnMaster_ = new SpawnMaster(context_, this);
+
     player1_ = new Player(context_, this, 1);
     player2_ = new Player(context_, this, 2);
+    players_[player1_->GetRootNodeID()] = player1_;
+    players_[player2_->GetRootNodeID()] = player2_;
+
     apple_ = new Apple(context_, this);
     heart_ = new Heart(context_, this);
     multiX_ = new MultiX(context_, this);

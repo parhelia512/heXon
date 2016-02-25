@@ -62,7 +62,7 @@ void ChaoMine::CheckHealth()
     }
 }
 
-void ChaoMine::HandleCollisionStart(StringHash eventType, VariantMap &eventData)
+void ChaoMine::HandleCollision(StringHash eventType, VariantMap &eventData)
 {
     PODVector<RigidBody*> collidingBodies;
     rigidBody_->GetCollidingBodies(collidingBodies);
