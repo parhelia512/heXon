@@ -38,7 +38,7 @@ void Bubble::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     if (!rootNode_->GetComponent<StaticModel>()->IsInView() && rootNode_->GetPosition().y_ > 5.0f)
         Disable();
 
-    rootNode_->Translate(Vector3::UP * timeStep * 6.66f, TS_WORLD);
+    rootNode_->Translate(Vector3::UP * timeStep * (6.66f + masterControl_->SinceLastReset() * 0.00023f), TS_WORLD);
     rootNode_->Rotate(Quaternion(timeStep * spinVelocity_, spinAxis_));
     rootNode_->SetWorldScale(Vector3(masterControl_->Sine(4.0f - baseScale_, baseScale_*0.88f, baseScale_*1.23f, spinVelocity_),
                                      masterControl_->Sine(5.0f - baseScale_, baseScale_*0.88f, baseScale_*1.23f, spinVelocity_ + 2.0f),
