@@ -298,6 +298,11 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
             animCtrl_->PlayExclusive("Resources/Models/IdleRelax.ani", 0, true, 0.15f);
             animCtrl_->SetStartBone("Resources/Models/IdleRelax.ani", "MasterBone");
         }
+
+        if (rootNode_->GetPosition().z_ < -4.2f){
+            alive_ = false;
+            EnterLobby();
+        }
     // When in ship mode
     } else {
         //Update shield
@@ -513,13 +518,18 @@ void Player::EnterLobby()
 {
     StopAllSound();
     chaoFlash_->Disable();
-    SetPilotMode(true);
     rootNode_->SetPosition(Vector3(playerID_==2 ? 2.23f + 0.5f*alive_ : -2.23f - 0.5f*alive_, 0.0f, !alive_ * 5.5f));
     rigidBody_->SetLinearVelocity(!alive_ * Vector3::BACK*2.3f + alive_ * ((playerID_ == 2) ? Vector3::LEFT : Vector3::RIGHT));
     rigidBody_->ResetForces();
 
     scoreNode_->SetWorldScale(1.0f);
     scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 5.94252f : -5.94252f, 0.88069f, 0.82951f));
+
+    if (!IsAlive()){
+        CreateNewPilot();
+        ResetScore();
+    }
+    SetPilotMode(true);
 }
 void Player::SetPilotMode(bool pilotMode){
     pilotMode_ = pilotMode;

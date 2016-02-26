@@ -75,7 +75,6 @@ Enemy::Enemy(Context *context, MasterControl *masterControl):
 
 void Enemy::Set(const Vector3 position)
 {
-    soundSource_->Stop();
 
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();
@@ -90,6 +89,8 @@ void Enemy::Set(const Vector3 position)
     masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Enemy, HandleSceneUpdate));
     SubscribeToEvent(rootNode_, E_NODECOLLISION, URHO3D_HANDLER(Enemy, HandleCollision));
+
+    soundSource_->Stop();
 }
 
 // Takes care of dealing damage and keeps track of who deserves how many points.

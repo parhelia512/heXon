@@ -4,7 +4,7 @@
 	<texture unit="environment" name="Resources/Materials/Cubemap.xml" />
 	<parameter name="UOffset" value="1 0 0 0" />
 	<parameter name="VOffset" value="0 1 0 0" />
-	<parameter name="MatDiffColor" value="0.16 0.0 0.32 1" />
+	<parameter name="MatDiffColor" value="0.16 0.0 0.38 1" />
 	<parameter name="MatEmissiveColor" value="0 0 0" />
 	<parameter name="MatEnvMapColor" value="0.23 0.23 0.23" />
 	<parameter name="MatSpecColor" value="0.42 0.23 0.32 32" />

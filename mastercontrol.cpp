@@ -356,20 +356,8 @@ void MasterControl::EnterGameState()
     switch (currentState_){
     case GS_INTRO : break;
     case GS_LOBBY : {
-        Player* player1 = GetPlayer(1);
-        player1->EnterLobby();
-        if (!player1->IsAlive()){
-            player1->CreateNewPilot();
-            player1->ResetScore();
-        }
-
-        Player* player2 = GetPlayer(2);
-        player2->EnterLobby();
-        if (!player2->IsAlive()){
-            player2->CreateNewPilot();
-            player2->ResetScore();
-        }
-
+        GetPlayer(1)->EnterLobby();
+        GetPlayer(2)->EnterLobby();
 //        musicSource_->Play(menuMusic_);
         musicSource_->Stop();
         lobbyNode_->SetEnabledRecursive(true);

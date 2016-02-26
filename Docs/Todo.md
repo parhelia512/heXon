@@ -4,7 +4,7 @@
 - Decently handle input
 - AddKernel (Enemy)
 - 2 Player Lobby
-	* Two step game start: Join (button) + ready (ship)
+    * Two step game start: Join (button) + ready (ship)
     * Top panel: Instructions
     * Bottom panel: Game type selection (single, battle, coop)
-- Baphomech boss (trophy: coin)
+- B'phomech boss (trophy: coin)
