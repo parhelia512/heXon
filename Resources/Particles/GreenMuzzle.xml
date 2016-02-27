@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <particleeffect>
-	<material name="Resources/Materials/Flash.xml" />
+	<material name="Materials/Flash.xml" />
 	<numparticles value="10" />
 	<updateinvisible enable="true" />
 	<relative enable="true" />
@@ -21,6 +21,7 @@
 	<rotation min="-30" max="30" />
 	<rotationspeed min="-90" max="90" />
 	<sizedelta add="-5" mul="1" />
+	<faceCameraMode value="Rotate XYZ" />
 	<colorfade color="0 0 0 0.88" time="0" />
 	<colorfade color="0.6 1.5 0.5 1" time="0.01" />
 	<colorfade color="0 0 0 0.5" time="0.1" />

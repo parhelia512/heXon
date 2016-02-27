@@ -18,12 +18,16 @@
 
 #include "muzzle.h"
 
-Muzzle::Muzzle(Context *context, MasterControl *masterControl):
+Muzzle::Muzzle(Context *context, MasterControl *masterControl, int playerID):
     Effect(context, masterControl)
 {
     rootNode_->SetName("Muzzle");
 
     particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
-    ParticleEffect* particleEffect = masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/Muzzle.xml");
+    ParticleEffect* particleEffect{};
+    if (playerID == 2)
+        particleEffect = masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/PurpleMuzzle.xml");
+    else
+        particleEffect = masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/GreenMuzzle.xml");
     particleEmitter_->SetEffect(particleEffect);
 }

@@ -1,9 +1,9 @@
 <cubemap>
-    <face name="Resources/Textures/Cubemap_right.png"/>
-    <face name="Resources/Textures/Cubemap_left.png"/>
-    <face name="Resources/Textures/Cubemap_top.png"/>
-    <face name="Resources/Textures/Cubemap_bottom.png"/>
-    <face name="Resources/Textures/Cubemap_back.png"/>
-    <face name="Resources/Textures/Cubemap_front.png"/>
+    <face name="Textures/Cubemap_right.png"/>
+    <face name="Textures/Cubemap_left.png"/>
+    <face name="Textures/Cubemap_top.png"/>
+    <face name="Textures/Cubemap_bottom.png"/>
+    <face name="Textures/Cubemap_back.png"/>
+    <face name="Textures/Cubemap_front.png"/>
     <quality low="0"/>
 </cubemap>

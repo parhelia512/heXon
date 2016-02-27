@@ -56,6 +56,7 @@ void MasterControl::Setup()
     //Set custom window title and icon.
     engineParameters_["WindowTitle"] = "heXon";
     engineParameters_["LogName"] = GetSubsystem<FileSystem>()->GetAppPreferencesDir("urho3d", "logs")+"heXon.log";
+    engineParameters_["ResourcePaths"] = "Data;CoreData;Resources";
 //    engineParameters_["VSync"] = true;
 //    engineParameters_["FullScreen"] = false;
 //    engineParameters_["Headless"] = false;
@@ -270,7 +271,7 @@ void MasterControl::CreateScene()
     leftPointLight1->SetLightType(LIGHT_POINT);
     leftPointLight1->SetBrightness(0.83f);
     leftPointLight1->SetColor(Color(0.42f, 1.0f, 0.1f));
-    leftPointLight1->SetRange(10.0f);
+    leftPointLight1->SetRange(13.0f);
     leftPointLight1->SetCastShadows(true);
     leftPointLight1->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
@@ -280,7 +281,7 @@ void MasterControl::CreateScene()
     leftPointLight2->SetLightType(LIGHT_POINT);
     leftPointLight2->SetBrightness(0.83f);
     leftPointLight2->SetColor(Color(0.42f, 1.0f, 0.1f));
-    leftPointLight2->SetRange(10.0f);
+    leftPointLight2->SetRange(13.0f);
     leftPointLight2->SetCastShadows(true);
     leftPointLight2->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
@@ -290,7 +291,7 @@ void MasterControl::CreateScene()
     rightPointLight1->SetLightType(LIGHT_POINT);
     rightPointLight1->SetBrightness(1.0f);
     rightPointLight1->SetColor(Color(0.42f, 0.1f, 1.0f));
-    rightPointLight1->SetRange(10.0f);
+    rightPointLight1->SetRange(13.0f);
     rightPointLight1->SetCastShadows(true);
     rightPointLight1->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
@@ -300,12 +301,9 @@ void MasterControl::CreateScene()
     rightPointLight2->SetLightType(LIGHT_POINT);
     rightPointLight2->SetBrightness(1.0f);
     rightPointLight2->SetColor(Color(0.42f, 0.1f, 1.0f));
-    rightPointLight2->SetRange(10.0f);
+    rightPointLight2->SetRange(13.0f);
     rightPointLight2->SetCastShadows(true);
     rightPointLight2->SetShadowBias(BiasParameters(0.0001f, 0.1f));
-
-    new SplatterPillar(context_, this, false);
-    new SplatterPillar(context_, this, true);
 //    for (int i = 0; i < 6; i++){
 //        Node* edgeNode = floorNode->CreateChild("LobbyEdge");
 //        edgeNode->Rotate(Quaternion(0.0f, (60.0f * i), 0.0f));
@@ -322,6 +320,10 @@ void MasterControl::CreateScene()
     player2_ = new Player(context_, this, 2);
     players_[player1_->GetRootNodeID()] = player1_;
     players_[player2_->GetRootNodeID()] = player2_;
+
+
+    new SplatterPillar(context_, this, false);
+    new SplatterPillar(context_, this, true);
 
     apple_ = new Apple(context_, this);
     heart_ = new Heart(context_, this);

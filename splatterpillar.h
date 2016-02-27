@@ -23,6 +23,7 @@
 #include <Urho3D/Urho3D.h>
 
 #include "mastercontrol.h"
+#include "player.h"
 
 namespace Urho3D {
 class Node;
@@ -38,8 +39,12 @@ public:
     SplatterPillar(Context* context, MasterControl* masterControl, bool right);
 private:
     MasterControl* masterControl_;
+    Player* player_;
+    Node* rootNode_;
     AnimatedModel* pillar_;
     bool right_;
+    float lastTriggered_;
+    float sequenceLength_;
 
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 };

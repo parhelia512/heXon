@@ -54,7 +54,7 @@ public:
 
     unsigned GetRootNodeID() const { return rootNode_->GetID(); }
     int GetPlayerID() const { return playerID_; }
-    Vector3 GetPosition() const { return rootNode_->GetPosition(); }
+    Vector3 GetPosition() const { return rootNode_->GetWorldPosition(); }
     double GetHealth() const noexcept { return health_; }
     bool IsAlive() const noexcept { return alive_; }
     void Hit(float damage, bool melee = true);
@@ -71,6 +71,8 @@ public:
     void UpdateGUI(float timeStep);
     void PickupChaoBall();
     void UpdatePilot();
+    void KillPilot();
+
 private:
     int playerID_;
     bool pilotMode_;

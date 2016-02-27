@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <particleeffect>
-	<material name="Resources/Materials/Shine.xml" />
+	<material name="Materials/Shine.xml" />
 	<numparticles value="64" />
 	<updateinvisible enable="true" />
 	<relative enable="true" />
