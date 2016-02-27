@@ -194,9 +194,9 @@ void Player::SetScore(int points)
         StaticModel* digitModel = scoreDigits_[d]->GetComponent<StaticModel>();
         digitModel->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/"+String((int)(score_ / pow(10, d))%10)+".mdl"));
         scoreDigits_[d]->SetEnabled( score_ >= pow(10, d) || d == 0 );
-        digitModel->SetMaterial(playerID_==2
-                                ? masterControl_->resources.materials.ship2Secondary
-                                : masterControl_->resources.materials.ship1Secondary);
+//        digitModel->SetMaterial(playerID_==2
+//                                ? masterControl_->resources.materials.ship2Secondary
+//                                : masterControl_->resources.materials.ship1Secondary);
     }
 }
 void Player::ResetScore()
@@ -508,11 +508,11 @@ void Player::EnterPlay()
     shotInterval_ = initialShotInterval_;
     RemoveTails();
     CreateTails();
-    Set(Vector3(playerID_==2 ? 4.2f : -4.2f, 0.6f, 0.0f));
+    Set(Vector3(playerID_==2 ? 4.2f : -4.2f, 0.0f, 0.0f));
     SetPilotMode(false);
 
     scoreNode_->SetWorldScale(4.2f);
-    scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 23.5f : -23.5f, 2.23, 1.23f));
+    scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 23.5f : -23.5f, 2.23f, 1.23f));
 }
 void Player::EnterLobby()
 {
@@ -618,7 +618,11 @@ void Player::LoadPilot()
         unsigned long score = stoul(score_str, 0, 10);
         SetScore(score);
     }
-    if (!pilot_.colors_.Size()) CreateNewPilot();
+    if (!pilot_.colors_.Size()) {
+        CreateNewPilot();
+        alive_ = false;
+    }
+
     UpdatePilot();
 }
 

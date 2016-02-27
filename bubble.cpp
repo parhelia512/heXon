@@ -23,8 +23,9 @@ Bubble::Bubble(Context *context, MasterControl *masterControl):
     masterControl_{masterControl},
     spinAxis_{Vector3(Random(), Random(), Random()).Normalized()},
     spinVelocity_{LucKey::RandomSign() * Random(23.0f, 42.0f)},
-    baseScale_{pow(Random(0.23f, 0.88f), 2.3f)}
+    baseScale_{Random(0.25f, 0.95f)}
 {
+    baseScale_ *= baseScale_;
     rootNode_ = masterControl_->world.scene->CreateChild("Bubble");
     StaticModel* model = rootNode_->CreateComponent<StaticModel>();
     model->SetModel(masterControl_->cache_->GetResource<Model>("Models/Box.mdl"));

@@ -8,3 +8,4 @@
     * Top panel: Instructions
     * Bottom panel: Game type selection (single, battle, coop)
 - B'phomech boss (trophy: coin)
+- End pilot with splatterpillar

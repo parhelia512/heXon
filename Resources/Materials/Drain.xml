@@ -1,0 +1,6 @@
+<material>
+	<technique name="CoreData/Techniques/DiffNormalSpecAlphaMask.xml"/>
+	<texture name="Resources/Textures/DrainDiffuse.png" unit="diffuse"/>
+	<texture name="Resources/Textures/DrainNormals.png" unit="normal"/>
+	<texture name="Resources/Textures/DrainSpecular.png" unit="specular"/>
+</material>

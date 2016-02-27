@@ -36,6 +36,7 @@
 #include "explosion.h"
 #include "muzzle.h"
 #include "chaomine.h"
+#include "splatterpillar.h"
 #include "mastercontrol.h"
 
 URHO3D_DEFINE_APPLICATION_MAIN(MasterControl);
@@ -60,7 +61,7 @@ void MasterControl::Setup()
 //    engineParameters_["Headless"] = false;
 //    engineParameters_["WindowWidth"] = 960;
 //    engineParameters_["WindowHeight"] = 900;
-//    engineParameters_["RenderPath"] = "RenderPaths/DeferredHWDepth.xml";
+//    engineParameters_["RenderPath"] = "Resources/RenderPaths/ForwardOutline.xml";
 }
 void MasterControl::Start()
 {
@@ -205,6 +206,7 @@ void MasterControl::CreateScene()
     chamberModel->SetModel(cache_->GetResource<Model>("Resources/Models/Chamber.mdl"));
     chamberModel->SetMaterial(0, resources.materials.basic);
     chamberModel->SetMaterial(1, cache_->GetResource<Material>("Resources/Materials/PitchBlack.xml"));
+    chamberModel->SetMaterial(4, cache_->GetResource<Material>("Resources/Materials/Drain.xml"));
     lobbyGlowGreen_ = cache_->GetResource<Material>("Resources/Materials/GreenGlow.xml");
     chamberModel->SetMaterial(2, lobbyGlowGreen_);
     lobbyGlowPurple_ = cache_->GetResource<Material>("Resources/Materials/PurpleGlow.xml");
@@ -302,6 +304,8 @@ void MasterControl::CreateScene()
     rightPointLight2->SetCastShadows(true);
     rightPointLight2->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
+    new SplatterPillar(context_, this, false);
+    new SplatterPillar(context_, this, true);
 //    for (int i = 0; i < 6; i++){
 //        Node* edgeNode = floorNode->CreateChild("LobbyEdge");
 //        edgeNode->Rotate(Quaternion(0.0f, (60.0f * i), 0.0f));
