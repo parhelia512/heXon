@@ -41,6 +41,7 @@ private:
     AnimatedModel* pillar_;
     bool right_;
 
+    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 };
 
 #endif // SPLATTERPILLAR_H
