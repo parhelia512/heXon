@@ -3,5 +3,5 @@
 	<texture name="Textures/DrainDiffuse.png" unit="diffuse"/>
 	<texture name="Textures/DrainNormals.png" unit="normal"/>
 	<texture name="Textures/DrainSpecular.png" unit="specular"/>
-	<parameter name="MatSpecColor" value="1 1 1 23" />
+	<parameter name="MatSpecColor" value="1 1 1 42" />
 </material>

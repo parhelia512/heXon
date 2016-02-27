@@ -585,7 +585,7 @@ void Player::UpgradeWeapons()
 void Player::LoadPilot()
 {
     using namespace std;
-    ifstream fPilot("Pilot"+to_string(playerID_)+".lkp");
+    ifstream fPilot("Resources/Pilot"+to_string(playerID_)+".lkp");
     while (!fPilot.eof()){
         string gender_str;
         string hairStyle_str;

@@ -41,12 +41,18 @@ private:
     MasterControl* masterControl_;
     Player* player_;
     Node* rootNode_;
+    Node* pillarNode_;
+    Node* bloodNode_;
     AnimatedModel* pillar_;
+    AnimatedModel* blood_;
+
     bool right_;
+    bool spun_;
     float lastTriggered_;
     float sequenceLength_;
 
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
+    void Trigger();
 };
 
 #endif // SPLATTERPILLAR_H

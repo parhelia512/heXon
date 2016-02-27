@@ -412,7 +412,7 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
 
     resources.materials.basic->SetShaderParameter("MatDiffColor", resources.materials.basic->GetShaderParameter("MatDiffColor").GetColor().Lerp(
                                           GetGameState() == GS_LOBBY
-                                          ? Color(0.142f, 0.132f, 0.13f) * Sine(5.0f, 0.75f, 1.0f, 1.23f) * Min(2.3f * sinceStateChange_, 1.0f)
+                                          ? Color(0.13f, 0.13f, 0.13f) * Sine(5.0f, 0.666f, 1.0f, 1.23f) * Min(2.3f * sinceStateChange_, 1.0f)
                                           : Color(0.0f, 0.0f, 0.0f, 0.0f), timeStep));
 
     switch (currentState_){
