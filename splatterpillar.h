@@ -45,6 +45,7 @@ private:
     Node* bloodNode_;
     AnimatedModel* pillar_;
     AnimatedModel* blood_;
+    SoundSource* soundSource_;
 
     bool right_;
     bool spun_;

@@ -140,11 +140,11 @@ play{
                 mean({|n|(p.ar(n*1e2+50*p.kr(4-n/[4,7,5]).sum+3e2)*p.kr(n+1*2,0,0.8).lag(0.1))}!3)
             ),4000) * 0.4, 200, 9, 0.6, 0.5, 40, 1, 0.15, 0.25
         ).madd(0.8) + */GVerb.ar(
-            {|i|BPF.ar(PinkNoise.ar(Decay.ar(Impulse.ar(0.23,0.95+n.kr(1,0.08)),rrand(0.2,0.4),2)).tanh,300*i+666,0.4)}.dup(6).sum*1.2,
+            {|i|BPF.ar(PinkNoise.ar(Decay.ar(Impulse.ar(0.23,0.95+n.kr(0.1,0.023)),rrand(0.2,0.4),2)).tanh,300*i+666,0.4)}.dup(6).sum*1.2,
             23, 0.23, 0.666, 0.5, 30, 1, 0.2, 0.3
-        )/* + Splay.ar(
-            {|i|Ringz.ar(LPF.ar(Impulse.ar(6,n.kr(1,0.08)),4000),6*i+40+n.kr(30,2),0.5,n.kr(3).range(4,8)).tanh}.dup(3),0.5
-        ).madd(0.3)*/
+        ) + Splay.ar(
+            {|i|Ringz.ar(Pulse.ar(Impulse.ar(0.23,n.kr(1,0.08)),4),13*i+105+n.kr(50,23),0.13,n.kr(5).range(1,8)).tanh}.dup(23),0.05
+        ).madd(0.1)
     )
 }
 )

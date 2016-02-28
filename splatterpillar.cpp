@@ -31,6 +31,8 @@ SplatterPillar::SplatterPillar(Context *context, MasterControl *masterControl, b
     blood_->SetModel(masterControl_->cache_->GetResource<Model>("Models/Blood.mdl"));
     blood_->SetMaterial(0, masterControl_->cache_->GetResource<Material>("Materials/Blood.xml"));
 
+    soundSource_ = rootNode_->CreateComponent<SoundSource>();
+
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(SplatterPillar, HandleSceneUpdate));
 }
 
@@ -40,6 +42,7 @@ void SplatterPillar::Trigger()
     player_->KillPilot();
     bloodNode_->Rotate(Quaternion(Random(360.0f), Vector3::UP));
     blood_->SetEnabled(true);
+    soundSource_->Play(masterControl_->cache_->GetResource<Sound>("Samples/Splatter" + String(Random(1, 6)) + ".ogg"));
 }
 
 void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
