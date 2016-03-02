@@ -20,6 +20,7 @@
 
 #include <Urho3D/Container/Ptr.h>
 #include <Urho3D/Core/Context.h>
+#include "TailGenerator.h"
 
 #include "hexocam.h"
 #include "inputmaster.h"
@@ -37,7 +38,6 @@
 #include "muzzle.h"
 #include "chaomine.h"
 #include "splatterpillar.h"
-#include "TailGenerator.h"
 #include "mastercontrol.h"
 
 URHO3D_DEFINE_APPLICATION_MAIN(MasterControl);
@@ -305,15 +305,7 @@ void MasterControl::CreateScene()
     rightPointLight2->SetRange(13.0f);
     rightPointLight2->SetCastShadows(true);
     rightPointLight2->SetShadowBias(BiasParameters(0.0001f, 0.1f));
-//    for (int i = 0; i < 6; i++){
-//        Node* edgeNode = floorNode->CreateChild("LobbyEdge");
-//        edgeNode->Rotate(Quaternion(0.0f, (60.0f * i), 0.0f));
-//        Model* model = cache_->GetResource<Model>("Resources/Models/ArenaEdgeSegment.mdl");
-//        edgeNode->CreateComponent<RigidBody>();
-//        CollisionShape* collider = edgeNode->CreateComponent<CollisionShape>();
-//        collider->SetConvexHull(model);
-//        SubscribeToEvent(edgeNode, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandleExitTrigger));
-//    }
+
     //Create game elements
     spawnMaster_ = new SpawnMaster(context_, this);
 
@@ -525,4 +517,9 @@ float MasterControl::Sine(const float freq, const float min, const float max, co
     float phase = freq * world.scene->GetElapsedTime() + shift;
     float add = 0.5f*(min+max);
     return Sine(phase) * 0.5f * (max - min) + add;
+}
+
+Player *MasterControl::GetPlayer(int playerID)
+{
+    return playerID == 1 ? player1_.Get() : player2_.Get();
 }

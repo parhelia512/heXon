@@ -164,7 +164,7 @@ public:
     float Cosine(float x) { return Sine(x+(0.5f*M_PI)); }
     float Cosine(float freq, float min, float max, float shift = 0.0f){ return Sine(freq, min, max, shift+0.5f*M_PI); }
 
-    Player* GetPlayer(int playerID){ return playerID == 1 ? player1_.Get() : player2_.Get(); }
+    Player* GetPlayer(int playerID);
     float SinceLastReset() const { return world.scene->GetElapsedTime() - world.lastReset; }
     void SetGameState(GameState newState);
     GameState GetGameState(){ return currentState_; }

@@ -4,6 +4,7 @@
 SplatterPillar::SplatterPillar(Context *context, MasterControl *masterControl, bool right):
     Object(context),
     masterControl_{masterControl},
+    player_{},
     right_{right},
     spun_{false},
     reset_{true},
@@ -11,8 +12,6 @@ SplatterPillar::SplatterPillar(Context *context, MasterControl *masterControl, b
     lastTriggered_{-5.0f},
     rotationSpeed_{}
 {
-    player_ = masterControl_->GetPlayer(right_+1);
-
     float mirror = right_ ? 1.0f : -1.0f;
     rootNode_ = masterControl->lobbyNode_->CreateChild("SplatterPillar");
     rootNode_->SetPosition(Vector3(mirror * -2.26494f, 0.0f, 3.91992f));
@@ -62,6 +61,8 @@ void SplatterPillar::Trigger()
 
 void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
 {
+    if (player_ == nullptr) player_ = masterControl_->GetPlayer(right_+1);
+
     if (masterControl_->GetGameState() != GS_LOBBY) return;
 
     float elapsedTime = masterControl_->world.scene->GetElapsedTime();
@@ -112,7 +113,7 @@ void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventDa
             dripEmitter_->SetEmitting(false);
         }
         if (pillar_->GetMorphWeight(0) != 0.0f) pillar_->SetMorphWeight(0, 0.0f);
-        if (LucKey::Distance(player_->GetPosition(), rootNode_->GetWorldPosition()) < 0.23f) {
+        if (player_ && LucKey::Distance(player_->GetPosition(), rootNode_->GetWorldPosition()) < 0.23f) {
             Trigger();
         }
     }
