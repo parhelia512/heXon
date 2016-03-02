@@ -17,72 +17,13 @@
 */
 
 #include "inputmaster.h"
+#include "player.h"
 
 InputMaster::InputMaster(Context* context, MasterControl* masterControl) : Object(context)
 {
     masterControl_ = masterControl;
     input_ = GetSubsystem<Input>();
-    Init();
-}
-
-InputMaster::~InputMaster()
-{
-    _controllerActions.Clear();
-    _controllerAxis.Clear();
-    _controllerAxisActions.Clear();
-}
-
-void InputMaster::Init()
-{
-    BindControllerAction(Urho3D::CONTROLLER_BUTTON_LEFTSTICK, ACTION_CROUCH);
-    BindControllerAction(Urho3D::CONTROLLER_BUTTON_A, ACTION_JUMP);
-    BindControllerAction(Urho3D::CONTROLLER_BUTTON_RIGHTSHOULDER, ACTION_SWITCH_ITEM);
-    BindControllerAction(Urho3D::CONTROLLER_BUTTON_START, ACTION_PAUSE);
-
-    BindControllerAxis(Urho3D::CONTROLLER_AXIS_RIGHTX, AXIS_LOOK_X);
-    BindControllerAxis(Urho3D::CONTROLLER_AXIS_RIGHTY, AXIS_LOOK_Y);
-    SetJoystickSensitivity(Urho3D::CONTROLLER_AXIS_RIGHTX, 10.0f);
-    SetJoystickSensitivity(Urho3D::CONTROLLER_AXIS_RIGHTY, 10.0f);
-
-    //BindControllerAxisAction(Urho3D::CONTROLLER_AXIS_LEFTY, ACTION_MOVE_FORWARD, -1, 0.5f);
-    BindControllerAxisAction(Urho3D::CONTROLLER_AXIS_LEFTY, ACTION_MOVE_FORWARD, ACTION_MOVE_BACKWARD, 0.5f);
-    BindControllerAxisAction(Urho3D::CONTROLLER_AXIS_LEFTX, ACTION_STRAFE_LEFT, ACTION_STRAFE_RIGHT, 0.5f);
-
-    BindControllerAxisAction(Urho3D::CONTROLLER_AXIS_TRIGGERLEFT, -1, ACTION_PRIMARY, 0.5f);
-    BindControllerAxisAction(Urho3D::CONTROLLER_AXIS_TRIGGERRIGHT, -1, ACTION_SECONDARY, 0.5f);
-
     SubscribeToEvents();
-}
-
-void InputMaster::SetMouseSensitivity(const float sensitivity)
-{
-    _mouseSensitivity = sensitivity;
-}
-
-void InputMaster::SetJoystickSensitivity(const int axis, const float sensitivity)
-{
-    _joystickSensitivity[axis] = sensitivity;
-}
-
-void InputMaster::BindControllerAction(const int button, const int action)
-{
-    _controllerActions[button] = action;
-}
-
-void InputMaster::BindControllerAxis(const int axis, const int axisAction, const float threshold)
-{
-    _controllerAxis[axis] = axisAction;
-}
-
-void InputMaster::BindControllerAxisAction(const int axis, const int negative_action, const int positive_action, const float threshold)
-{
-    ControllerAxisAction definition;
-    definition.negative_action = negative_action;
-    definition.positive_action = positive_action;
-    definition.threshold = threshold;
-    definition.overThreshold = false;
-
-    _controllerAxisActions[axis] = definition;
 }
 
 void InputMaster::SubscribeToEvents()
@@ -139,7 +80,7 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
 
     switch (key){
     //Exit when ESC is pressed
-    case KEY_ESC: if (masterControl_->GetPlayer(1)->IsAlive()) EjectButtonPressed();
+    case KEY_ESC: EjectButtonPressed();
         break;
     //Take screenshot when 9 is pressed
     case KEY_9:
@@ -202,12 +143,6 @@ void InputMaster::HandleJoystickButtonUp(Urho3D::StringHash eventType, Urho3D::V
 {
     int joyID = eventData[JoystickButtonUp::P_JOYSTICKID].GetInt();		//int
     int button = eventData[JoystickButtonUp::P_BUTTON].GetInt();		//int
-
-    // Process game event
-    if(_controllerActions.Contains(button))
-    {
-        //SendButtonUpEvent(_controllerActions[button]);
-    }
 }
 
 void InputMaster::HandleJoystickAxisMove(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
@@ -215,39 +150,4 @@ void InputMaster::HandleJoystickAxisMove(Urho3D::StringHash eventType, Urho3D::V
     eventData[JoystickAxisMove::P_JOYSTICKID];		//int
     int axis = eventData[JoystickAxisMove::P_AXIS].GetInt();			//int
     float pos = eventData[JoystickAxisMove::P_POSITION].GetFloat();		//float
-
-        // Process game event
-    if(_controllerAxisActions.Contains(axis))
-    {
-        int action = -1;
-        float newPos = pos;
-        if(pos > 0)
-        {
-            action = _controllerAxisActions[axis].positive_action;
-        }
-        else if(pos < 0)
-        {
-            newPos = -pos; // Put into [0,1]
-            action = _controllerAxisActions[axis].negative_action;
-        }
-
-        // No action specified
-        if(action == -1)
-            return;
-
-        if(newPos >= _controllerAxisActions[axis].threshold && !_controllerAxisActions[axis].overThreshold)
-        {
-            _controllerAxisActions[axis].overThreshold = true;
-           // SendButtonDownEvent(action);
-        }
-        else if(newPos < _controllerAxisActions[axis].threshold && _controllerAxisActions[axis].overThreshold)
-        {
-            _controllerAxisActions[axis].overThreshold = false;
-           // SendButtonUpEvent(action);
-        }
-    }
-
-    if(_controllerAxis.Contains(axis)) {}
-        //SendJoystickAxisMoveEvent(_controllerAxis[axis], pos * _mouseSensitivity, 0.25f);
-
 }

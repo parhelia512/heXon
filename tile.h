@@ -27,8 +27,6 @@ namespace Urho3D {
 class Node;
 }
 
-using namespace Urho3D;
-
 class Tile : public Object
 {
     URHO3D_OBJECT(Tile, Object);

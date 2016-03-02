@@ -1,12 +1,14 @@
 #include "splatterpillar.h"
+#include "player.h"
 
 SplatterPillar::SplatterPillar(Context *context, MasterControl *masterControl, bool right):
     Object(context),
     masterControl_{masterControl},
     right_{right},
     spun_{false},
-    sequenceLength_{2.0f},
-    lastTriggered_{-2.0f}
+    sequenceLength_{5.0f},
+    lastTriggered_{-5.0f},
+    rotationSpeed_{}
 {
     player_ = masterControl_->GetPlayer(right_+1);
 
@@ -28,21 +30,24 @@ SplatterPillar::SplatterPillar(Context *context, MasterControl *masterControl, b
 
     blood_ = bloodNode_->CreateComponent<AnimatedModel>();
     blood_->SetEnabled(false);
+    blood_->SetCastShadows(true);
     blood_->SetModel(masterControl_->cache_->GetResource<Model>("Models/Blood.mdl"));
     blood_->SetMaterial(0, masterControl_->cache_->GetResource<Material>("Materials/Blood.xml"));
 
     soundSource_ = rootNode_->CreateComponent<SoundSource>();
+    soundSource_->SetGain(3.0f);
 
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(SplatterPillar, HandleSceneUpdate));
 }
 
 void SplatterPillar::Trigger()
 {
+    rotationSpeed_ = Random(-1.0f, 1.0f);
     lastTriggered_ = masterControl_->world.scene->GetElapsedTime();
     player_->KillPilot();
     bloodNode_->Rotate(Quaternion(Random(360.0f), Vector3::UP));
     blood_->SetEnabled(true);
-    soundSource_->Play(masterControl_->cache_->GetResource<Sound>("Samples/Splatter" + String(Random(1, 6)) + ".ogg"));
+    soundSource_->Play(masterControl_->cache_->GetResource<Sound>("Samples/Splatter" + String(Random(1,6)) + ".ogg"));
 }
 
 void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
@@ -52,15 +57,20 @@ void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventDa
     float elapsedTime = masterControl_->world.scene->GetElapsedTime();
     float intoSequence = (elapsedTime - lastTriggered_)/sequenceLength_;
 
+    //Animate morphs
     if (intoSequence < 1.0f) {
+        //Animate blood
         unsigned numMorphs = blood_->GetNumMorphs();
         for (unsigned m = 0; m < numMorphs; ++m){
-            float intoMorph = Max(intoSequence * numMorphs - m, 0.0f);
+            float intoMorph = Clamp(intoSequence * numMorphs - m, 0.0f, 2.0f);
             if (intoMorph > 1.0f) intoMorph = Max(2.0f - intoMorph, 0.0f);
+            else if (m == 0) Min(intoMorph *= 23.0f, 1.0f);
             blood_->SetMorphWeight(m, intoMorph);
+            bloodNode_->Rotate(Quaternion(rotationSpeed_ * eventData[SceneUpdate::P_TIMESTEP].GetFloat() / (1.0f + intoSequence * 23.0f), Vector3::UP));
         }
-
-        if      (intoSequence < 0.0125f) pillar_->SetMorphWeight(0, 80.0f * intoSequence);
+        blood_->GetMaterial()->SetShaderParameter("MatDiffColor", Color(0.23f, 0.32f, 0.32f, Clamp(1.0f - (intoSequence - 0.88f) * 7.0f, 0.0f, 1.0f)));
+        //Animate pillar
+        if      (intoSequence < 0.125f) pillar_->SetMorphWeight(0, 80.0f * intoSequence);
         else if (intoSequence < 0.05f) {
             pillar_->SetMorphWeight(0, 1.0f);
             if (!spun_){
@@ -73,9 +83,11 @@ void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventDa
             pillar_->SetMorphWeight(0,  2.0f * (1.0f - 3.0f*intoSequence));
         }
     }
-    else if (pillar_->GetMorphWeight(0) != 0.0f) pillar_->SetMorphWeight(0, 0.0f);
-
-    if (LucKey::Distance(player_->GetPosition(), rootNode_->GetWorldPosition()) < 0.23f) {
-        Trigger();
+    //Trigger
+    else {
+        if (pillar_->GetMorphWeight(0) != 0.0f) pillar_->SetMorphWeight(0, 0.0f);
+        if (LucKey::Distance(player_->GetPosition(), rootNode_->GetWorldPosition()) < 0.23f) {
+            Trigger();
+        }
     }
 }

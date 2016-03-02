@@ -22,9 +22,8 @@
 #include <Urho3D/Urho3D.h>
 
 #include "sceneobject.h"
-#include "TailGenerator.h"
 
-using namespace Urho3D;
+class TailGenerator;
 
 class Seeker : public SceneObject
 {

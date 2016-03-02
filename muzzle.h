@@ -23,8 +23,6 @@
 
 #include "effect.h"
 
-using namespace Urho3D;
-
 class Muzzle : public Effect
 {
     URHO3D_OBJECT(Muzzle, Effect);

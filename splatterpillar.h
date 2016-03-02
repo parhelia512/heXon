@@ -23,14 +23,8 @@
 #include <Urho3D/Urho3D.h>
 
 #include "mastercontrol.h"
-#include "player.h"
 
-namespace Urho3D {
-class Node;
-class Scene;
-}
-
-using namespace Urho3D;
+class Player;
 
 class SplatterPillar : public Object
 {
@@ -51,6 +45,7 @@ private:
     bool spun_;
     float lastTriggered_;
     float sequenceLength_;
+    float rotationSpeed_;
 
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void Trigger();

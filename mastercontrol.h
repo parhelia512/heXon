@@ -28,8 +28,6 @@ class Node;
 class Scene;
 }
 
-using namespace Urho3D;
-
 class heXoCam;
 class InputMaster;
 class TileMaster;

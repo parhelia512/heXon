@@ -23,8 +23,6 @@
 
 #include "enemy.h"
 
-using namespace Urho3D;
-
 class Spire : public Enemy
 {
     URHO3D_OBJECT(Spire, Enemy);

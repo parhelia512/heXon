@@ -17,6 +17,7 @@
 */
 
 #include <fstream>
+#include "TailGenerator.h"
 
 #include "mastercontrol.h"
 #include "hexocam.h"
@@ -25,6 +26,7 @@
 #include "multix.h"
 #include "bullet.h"
 #include "muzzle.h"
+#include "chaoflash.h"
 #include "explosion.h"
 #include "player.h"
 

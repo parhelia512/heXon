@@ -22,12 +22,11 @@
 #include <Urho3D/Urho3D.h>
 
 #include "sceneobject.h"
-#include "bullet.h"
-#include "muzzle.h"
-#include "chaoflash.h"
-#include "TailGenerator.h"
 
-using namespace Urho3D;
+class Bullet;
+class Muzzle;
+class ChaoFlash;
+class TailGenerator;
 
 typedef struct Ship
 {

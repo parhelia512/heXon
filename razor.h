@@ -23,8 +23,6 @@
 
 #include "enemy.h"
 
-using namespace Urho3D;
-
 class Razor : public Enemy
 {
     URHO3D_OBJECT(Razor, Enemy);

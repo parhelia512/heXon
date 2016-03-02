@@ -22,93 +22,40 @@
 #include <Urho3D/Urho3D.h>
 
 #include "mastercontrol.h"
-#include "tile.h"
-#include "tilemaster.h"
-#include "hexocam.h"
-#include "player.h"
-
-using namespace Urho3D;
 
 // Define events to be bound
-URHO3D_EVENT(MENU_BUTTON_DOWN, MenuButtonDown) // MouseDown, KeyDown, ControllerButtonDown, MouseWheel
-{
-    URHO3D_PARAM(P_ACTION, Action);	// int
-}
-URHO3D_EVENT(MENU_BUTTON_UP, MenuButtonUp) // MouseUp, KeyUp, ControllerButtonUp, ControllerAxisMove, MouseWheel
-{
-    URHO3D_PARAM(P_ACTION, Action);	// int
-}
-URHO3D_EVENT(BUTTON_DOWN, ButtonDown) // MouseDown, KeyDown, ControllerButtonDown, MouseWheel
-{
-    URHO3D_PARAM(P_ACTION, Action);	// int
-}
-URHO3D_EVENT(BUTTON_UP, ButtonUp) // MouseUp, KeyUp, ControllerButtonUp, MouseWheel
-{
-    URHO3D_PARAM(P_ACTION, Action);	// int
-}
-URHO3D_EVENT(MOUSE_AXIS_MOVE, MouseAxisMove) // MouseMove
-{
-    URHO3D_PARAM(P_AXIS, Axis);	// int
-    URHO3D_PARAM(P_DELTA, Delta);	// float
-}
-/*EVENT(JOYSTICK_AXIS_MOVE, JoystickAxisMove) // ControllerAxisMove
-{
-    PARAM(P_AXIS, Axis);	// int
-    PARAM(P_DELTA, Delta);	// float
-    PARAM(P_THRESHOLD, Threshold);	// float
-}*/
-
-static const int MENU_TOGGLE_CONSOLE = 1;
-static const int MENU_BACK = 2;
-static const int MENU_ENTER = 3;
-static const int MENU_UP = 4;
-static const int MENU_DOWN = 5;
-static const int MENU_LEFT = 6;
-static const int MENU_RIGHT = 7;
-
-static const int ACTION_PRIMARY = 1;
-static const int ACTION_SECONDARY = 2;
-static const int ACTION_MOVE_FORWARD = 3;
-static const int ACTION_MOVE_BACKWARD = 4;
-static const int ACTION_STRAFE_LEFT = 5;
-static const int ACTION_STRAFE_RIGHT = 6;
-static const int ACTION_CROUCH = 7;
-static const int ACTION_JUMP = 8;
-static const int ACTION_SWITCH_ITEM = 9;
-static const int ACTION_PAUSE = 10;
-static const int ACTION_ = 0;
-
-static const int AXIS_LOOK_X = 1;
-static const int AXIS_LOOK_Y = 2;
-
-struct ControllerAxisAction
-{
-    bool overThreshold;
-    float threshold;
-    int negative_action;
-    int positive_action;
-};
+//URHO3D_EVENT(MENU_BUTTON_DOWN, MenuButtonDown) // MouseDown, KeyDown, ControllerButtonDown, MouseWheel
+//{
+//    URHO3D_PARAM(P_ACTION, Action);	// int
+//}
+//URHO3D_EVENT(MENU_BUTTON_UP, MenuButtonUp) // MouseUp, KeyUp, ControllerButtonUp, ControllerAxisMove, MouseWheel
+//{
+//    URHO3D_PARAM(P_ACTION, Action);	// int
+//}
+//URHO3D_EVENT(BUTTON_DOWN, ButtonDown) // MouseDown, KeyDown, ControllerButtonDown, MouseWheel
+//{
+//    URHO3D_PARAM(P_ACTION, Action);	// int
+//}
+//URHO3D_EVENT(BUTTON_UP, ButtonUp) // MouseUp, KeyUp, ControllerButtonUp, MouseWheel
+//{
+//    URHO3D_PARAM(P_ACTION, Action);	// int
+//}
+//URHO3D_EVENT(MOUSE_AXIS_MOVE, MouseAxisMove) // MouseMove
+//{
+//    URHO3D_PARAM(P_AXIS, Axis);	// int
+//    URHO3D_PARAM(P_DELTA, Delta);	// float
+//}
 
 class InputMaster : public Object
 {
     URHO3D_OBJECT(InputMaster, Object);
 public:
     InputMaster(Context* context, MasterControl* masterControl);
-    ~InputMaster();
 
     void Init();
 
-    void SetMouseSensitivity(float sensitivity);
-    void SetJoystickSensitivity(int axis, float sensitivity);
-
-    WeakPtr<Node> firstHit_;
-
-    void BindControllerAction(int button, int action);
-    void BindControllerAxis(int axis, int axisAction, float threshold = 0.1f);
-    void BindControllerAxisAction(int axis, int negative_action, int positive_action, float threshold = 0.1f);
     void SubscribeToEvents();
 
-    void DeselectAll();
     void HandleMouseButtonDown(StringHash eventType, VariantMap &eventData);
     void HandleKeyDown(StringHash eventType, VariantMap &eventData);
     void HandleMouseUp(StringHash eventType, VariantMap &eventData);
@@ -124,20 +71,6 @@ private:
 
     Input* input_;
 
-    void SendButtonUpEvent(int action);
-    void SendButtonDownEvent(int action);
-    void SendJoystickAxisMoveEvent(int axis, float delta, float threshold);
-
-    float _mouseSensitivity;
-    Urho3D::HashMap<unsigned, float> _joystickSensitivity;
-
-    Urho3D::HashMap<unsigned, unsigned> _controllerActions;
-    Urho3D::HashMap<unsigned, unsigned> _controllerAxis;
-    Urho3D::HashMap<unsigned, ControllerAxisAction> _controllerAxisActions;
-
-
-    Vector<SharedPtr<Tile> > selectedTiles_;
-    void AddSelection(SharedPtr<Tile> tile);
     void PauseButtonPressed();
     void EjectButtonPressed();
 };

@@ -16,10 +16,13 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#include "TailGenerator.h"
+
 #include "seeker.h"
 #include "hitfx.h"
 #include "tilemaster.h"
 #include "player.h"
+#include "spawnmaster.h"
 
 Seeker::Seeker(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),

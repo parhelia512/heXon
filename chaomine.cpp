@@ -1,4 +1,5 @@
 #include "chaomine.h"
+#include "spawnmaster.h"
 #include "player.h"
 
 ChaoMine::ChaoMine(Context *context, MasterControl *masterControl): Enemy(context, masterControl),

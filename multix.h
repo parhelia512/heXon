@@ -23,8 +23,6 @@
 
 #include "pickup.h"
 
-using namespace Urho3D;
-
 class MultiX : public Pickup
 {
     URHO3D_OBJECT(MultiX, Pickup);

@@ -2,10 +2,13 @@
 	* Overload << and >> 
 - SpawnMaster should probably work with templates
 - Decently handle input
+
 - AddKernel (Enemy)
-- 2 Player Lobby
-    * Two step game start: Join (button) + ready (ship)
-    * Top panel: Instructions
-    * Bottom panel: Game type selection (single, battle, coop)
 - B'phomech boss (trophy: coin)
-- End pilot with splatterpillar
+
+- Save highest score of splattered pilots
+- Add particles to splat
+- Two step game start: Join (button) + ready (ship) | Leave door to exit, eject to cancel ready
+
+- Top panel: Instructions
+- Bottom panel: Game type selection (single, battle, coop)

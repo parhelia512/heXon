@@ -37,6 +37,7 @@
 #include "muzzle.h"
 #include "chaomine.h"
 #include "splatterpillar.h"
+#include "TailGenerator.h"
 #include "mastercontrol.h"
 
 URHO3D_DEFINE_APPLICATION_MAIN(MasterControl);
@@ -266,7 +267,7 @@ void MasterControl::CreateScene()
     side2Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
 
     Node* leftPointLightNode1 = lobbyNode_->CreateChild("PointLight");
-    leftPointLightNode1->SetPosition(Vector3(2.3f, 2.3f, 3.2f));
+    leftPointLightNode1->SetPosition(Vector3(2.3f, 2.3f, 3.0f));
     Light* leftPointLight1 = leftPointLightNode1->CreateComponent<Light>();
     leftPointLight1->SetLightType(LIGHT_POINT);
     leftPointLight1->SetBrightness(0.83f);
@@ -276,7 +277,7 @@ void MasterControl::CreateScene()
     leftPointLight1->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
     Node* leftPointLightNode2 = lobbyNode_->CreateChild("PointLight");
-    leftPointLightNode2->SetPosition(Vector3(2.3f, 2.3f, -3.2f));
+    leftPointLightNode2->SetPosition(Vector3(2.3f, 2.3f, -3.0f));
     Light* leftPointLight2 = leftPointLightNode2->CreateComponent<Light>();
     leftPointLight2->SetLightType(LIGHT_POINT);
     leftPointLight2->SetBrightness(0.83f);
@@ -286,7 +287,7 @@ void MasterControl::CreateScene()
     leftPointLight2->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
     Node* rightPointLightNode1 = lobbyNode_->CreateChild("PointLight");
-    rightPointLightNode1->SetPosition(Vector3(-2.3f, 2.3f, 3.2f));
+    rightPointLightNode1->SetPosition(Vector3(-2.3f, 2.3f, 3.0f));
     Light* rightPointLight1 = rightPointLightNode1->CreateComponent<Light>();
     rightPointLight1->SetLightType(LIGHT_POINT);
     rightPointLight1->SetBrightness(1.0f);
@@ -296,7 +297,7 @@ void MasterControl::CreateScene()
     rightPointLight1->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
     Node* rightPointLightNode2 = lobbyNode_->CreateChild("PointLight");
-    rightPointLightNode2->SetPosition(Vector3(-2.3f, 2.3f, -3.2f));
+    rightPointLightNode2->SetPosition(Vector3(-2.3f, 2.3f, -3.0f));
     Light* rightPointLight2 = rightPointLightNode2->CreateComponent<Light>();
     rightPointLight2->SetLightType(LIGHT_POINT);
     rightPointLight2->SetBrightness(1.0f);
