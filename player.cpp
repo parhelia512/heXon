@@ -163,7 +163,7 @@ void Player::CreateGUI()
     healthBarHolderNode->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
     StaticModel* healthBarHolderModel = healthBarHolderNode->CreateComponent<StaticModel>();
     healthBarHolderModel->SetModel(masterControl_->cache_->GetResource<Model>("Models/BarHolder.mdl"));
-    healthBarHolderModel->SetMaterial(masterControl_->cache_->GetResource<Material>("Materials/Metal.xml"));
+    healthBarHolderModel->SetMaterial(masterControl_->cache_->GetResource<Material>("Materials/BarHolder.xml"));
 
     appleCounterRoot_ = guiNode_->CreateChild("AppleCounter");
     for (int a = 0; a < 4; a++){

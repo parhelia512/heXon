@@ -40,9 +40,12 @@ private:
     AnimatedModel* pillar_;
     AnimatedModel* blood_;
     SoundSource* soundSource_;
+    ParticleEmitter* splatEmitter_;
+    ParticleEmitter* dripEmitter_;
 
     bool right_;
     bool spun_;
+    bool reset_;
     float lastTriggered_;
     float sequenceLength_;
     float rotationSpeed_;
