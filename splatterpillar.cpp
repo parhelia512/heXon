@@ -109,9 +109,9 @@ void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventDa
         blood_->GetMaterial()->SetShaderParameter("MatDiffColor", Color(0.23f, 0.32f, 0.32f, Clamp(1.0f - (intoSequence - 0.75f) * 5.0f, 0.0f, 1.0f)));
         blood_->GetMaterial()->SetShaderParameter("Dissolve", 0.75f*intoSequence + 0.23f);
         ParticleEffect* dripEffect = dripEmitter_->GetEffect();
-        dripEffect->SetEmitterSize(Vector3(1.23f - intoSequence, 0.0f, 1.23f - intoSequence));
-        dripEffect->SetMinEmissionRate(Max(100.0f - 123.0f * intoSequence, 0.0f));
-        dripEffect->SetMaxEmissionRate(Max(500.0f - 512.0f * intoSequence, 0.0f));
+        dripEffect->SetEmitterSize(Vector3(1.5f - intoSequence * 1.23f, 0.0f, 1.5f - intoSequence * 1.23f));
+        dripEffect->SetMinEmissionRate(Max(150.0f - 250.0f * intoSequence, 0.0f));
+        dripEffect->SetMaxEmissionRate(Max(300.0f - 320.0f * intoSequence, 0.0f));
         //Animate pillar
         if      (intoSequence < 0.125f) pillar_->SetMorphWeight(0, 80.0f * intoSequence);
         else if (intoSequence < 0.05f) {
