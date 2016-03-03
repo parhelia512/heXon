@@ -17,6 +17,7 @@
 */
 
 #include "inputmaster.h"
+
 #include "player.h"
 
 InputMaster::InputMaster(Context* context, MasterControl* masterControl) : Object(context)

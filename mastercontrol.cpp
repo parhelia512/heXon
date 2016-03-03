@@ -16,8 +16,9 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include <fstream>
+#include "mastercontrol.h"
 
+#include <fstream>
 #include <Urho3D/Container/Ptr.h>
 #include <Urho3D/Core/Context.h>
 #include "TailGenerator.h"
@@ -38,7 +39,6 @@
 #include "muzzle.h"
 #include "chaomine.h"
 #include "splatterpillar.h"
-#include "mastercontrol.h"
 
 URHO3D_DEFINE_APPLICATION_MAIN(MasterControl);
 

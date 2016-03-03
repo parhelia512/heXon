@@ -16,9 +16,9 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "TailGenerator.h"
-
 #include "seeker.h"
+
+#include "TailGenerator.h"
 #include "hitfx.h"
 #include "tilemaster.h"
 #include "player.h"

@@ -16,8 +16,9 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "mastercontrol.h"
 #include "tilemaster.h"
+
+#include "mastercontrol.h"
 #include "tile.h"
 
 namespace Urho3D {

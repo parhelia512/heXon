@@ -16,8 +16,9 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "spawnmaster.h"
 #include "chaoball.h"
+
+#include "spawnmaster.h"
 
 ChaoBall::ChaoBall(Context *context, MasterControl *masterControl):
     Pickup(context, masterControl)

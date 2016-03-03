@@ -16,9 +16,10 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#include "chaozap.h"
+
 #include "player.h"
 #include "spawnmaster.h"
-#include "chaozap.h"
 
 ChaoZap::ChaoZap(Context *context, MasterControl *masterControl):
     SceneObject(context, masterControl),

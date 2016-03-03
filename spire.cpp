@@ -16,10 +16,11 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#include "spire.h"
+
 #include "mastercontrol.h"
 #include "player.h"
 #include "seeker.h"
-#include "spire.h"
 #include "spawnmaster.h"
 
 Spire::Spire(Context *context, MasterControl *masterControl):

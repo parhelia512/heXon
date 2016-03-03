@@ -16,9 +16,10 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#include "chaoflash.h"
+
 #include "player.h"
 #include "spawnmaster.h"
-#include "chaoflash.h"
 
 ChaoFlash::ChaoFlash(Context *context, MasterControl *masterControl, int playerID):
     SceneObject(context, masterControl),

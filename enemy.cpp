@@ -17,6 +17,7 @@
 */
 
 #include "enemy.h"
+
 #include "spawnmaster.h"
 #include "player.h"
 

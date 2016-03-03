@@ -16,6 +16,8 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#include "player.h"
+
 #include <fstream>
 #include "TailGenerator.h"
 
@@ -28,7 +30,6 @@
 #include "muzzle.h"
 #include "chaoflash.h"
 #include "explosion.h"
-#include "player.h"
 
 Player::Player(Context *context, MasterControl *masterControl, int playerID):
     SceneObject(context, masterControl),

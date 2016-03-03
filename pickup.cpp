@@ -16,8 +16,9 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "tilemaster.h"
 #include "pickup.h"
+
+#include "tilemaster.h"
 #include "spawnmaster.h"
 #include "player.h"
 

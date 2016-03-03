@@ -1,0 +1,10 @@
+<technique vs="DissolveLitSolid" ps="DissolveLitSolid" psdefines="DIFFMAP ALPHAMASK" alphamask="true">
+    <pass name="alpha" psdefines="EMISSIVEMAP" depthwrite="false" blend="alpha" />
+    <pass name="litalpha" depthwrite="false" blend="alpha" />
+    <pass name="light" depthtest="equal" depthwrite="false" blend="add" />
+    <pass name="prepass" psdefines="PREPASS" />
+    <pass name="material" psdefines="MATERIAL" depthtest="equal" depthwrite="false" />
+    <!--pass name="deferred" vsdefines="NORMALMAP" psdefines="DEFERRED NORMALMAP SPECMAP" /-->
+    <!--pass name="depth" vs="Depth" ps="Depth" psdefines="ALPHAMASK" /-->
+    <pass name="shadow" vs="DissolveShadow" ps="DissolveShadow" psdefines="ALPHAMASK" />
+</technique>

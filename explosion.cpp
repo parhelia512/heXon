@@ -16,8 +16,9 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "spawnmaster.h"
 #include "explosion.h"
+
+#include "spawnmaster.h"
 
 Explosion::Explosion(Context *context, MasterControl *masterControl):
     Effect(context, masterControl),

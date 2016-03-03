@@ -1,4 +1,23 @@
+/* heXon
+// Copyright (C) 2016 LucKey Productions (luckeyproductions.nl)
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
 #include "splatterpillar.h"
+
 #include "player.h"
 
 SplatterPillar::SplatterPillar(Context *context, MasterControl *masterControl, bool right):
@@ -87,7 +106,8 @@ void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventDa
             blood_->SetMorphWeight(m, intoMorph);
             bloodNode_->Rotate(Quaternion(rotationSpeed_ * eventData[SceneUpdate::P_TIMESTEP].GetFloat() / (1.0f + intoSequence * 23.0f), Vector3::UP));
         }
-        blood_->GetMaterial()->SetShaderParameter("MatDiffColor", Color(0.23f, 0.32f, 0.32f, Clamp(1.0f - (intoSequence - 0.88f) * 7.0f, 0.0f, 1.0f)));
+        blood_->GetMaterial()->SetShaderParameter("MatDiffColor", Color(0.23f, 0.32f, 0.32f, Clamp(1.0f - (intoSequence - 0.75f) * 5.0f, 0.0f, 1.0f)));
+        blood_->GetMaterial()->SetShaderParameter("Dissolve", 0.75f*intoSequence + 0.23f);
         ParticleEffect* dripEffect = dripEmitter_->GetEffect();
         dripEffect->SetEmitterSize(Vector3(1.23f - intoSequence, 0.0f, 1.23f - intoSequence));
         dripEffect->SetMinEmissionRate(Max(100.0f - 123.0f * intoSequence, 0.0f));

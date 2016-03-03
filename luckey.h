@@ -20,6 +20,7 @@
 #define LUCKEY_H
 
 #include <Urho3D/Urho3D.h>
+#include <Urho3D/Audio/Audio.h>
 #include <Urho3D/Audio/Sound.h>
 #include <Urho3D/Audio/SoundSource.h>
 #include <Urho3D/Container/HashBase.h>
