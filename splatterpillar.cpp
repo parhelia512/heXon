@@ -53,12 +53,12 @@ SplatterPillar::SplatterPillar(Context *context, MasterControl *masterControl, b
     blood_->SetModel(masterControl_->cache_->GetResource<Model>("Models/Blood.mdl"));
     blood_->SetMaterial(0, masterControl_->cache_->GetResource<Material>("Materials/Blood.xml"));
 
-    Node* particleNode = rootNode_->CreateChild("BloodParticles");
-    particleNode->Translate(Vector3::UP*2.3f);
-    splatEmitter_ = particleNode->CreateComponent<ParticleEmitter>();
+    particleNode_ = rootNode_->CreateChild("BloodParticles");
+    particleNode_->Translate(Vector3::UP*2.3f);
+    splatEmitter_ = particleNode_->CreateComponent<ParticleEmitter>();
     splatEmitter_->SetEffect(masterControl_->cache_->GetResource<ParticleEffect>("Particles/BloodSplat.xml"));
     splatEmitter_->SetEmitting(false);
-    dripEmitter_ = particleNode->CreateComponent<ParticleEmitter>();
+    dripEmitter_ = particleNode_->CreateComponent<ParticleEmitter>();
     dripEmitter_->SetEffect(masterControl_->cache_->GetResource<ParticleEffect>("Particles/BloodDrip.xml"));
     dripEmitter_->SetEmitting(false);
 
@@ -88,17 +88,18 @@ void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventDa
     float intoSequence = (elapsedTime - lastTriggered_)/sequenceLength_;
     unsigned numMorphs = blood_->GetNumMorphs();
 
-    //Animate morphs
+    //Animate
     if (intoSequence < 1.0f) {
+        //Animate blood
         if (!bloodNode_->IsEnabled()){
             bloodNode_->SetEnabled(true);
             splatEmitter_->SetEmitting(true);
+            particleNode_->Rotate(Quaternion(Random(360.0f), Vector3::UP));
         }
         if (intoSequence > 0.023f) {
             splatEmitter_->SetEmitting(false);
             dripEmitter_->SetEmitting(true);
         }
-        //Animate blood
         for (unsigned m = 0; m < numMorphs; ++m){
             float intoMorph = Clamp(intoSequence * numMorphs - m, 0.0f, 2.0f);
             if (intoMorph > 1.0f) intoMorph = Max(2.0f - intoMorph, 0.0f);
@@ -126,13 +127,15 @@ void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventDa
             pillar_->SetMorphWeight(0,  2.0f * (1.0f - 3.0f*intoSequence));
         }
     }
-    //Trigger
+    //When idle
     else {
+        //Reset
         if (bloodNode_->IsEnabled()) {
             bloodNode_->SetEnabled(false);
             dripEmitter_->SetEmitting(false);
         }
         if (pillar_->GetMorphWeight(0) != 0.0f) pillar_->SetMorphWeight(0, 0.0f);
+        //Trigger
         if (player_ && LucKey::Distance(player_->GetPosition(), rootNode_->GetWorldPosition()) < 0.23f) {
             Trigger();
         }

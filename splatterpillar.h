@@ -37,6 +37,7 @@ private:
     Node* rootNode_;
     Node* pillarNode_;
     Node* bloodNode_;
+    Node* particleNode_;
     AnimatedModel* pillar_;
     AnimatedModel* blood_;
     SoundSource* soundSource_;
