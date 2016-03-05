@@ -51,7 +51,7 @@ SplatterPillar::SplatterPillar(Context *context, MasterControl *masterControl, b
     blood_->SetEnabled(false);
     blood_->SetCastShadows(true);
     blood_->SetModel(masterControl_->cache_->GetResource<Model>("Models/Blood.mdl"));
-    blood_->SetMaterial(0, masterControl_->cache_->GetResource<Material>("Materials/Blood.xml"));
+    blood_->SetMaterial(0, masterControl_->cache_->GetTempResource<Material>("Materials/Blood.xml"));
 
     particleNode_ = rootNode_->CreateChild("BloodParticles");
     particleNode_->Translate(Vector3::UP*2.3f);
@@ -59,7 +59,7 @@ SplatterPillar::SplatterPillar(Context *context, MasterControl *masterControl, b
     splatEmitter_->SetEffect(masterControl_->cache_->GetResource<ParticleEffect>("Particles/BloodSplat.xml"));
     splatEmitter_->SetEmitting(false);
     dripEmitter_ = particleNode_->CreateComponent<ParticleEmitter>();
-    dripEmitter_->SetEffect(masterControl_->cache_->GetResource<ParticleEffect>("Particles/BloodDrip.xml"));
+    dripEmitter_->SetEffect(masterControl_->cache_->GetTempResource<ParticleEffect>("Particles/BloodDrip.xml"));
     dripEmitter_->SetEmitting(false);
 
     soundSource_ = rootNode_->CreateComponent<SoundSource>();
@@ -103,28 +103,28 @@ void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventDa
         for (unsigned m = 0; m < numMorphs; ++m){
             float intoMorph = Clamp(intoSequence * numMorphs - m, 0.0f, 2.0f);
             if (intoMorph > 1.0f) intoMorph = Max(2.0f - intoMorph, 0.0f);
-            else if (m == 0) Min(intoMorph *= 23.0f, 1.0f);
+            else if (m == 0) Min(intoMorph *= 5.0f, 1.0f);
             blood_->SetMorphWeight(m, intoMorph);
-            bloodNode_->Rotate(Quaternion(rotationSpeed_ * eventData[SceneUpdate::P_TIMESTEP].GetFloat() / (1.0f + intoSequence * 23.0f), Vector3::UP));
         }
         blood_->GetMaterial()->SetShaderParameter("MatDiffColor", Color(0.23f, 0.32f, 0.32f, Clamp(1.0f - (intoSequence - 0.75f) * 5.0f, 0.0f, 1.0f)));
         blood_->GetMaterial()->SetShaderParameter("Dissolve", 0.75f*intoSequence + 0.23f);
         ParticleEffect* dripEffect = dripEmitter_->GetEffect();
-        dripEffect->SetEmitterSize(Vector3(1.5f - intoSequence * 1.23f, 0.0f, 1.5f - intoSequence * 1.23f));
-        dripEffect->SetMinEmissionRate(Max(150.0f - 250.0f * intoSequence, 0.0f));
-        dripEffect->SetMaxEmissionRate(Max(300.0f - 320.0f * intoSequence, 0.0f));
+        dripEffect->SetEmitterSize(Vector3(1.0f - intoSequence, 0.0f, 1.0f - intoSequence));
+        dripEffect->SetMinEmissionRate(Max(123.0f - 200.0f * intoSequence, 0.0f));
+        dripEffect->SetMaxEmissionRate(Max(320.0f - 340.0f * intoSequence, 0.0f));
         //Animate pillar
-        if      (intoSequence < 0.125f) pillar_->SetMorphWeight(0, 80.0f * intoSequence);
-        else if (intoSequence < 0.05f) {
+        if      (intoSequence < 0.125f) pillar_->SetMorphWeight(0, 123.0f * intoSequence);
+        else if (intoSequence < (1.0f/6.0f)) {
             pillar_->SetMorphWeight(0, 1.0f);
             if (!spun_){
                 pillarNode_->Rotate(Quaternion(Random(6)*60.0f, Vector3::UP));
                 spun_ = true;
             }
         }
-        else if (intoSequence > 0.05f) {
+        else if (intoSequence > (1.0f/6.0f)) {
             spun_ = false;
-            pillar_->SetMorphWeight(0,  2.0f * (1.0f - 3.0f*intoSequence));
+            float weight = Max(2.0f * (1.0f - 3.0f*intoSequence), 0.0f);
+            pillar_->SetMorphWeight(0, weight*weight*weight);
         }
     }
     //When idle

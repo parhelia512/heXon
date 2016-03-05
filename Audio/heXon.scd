@@ -135,11 +135,7 @@ play{
     p=LFPulse;
     n=LFNoise1;
     Limiter.ar(
-        /*GVerb.ar(
-            LPF.ar(LeakDC.ar(
-                mean({|n|(p.ar(n*1e2+50*p.kr(4-n/[4,7,5]).sum+3e2)*p.kr(n+1*2,0,0.8).lag(0.1))}!3)
-            ),4000) * 0.4, 200, 9, 0.6, 0.5, 40, 1, 0.15, 0.25
-        ).madd(0.8) + */GVerb.ar(
+		GVerb.ar(
             {|i|BPF.ar(PinkNoise.ar(Decay.ar(Impulse.ar(0.23,0.95+n.kr(0.1,0.023)),rrand(0.2,0.4),2)).tanh,300*i+666,0.4)}.dup(6).sum*1.2,
             23, 0.23, 0.666, 0.5, 30, 1, 0.2, 0.3
         ) + Splay.ar(

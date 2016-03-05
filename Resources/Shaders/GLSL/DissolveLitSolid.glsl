@@ -110,7 +110,7 @@ void PS()
     #ifdef DIFFMAP
         vec4 diffInput = texture2D(sDiffMap, vTexCoord.xy);
         #ifdef ALPHAMASK
-            vec4 dissolveMapInput = texture2D(sEmissiveMap, vTexCoord.xy);
+            vec4 dissolveMapInput = texture2D(sSpecMap, vTexCoord.xy);
             #if 0 // Simple line edge
                 if (dissolveMapInput.r < cDissolve + 0.02)
                     diffInput = vec4(1.0, 0.7, 0.0, 1.0);
