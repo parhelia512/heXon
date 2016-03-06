@@ -173,7 +173,7 @@ void Enemy::HandleCollision(StringHash eventType, VariantMap &eventData)
 
                 hitPlayer->Hit(meleeDamage_ + meleeDamage_*panic_);
                 masterControl_->spawnMaster_->SpawnHitFX(
-                            (hitPlayer->GetPosition() + GetPosition()) * 0.5f, 0, false);
+                            (hitPlayer->GetWorldPosition() + GetPosition()) * 0.5f, 0, false);
             }
             // Vector3 hitPos = eventData[NodeCollision::P_CONTACTS].GetBuffer().At(0);
             sinceLastWhack_ = 0.0f;

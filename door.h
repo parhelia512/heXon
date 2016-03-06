@@ -16,50 +16,30 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef BULLET_H
-#define BULLET_H
+#ifndef DOOR_H
+#define DOOR_H
 
-#include "sceneobject.h"
-
-#include "spawnmaster.h"
-#include "razor.h"
-#include "spire.h"
-#include "tilemaster.h"
-#include "hitfx.h"
+#include "mastercontrol.h"
 
 #include <Urho3D/Urho3D.h>
 
-namespace Urho3D {
-class Node;
-class Scene;
-class Sprite;
-}
+class Player;
 
-using namespace Urho3D;
-
-class Bullet : public SceneObject
+class Door : public Object
 {
-    friend class Player;
-    friend class SpawnMaster;
-    URHO3D_OBJECT(Bullet, SceneObject);
+    URHO3D_OBJECT(Door, Object);
 public:
-    Bullet(Context *context, MasterControl* masterControl, int playerID);
-    void Set(const Vector3 position);
-    int GetPlayerID() const noexcept { return playerID_; }
-protected:
-    SharedPtr<RigidBody> rigidBody_;
-    SharedPtr<StaticModel> model_;
+    Door(Context* context, MasterControl* masterControl, bool right);
+    bool IsClosed() const { return door_->GetMorphWeight(0) < 0.023f; }
+private:
+    MasterControl* masterControl_;
+    Player* player_;
+    Node* rootNode_;
+    AnimatedModel* door_;
+
+    bool right_;
 
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-private:
-    int playerID_;
-    float age_ = 0.0f;
-    float timeSinceHit_ = 0.0f;
-    float lifeTime_;
-    bool fading_ = false;
-    float damage_;
-    void HitCheck(const float timeStep);
-    void Disable();
 };
 
-#endif // BULLET_H
+#endif // DOOR_H

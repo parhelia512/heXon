@@ -71,12 +71,12 @@ void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     Player* player2 = masterControl_->GetPlayer(2);
     if (player1->IsAlive() && player2->IsAlive())
         targetPosition =
-                LucKey::Distance(rootNode_->GetPosition(), player1->GetPosition()) <
-                LucKey::Distance(rootNode_->GetPosition(), player2->GetPosition())
-                ? player1->GetPosition()
-                : player2->GetPosition();
-    else if (player1->IsAlive()) targetPosition = player1->GetPosition();
-    else if (player2->IsAlive()) targetPosition = player2->GetPosition();
+                LucKey::Distance(rootNode_->GetPosition(), player1->GetWorldPosition()) <
+                LucKey::Distance(rootNode_->GetPosition(), player2->GetWorldPosition())
+                ? player1->GetWorldPosition()
+                : player2->GetWorldPosition();
+    else if (player1->IsAlive()) targetPosition = player1->GetWorldPosition();
+    else if (player2->IsAlive()) targetPosition = player2->GetWorldPosition();
     rigidBody_->ApplyForce((targetPosition - rootNode_->GetPosition()).Normalized() * timeStep * 666.0f);
 }
 

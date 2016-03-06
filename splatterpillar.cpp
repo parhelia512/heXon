@@ -31,9 +31,8 @@ SplatterPillar::SplatterPillar(Context *context, MasterControl *masterControl, b
     lastTriggered_{-5.0f},
     rotationSpeed_{}
 {
-    float mirror = right_ ? 1.0f : -1.0f;
     rootNode_ = masterControl->lobbyNode_->CreateChild("SplatterPillar");
-    rootNode_->SetPosition(Vector3(mirror * -2.26494f, 0.0f, 3.91992f));
+    rootNode_->SetPosition(Vector3(right_? 2.26494f : -2.26494f, 0.0f, -3.91992f));
     rootNode_->Rotate(Quaternion(Random(6)*60.0f, Vector3::UP));
     pillarNode_ = rootNode_->CreateChild("Pillar");
     bloodNode_ = rootNode_->CreateChild("Blood");
@@ -136,7 +135,7 @@ void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventDa
         }
         if (pillar_->GetMorphWeight(0) != 0.0f) pillar_->SetMorphWeight(0, 0.0f);
         //Trigger
-        if (player_ && LucKey::Distance(player_->GetPosition(), rootNode_->GetWorldPosition()) < 0.23f) {
+        if (player_ && LucKey::Distance(player_->GetWorldPosition(), rootNode_->GetWorldPosition()) < 0.23f) {
             Trigger();
         }
     }

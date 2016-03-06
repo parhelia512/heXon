@@ -114,8 +114,8 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     case PT_MULTIX:
         xSpin = 64.0f; zSpin = 10.0f; frequency = 5.0f;
         if (IsEmerged() && masterControl_->GetGameState() == GS_PLAY)
-            rigidBody_->ApplyForce(player1->IsAlive() * player1->GetPosition() +
-                                   player1->IsAlive() * player2->GetPosition() -
+            rigidBody_->ApplyForce(player1->IsAlive() * player1->GetWorldPosition() +
+                                   player1->IsAlive() * player2->GetWorldPosition() -
                                    rigidBody_->GetLinearVelocity()); break;
     case PT_CHAOBALL: {
         xSpin = 23.0f; zSpin = 42.0f; frequency = 5.0f; shift = 0.23f;
@@ -125,8 +125,8 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
         }
         else if (IsEmerged() && masterControl_->GetGameState() == GS_PLAY){
             Vector3 force{};
-            force += player1->IsAlive() * -3.0f*player1->GetPosition() - rigidBody_->GetLinearVelocity();
-            force += player2->IsAlive() * -3.0f*player2->GetPosition() - rigidBody_->GetLinearVelocity();
+            force += player1->IsAlive() * -3.0f*player1->GetWorldPosition() - rigidBody_->GetLinearVelocity();
+            force += player2->IsAlive() * -3.0f*player2->GetWorldPosition() - rigidBody_->GetLinearVelocity();
             rigidBody_->ApplyForce(force);
         } break;
     } break;

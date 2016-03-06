@@ -39,6 +39,7 @@
 #include "muzzle.h"
 #include "chaomine.h"
 #include "splatterpillar.h"
+#include "door.h"
 
 URHO3D_DEFINE_APPLICATION_MAIN(MasterControl);
 
@@ -202,7 +203,7 @@ void MasterControl::CreateScene()
 
     //Construct lobby
     lobbyNode_ = world.scene->CreateChild("Lobby");
-    lobbyNode_->Rotate(Quaternion(0.0f, 180.0f, 0.0f));
+    lobbyNode_->Rotate(Quaternion(0.0f, 0.0f, 0.0f));
     Node* chamberNode = lobbyNode_->CreateChild("Chamber");
     StaticModel* chamberModel = chamberNode->CreateComponent<StaticModel>();
     chamberModel->SetModel(cache_->GetResource<Model>("Resources/Models/Chamber.mdl"));
@@ -218,7 +219,7 @@ void MasterControl::CreateScene()
     //Create player 1 ship
     Node* ship1Node = lobbyNode_->CreateChild("Ship");
     ship1Node->SetWorldPosition(Vector3(-4.2f, 0.6f, 0.0f));
-    ship1Node->Rotate(Quaternion(270.0f, Vector3::UP));
+    ship1Node->Rotate(Quaternion(90.0f, Vector3::UP));
     StaticModel* ship1 = ship1Node->CreateComponent<StaticModel>();
     ship1->SetModel(resources.models.ships.swift);
     ship1->SetMaterial(0, cache_->GetResource<Material>("Resources/Materials/GreenGlow.xml"));
@@ -233,7 +234,7 @@ void MasterControl::CreateScene()
     //Create player 2 ship
     Node* ship2Node = lobbyNode_->CreateChild("Ship");
     ship2Node->SetWorldPosition(Vector3(4.2f, 0.6f, 0.0f));
-    ship2Node->Rotate(Quaternion(90.0f, Vector3::UP));
+    ship2Node->Rotate(Quaternion(270.0f, Vector3::UP));
     StaticModel* ship2 = ship2Node->CreateComponent<StaticModel>();
     ship2->SetModel(resources.models.ships.swift);
     ship2->SetMaterial(0, cache_->GetResource<Material>("Resources/Materials/PurpleGlow.xml"));
@@ -254,7 +255,7 @@ void MasterControl::CreateScene()
 
     CollisionShape* edge1Shape = lobbyNode_->CreateComponent<CollisionShape>();
     edge1Shape->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Edge1.mdl"));
-    edge1Shape->SetPosition(Vector3::BACK * 1.23f);
+    edge1Shape->SetPosition(Vector3::FORWARD * 1.23f);
     edge1Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
     CollisionShape* edge2Shape = lobbyNode_->CreateComponent<CollisionShape>();
     edge2Shape->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Edge2.mdl"));
@@ -267,7 +268,7 @@ void MasterControl::CreateScene()
     side2Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
 
     Node* leftPointLightNode1 = lobbyNode_->CreateChild("PointLight");
-    leftPointLightNode1->SetPosition(Vector3(2.3f, 2.3f, 3.0f));
+    leftPointLightNode1->SetPosition(Vector3(-2.3f, 2.3f, 3.0f));
     Light* leftPointLight1 = leftPointLightNode1->CreateComponent<Light>();
     leftPointLight1->SetLightType(LIGHT_POINT);
     leftPointLight1->SetBrightness(0.83f);
@@ -277,7 +278,7 @@ void MasterControl::CreateScene()
     leftPointLight1->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
     Node* leftPointLightNode2 = lobbyNode_->CreateChild("PointLight");
-    leftPointLightNode2->SetPosition(Vector3(2.3f, 2.3f, -3.0f));
+    leftPointLightNode2->SetPosition(Vector3(-2.3f, 2.3f, -3.0f));
     Light* leftPointLight2 = leftPointLightNode2->CreateComponent<Light>();
     leftPointLight2->SetLightType(LIGHT_POINT);
     leftPointLight2->SetBrightness(0.83f);
@@ -287,7 +288,7 @@ void MasterControl::CreateScene()
     leftPointLight2->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
     Node* rightPointLightNode1 = lobbyNode_->CreateChild("PointLight");
-    rightPointLightNode1->SetPosition(Vector3(-2.3f, 2.3f, 3.0f));
+    rightPointLightNode1->SetPosition(Vector3(2.3f, 2.3f, 3.0f));
     Light* rightPointLight1 = rightPointLightNode1->CreateComponent<Light>();
     rightPointLight1->SetLightType(LIGHT_POINT);
     rightPointLight1->SetBrightness(1.0f);
@@ -297,7 +298,7 @@ void MasterControl::CreateScene()
     rightPointLight1->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
     Node* rightPointLightNode2 = lobbyNode_->CreateChild("PointLight");
-    rightPointLightNode2->SetPosition(Vector3(-2.3f, 2.3f, -3.0f));
+    rightPointLightNode2->SetPosition(Vector3(2.3f, 2.3f, -3.0f));
     Light* rightPointLight2 = rightPointLightNode2->CreateComponent<Light>();
     rightPointLight2->SetLightType(LIGHT_POINT);
     rightPointLight2->SetBrightness(1.0f);
@@ -314,6 +315,9 @@ void MasterControl::CreateScene()
     players_[player1_->GetRootNodeID()] = player1_;
     players_[player2_->GetRootNodeID()] = player2_;
 
+
+    new Door(context_, this, false);
+    new Door(context_, this, true);
 
     new SplatterPillar(context_, this, false);
     new SplatterPillar(context_, this, true);
@@ -403,10 +407,12 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
     sinceStateChange_ += timeStep;
     UpdateCursor(timeStep);
 
-    resources.materials.basic->SetShaderParameter("MatDiffColor", resources.materials.basic->GetShaderParameter("MatDiffColor").GetColor().Lerp(
+    resources.materials.basic->SetShaderParameter(
+                "MatDiffColor",resources.materials.basic->GetShaderParameter("MatDiffColor").GetColor().Lerp(
                                           GetGameState() == GS_LOBBY
                                           ? Color(0.13f, 0.13f, 0.13f) * Sine(5.0f, 0.666f, 1.0f, 1.23f) * Min(2.3f * sinceStateChange_, 1.0f)
-                                          : Color(0.0f, 0.0f, 0.0f, 0.0f), timeStep));
+                                          : Color(0.0f, 0.0f, 0.0f, 0.0f)
+                                            , timeStep));
 
     switch (currentState_){
     case GS_LOBBY: {

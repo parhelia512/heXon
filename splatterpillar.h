@@ -20,9 +20,9 @@
 #define SPLATTERPILLAR_H
 
 
-#include <Urho3D/Urho3D.h>
-
 #include "mastercontrol.h"
+
+#include <Urho3D/Urho3D.h>
 
 class Player;
 

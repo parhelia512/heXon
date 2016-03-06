@@ -479,7 +479,7 @@ void Player::Pickup(PickupType pickup)
 
 void Player::PickupChaoBall()
 {
-    chaoFlash_->Set(GetPosition());
+    chaoFlash_->Set(GetWorldPosition());
     rootNode_->Translate(Quaternion(Random(360.0f), Vector3::UP) * Vector3::FORWARD * Random(5.0f));
     PlaySample(chaoball_s, 0.8f);
 }
@@ -701,7 +701,7 @@ void Player::SetupShip()
     SharedPtr<ParticleEffect> particleEffect = masterControl_->cache_->GetTempResource<ParticleEffect>("Particles/Shine.xml");
     Vector<ColorFrame> colorFrames;
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
-    colorFrames.Push(ColorFrame(playerID_==2 ? Color(0.666f, 0.23f, 0.88f, 0.23f) : Color(0.42f, 0.7f, 0.23f, 0.23f), 0.2f));
+    colorFrames.Push(ColorFrame(playerID_==2 ? Color(0.42f, 0.0f, 0.88f, 0.23f) : Color(0.42f, 0.7f, 0.23f, 0.23f), 0.2f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
     particleEffect->SetColorFrames(colorFrames);
     particleEmitter->SetEffect(particleEffect);
