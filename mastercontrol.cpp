@@ -267,6 +267,7 @@ void MasterControl::CreateScene()
     side2Shape->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Side2.mdl"));
     side2Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
 
+
     Node* leftPointLightNode1 = lobbyNode_->CreateChild("PointLight");
     leftPointLightNode1->SetPosition(Vector3(-2.3f, 2.3f, 3.0f));
     Light* leftPointLight1 = leftPointLightNode1->CreateComponent<Light>();
