@@ -197,9 +197,6 @@ void Player::SetScore(int points)
         StaticModel* digitModel = scoreDigits_[d]->GetComponent<StaticModel>();
         digitModel->SetModel(masterControl_->cache_->GetResource<Model>("Models/"+String((int)(score_ / pow(10, d))%10)+".mdl"));
         scoreDigits_[d]->SetEnabled( score_ >= pow(10, d) || d == 0 );
-//        digitModel->SetMaterial(playerID_==2
-//                                ? masterControl_->resources.materials.ship2Secondary
-//                                : masterControl_->resources.materials.ship1Secondary);
     }
 }
 void Player::ResetScore()
@@ -208,7 +205,7 @@ void Player::ResetScore()
 }
 void Player::AddScore(int points)
 {
-    points *= multiplier_;
+    points *= static_cast<int>(pow(2.0, static_cast<double>(multiplier_-1)));
     unsigned nextMultiX = pow(10, multiplier_+1);
     if (flightScore_ < nextMultiX && flightScore_ + points > nextMultiX){
         masterControl_->multiX_->Respawn();
@@ -454,7 +451,7 @@ void Player::Pickup(PickupType pickup)
         }
     } break;
     case PT_MULTIX: {
-        multiplier_++;
+        ++multiplier_;
         PlaySample(multix_s, 0.42f);
     } break;
     case PT_CHAOBALL: {
