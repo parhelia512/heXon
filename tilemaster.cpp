@@ -81,8 +81,8 @@ void TileMaster::EnterPlayState()
     targetPosition_ = Vector3::DOWN * 0.23f;
     targetScale_ = Vector3::ONE;
     Vector<SharedPtr<Tile> > tiles = tileMap_.Values();
-    for (unsigned t = 0; t < tiles.Size(); t++){
-        tiles[t]->lastOffsetY_ = 2.3f;
+    for (SharedPtr<Tile> t : tiles){
+        t->lastOffsetY_ = 2.3f;
     }
 }
 void TileMaster::EnterLobbyState()

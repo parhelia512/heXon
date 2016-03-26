@@ -87,8 +87,8 @@ void ChaoMine::HandleCollision(StringHash eventType, VariantMap &eventData)
     PODVector<RigidBody*> collidingBodies;
     rigidBody_->GetCollidingBodies(collidingBodies);
 
-    for (unsigned b = 0; b < collidingBodies.Size(); ++b) {
-        StringHash colliderNodeNameHash = collidingBodies[b]->GetNode()->GetNameHash();
+    for (RigidBody* b : collidingBodies) {
+        StringHash colliderNodeNameHash = b->GetNode()->GetNameHash();
         if (    colliderNodeNameHash == N_RAZOR ||
                 colliderNodeNameHash == N_SPIRE   ) {
             SetHealth(0.0f);

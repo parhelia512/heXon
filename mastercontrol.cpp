@@ -435,11 +435,11 @@ void MasterControl::UpdateCursor(const float timeStep)
     //world.cursor.sceneCursor->SetScale((world.cursor.sceneCursor->GetWorldPosition() - world.camera->GetWorldPosition()).Length()*0.05f);
     if (CursorRayCast(250.0f, world.cursor.hitResults))
     {
-        for (unsigned i = 0; i < world.cursor.hitResults.Size(); i++)
+        for (RayQueryResult r : world.cursor.hitResults)
         {
-            if (world.cursor.hitResults[i].node_->GetNameHash() == N_TILE)
+            if (r.node_->GetNameHash() == N_TILE)
             {
-                world.cursor.sceneCursor->SetWorldPosition(world.cursor.hitResults[i].node_->GetPosition()+Vector3::UP);
+                world.cursor.sceneCursor->SetWorldPosition(r.node_->GetPosition()+Vector3::UP);
                 /*Vector3 camHitDifference = world.camera->rootNode_->GetWorldPosition() - world.cursor.hitResults[i].position_;
                 camHitDifference /= world.camera->rootNode_->GetWorldPosition().y_ - world.voidNode->GetPosition().y_;
                 camHitDifference *= world.camera->rootNode_->GetWorldPosition().y_;
@@ -485,10 +485,10 @@ void MasterControl::Exit()
     fPilot1.open("Resources/Pilot1.lkp");
     fPilot1 << player1_->pilot_.male_ << '\n';
     fPilot1 << player1_->pilot_.hairStyle_ << '\n';
-    for (unsigned c = 0; c < player1_->pilot_.colors_.Size(); c++){
-        fPilot1 << player1_->pilot_.colors_[c].r_ << ' '
-               << player1_->pilot_.colors_[c].g_ << ' '
-               << player1_->pilot_.colors_[c].b_ << ' '
+    for (Color c : player1_->pilot_.colors_){
+        fPilot1 << c.r_ << ' '
+               << c.g_ << ' '
+               << c.b_ << ' '
                << '\n';
     }
     fPilot1 << player1_->GetScore();
@@ -498,10 +498,10 @@ void MasterControl::Exit()
     fPilot2.open("Resources/Pilot2.lkp");
     fPilot2 << player2_->pilot_.male_ << '\n';
     fPilot2 << player2_->pilot_.hairStyle_ << '\n';
-    for (unsigned c = 0; c < player1_->pilot_.colors_.Size(); c++){
-        fPilot2 << player2_->pilot_.colors_[c].r_ << ' '
-               << player2_->pilot_.colors_[c].g_ << ' '
-               << player2_->pilot_.colors_[c].b_ << ' '
+    for (Color c : player1_->pilot_.colors_){
+        fPilot2 << c.r_ << ' '
+               << c.g_ << ' '
+               << c.b_ << ' '
                << '\n';
     }
     fPilot2 << player2_->GetScore();

@@ -192,11 +192,12 @@ void Player::CreateGUI()
 void Player::SetScore(int points)
 {
     score_ = points;
-
+    //Update score graphics
     for (int d = 0; d < 10; ++d){
         StaticModel* digitModel = scoreDigits_[d]->GetComponent<StaticModel>();
-        digitModel->SetModel(masterControl_->cache_->GetResource<Model>("Models/"+String((int)(score_ / pow(10, d))%10)+".mdl"));
-        scoreDigits_[d]->SetEnabled( score_ >= pow(10, d) || d == 0 );
+        digitModel->SetModel(masterControl_->cache_->GetResource<Model>(
+                                 "Models/"+String( static_cast<int>(score_ / static_cast<unsigned>(pow(10, d)))%10 )+".mdl"));
+        scoreDigits_[d]->SetEnabled( score_ >= static_cast<unsigned>(pow(10, d)) || d == 0 );
     }
 }
 void Player::ResetScore()
@@ -206,10 +207,17 @@ void Player::ResetScore()
 void Player::AddScore(int points)
 {
     points *= static_cast<int>(pow(2.0, static_cast<double>(multiplier_-1)));
-    unsigned nextMultiX = pow(10, multiplier_+1);
-    if (flightScore_ < nextMultiX && flightScore_ + points > nextMultiX){
-        masterControl_->multiX_->Respawn();
+    bool multiX{false};
+    for (int i = 0; i < 10; ++i){
+        unsigned tenPow = static_cast<unsigned>(pow(10, i));
+        if (flightScore_ < tenPow && flightScore_ + points > tenPow && !masterControl_->multiX_->IsEnabled()){
+            masterControl_->multiX_->Respawn();
+            break;
+        }
     }
+//    if (flightScore_ < nextMultiX && flightScore_ + points > nextMultiX
+//            && !masterControl_->multiX_->IsEnabled()){
+//    }
 
     SetScore(GetScore()+points);
     flightScore_ += points;
@@ -396,9 +404,9 @@ void Player::Shoot(Vector3 fire)
 void Player::FireBullet(Vector3 direction){
     SharedPtr<Bullet> bullet;
     if (bullets_.Size() > 0){
-        for (unsigned b = 0; b < bullets_.Size(); ++b){
-            if (!bullets_[b]->rootNode_->IsEnabled()){
-                bullet = bullets_[b];
+        for (SharedPtr<Bullet> b : bullets_){
+            if (!b->IsEnabled()){
+                bullet = b;
             }
         }
     }
@@ -427,7 +435,7 @@ void Player::Pickup(PickupType pickup)
     case PT_APPLE: {
         bulletAmount_ = (bulletAmount_ == 0)?1:bulletAmount_;
         heartCount_ = 0;
-        AddScore(23);
+        AddScore(23*(1+(3*weaponLevel_==23)));
         if (weaponLevel_ < 23)
             ++appleCount_;
         if (appleCount_ >= 5){
@@ -540,6 +548,7 @@ void Player::SetPilotMode(bool pilotMode){
     shieldNode_->SetEnabled(!pilotMode_);
     collisionShape_->SetSphere(pilotMode_? 0.23f : 2.0f);
     rigidBody_->SetLinearDamping(pilotMode_? 0.88f : 0.5f);
+    rigidBody_->SetRestitution(!pilotMode_ * 0.666f);
 }
 
 void Player::SetHealth(float health)
@@ -725,8 +734,8 @@ void Player::CreateTails()
 }
 void Player::RemoveTails()
 {
-    for (unsigned i = 0; i < tailGens_.Size(); i++){
-        tailGens_[i]->GetNode()->Remove();
+    for (SharedPtr<TailGenerator> t : tailGens_){
+        t->GetNode()->Remove();
     }
     tailGens_.Clear();
 }

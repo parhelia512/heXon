@@ -65,8 +65,8 @@ Enemy::Enemy(Context *context, MasterControl *masterControl):
     for (int s = 1; s <= 5; ++s){
         samples_.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Melee"+String(s)+".ogg")));
     }
-    for (unsigned s = 0; s < samples_.Size(); s++){
-        samples_[s]->SetLooped(false);
+    for (SharedPtr<Sound> s : samples_){
+        s->SetLooped(false);
     }
 
     Node* soundNode = masterControl_->world.scene->CreateChild("SoundSource");
@@ -163,8 +163,7 @@ void Enemy::HandleCollision(StringHash eventType, VariantMap &eventData)
     rigidBody_->GetCollidingBodies(collidingBodies);
 
     if (sinceLastWhack_ > whackInterval_){
-        for (unsigned b = 0; b < collidingBodies.Size(); ++b) {
-            RigidBody* collider = collidingBodies[b];
+        for (RigidBody* collider : collidingBodies) {
             StringHash otherNameHash = collider->GetNode()->GetNameHash();
             if (otherNameHash == N_PLAYER) {
                 PlaySample(samples_[Random((int)samples_.Size())], 0.16f);

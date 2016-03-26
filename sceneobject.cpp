@@ -58,24 +58,24 @@ void SceneObject::Disable()
 
 void SceneObject::PlaySample(Sound* sample, const float gain)
 {
-    for (unsigned i = 0; i < sampleSources_.Size(); ++i){
-        if (!sampleSources_[i]->IsPlaying()){
-            sampleSources_[i]->SetGain(gain);
-            sampleSources_[i]->Play(sample);
+    for (SharedPtr<SoundSource> s : sampleSources_){
+        if (!s->IsPlaying()){
+            s->SetGain(gain);
+            s->Play(sample);
             return;
         }
     }
 }
 void SceneObject::StopAllSound()
 {
-    for (unsigned i = 0; i < sampleSources_.Size(); ++i){
-        sampleSources_[i]->Stop();
+    for (SharedPtr<SoundSource> s : sampleSources_){
+        s->Stop();
     }
 }
 bool SceneObject::IsPlayingSound()
 {
-    for (unsigned i = 0; i < sampleSources_.Size(); ++i){
-        if (sampleSources_[i]->IsPlaying()) return true;
+    for (SharedPtr<SoundSource> s : sampleSources_){
+        if (s->IsPlaying()) return true;
     }
     return false;
 }
