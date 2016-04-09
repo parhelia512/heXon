@@ -142,5 +142,5 @@ Tile* TileMaster::GetRandomTile()
 
 void TileMaster::FlashX(int playerID)
 {
-    xMaterial_->SetShaderParameter("MatEmissiveColor", playerID == 2 ? Color(0.88f, 0.32f, 0.0f, 1.0f) : Color(0.32f, 0.666f, 0.0f, 1.0f));
+    xMaterial_->SetShaderParameter("MatEmissiveColor", playerID == 2 ? Color(2.3f, 1.0f, 0.0f, 1.0f) : Color(1.0f, 2.3f, 0.0f, 1.0f));
 }
