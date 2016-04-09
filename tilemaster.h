@@ -52,11 +52,13 @@ public:
     HashMap<WeakPtr<Node>, WeakPtr<RigidBody> >* GetAffectors() { return &hexAffectors_; }
 
     Tile* GetRandomTile();
+    void FlashX(int playerID);
 private:
     Vector3 targetPosition_;
     Vector3 targetScale_;
     Node* logoNode_;
     Material* logoMaterial_;
+    Material* xMaterial_;
     Light* playLight_;
     HashMap<WeakPtr<Node>, WeakPtr<RigidBody> > hexAffectors_;
     HashMap<IntVector2, SharedPtr<Tile> > tileMap_;

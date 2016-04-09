@@ -44,6 +44,7 @@ Player::Player(Context *context, MasterControl *masterControl, int playerID):
     multiplier_{1},
     weaponLevel_{0},
     bulletAmount_{1},
+    bulletDamage_{0.15f},
     initialShotInterval_{0.30f},
     shotInterval_{initialShotInterval_},
     sinceLastShot_{0.0f}
@@ -207,19 +208,17 @@ void Player::ResetScore()
 void Player::AddScore(int points)
 {
     points *= static_cast<int>(pow(2.0, static_cast<double>(multiplier_-1)));
-    bool multiX{false};
+    SetScore(GetScore()+points);
+    //Check for multiplier increase
     for (int i = 0; i < 10; ++i){
         unsigned tenPow = static_cast<unsigned>(pow(10, i));
-        if (flightScore_ < tenPow && flightScore_ + points > tenPow && !masterControl_->multiX_->IsEnabled()){
-            masterControl_->multiX_->Respawn();
+        if (flightScore_ < tenPow && (flightScore_ + points) > tenPow){
+            ++multiplier_;
+            PlaySample(multix_s, 0.42f);
+            masterControl_->tileMaster_->FlashX(playerID_);
             break;
         }
     }
-//    if (flightScore_ < nextMultiX && flightScore_ + points > nextMultiX
-//            && !masterControl_->multiX_->IsEnabled()){
-//    }
-
-    SetScore(GetScore()+points);
     flightScore_ += points;
 }
 

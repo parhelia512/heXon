@@ -85,7 +85,7 @@ private:
     int multiplier_;
     int weaponLevel_;
     int bulletAmount_;
-
+    float bulletDamage_;
 
     const float initialShotInterval_;
     float shotInterval_;

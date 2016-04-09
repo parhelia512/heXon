@@ -71,7 +71,9 @@ Object(context),
     StaticModel* logoModel = logoNode_->CreateComponent<StaticModel>();
     logoModel->SetModel(masterControl_->cache_->GetResource<Model>("Models/heXon.mdl"));
     logoMaterial_ = masterControl_->cache_->GetResource<Material>("Materials/Loglow.xml");
-    logoModel->SetMaterial(logoMaterial_);
+    xMaterial_ = masterControl_->cache_->GetResource<Material>("Materials/X.xml");
+    logoModel->SetMaterial(0, logoMaterial_);
+    logoModel->SetMaterial(1, xMaterial_);
 
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(TileMaster, HandleUpdate));
 }
@@ -110,6 +112,14 @@ void TileMaster::HandleUpdate(StringHash eventType, VariantMap& eventData)
                                           masterControl_->GetGameState() == GS_LOBBY
                                           ? Color(Random(0.42f), Random(0.42f), Random(0.42f)) * masterControl_->Sine(5.0f, 0.88f, 1.0f, 0.23f)
                                           : Color(0.005f, 0.05f, 0.02f), t));
+    xMaterial_->SetShaderParameter("MatDiffColor", xMaterial_->GetShaderParameter("MatDiffColor").GetColor().Lerp(
+                                          masterControl_->GetGameState() == GS_LOBBY
+                                          ? Color(0.42f, Random(0.666f), Random(0.666f), 2.0f) * masterControl_->Sine(5.0f, 0.88f, 1.0f, 0.23f)
+                                          : Color(0.0666f, 0.16f, 0.16f, 0.23f), t));
+    xMaterial_->SetShaderParameter("MatEmissiveColor", xMaterial_->GetShaderParameter("MatEmissiveColor").GetColor().Lerp(
+                                          masterControl_->GetGameState() == GS_LOBBY
+                                          ? Color(Random(0.42f), Random(0.42f), Random(0.42f)) * masterControl_->Sine(5.0f, 0.88f, 1.0f, 0.23f)
+                                          : Color(0.005f, 0.05f, 0.02f), t));
     playLight_->SetBrightness(masterControl_->GetGameState() == GS_PLAY? 0.8f : 0.0f);
 }
 
@@ -128,4 +138,9 @@ Tile* TileMaster::GetRandomTile()
         }
         return tile.Get();
     }
+}
+
+void TileMaster::FlashX(int playerID)
+{
+    xMaterial_->SetShaderParameter("MatEmissiveColor", playerID == 2 ? Color(0.88f, 0.32f, 0.0f, 1.0f) : Color(0.32f, 0.666f, 0.0f, 1.0f));
 }
