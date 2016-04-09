@@ -68,6 +68,10 @@ SpawnMaster::SpawnMaster(Context *context, MasterControl *masterControl):
         Bubble* newBubble= new Bubble(context_, masterControl_);
         bubbles_.Push(SharedPtr<Bubble>(newBubble));
     }
+    for (int l = 0; l < 2048; ++l) {
+        Line* newLine= new Line(context_, masterControl_);
+        lines_.Push(SharedPtr<Line>(newLine));
+    }
     for (int z = 0; z < 8; ++z) {
         ChaoZap* newChaoZap = new ChaoZap(context_, masterControl_);
         chaoZaps_.Push(SharedPtr<ChaoZap>(newChaoZap));
@@ -113,6 +117,9 @@ void SpawnMaster::Clear()
     }
     for (SharedPtr<Bubble> b : bubbles_){
         if (b->IsEnabled()) b->Disable();
+    }
+    for (SharedPtr<Line> l : lines_){
+        if (l->IsEnabled()) l->Disable();
     }
     for (SharedPtr<ChaoZap> c : chaoZaps_){
         if (c->IsEnabled()) c->Disable();
@@ -177,6 +184,14 @@ int SpawnMaster::CountActiveSpires()
         if (s->IsEnabled()) ++spireCount;
     }
     return spireCount;
+}
+int SpawnMaster::CountActiveLines()
+{
+    int lineCount = 0;
+    for (SharedPtr<Line> l : lines_){
+        if (l->IsEnabled()) ++lineCount;
+    }
+    return lineCount;
 }
 
 void SpawnMaster::SpawnRazor(const Vector3 &position)
@@ -361,7 +376,32 @@ bool SpawnMaster::RespawnBubble(const Vector3& position)
 }
 Vector3 SpawnMaster::BubbleSpawnPoint()
 {
-    return Quaternion((Random(5)-2)*60.0f, Vector3::UP) *
+    return Quaternion(( Random(5) - 2 ) * 60.0f, Vector3::UP) *
             (Vector3::FORWARD * 21.0f + Vector3::RIGHT * Random(-10.0f, 10.0f))
             + Vector3::DOWN * 23.0f;
+}
+
+void SpawnMaster::SpawnLine(int playerID_)
+{
+    if (!RespawnLine(playerID_)){
+        Line* newLine = new Line(context_, masterControl_);
+        newLine->Set(LineSpawnPoint(playerID_), playerID_);
+        lines_.Push(SharedPtr<Line>(newLine));
+    }
+}
+bool SpawnMaster::RespawnLine(int playerID)
+{
+    for (SharedPtr<Line> l : lines_){
+        if (!l->IsEnabled()){
+            l->Set(LineSpawnPoint(playerID), playerID);
+            return true;
+        }
+    }
+    return false;
+}
+Vector3 SpawnMaster::LineSpawnPoint(int playerID)
+{
+    return Quaternion(( Random(2) + (playerID == 2 ? 1 : -2) ) * 60.0f, Vector3::UP) *
+            (Vector3::FORWARD * Random(23.0f, 42.0f) + Vector3::RIGHT * Random(-23.0f, 23.0f))
+            + Vector3::DOWN * (23.0f + Random(42.0f));
 }

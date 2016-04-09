@@ -30,6 +30,7 @@ SOURCES += \
     hexocam.cpp \
     hitfx.cpp \
     inputmaster.cpp \
+    line.cpp \
     luckey.cpp \
     mastercontrol.cpp \
     multix.cpp \
@@ -63,6 +64,7 @@ HEADERS += \
     hexocam.h \
     hitfx.h \
     inputmaster.h \
+    line.h \
     luckey.h \
     mastercontrol.h \
     multix.h \

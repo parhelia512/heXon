@@ -32,6 +32,7 @@
 #include "flash.h"
 #include "explosion.h"
 #include "bubble.h"
+#include "line.h"
 
 
 class SpawnMaster : public Object
@@ -50,12 +51,15 @@ public:
     Vector<SharedPtr<Flash> > flashes_;
     Vector<SharedPtr<Explosion> > explosions_;
     Vector<SharedPtr<Bubble> > bubbles_;
+    Vector<SharedPtr<Line> > lines_;
 
     void Clear();
     Vector3 SpawnPoint();
 
     int CountActiveRazors();
     int CountActiveSpires();
+    int CountActiveLines();
+
     void SpawnChaoZap(const Vector3 &position, int playerID);
     void SpawnChaoMine(const Vector3 &position, int playerID);
     void SpawnSeeker(const Vector3& position);
@@ -63,32 +67,7 @@ public:
     void SpawnFlash(const Vector3& position);
     void SpawnBubble(const Vector3& position);
     bool SpawnExplosion(const Vector3& position, const Color &color, float size, int playerID);
-
-
-//    template <class T>
-//    T* Create()
-//    {
-//        static_assert(std::is_base_of<T,SceneObject>(),"Must be SceneObject");
-
-//        auto sceneObject = new T();
-//        census_[T].Push(sceneObject);
-//        return sceneObject;
-//    }
-
-//    template <class T>
-//    T* Spawn(const Vector3& position)
-//    {
-//        WeakPtr<T> sceneObject = nullptr;
-//        for (unsigned t = 0; t < census_[T].Size(); ++t){
-//            if (!census_[T][t]->IsEnabled()){
-//                sceneObject = census_[T][t];
-//            }
-//        }
-//        if (sceneObject == nullptr) sceneObject = Create<T>();
-
-//        sceneObject->Set(position);
-//        return sceneObject;
-//    }
+    void SpawnLine(int playerID_);
 
 private:
     MasterControl* masterControl_;
@@ -115,10 +94,12 @@ private:
     bool RespawnSeeker(const Vector3& position);
     bool RespawnFlash(const Vector3& position);
     bool RespawnBubble(const Vector3& position);
+    bool RespawnLine(int playerID);
     bool RespawnExplosion(const Vector3& position, const Color& color, float size, int playerID);
     bool RespawnHitFX(const Vector3& position, int playerID, bool sound = true);
 
     Vector3 BubbleSpawnPoint();
+    Vector3 LineSpawnPoint(int playerID);
 
     void Activate();
     void Deactivate();
@@ -126,3 +107,29 @@ private:
 };
 
 #endif // SPAWNMASTER_H
+
+///Template template
+//    template <class T>
+//    T* Create()
+//    {
+//        static_assert(std::is_base_of<T,SceneObject>(),"Must be SceneObject");
+//
+//        auto sceneObject = new T();
+//        census_[T].Push(sceneObject);
+//        return sceneObject;
+//    }
+//
+//    template <class T>
+//    T* Spawn(const Vector3& position)
+//    {
+//        WeakPtr<T> sceneObject = nullptr;
+//        for (unsigned t = 0; t < census_[T].Size(); ++t){
+//            if (!census_[T][t]->IsEnabled()){
+//                sceneObject = census_[T][t];
+//            }
+//        }
+//        if (sceneObject == nullptr) sceneObject = Create<T>();
+//
+//        sceneObject->Set(position);
+//        return sceneObject;
+//    }

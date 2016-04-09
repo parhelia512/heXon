@@ -41,6 +41,7 @@ Player::Player(Context *context, MasterControl *masterControl, int playerID):
     health_{initialHealth_},
     score_{0},
     flightScore_{0},
+    toCount_{0},
     multiplier_{1},
     weaponLevel_{0},
     bulletAmount_{1},
@@ -220,6 +221,15 @@ void Player::AddScore(int points)
         }
     }
     flightScore_ += points;
+
+    int threshold = 2048;
+    toCount_ += points;
+    int lines = masterControl_->spawnMaster_->CountActiveLines();
+    while (toCount_ > 0 && lines < threshold){
+        masterControl_->spawnMaster_->SpawnLine(playerID_);
+        --toCount_;
+        ++lines;
+    }
 }
 
 void Player::KillPilot()
