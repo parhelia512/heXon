@@ -29,7 +29,7 @@ Bubble::Bubble(Context *context, MasterControl *masterControl):
     rootNode_ = masterControl_->world.scene->CreateChild("Bubble");
     StaticModel* model = rootNode_->CreateComponent<StaticModel>();
     model->SetModel(masterControl_->cache_->GetResource<Model>("Models/Box.mdl"));
-    model->SetMaterial(masterControl_->cache_->GetResource<Material>("Resources/Materials/Bubble.xml"));
+    model->SetMaterial(masterControl_->cache_->GetResource<Material>("Materials/Bubble.xml"));
 }
 
 void Bubble::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)

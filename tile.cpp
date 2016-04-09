@@ -30,8 +30,8 @@ Tile::Tile(Context *context, TileMaster* tileMaster, Vector3 position):
     rootNode_->SetPosition(position);
     rootNode_->SetScale(1.1f);
     model_ = rootNode_->CreateComponent<StaticModel>();
-    model_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/Hexagon.mdl"));
-    model_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Resources/Materials/BackgroundTile.xml"));
+    model_->SetModel(masterControl_->cache_->GetResource<Model>("Models/Hexagon.mdl"));
+    model_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Materials/BackgroundTile.xml"));
     model_->SetCastShadows(false);
 
     referencePosition_ = rootNode_->GetPosition();

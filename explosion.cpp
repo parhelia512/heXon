@@ -37,9 +37,9 @@ Explosion::Explosion(Context *context, MasterControl *masterControl):
     light_->SetBrightness(initialBrightness_);
 
     particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
-    particleEmitter_->SetEffect(masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/Explosion.xml"));
+    particleEmitter_->SetEffect(masterControl_->cache_->GetResource<ParticleEffect>("Particles/Explosion.xml"));
 
-    sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Explode.ogg");
+    sample_ = masterControl_->cache_->GetResource<Sound>("Samples/Explode.ogg");
     sample_->SetLooped(false);
     sampleSource_ = rootNode_->CreateComponent<SoundSource>();
     sampleSource_->SetSoundType(SOUND_EFFECT);

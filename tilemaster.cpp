@@ -69,8 +69,8 @@ Object(context),
     logoNode_->SetRotation(Quaternion(0.0f, 180.0f, 0.0f));
     logoNode_->SetScale(16.0f);
     StaticModel* logoModel = logoNode_->CreateComponent<StaticModel>();
-    logoModel->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/heXon.mdl"));
-    logoMaterial_ = masterControl_->cache_->GetResource<Material>("Resources/Materials/Loglow.xml");
+    logoModel->SetModel(masterControl_->cache_->GetResource<Model>("Models/heXon.mdl"));
+    logoMaterial_ = masterControl_->cache_->GetResource<Material>("Materials/Loglow.xml");
     logoModel->SetMaterial(logoMaterial_);
 
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(TileMaster, HandleUpdate));

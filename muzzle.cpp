@@ -26,8 +26,8 @@ Muzzle::Muzzle(Context *context, MasterControl *masterControl, int playerID):
     particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
     ParticleEffect* particleEffect{};
     if (playerID == 2)
-        particleEffect = masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/PurpleMuzzle.xml");
+        particleEffect = masterControl_->cache_->GetResource<ParticleEffect>("Particles/PurpleMuzzle.xml");
     else
-        particleEffect = masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/GreenMuzzle.xml");
+        particleEffect = masterControl_->cache_->GetResource<ParticleEffect>("Particles/GreenMuzzle.xml");
     particleEmitter_->SetEffect(particleEffect);
 }

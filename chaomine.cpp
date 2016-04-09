@@ -35,12 +35,12 @@ ChaoMine::ChaoMine(Context *context, MasterControl *masterControl): Enemy(contex
     countDown_ = Random(1.0f, 5.0f);
     innerNode_ = rootNode_->CreateChild();
     innerModel_ = innerNode_->CreateComponent<StaticModel>();
-    innerModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/MineInner.mdl"));
+    innerModel_->SetModel(masterControl_->cache_->GetResource<Model>("Models/MineInner.mdl"));
     innerModel_->SetMaterial(0, masterControl_->resources.materials.ship1Primary);
 
     outerNode_ = rootNode_->CreateChild();
     outerModel_ = outerNode_->CreateComponent<StaticModel>();
-    outerModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/MineOuter.mdl"));
+    outerModel_->SetModel(masterControl_->cache_->GetResource<Model>("Models/MineOuter.mdl"));
     outerModel_->SetMaterial(0, masterControl_->resources.materials.ship1Secondary);
     outerModel_->SetMaterial(1, masterControl_->resources.materials.ship1Primary);
 

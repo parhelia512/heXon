@@ -37,6 +37,6 @@ Door::Door(Context* context, MasterControl* masterControl, bool right) :
 void Door::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
     door_->SetMorphWeight(0, Lerp(door_->GetMorphWeight(0),
-                                  LucKey::Distance(rootNode_->GetWorldPosition(), player_->GetWorldPosition()) < 0.666f,
+                                  static_cast<float>(LucKey::Distance(rootNode_->GetWorldPosition(), player_->GetWorldPosition()) < 0.666f),
                                   eventData[SceneUpdate::P_TIMESTEP].GetFloat() *23.0f));
 }

@@ -64,7 +64,7 @@ void MasterControl::Setup()
 //    engineParameters_["Headless"] = false;
 //    engineParameters_["WindowWidth"] = 960;
 //    engineParameters_["WindowHeight"] = 900;
-//    engineParameters_["RenderPath"] = "Resources/RenderPaths/ForwardOutline.xml";
+//    engineParameters_["RenderPath"] = "RenderPaths/ForwardOutline.xml";
 }
 void MasterControl::Start()
 {
@@ -88,9 +88,9 @@ void MasterControl::Start()
     CreateUI();
     //Hook up to the frame update and render post-update events
 
-//    menuMusic_ = cache_->GetResource<Sound>("Resources/Music/Eddy J - Webbed Gloves in Neon Brights.ogg");
+//    menuMusic_ = cache_->GetResource<Sound>("Music/Eddy J - Webbed Gloves in Neon Brights.ogg");
 //    menuMusic_->SetLooped(true);
-    gameMusic_ = cache_->GetResource<Sound>("Resources/Music/Alien Chaos - Disorder.ogg");
+    gameMusic_ = cache_->GetResource<Sound>("Music/Alien Chaos - Disorder.ogg");
     gameMusic_->SetLooped(true);
     Node* musicNode = world.scene->CreateChild("Music");
     musicSource_ = musicNode->CreateComponent<SoundSource>();
@@ -141,26 +141,26 @@ void MasterControl::CreateUI()
 void MasterControl::LoadResources()
 {
     //Load models
-    resources.models.pilots.male = cache_->GetResource<Model>("Resources/Models/Male.mdl");
-    resources.models.pilots.female = cache_->GetResource<Model>("Resources/Models/Female.mdl");
-    resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Resources/Models/Mohawk.mdl")));
-    resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Resources/Models/Seagull.mdl")));
-    resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Resources/Models/Mustain.mdl")));
-    resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Resources/Models/Frotoad.mdl")));
+    resources.models.pilots.male = cache_->GetResource<Model>("Models/Male.mdl");
+    resources.models.pilots.female = cache_->GetResource<Model>("Models/Female.mdl");
+    resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Models/Mohawk.mdl")));
+    resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Models/Seagull.mdl")));
+    resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Models/Mustain.mdl")));
+    resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Models/Frotoad.mdl")));
 
-    resources.models.ships.swift = cache_->GetResource<Model>("Resources/Models/KlåMk10.mdl");
+    resources.models.ships.swift = cache_->GetResource<Model>("Models/KlåMk10.mdl");
 
-    resources.models.arenaElements.backgroundTile = cache_->GetResource<Model>("Resources/Models/BackgroundTile.mdl");
-    resources.models.arenaElements.obstacle = cache_->GetResource<Model>("Resources/Models/Obstacle.mdl");
+    resources.models.arenaElements.backgroundTile = cache_->GetResource<Model>("Models/BackgroundTile.mdl");
+    resources.models.arenaElements.obstacle = cache_->GetResource<Model>("Models/Obstacle.mdl");
 
     //Load materials
-    resources.materials.basic = SharedPtr<Material>(cache_->GetResource<Material>("Resources/Materials/Basic.xml"));
+    resources.materials.basic = SharedPtr<Material>(cache_->GetResource<Material>("Materials/Basic.xml"));
     resources.materials.basic->SetShaderParameter("MatDiffColor", Color(0.05f, 0.05f, 0.05f, 1.0));
 
-    resources.materials.ship1Primary = cache_->GetResource<Material>("Resources/Materials/GreenEnvmap.xml");
-    resources.materials.ship1Secondary = cache_->GetResource<Material>("Resources/Materials/GreenGlowEnvmap.xml");
-    resources.materials.ship2Primary = cache_->GetResource<Material>("Resources/Materials/PurpleEnvmap.xml");
-    resources.materials.ship2Secondary = cache_->GetResource<Material>("Resources/Materials/PurpleGlowEnvmap.xml");
+    resources.materials.ship1Primary = cache_->GetResource<Material>("Materials/GreenEnvmap.xml");
+    resources.materials.ship1Secondary = cache_->GetResource<Material>("Materials/GreenGlowEnvmap.xml");
+    resources.materials.ship2Primary = cache_->GetResource<Material>("Materials/PurpleEnvmap.xml");
+    resources.materials.ship2Secondary = cache_->GetResource<Material>("Materials/PurpleGlowEnvmap.xml");
 }
 
 void MasterControl::CreateScene()
@@ -183,8 +183,8 @@ void MasterControl::CreateScene()
     //Create cursor
     world.cursor.sceneCursor = world.scene->CreateChild("Cursor");
     StaticModel* cursorObject = world.cursor.sceneCursor->CreateComponent<StaticModel>();
-    cursorObject->SetModel(cache_->GetResource<Model>("Resources/Models/Hexagon.mdl"));
-    cursorObject->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Glow.xml"));
+    cursorObject->SetModel(cache_->GetResource<Model>("Models/Hexagon.mdl"));
+    cursorObject->SetMaterial(cache_->GetResource<Material>("Materials/Glow.xml"));
     world.cursor.sceneCursor->SetEnabled(false);
 
     //Create an invisible plane for mouse raycasting
@@ -193,7 +193,7 @@ void MasterControl::CreateScene()
     world.voidNode->SetScale(Vector3(1000.0f, 1.0f, 1000.0f));
     StaticModel* planeObject = world.voidNode->CreateComponent<StaticModel>();
     planeObject->SetModel(cache_->GetResource<Model>("Models/Plane.mdl"));
-    planeObject->SetMaterial(cache_->GetResource<Material>("Resources/Materials/Invisible.xml"));
+    planeObject->SetMaterial(cache_->GetResource<Material>("Materials/Invisible.xml"));
 
     //Create camera
     world.camera = new heXoCam(context_, this);
@@ -206,13 +206,13 @@ void MasterControl::CreateScene()
     lobbyNode_->Rotate(Quaternion(0.0f, 0.0f, 0.0f));
     Node* chamberNode = lobbyNode_->CreateChild("Chamber");
     StaticModel* chamberModel = chamberNode->CreateComponent<StaticModel>();
-    chamberModel->SetModel(cache_->GetResource<Model>("Resources/Models/Chamber.mdl"));
+    chamberModel->SetModel(cache_->GetResource<Model>("Models/Chamber.mdl"));
     chamberModel->SetMaterial(0, resources.materials.basic);
-    chamberModel->SetMaterial(1, cache_->GetResource<Material>("Resources/Materials/PitchBlack.xml"));
-    chamberModel->SetMaterial(4, cache_->GetResource<Material>("Resources/Materials/Drain.xml"));
-    lobbyGlowGreen_ = cache_->GetResource<Material>("Resources/Materials/GreenGlow.xml");
+    chamberModel->SetMaterial(1, cache_->GetResource<Material>("Materials/PitchBlack.xml"));
+    chamberModel->SetMaterial(4, cache_->GetResource<Material>("Materials/Drain.xml"));
+    lobbyGlowGreen_ = cache_->GetResource<Material>("Materials/GreenGlow.xml");
     chamberModel->SetMaterial(2, lobbyGlowGreen_);
-    lobbyGlowPurple_ = cache_->GetResource<Material>("Resources/Materials/PurpleGlow.xml");
+    lobbyGlowPurple_ = cache_->GetResource<Material>("Materials/PurpleGlow.xml");
     chamberModel->SetMaterial(3, lobbyGlowPurple_);
     chamberModel->SetCastShadows(true);
 
@@ -222,8 +222,8 @@ void MasterControl::CreateScene()
     ship1Node->Rotate(Quaternion(90.0f, Vector3::UP));
     StaticModel* ship1 = ship1Node->CreateComponent<StaticModel>();
     ship1->SetModel(resources.models.ships.swift);
-    ship1->SetMaterial(0, cache_->GetResource<Material>("Resources/Materials/GreenGlow.xml"));
-    ship1->SetMaterial(1, cache_->GetResource<Material>("Resources/Materials/Green.xml"));
+    ship1->SetMaterial(0, cache_->GetResource<Material>("Materials/GreenGlow.xml"));
+    ship1->SetMaterial(1, cache_->GetResource<Material>("Materials/Green.xml"));
     ship1->SetCastShadows(true);
     RigidBody* ship1Body = ship1Node->CreateComponent<RigidBody>();
     ship1Body->SetTrigger(true);
@@ -237,8 +237,8 @@ void MasterControl::CreateScene()
     ship2Node->Rotate(Quaternion(270.0f, Vector3::UP));
     StaticModel* ship2 = ship2Node->CreateComponent<StaticModel>();
     ship2->SetModel(resources.models.ships.swift);
-    ship2->SetMaterial(0, cache_->GetResource<Material>("Resources/Materials/PurpleGlow.xml"));
-    ship2->SetMaterial(1, cache_->GetResource<Material>("Resources/Materials/Purple.xml"));
+    ship2->SetMaterial(0, cache_->GetResource<Material>("Materials/PurpleGlow.xml"));
+    ship2->SetMaterial(1, cache_->GetResource<Material>("Materials/Purple.xml"));
     ship2->SetCastShadows(true);
     RigidBody* ship2Body = ship2Node->CreateComponent<RigidBody>();
     ship2Body->SetTrigger(true);
@@ -246,25 +246,25 @@ void MasterControl::CreateScene()
     SubscribeToEvent(ship2Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandlePlayTrigger2));
 
     lobbyNode_->CreateComponent<RigidBody>();
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Center.mdl"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_CentralBox.mdl"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Edge1.mdl"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Edge2.mdl"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Side1.mdl"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Side2.mdl"));
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Models/CC_Center.mdl"));
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Models/CC_CentralBox.mdl"));
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Models/CC_Edge1.mdl"));
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Models/CC_Edge2.mdl"));
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Models/CC_Side1.mdl"));
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Models/CC_Side2.mdl"));
 
     CollisionShape* edge1Shape = lobbyNode_->CreateComponent<CollisionShape>();
-    edge1Shape->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Edge1.mdl"));
+    edge1Shape->SetConvexHull(cache_->GetResource<Model>("Models/CC_Edge1.mdl"));
     edge1Shape->SetPosition(Vector3::FORWARD * 1.23f);
     edge1Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
     CollisionShape* edge2Shape = lobbyNode_->CreateComponent<CollisionShape>();
-    edge2Shape->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Edge2.mdl"));
+    edge2Shape->SetConvexHull(cache_->GetResource<Model>("Models/CC_Edge2.mdl"));
     edge2Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
     CollisionShape* side1Shape = lobbyNode_->CreateComponent<CollisionShape>();
-    side1Shape->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Side1.mdl"));
+    side1Shape->SetConvexHull(cache_->GetResource<Model>("Models/CC_Side1.mdl"));
     side1Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
     CollisionShape* side2Shape = lobbyNode_->CreateComponent<CollisionShape>();
-    side2Shape->SetConvexHull(cache_->GetResource<Model>("Resources/Models/CC_Side2.mdl"));
+    side2Shape->SetConvexHull(cache_->GetResource<Model>("Models/CC_Side2.mdl"));
     side2Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
 
 
@@ -482,7 +482,7 @@ void MasterControl::Exit()
 
     //Save player1 pilot to file
     std::ofstream fPilot1;
-    fPilot1.open("Resources/Pilot1.lkp");
+    fPilot1.open("Pilot1.lkp");
     fPilot1 << player1_->pilot_.male_ << '\n';
     fPilot1 << player1_->pilot_.hairStyle_ << '\n';
     for (Color c : player1_->pilot_.colors_){
@@ -495,7 +495,7 @@ void MasterControl::Exit()
 
     //Save player2 pilot to file
     std::ofstream fPilot2;
-    fPilot2.open("Resources/Pilot2.lkp");
+    fPilot2.open("Pilot2.lkp");
     fPilot2 << player2_->pilot_.male_ << '\n';
     fPilot2 << player2_->pilot_.hairStyle_ << '\n';
     for (Color c : player1_->pilot_.colors_){

@@ -25,7 +25,7 @@ Flash::Flash(Context *context, MasterControl *masterControl):
     rootNode_->SetName("Flash");
 
     particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
-    ParticleEffect* particleEffect = masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/Flash.xml");
+    ParticleEffect* particleEffect = masterControl_->cache_->GetResource<ParticleEffect>("Particles/Flash.xml");
     particleEmitter_->SetEffect(particleEffect);
 
     light_ = rootNode_->CreateComponent<Light>();

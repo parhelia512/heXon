@@ -30,15 +30,15 @@ ChaoZap::ChaoZap(Context *context, MasterControl *masterControl):
     rootNode_->SetEnabled(false);
 
     chaoModel_ = rootNode_->CreateComponent<StaticModel>();
-    chaoModel_->SetModel(masterControl_->cache_->GetResource<Model>("Resources/Models/ChaoFlash.mdl"));
-    chaoMaterial_ = masterControl_->cache_->GetTempResource<Material>("Resources/Materials/ChaoFlash.xml");
+    chaoModel_->SetModel(masterControl_->cache_->GetResource<Model>("Models/ChaoFlash.mdl"));
+    chaoMaterial_ = masterControl_->cache_->GetTempResource<Material>("Materials/ChaoFlash.xml");
     chaoModel_->SetMaterial(chaoMaterial_);
 
-    samples_.Push(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Mine1.ogg"));
-    samples_.Push(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Mine2.ogg"));
-    samples_.Push(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Mine3.ogg"));
-    samples_.Push(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Mine4.ogg"));
-    samples_.Push(masterControl_->cache_->GetResource<Sound>("Resources/Samples/Mine5.ogg"));
+    samples_.Push(masterControl_->cache_->GetResource<Sound>("Samples/Mine1.ogg"));
+    samples_.Push(masterControl_->cache_->GetResource<Sound>("Samples/Mine2.ogg"));
+    samples_.Push(masterControl_->cache_->GetResource<Sound>("Samples/Mine3.ogg"));
+    samples_.Push(masterControl_->cache_->GetResource<Sound>("Samples/Mine4.ogg"));
+    samples_.Push(masterControl_->cache_->GetResource<Sound>("Samples/Mine5.ogg"));
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
 }

@@ -30,7 +30,7 @@ SceneObject::SceneObject(Context* context, MasterControl* masterControl):
 
     rootNode_ = masterControl_->world.scene->CreateChild("SceneObject");
 
-    flashSample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Flash.ogg");
+    flashSample_ = masterControl_->cache_->GetResource<Sound>("Samples/Flash.ogg");
     flashSample_->SetLooped(false);
     for (int i = 0; i < 5; ++i){
         SharedPtr<SoundSource> sampleSource = SharedPtr<SoundSource>(rootNode_->CreateComponent<SoundSource>());

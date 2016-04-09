@@ -24,7 +24,7 @@ HitFX::HitFX(Context *context, MasterControl *masterControl):
     rootNode_->SetName("HitFX");
     particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
 
-    sample_ = masterControl_->cache_->GetResource<Sound>("Resources/Samples/Hit.ogg");
+    sample_ = masterControl_->cache_->GetResource<Sound>("Samples/Hit.ogg");
     sample_->SetLooped(false);
 }
 
@@ -32,11 +32,11 @@ void HitFX::Set(const Vector3 position, int playerID, const bool sound)
 {
     ParticleEffect* effect = nullptr;
     switch (playerID){
-    case 1: effect = masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/GreenHitFX.xml");
+    case 1: effect = masterControl_->cache_->GetResource<ParticleEffect>("Particles/GreenHitFX.xml");
         break;
-    case 2: effect = masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/PurpleHitFX.xml");
+    case 2: effect = masterControl_->cache_->GetResource<ParticleEffect>("Particles/PurpleHitFX.xml");
         break;
-    default: effect = masterControl_->cache_->GetResource<ParticleEffect>("Resources/Particles/HitFX.xml");
+    default: effect = masterControl_->cache_->GetResource<ParticleEffect>("Particles/HitFX.xml");
         break;
     }
 
