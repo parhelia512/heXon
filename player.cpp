@@ -81,6 +81,8 @@ Player::Player(Context *context, MasterControl *masterControl, int playerID):
     shot_s->SetLooped(false);
     shieldHit_s = masterControl_->cache_->GetResource<Sound>("Samples/ShieldHit.ogg");
     shieldHit_s->SetLooped(false);
+    death_s = masterControl_->cache_->GetResource<Sound>("Samples/Death.ogg");
+    death_s->SetLooped(false);
     pickup_s = masterControl_->cache_->GetResource<Sound>("Samples/Pickup.ogg");
     pickup_s->SetLooped(false);
     powerup_s = masterControl_->cache_->GetResource<Sound>("Samples/Powerup.ogg");
@@ -98,6 +100,10 @@ Player::Player(Context *context, MasterControl *masterControl, int playerID):
         extraSampleSource->SetSoundType(SOUND_EFFECT);
         sampleSources_.Push(extraSampleSource);
     }
+    Node* deathSourceNode = masterControl_->world.scene->CreateChild("DeathSound");
+    deathSource_ = deathSourceNode->CreateComponent<SoundSource>();
+    deathSource_->SetSoundType(SOUND_EFFECT);
+    deathSource_->SetGain(2.3f);
 
     //Setup player physics
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
@@ -504,6 +510,7 @@ void Player::Die()
 
     Disable();
     masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), playerID_ == 2 ? Color(1.0f, 0.42f, 0.0f) : Color(0.23f, 1.0f, 0.0f), 2.0f, playerID_);
+    deathSource_->Play(death_s);
 
     int otherplayer = playerID_ == 2 ? 1 : 2;
     if (!masterControl_->GetPlayer(otherplayer)->IsAlive())
