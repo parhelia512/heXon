@@ -21,7 +21,7 @@
 Line::Line(Context* context, MasterControl *masterControl) :
     Object(context),
     masterControl_{masterControl},
-    baseScale_{Random(0.42f, 0.666f)}
+    baseScale_{Random(0.666f, 2.3f)}
 {
     rootNode_ = masterControl_->world.scene->CreateChild("Line");
     rootNode_->SetScale(baseScale_);
@@ -33,10 +33,12 @@ void Line::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
     float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
 
-    if (!rootNode_->GetComponent<StaticModel>()->IsInView() && rootNode_->GetPosition().y_ > 5.0f)
+    if ((!rootNode_->GetComponent<StaticModel>()->IsInView() && rootNode_->GetPosition().y_ > 5.0f)
+            || rootNode_->GetScale().x_ <= 0.0f)
         Disable();
 
-    rootNode_->Translate(Vector3::UP * timeStep * (42.23f + baseScale_ * 34.0f), TS_WORLD);
+    rootNode_->Translate(Vector3::UP * timeStep * (42.23f + baseScale_ * 23.5f), TS_WORLD);
+    rootNode_->SetScale(Max(rootNode_->GetScale().x_ - 2.3f * timeStep, 0.0f));
 }
 
 void Line::Set(const Vector3 position, int playerID)
@@ -46,6 +48,7 @@ void Line::Set(const Vector3 position, int playerID)
                         : masterControl_->cache_->GetResource<Material>("Materials/GreenBullet.xml"));
     rootNode_->SetEnabledRecursive(true);
     rootNode_->SetPosition(position);
+    rootNode_->SetScale(baseScale_);
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Line, HandleSceneUpdate));
 }
 

@@ -214,6 +214,8 @@ void Player::ResetScore()
 }
 void Player::AddScore(int points)
 {
+    if (!alive_) return;
+
     points *= static_cast<int>(pow(2.0, static_cast<double>(multiplier_-1)));
     SetScore(GetScore()+points);
     //Check for multiplier increase
@@ -227,15 +229,7 @@ void Player::AddScore(int points)
         }
     }
     flightScore_ += points;
-
-    int threshold = 2048;
     toCount_ += points;
-    int lines = masterControl_->spawnMaster_->CountActiveLines();
-    while (toCount_ > 0 && lines < threshold){
-        masterControl_->spawnMaster_->SpawnLine(playerID_);
-        --toCount_;
-        ++lines;
-    }
 }
 
 void Player::KillPilot()
@@ -246,6 +240,15 @@ void Player::KillPilot()
 
 void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
+    //Count the score
+    int threshold = 2048;
+    int lines = masterControl_->spawnMaster_->CountActiveLines();
+    while (toCount_ > 0 && lines < threshold){
+        masterControl_->spawnMaster_->SpawnLine(playerID_);
+        --toCount_;
+        ++lines;
+    }
+
     //Take the frame time step, which is stored as a double
     float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
     //Pulse and spin the counters' apples and hearts
@@ -610,7 +613,7 @@ void Player::UpgradeWeapons()
 void Player::LoadPilot()
 {
     using namespace std;
-    ifstream fPilot("Pilot"+to_string(playerID_)+".lkp");
+    ifstream fPilot("Resources/Pilot"+to_string(playerID_)+".lkp");
     while (!fPilot.eof()){
         string gender_str;
         string hairStyle_str;

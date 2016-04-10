@@ -175,7 +175,7 @@ void MasterControl::CreateScene()
     //Create a Zone component for fog control
     Node* zoneNode = world.scene->CreateChild("Zone");
     Zone* zone = zoneNode->CreateComponent<Zone>();
-    zone->SetBoundingBox(BoundingBox(Vector3(-100.0f, -50.0f, -100.0f),Vector3(100.0f, 5.0f, 100.0f)));
+    zone->SetBoundingBox(BoundingBox(Vector3(-100.0f, -100.0f, -100.0f),Vector3(100.0f, 5.0f, 100.0f)));
     zone->SetFogColor(Color(0.0f, 0.0f, 0.0f));
     zone->SetFogStart(56.8f);
     zone->SetFogEnd(61.8f);
@@ -207,7 +207,7 @@ void MasterControl::CreateScene()
     Node* chamberNode = lobbyNode_->CreateChild("Chamber");
     StaticModel* chamberModel = chamberNode->CreateComponent<StaticModel>();
     chamberModel->SetModel(cache_->GetResource<Model>("Models/Chamber.mdl"));
-    chamberModel->SetMaterial(0, resources.materials.basic);
+    chamberModel->SetMaterial(0, cache_->GetResource<Material>("Materials/Marble.xml"));
     chamberModel->SetMaterial(1, cache_->GetResource<Material>("Materials/PitchBlack.xml"));
     chamberModel->SetMaterial(4, cache_->GetResource<Material>("Materials/Drain.xml"));
     lobbyGlowGreen_ = cache_->GetResource<Material>("Materials/GreenGlow.xml");
@@ -224,7 +224,7 @@ void MasterControl::CreateScene()
     ship1->SetModel(resources.models.ships.swift);
     ship1->SetMaterial(0, cache_->GetResource<Material>("Materials/GreenGlow.xml"));
     ship1->SetMaterial(1, cache_->GetResource<Material>("Materials/Green.xml"));
-    ship1->SetCastShadows(true);
+//    ship1->SetCastShadows(true);
     RigidBody* ship1Body = ship1Node->CreateComponent<RigidBody>();
     ship1Body->SetTrigger(true);
     ship1Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
@@ -239,7 +239,7 @@ void MasterControl::CreateScene()
     ship2->SetModel(resources.models.ships.swift);
     ship2->SetMaterial(0, cache_->GetResource<Material>("Materials/PurpleGlow.xml"));
     ship2->SetMaterial(1, cache_->GetResource<Material>("Materials/Purple.xml"));
-    ship2->SetCastShadows(true);
+//    ship2->SetCastShadows(true);
     RigidBody* ship2Body = ship2Node->CreateComponent<RigidBody>();
     ship2Body->SetTrigger(true);
     ship2Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
@@ -482,7 +482,7 @@ void MasterControl::Exit()
 
     //Save player1 pilot to file
     std::ofstream fPilot1;
-    fPilot1.open("Pilot1.lkp");
+    fPilot1.open("Resources/Pilot1.lkp");
     fPilot1 << player1_->pilot_.male_ << '\n';
     fPilot1 << player1_->pilot_.hairStyle_ << '\n';
     for (Color c : player1_->pilot_.colors_){
@@ -495,7 +495,7 @@ void MasterControl::Exit()
 
     //Save player2 pilot to file
     std::ofstream fPilot2;
-    fPilot2.open("Pilot2.lkp");
+    fPilot2.open("Resources/Pilot2.lkp");
     fPilot2 << player2_->pilot_.male_ << '\n';
     fPilot2 << player2_->pilot_.hairStyle_ << '\n';
     for (Color c : player1_->pilot_.colors_){

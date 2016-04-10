@@ -112,14 +112,12 @@ void TileMaster::HandleUpdate(StringHash eventType, VariantMap& eventData)
                                           masterControl_->GetGameState() == GS_LOBBY
                                           ? Color(Random(0.42f), Random(0.42f), Random(0.42f)) * masterControl_->Sine(5.0f, 0.88f, 1.0f, 0.23f)
                                           : Color(0.005f, 0.05f, 0.02f), t));
-    xMaterial_->SetShaderParameter("MatDiffColor", xMaterial_->GetShaderParameter("MatDiffColor").GetColor().Lerp(
-                                          masterControl_->GetGameState() == GS_LOBBY
-                                          ? Color(0.42f, Random(0.666f), Random(0.666f), 2.0f) * masterControl_->Sine(5.0f, 0.88f, 1.0f, 0.23f)
-                                          : Color(0.0666f, 0.16f, 0.16f, 0.23f), t));
-    xMaterial_->SetShaderParameter("MatEmissiveColor", xMaterial_->GetShaderParameter("MatEmissiveColor").GetColor().Lerp(
-                                          masterControl_->GetGameState() == GS_LOBBY
-                                          ? Color(Random(0.42f), Random(0.42f), Random(0.42f)) * masterControl_->Sine(5.0f, 0.88f, 1.0f, 0.23f)
-                                          : Color(0.005f, 0.05f, 0.02f), t));
+    xMaterial_->SetShaderParameter("MatDiffColor", masterControl_->GetGameState() == GS_LOBBY
+                                          ? logoMaterial_->GetShaderParameter("MatDiffColor").GetColor()
+                                          : xMaterial_->GetShaderParameter("MatDiffColor").GetColor().Lerp(Color(0.0666f, 0.16f, 0.16f, 0.23f), t));
+    xMaterial_->SetShaderParameter("MatEmissiveColor", masterControl_->GetGameState() == GS_LOBBY
+                                          ? logoMaterial_->GetShaderParameter("MatEmissiveColor").GetColor()
+                                          : xMaterial_->GetShaderParameter("MatEmissiveColor").GetColor().Lerp(Color(0.005f, 0.05f, 0.02f), t));
     playLight_->SetBrightness(masterControl_->GetGameState() == GS_PLAY? 0.8f : 0.0f);
 }
 

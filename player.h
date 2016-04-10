@@ -82,7 +82,7 @@ private:
     float health_;
     unsigned score_;
     unsigned flightScore_;
-    int toCount_;
+    unsigned toCount_;
     int multiplier_;
     int weaponLevel_;
     int bulletAmount_;

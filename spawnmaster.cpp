@@ -402,6 +402,6 @@ bool SpawnMaster::RespawnLine(int playerID)
 Vector3 SpawnMaster::LineSpawnPoint(int playerID)
 {
     return Quaternion(( Random(2) + (playerID == 2 ? 1 : -2) ) * 60.0f, Vector3::UP) *
-            (Vector3::FORWARD * Random(23.0f, 42.0f) + Vector3::RIGHT * Random(-23.0f, 23.0f))
-            + Vector3::DOWN * (23.0f + Random(42.0f));
+            (Vector3::FORWARD * Random(23.0f, 42.0f) + Vector3::RIGHT * Random(-13.0f, 13.0f))
+            + Vector3::DOWN * (23.0f + Random(46.0f));
 }
