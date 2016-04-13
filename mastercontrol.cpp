@@ -94,15 +94,14 @@ void MasterControl::Start()
     CreateUI();
     //Hook up to the frame update and render post-update events
 
-//    menuMusic_ = cache_->GetResource<Sound>("Music/Eddy J - Webbed Gloves in Neon Brights.ogg");
-//    menuMusic_->SetLooped(true);
+    menuMusic_ = cache_->GetResource<Sound>("Music/Modanung - BulletProof MagiRex.ogg");
+    menuMusic_->SetLooped(true);
     gameMusic_ = cache_->GetResource<Sound>("Music/Alien Chaos - Disorder.ogg");
     gameMusic_->SetLooped(true);
     Node* musicNode = world.scene->CreateChild("Music");
     musicSource_ = musicNode->CreateComponent<SoundSource>();
-    musicSource_->SetGain(1.0f);
+    musicSource_->SetGain(0.32f);
     musicSource_->SetSoundType(SOUND_MUSIC);
-//    musicSource_->Play(menuMusic_);
 
     SetGameState(GS_LOBBY);
 
@@ -367,8 +366,8 @@ void MasterControl::EnterGameState()
     case GS_LOBBY : {
         GetPlayer(1)->EnterLobby();
         GetPlayer(2)->EnterLobby();
-//        musicSource_->Play(menuMusic_);
-        musicSource_->Stop();
+        musicSource_->Play(menuMusic_);
+//        musicSource_->Stop();
         lobbyNode_->SetEnabledRecursive(true);
         world.camera->EnterLobby();
         spawnMaster_->Clear();
@@ -397,6 +396,7 @@ void MasterControl::EnterGameState()
     case GS_DEAD : {
         spawnMaster_->Deactivate();
         world.camera->SetGreyScale(true);
+        musicSource_->SetGain(musicSource_->GetGain() * 0.666f);
     } break;
     default: break;
     }
@@ -432,7 +432,7 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
 
     switch (currentState_){
     case GS_LOBBY: {
-//        musicSource_->SetGain(Max(0.0f, 1.0f - sinceStateChange_));
+//        musicSource_->SetGain(Max(1.0f, sinceStateChange_));
         lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) / (128.0f * sinceStateChange_+23.0f));
 
         leftPointLight1_->SetBrightness(Sine(1.0f, 0.666, 0.95f));
@@ -442,9 +442,10 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
     }
         break;
     case GS_PLAY: {
-//        musicSource_->SetGain(Min(0.666f, sinceStateChange_ * 0.023f));
+//        musicSource_->SetGain(1.0f);
         lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) * Min(1.0f, sinceStateChange_));
     } break;
+    default: break;
     }
 }
 
@@ -506,9 +507,9 @@ void MasterControl::Exit()
     fPilot1 << player1_->pilot_.hairStyle_ << '\n';
     for (Color c : player1_->pilot_.colors_){
         fPilot1 << c.r_ << ' '
-               << c.g_ << ' '
-               << c.b_ << ' '
-               << '\n';
+                << c.g_ << ' '
+                << c.b_ << ' '
+                << '\n';
     }
     fPilot1 << player1_->GetScore();
 
@@ -519,9 +520,9 @@ void MasterControl::Exit()
     fPilot2 << player2_->pilot_.hairStyle_ << '\n';
     for (Color c : player1_->pilot_.colors_){
         fPilot2 << c.r_ << ' '
-               << c.g_ << ' '
-               << c.b_ << ' '
-               << '\n';
+                << c.g_ << ' '
+                << c.b_ << ' '
+                << '\n';
     }
     fPilot2 << player2_->GetScore();
 
@@ -545,7 +546,7 @@ float MasterControl::Sine(const float freq, const float min, const float max, co
     return Sine(phase) * 0.5f * (max - min) + add;
 }
 
-Player *MasterControl::GetPlayer(int playerID)
+Player* MasterControl::GetPlayer(int playerID)
 {
     return playerID == 1 ? player1_.Get() : player2_.Get();
 }

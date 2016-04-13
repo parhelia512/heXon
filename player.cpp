@@ -36,7 +36,7 @@
 Player::Player(Context *context, MasterControl *masterControl, int playerID):
     SceneObject(context, masterControl),
     playerID_{playerID},
-    autoPilot_{playerID_==2},
+    autoPilot_{false},//playerID_==2},
     autoMove_{Vector3::ZERO},
     autoFire_{Vector3::ZERO},
     alive_{true},

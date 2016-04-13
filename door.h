@@ -36,8 +36,10 @@ private:
     Player* player_;
     Node* rootNode_;
     AnimatedModel* door_;
+    SharedPtr<Sound> doorSample_;
 
     bool right_;
+    bool wasNear_;
 
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 };

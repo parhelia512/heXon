@@ -32,6 +32,7 @@ class SceneObject : public Object
 {
     friend class SpawnMaster;
     friend class Seeker;
+    friend class Door;
     URHO3D_OBJECT(SceneObject, Object);
 public:
     SceneObject(Context *context, MasterControl* masterControl);

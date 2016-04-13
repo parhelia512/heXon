@@ -62,7 +62,7 @@ SplatterPillar::SplatterPillar(Context *context, MasterControl *masterControl, b
     dripEmitter_->SetEmitting(false);
 
     soundSource_ = rootNode_->CreateComponent<SoundSource>();
-    soundSource_->SetGain(3.0f);
+    soundSource_->SetGain(1.0f);
 
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(SplatterPillar, HandleSceneUpdate));
 }

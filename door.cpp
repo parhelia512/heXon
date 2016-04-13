@@ -22,7 +22,8 @@
 Door::Door(Context* context, MasterControl* masterControl, bool right) :
     Object(context),
     masterControl_{masterControl},
-    right_{right}
+    right_{right},
+    wasNear_{false}
 {
     player_ = right ? masterControl_->GetPlayer(2) : masterControl_->GetPlayer(1);
     rootNode_ = masterControl_->lobbyNode_->CreateChild("Door");
@@ -31,12 +32,21 @@ Door::Door(Context* context, MasterControl* masterControl, bool right) :
     door_->SetModel(masterControl_->cache_->GetResource<Model>("Models/Door.mdl"));
     door_->SetMaterial(0, masterControl_->resources.materials.basic);
 
+    doorSample_ = masterControl_->cache_->GetResource<Sound>("Samples/Door.ogg");
+    doorSample_->SetLooped(false);
+
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Door, HandleSceneUpdate));
 }
 
 void Door::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
+    bool playerNear = LucKey::Distance(rootNode_->GetWorldPosition(), player_->GetWorldPosition()) < 0.666f;
+    if (playerNear != wasNear_){
+        player_->PlaySample(doorSample_);
+    }
+    wasNear_ = playerNear;
+
     door_->SetMorphWeight(0, Lerp(door_->GetMorphWeight(0),
-                                  static_cast<float>(LucKey::Distance(rootNode_->GetWorldPosition(), player_->GetWorldPosition()) < 0.666f),
+                                  static_cast<float>(playerNear),
                                   eventData[SceneUpdate::P_TIMESTEP].GetFloat() *23.0f));
 }
