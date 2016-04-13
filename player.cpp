@@ -36,7 +36,7 @@
 Player::Player(Context *context, MasterControl *masterControl, int playerID):
     SceneObject(context, masterControl),
     playerID_{playerID},
-    autoPilot_{false},//playerID_==2},
+    autoPilot_{true},//playerID_==2},
     autoMove_{Vector3::ZERO},
     autoFire_{Vector3::ZERO},
     alive_{true},
@@ -778,7 +778,8 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
     switch (masterControl_->GetGameState()){
     case GS_LOBBY: {
         //Enter play
-        pickupPos = 4.2f * (playerID_==2 ? Vector3::RIGHT : Vector3::LEFT);
+//        pickupPos = 4.2f * (playerID_==2 ? Vector3::RIGHT : Vector3::LEFT);
+        autoMove_ = 2.0f * Vector3::BACK + (playerID_ == 2 ? Vector3::RIGHT : Vector3::LEFT);
         autoFire_ = Vector3::ZERO;
     } break;
     case GS_PLAY: {
@@ -796,11 +797,25 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
         Vector3 newPickupPos{pickupPos};
         for (int i{0}; i < 6; ++i){
             Vector3 projectedPickupPos{pickupPos + (Quaternion(i * 60.0f, Vector3::UP) * Vector3::FORWARD * 46.0f)};
-            if (LucKey::Distance(GetPosition(), projectedPickupPos) < LucKey::Distance(GetPosition(), pickupPos))
+            if (LucKey::Distance(GetPosition(), projectedPickupPos - rigidBody_->GetLinearVelocity()) < LucKey::Distance(GetPosition(), pickupPos))
                 newPickupPos = projectedPickupPos;
         }
         pickupPos = newPickupPos;
+        //Calculate move vector
+        if (pickupPos.y_ < -10.0f || LucKey::Distance(
+                 GetPosition(), LucKey::Scale(pickupPos, Vector3(1.0f, 0.0f, 1.0f))) < playerFactor)
+            pickupPos = GetPosition() + rootNode_->GetDirection() * playerFactor;
 
+        autoMove_ = 0.5f * (autoMove_ +
+                            LucKey::Scale(pickupPos - rootNode_->GetPosition()
+                                          - 0.05f * playerFactor * rigidBody_->GetLinearVelocity()
+                                          - 0.1f * playerFactor * rootNode_->GetDirection()
+                                          , Vector3(1.0f, 0.0f, 1.0f)).Normalized());
+        autoMove_ += Sniff(playerFactor);
+//        autoMove_ += Vector3(
+//                    masterControl_->Sine(playerFactor, -0.05f, 0.05f, playerFactor),
+//                    0.0f,
+//                    masterControl_->Sine(playerFactor, -0.05f, 0.05f, -playerFactor));
         //Pick firing target
         bool fire{false};
         Pair<float, Vector3> target{};
@@ -838,14 +853,37 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
     } break;
     default: break;
     }
-    //Calculate move vector
-    if ((pickupPos.y_ < -10.0f || LucKey::Distance(GetPosition(), LucKey::Scale(pickupPos, Vector3(1.0f, 0.0f, 1.0f))) < playerFactor)
-            && masterControl_->GetGameState() == GS_PLAY)
-        pickupPos = GetPosition() + rootNode_->GetDirection() * playerFactor;
-    autoMove_ = 0.5f * (autoMove_ +
-                        LucKey::Scale(pickupPos - rootNode_->GetPosition() - 0.1f * playerFactor * rigidBody_->GetLinearVelocity(), Vector3(1.0f, 0.0f, 1.0f)).Normalized());
-                    autoMove_ += Vector3(
-                                masterControl_->Sine(1.0f, -0.05f, 0.05f, static_cast<float>(playerID_)),
-                                0.0f,
-                                masterControl_->Sine(2.3f, -0.05f, 0.05f, static_cast<float>(playerID_)));
 }
+
+    Vector3 Player::Sniff(float playerFactor)
+    {
+        Vector3 smell;
+        int whiskers = 23;
+        for (int i = 0; i < whiskers; ++i){
+            PODVector<PhysicsRaycastResult> hitResults{};
+            Vector3 whiskerDirection = Quaternion((360.0f / whiskers) * i, Vector3::UP) * Vector3::FORWARD;
+            Ray whiskerRay{GetPosition(), whiskerDirection};
+            if (masterControl_->PhysicsRayCast(hitResults, whiskerRay, 5.0f, M_MAX_UNSIGNED)){
+                for (PhysicsRaycastResult r : hitResults){
+                    StringHash nodeNameHash{r.body_->GetNode()->GetNameHash()};
+                    float distSquared = r.distance_ * r.distance_;
+                    if (nodeNameHash ==N_APPLE) {
+                        smell += (whiskerDirection / (distSquared + 1.0f)) * appleCount_;
+                    } else if (nodeNameHash == N_HEART) {
+                        smell += (whiskerDirection / (distSquared + 1.0f)) * heartCount_;
+                    } else if (nodeNameHash == N_CHAOMINE || nodeNameHash == N_CHAOBALL) {
+                        smell += 5.0f * whiskerDirection / (distSquared + 1.0f) * masterControl_->Sine(0.23f, -2.0f, 3.0f, playerFactor);
+                    } else if (nodeNameHash == N_PLAYER) {
+                        smell += whiskerDirection;
+                    } else if (nodeNameHash == N_RAZOR) {
+                        smell -= 23.0f * (whiskerDirection / (distSquared + 1.0f));
+                    } else if (nodeNameHash == N_SPIRE) {
+                        smell -= 2.3f * (whiskerDirection / (distSquared + 0.23f));
+                    } else if (nodeNameHash == N_SEEKER) {
+                        smell -= 10.0f * (whiskerDirection / (distSquared + 3.0f));
+                    }
+                }
+            }
+        }
+        return smell / whiskers;
+    }

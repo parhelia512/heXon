@@ -166,7 +166,7 @@ void Enemy::HandleCollision(StringHash eventType, VariantMap &eventData)
         for (RigidBody* collider : collidingBodies) {
             StringHash otherNameHash = collider->GetNode()->GetNameHash();
             if (otherNameHash == N_PLAYER) {
-                PlaySample(samples_[Random((int)samples_.Size())], 0.16f);
+                PlaySample(samples_[Random(static_cast<int>(samples_.Size()))], 0.16f);
 
                 Player* hitPlayer = masterControl_->players_[collider->GetNode()->GetID()];
 

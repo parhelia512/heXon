@@ -147,6 +147,7 @@ private:
     void MoveMuzzle();
     void LoadPilot();
     void Think(StringHash eventType, VariantMap &eventData);
+    Vector3 Sniff(float playerFactor);
 };
 
 #endif // PLAYER_H
