@@ -92,7 +92,7 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
         //Here we save in the Data folder with date and time appended
         String fileName = GetSubsystem<FileSystem>()->GetProgramDir() + "Screenshots/Screenshot_" +
                 Time::GetTimeStamp().Replaced(':', '_').Replaced('.', '_').Replaced(' ', '_')+".png";
-        //Log::Write(1, fileName);
+        Log::Write(1, fileName);
         screenshot.SavePNG(fileName);
     } break;
     //Pause/Unpause game on P or joystick Start

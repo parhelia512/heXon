@@ -30,10 +30,15 @@
 #include "muzzle.h"
 #include "chaoflash.h"
 #include "explosion.h"
+#include "heart.h"
+#include "apple.h"
 
 Player::Player(Context *context, MasterControl *masterControl, int playerID):
     SceneObject(context, masterControl),
     playerID_{playerID},
+    autoPilot_{playerID_==2},
+    autoMove_{Vector3::ZERO},
+    autoFire_{Vector3::ZERO},
     alive_{true},
     appleCount_{0},
     heartCount_{0},
@@ -50,7 +55,6 @@ Player::Player(Context *context, MasterControl *masterControl, int playerID):
     shotInterval_{initialShotInterval_},
     sinceLastShot_{0.0f}
 {
-
     rootNode_->SetName("Player");
     CreateGUI();
 
@@ -122,6 +126,7 @@ Player::Player(Context *context, MasterControl *masterControl, int playerID):
 
     //Subscribe to events
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Player, HandleSceneUpdate));
+    if (autoPilot_) SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Player, Think));
 
     for (int b = 0; b < 64; b++){
         Bullet* bullet = new Bullet(context_, masterControl_, playerID_);
@@ -294,6 +299,11 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     //Pick most significant input
     moveJoy.Length() > moveKey.Length() ? move = moveJoy : move = moveKey;
     fireJoy.Length() > fireKey.Length() ? fire = fireJoy : fire = fireKey;
+
+    if (autoPilot_){
+        move = autoMove_;
+        fire = autoFire_;
+    }
 
     //Restrict move vector length
     if (move.Length() > 1.0f) move /= move.Length();
@@ -736,16 +746,16 @@ void Player::SetupShip()
 
 void Player::CreateTails()
 {
-    for (int n = 0; n < 3; n++)
+    for (int t{0}; t < 3; t++)
     {
         Node* tailNode = ship_.node_->CreateChild("Tail");
-        tailNode->SetPosition(Vector3(-0.85f+0.85f*n, n==1? 0.0f : -0.5f, n==1? -0.5f : -0.23f));
+        tailNode->SetPosition(Vector3(-0.85f+0.85f*t, t==1? 0.0f : -0.5f, t==1? -0.5f : -0.23f));
         TailGenerator* tailGen = tailNode->CreateComponent<TailGenerator>();
         tailGen->SetDrawHorizontal(true);
-        tailGen->SetDrawVertical(n==1?true:false);
-        tailGen->SetTailLength(n==1? 0.1f : 0.075f);
-        tailGen->SetNumTails(n==1? 23 : 16);
-        tailGen->SetWidthScale(n==1? 0.666f : 0.23f);
+        tailGen->SetDrawVertical(t==1?true:false);
+        tailGen->SetTailLength(t==1? 0.1f : 0.075f);
+        tailGen->SetNumTails(t==1? 23 : 16);
+        tailGen->SetWidthScale(t==1? 0.666f : 0.23f);
         tailGen->SetColorForHead(playerID_==2 ? Color(1.0f, 0.666f, 0.23f) : Color(1.0f, 1.0f, 0.23f));
         tailGen->SetColorForTip(playerID_==2 ? Color(1.0f, 0.23f, 0.0f) : Color(0.42f, 1.0f, 0.0f));
         tailGens_.Push(SharedPtr<TailGenerator>(tailGen));
@@ -757,4 +767,85 @@ void Player::RemoveTails()
         t->GetNode()->Remove();
     }
     tailGens_.Clear();
+}
+
+//Updates autopilot input
+void Player::Think(StringHash eventType, VariantMap &eventData)
+{
+    float playerFactor{ playerID_==2 ? 3.4f : 2.3f };
+    Vector3 pickupPos{ Vector3::ZERO };
+
+    switch (masterControl_->GetGameState()){
+    case GS_LOBBY: {
+        //Enter play
+        pickupPos = 4.2f * (playerID_==2 ? Vector3::RIGHT : Vector3::LEFT);
+        autoFire_ = Vector3::ZERO;
+    } break;
+    case GS_PLAY: {
+        //Decide which pickup to pick up
+        if (health_ < (5.0f - appleCount_)
+                || flightScore_ == 0
+                || (heartCount_ != 0 && health_ <= 10.0f && weaponLevel_ > 13)
+                || (heartCount_ == 0 && appleCount_ == 0 && health_ < 10.0f)) {
+                pickupPos = masterControl_->heart_->GetPosition();
+        }
+        else {
+            pickupPos = masterControl_->apple_->GetPosition();
+        }
+        //Calculate shortest route
+        Vector3 newPickupPos{pickupPos};
+        for (int i{0}; i < 6; ++i){
+            Vector3 projectedPickupPos{pickupPos + (Quaternion(i * 60.0f, Vector3::UP) * Vector3::FORWARD * 46.0f)};
+            if (LucKey::Distance(GetPosition(), projectedPickupPos) < LucKey::Distance(GetPosition(), pickupPos))
+                newPickupPos = projectedPickupPos;
+        }
+        pickupPos = newPickupPos;
+
+        //Pick firing target
+        bool fire{false};
+        Pair<float, Vector3> target{};
+        for (SharedPtr<Razor> r : masterControl_->spawnMaster_->razors_.Values()){
+            if (r->IsEnabled() && r->IsEmerged()){
+                float distance = LucKey::Distance(this->GetPosition(), r->GetPosition());
+                float panic = r->GetPanic();
+                float weight = (5.0f * panic) - (distance / playerFactor) + 42.0f;
+                if (weight > target.first_){
+                    target.first_ = weight;
+                    target.second_ = r->GetPosition() + r->GetLinearVelocity() * 0.42f;
+                    fire = true;
+                }
+            }
+        }
+        for (SharedPtr<Spire> s : masterControl_->spawnMaster_->spires_.Values()){
+            if (s->IsEnabled() && s->IsEmerged()){
+                float distance = LucKey::Distance(this->GetPosition(), s->GetPosition());
+                float panic = s->GetPanic();
+                float weight = (23.0f * panic) - (distance / playerFactor) + 32.0f;
+                if (weight > target.first_){
+                    target.first_ = weight;
+                    target.second_ = s->GetPosition();
+                    fire = true;
+                }
+            }
+        }
+        if (fire){
+            autoFire_ = (target.second_ - GetPosition()).Normalized();
+            if (bulletAmount_ == 2 || bulletAmount_ == 3)
+                autoFire_ = Quaternion((playerID_==2?-1.0f:1.0f)*Min(0.666f * LucKey::Distance(this->GetPosition(), target.second_), 5.0f), Vector3::UP) * autoFire_;
+            autoFire_ = Quaternion((playerID_==2?-1.0f:1.0f)*masterControl_->Sine(playerFactor, -playerFactor, playerFactor), Vector3::UP) * autoFire_;
+        }
+        else autoFire_ = Vector3::ZERO;
+    } break;
+    default: break;
+    }
+    //Calculate move vector
+    if ((pickupPos.y_ < -10.0f || LucKey::Distance(GetPosition(), LucKey::Scale(pickupPos, Vector3(1.0f, 0.0f, 1.0f))) < playerFactor)
+            && masterControl_->GetGameState() == GS_PLAY)
+        pickupPos = GetPosition() + rootNode_->GetDirection() * playerFactor;
+    autoMove_ = 0.5f * (autoMove_ +
+                        LucKey::Scale(pickupPos - rootNode_->GetPosition() - 0.1f * playerFactor * rigidBody_->GetLinearVelocity(), Vector3(1.0f, 0.0f, 1.0f)).Normalized());
+                    autoMove_ += Vector3(
+                                masterControl_->Sine(1.0f, -0.05f, 0.05f, static_cast<float>(playerID_)),
+                                0.0f,
+                                masterControl_->Sine(2.3f, -0.05f, 0.05f, static_cast<float>(playerID_)));
 }

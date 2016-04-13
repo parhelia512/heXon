@@ -21,7 +21,7 @@
 Line::Line(Context* context, MasterControl *masterControl) :
     Object(context),
     masterControl_{masterControl},
-    baseScale_{Random(0.666f, 2.3f)}
+    baseScale_{Random(1.0f, 2.3f)}
 {
     rootNode_ = masterControl_->world.scene->CreateChild("Line");
     rootNode_->SetScale(baseScale_);
@@ -38,7 +38,7 @@ void Line::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         Disable();
 
     rootNode_->Translate(Vector3::UP * timeStep * (42.23f + baseScale_ * 23.5f), TS_WORLD);
-    rootNode_->SetScale(Max(rootNode_->GetScale().x_ - 2.3f * timeStep, 0.0f));
+    rootNode_->SetScale(Max(rootNode_->GetScale().x_ - timeStep, 0.0f));
 }
 
 void Line::Set(const Vector3 position, int playerID)

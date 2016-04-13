@@ -189,6 +189,11 @@ private:
     SharedPtr<Sound> gameMusic_;
 
     Light* lobbySpotLight_;
+    Light* leftPointLight1_;
+    Light* leftPointLight2_;
+    Light* rightPointLight1_;
+    Light* rightPointLight2_;
+
     Material* lobbyGlowGreen_;
     Material* lobbyGlowPurple_;
 
@@ -211,6 +216,9 @@ private:
     void LeaveGameState();
     void EnterGameState();
     void LoadResources();
+
+    float spf_;
+    float sinceFrameRateReport_;
 };
 
 #endif // MASTERCONTROL_H

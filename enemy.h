@@ -43,6 +43,8 @@ class Enemy : public SceneObject
 public:
     Enemy(Context* context, MasterControl* masterControl);
     float GetHealth() const { return health_; }
+    float GetPanic() const { return panic_; }
+    Vector3 GetLinearVelocity() const { return rigidBody_->GetLinearVelocity(); }
     void Hit(const float damage, const int ownerID);
     void Set(const Vector3 position);
 protected:

@@ -48,7 +48,8 @@ MasterControl::MasterControl(Context *context):
     currentState_{GS_INTRO},
     paused_{false},
     editMode_{false},
-    sinceStateChange_{0.0f}
+    sinceStateChange_{0.0f},
+    sinceFrameRateReport_{0.0f}
 {
 }
 
@@ -59,15 +60,20 @@ void MasterControl::Setup()
     engineParameters_["WindowTitle"] = "heXon";
     engineParameters_["LogName"] = GetSubsystem<FileSystem>()->GetAppPreferencesDir("urho3d", "logs")+"heXon.log";
     engineParameters_["ResourcePaths"] = "Data;CoreData;Resources";
+    engineParameters_["WindowIcon"] = "icon.png";
+
 //    engineParameters_["VSync"] = true;
 //    engineParameters_["FullScreen"] = false;
-//    engineParameters_["Headless"] = false;
+//    engineParameters_["Headless"] = true;
 //    engineParameters_["WindowWidth"] = 960;
 //    engineParameters_["WindowHeight"] = 900;
 //    engineParameters_["RenderPath"] = "RenderPaths/ForwardOutline.xml";
 }
 void MasterControl::Start()
 {
+    Engine* engine = GetSubsystem<Engine>();
+    engine->SetMaxFps(100);
+
     TailGenerator::RegisterObject(context_);
 
     new InputMaster(context_, this);
@@ -155,7 +161,6 @@ void MasterControl::LoadResources()
 
     //Load materials
     resources.materials.basic = SharedPtr<Material>(cache_->GetResource<Material>("Materials/Basic.xml"));
-    resources.materials.basic->SetShaderParameter("MatDiffColor", Color(0.05f, 0.05f, 0.05f, 1.0));
 
     resources.materials.ship1Primary = cache_->GetResource<Material>("Materials/GreenEnvmap.xml");
     resources.materials.ship1Secondary = cache_->GetResource<Material>("Materials/GreenGlowEnvmap.xml");
@@ -207,7 +212,7 @@ void MasterControl::CreateScene()
     Node* chamberNode = lobbyNode_->CreateChild("Chamber");
     StaticModel* chamberModel = chamberNode->CreateComponent<StaticModel>();
     chamberModel->SetModel(cache_->GetResource<Model>("Models/Chamber.mdl"));
-    chamberModel->SetMaterial(0, cache_->GetResource<Material>("Materials/Marble.xml"));
+    chamberModel->SetMaterial(0, cache_->GetResource<Material>("Materials/Basic.xml"));
     chamberModel->SetMaterial(1, cache_->GetResource<Material>("Materials/PitchBlack.xml"));
     chamberModel->SetMaterial(4, cache_->GetResource<Material>("Materials/Drain.xml"));
     lobbyGlowGreen_ = cache_->GetResource<Material>("Materials/GreenGlow.xml");
@@ -224,7 +229,7 @@ void MasterControl::CreateScene()
     ship1->SetModel(resources.models.ships.swift);
     ship1->SetMaterial(0, cache_->GetResource<Material>("Materials/GreenGlow.xml"));
     ship1->SetMaterial(1, cache_->GetResource<Material>("Materials/Green.xml"));
-//    ship1->SetCastShadows(true);
+    ship1->SetCastShadows(true);
     RigidBody* ship1Body = ship1Node->CreateComponent<RigidBody>();
     ship1Body->SetTrigger(true);
     ship1Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
@@ -239,7 +244,7 @@ void MasterControl::CreateScene()
     ship2->SetModel(resources.models.ships.swift);
     ship2->SetMaterial(0, cache_->GetResource<Material>("Materials/PurpleGlow.xml"));
     ship2->SetMaterial(1, cache_->GetResource<Material>("Materials/Purple.xml"));
-//    ship2->SetCastShadows(true);
+    ship2->SetCastShadows(true);
     RigidBody* ship2Body = ship2Node->CreateComponent<RigidBody>();
     ship2Body->SetTrigger(true);
     ship2Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
@@ -270,43 +275,43 @@ void MasterControl::CreateScene()
 
     Node* leftPointLightNode1 = lobbyNode_->CreateChild("PointLight");
     leftPointLightNode1->SetPosition(Vector3(-2.3f, 2.3f, 3.0f));
-    Light* leftPointLight1 = leftPointLightNode1->CreateComponent<Light>();
-    leftPointLight1->SetLightType(LIGHT_POINT);
-    leftPointLight1->SetBrightness(0.83f);
-    leftPointLight1->SetColor(Color(0.42f, 1.0f, 0.1f));
-    leftPointLight1->SetRange(13.0f);
-    leftPointLight1->SetCastShadows(true);
-    leftPointLight1->SetShadowBias(BiasParameters(0.0001f, 0.1f));
+    leftPointLight1_ = leftPointLightNode1->CreateComponent<Light>();
+    leftPointLight1_->SetLightType(LIGHT_POINT);
+    leftPointLight1_->SetBrightness(0.83f);
+    leftPointLight1_->SetColor(Color(0.42f, 1.0f, 0.1f));
+    leftPointLight1_->SetRange(13.0f);
+    leftPointLight1_->SetCastShadows(true);
+    leftPointLight1_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
     Node* leftPointLightNode2 = lobbyNode_->CreateChild("PointLight");
     leftPointLightNode2->SetPosition(Vector3(-2.3f, 2.3f, -3.0f));
-    Light* leftPointLight2 = leftPointLightNode2->CreateComponent<Light>();
-    leftPointLight2->SetLightType(LIGHT_POINT);
-    leftPointLight2->SetBrightness(0.83f);
-    leftPointLight2->SetColor(Color(0.42f, 1.0f, 0.1f));
-    leftPointLight2->SetRange(13.0f);
-    leftPointLight2->SetCastShadows(true);
-    leftPointLight2->SetShadowBias(BiasParameters(0.0001f, 0.1f));
+    leftPointLight2_ = leftPointLightNode2->CreateComponent<Light>();
+    leftPointLight2_->SetLightType(LIGHT_POINT);
+    leftPointLight2_->SetBrightness(0.83f);
+    leftPointLight2_->SetColor(Color(0.42f, 1.0f, 0.1f));
+    leftPointLight2_->SetRange(13.0f);
+    leftPointLight2_->SetCastShadows(true);
+    leftPointLight2_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
     Node* rightPointLightNode1 = lobbyNode_->CreateChild("PointLight");
     rightPointLightNode1->SetPosition(Vector3(2.3f, 2.3f, 3.0f));
-    Light* rightPointLight1 = rightPointLightNode1->CreateComponent<Light>();
-    rightPointLight1->SetLightType(LIGHT_POINT);
-    rightPointLight1->SetBrightness(1.0f);
-    rightPointLight1->SetColor(Color(0.42f, 0.1f, 1.0f));
-    rightPointLight1->SetRange(13.0f);
-    rightPointLight1->SetCastShadows(true);
-    rightPointLight1->SetShadowBias(BiasParameters(0.0001f, 0.1f));
+    rightPointLight1_ = rightPointLightNode1->CreateComponent<Light>();
+    rightPointLight1_->SetLightType(LIGHT_POINT);
+    rightPointLight1_->SetBrightness(1.0f);
+    rightPointLight1_->SetColor(Color(0.42f, 0.1f, 1.0f));
+    rightPointLight1_->SetRange(13.0f);
+    rightPointLight1_->SetCastShadows(true);
+    rightPointLight1_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
     Node* rightPointLightNode2 = lobbyNode_->CreateChild("PointLight");
     rightPointLightNode2->SetPosition(Vector3(2.3f, 2.3f, -3.0f));
-    Light* rightPointLight2 = rightPointLightNode2->CreateComponent<Light>();
-    rightPointLight2->SetLightType(LIGHT_POINT);
-    rightPointLight2->SetBrightness(1.0f);
-    rightPointLight2->SetColor(Color(0.42f, 0.1f, 1.0f));
-    rightPointLight2->SetRange(13.0f);
-    rightPointLight2->SetCastShadows(true);
-    rightPointLight2->SetShadowBias(BiasParameters(0.0001f, 0.1f));
+    rightPointLight2_ = rightPointLightNode2->CreateComponent<Light>();
+    rightPointLight2_->SetLightType(LIGHT_POINT);
+    rightPointLight2_->SetBrightness(1.0f);
+    rightPointLight2_->SetColor(Color(0.42f, 0.1f, 1.0f));
+    rightPointLight2_->SetRange(13.0f);
+    rightPointLight2_->SetCastShadows(true);
+    rightPointLight2_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
     //Create game elements
     spawnMaster_ = new SpawnMaster(context_, this);
@@ -405,8 +410,18 @@ void MasterControl::Eject()
 void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
     double timeStep = eventData[Update::P_TIMESTEP].GetFloat();
+
+    spf_ *= 1.0f - timeStep;
+    spf_ += timeStep * timeStep;
+    sinceFrameRateReport_ += timeStep;
+    if (sinceFrameRateReport_ >= 1.0f){
+        Log::Write(1, String(1.0f / spf_));
+        sinceFrameRateReport_ = 0.0f;
+    }
+
     sinceStateChange_ += timeStep;
     UpdateCursor(timeStep);
+
 
 //    resources.materials.basic->SetShaderParameter(
 //                "MatDiffColor",resources.materials.basic->GetShaderParameter("MatDiffColor").GetColor().Lerp(
@@ -420,6 +435,10 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
 //        musicSource_->SetGain(Max(0.0f, 1.0f - sinceStateChange_));
         lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) / (128.0f * sinceStateChange_+23.0f));
 
+        leftPointLight1_->SetBrightness(Sine(1.0f, 0.666, 0.95f));
+        leftPointLight2_->SetBrightness(Sine(1.0f, 0.666, 0.95f, M_PI));
+        rightPointLight1_->SetBrightness(Sine(1.0f, 0.95, 1.23f));
+        rightPointLight2_->SetBrightness(Sine(1.0f, 0.95, 1.23f, M_PI));
     }
         break;
     case GS_PLAY: {

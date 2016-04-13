@@ -82,13 +82,13 @@ void Bullet::HitCheck(float timeStep) {
     if (!fading_) {
         PODVector<PhysicsRaycastResult> hitResults{};
         Ray bulletRay(rootNode_->GetPosition() - rigidBody_->GetLinearVelocity()*timeStep, rootNode_->GetDirection());
-        if (masterControl_->PhysicsRayCast(hitResults, bulletRay, 2.3f*rigidBody_->GetLinearVelocity().Length()*timeStep, M_MAX_UNSIGNED)){
-            for (int i = 0; i < hitResults.Size(); i++){
-                if (!hitResults[i].body_->IsTrigger()){// && hitResults[i].body_->GetNode()->GetNameHash() != N_PLAYER){
-                    hitResults[i].body_->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.05f);
-                    masterControl_->spawnMaster_->SpawnHitFX(hitResults[i].position_, playerID_);
+        if (masterControl_->PhysicsRayCast(hitResults, bulletRay, 2.3f * rigidBody_->GetLinearVelocity().Length()*timeStep, M_MAX_UNSIGNED)){
+            for (PhysicsRaycastResult h : hitResults){
+                if (!h.body_->IsTrigger()){// && h.body_->GetNode()->GetNameHash() != N_PLAYER){
+                    h.body_->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.05f);
+                    masterControl_->spawnMaster_->SpawnHitFX(h.position_, playerID_);
                     //Deal damage
-                    unsigned hitID = hitResults[i].body_->GetNode()->GetID();
+                    unsigned hitID = h.body_->GetNode()->GetID();
                     if(masterControl_->spawnMaster_->spires_.Keys().Contains(hitID)){
                         masterControl_->spawnMaster_->spires_[hitID]->Hit(damage_, playerID_);
                     }

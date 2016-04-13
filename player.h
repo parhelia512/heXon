@@ -75,6 +75,9 @@ public:
 private:
     int playerID_;
     bool pilotMode_;
+    bool autoPilot_;
+    Vector3 autoMove_;
+    Vector3 autoFire_;
     bool alive_;
     int appleCount_;
     int heartCount_;
@@ -143,6 +146,7 @@ private:
     void SetPilotMode(bool pilotMode);
     void MoveMuzzle();
     void LoadPilot();
+    void Think(StringHash eventType, VariantMap &eventData);
 };
 
 #endif // PLAYER_H

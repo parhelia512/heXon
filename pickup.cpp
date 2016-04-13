@@ -69,6 +69,7 @@ Pickup::Pickup(Context *context, MasterControl *masterControl):
 
 void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
 {
+
     PODVector<RigidBody*> collidingBodies;
     triggerBody_->GetCollidingBodies(collidingBodies);
 
