@@ -36,7 +36,7 @@
 Player::Player(Context *context, MasterControl *masterControl, int playerID):
     SceneObject(context, masterControl),
     playerID_{playerID},
-    autoPilot_{true},//playerID_==2},
+    autoPilot_{playerID_==2},
     autoMove_{Vector3::ZERO},
     autoFire_{Vector3::ZERO},
     alive_{true},
@@ -779,15 +779,17 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
     case GS_LOBBY: {
         //Enter play
 //        pickupPos = 4.2f * (playerID_==2 ? Vector3::RIGHT : Vector3::LEFT);
-        autoMove_ = 2.0f * Vector3::BACK + (playerID_ == 2 ? Vector3::RIGHT : Vector3::LEFT);
+//        autoMove_ = 2.0f * Vector3::BACK + (playerID_ == 2 ? Vector3::RIGHT : Vector3::LEFT);
+        autoMove_ = Vector3::ZERO;
         autoFire_ = Vector3::ZERO;
     } break;
     case GS_PLAY: {
         //Decide which pickup to pick up
         if (health_ < (5.0f - appleCount_)
-                || flightScore_ == 0
-                || (heartCount_ != 0 && health_ <= 10.0f && weaponLevel_ > 13)
-                || (heartCount_ == 0 && appleCount_ == 0 && health_ < 10.0f)) {
+            || flightScore_ == 0
+            || (appleCount_ == 0 && health_ < 8.0f)
+            || (heartCount_ != 0 && health_ <= 10.0f && weaponLevel_ > 13)
+            || (weaponLevel_==23 && health_ <= 10.0f)) {
                 pickupPos = masterControl_->heart_->GetPosition();
         }
         else {
@@ -797,7 +799,7 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
         Vector3 newPickupPos{pickupPos};
         for (int i{0}; i < 6; ++i){
             Vector3 projectedPickupPos{pickupPos + (Quaternion(i * 60.0f, Vector3::UP) * Vector3::FORWARD * 46.0f)};
-            if (LucKey::Distance(GetPosition(), projectedPickupPos - rigidBody_->GetLinearVelocity()) < LucKey::Distance(GetPosition(), pickupPos))
+            if (LucKey::Distance(GetPosition(), projectedPickupPos - rigidBody_->GetLinearVelocity() * 0.42f) < LucKey::Distance(GetPosition(), pickupPos))
                 newPickupPos = projectedPickupPos;
         }
         pickupPos = newPickupPos;
@@ -811,11 +813,11 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
                                           - 0.05f * playerFactor * rigidBody_->GetLinearVelocity()
                                           - 0.1f * playerFactor * rootNode_->GetDirection()
                                           , Vector3(1.0f, 0.0f, 1.0f)).Normalized());
-        autoMove_ += Sniff(playerFactor);
-//        autoMove_ += Vector3(
-//                    masterControl_->Sine(playerFactor, -0.05f, 0.05f, playerFactor),
-//                    0.0f,
-//                    masterControl_->Sine(playerFactor, -0.05f, 0.05f, -playerFactor));
+        if (LucKey::Distance(pickupPos, GetPosition()) > playerFactor * 0.5f) autoMove_ += Sniff(playerFactor) * 5.0f;
+        autoMove_ += Vector3(
+                    masterControl_->Sine(playerFactor, -0.05f, 0.05f, playerFactor),
+                    0.0f,
+                    masterControl_->Sine(playerFactor, -0.05f, 0.05f, -playerFactor));
         //Pick firing target
         bool fire{false};
         Pair<float, Vector3> target{};
@@ -850,6 +852,7 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
             autoFire_ = Quaternion((playerID_==2?-1.0f:1.0f)*masterControl_->Sine(playerFactor, -playerFactor, playerFactor), Vector3::UP) * autoFire_;
         }
         else autoFire_ = Vector3::ZERO;
+        autoFire_ -= Sniff(playerFactor);
     } break;
     default: break;
     }
@@ -858,7 +861,7 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
     Vector3 Player::Sniff(float playerFactor)
     {
         Vector3 smell;
-        int whiskers = 23;
+        int whiskers = 13;
         for (int i = 0; i < whiskers; ++i){
             PODVector<PhysicsRaycastResult> hitResults{};
             Vector3 whiskerDirection = Quaternion((360.0f / whiskers) * i, Vector3::UP) * Vector3::FORWARD;
@@ -866,21 +869,19 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
             if (masterControl_->PhysicsRayCast(hitResults, whiskerRay, 5.0f, M_MAX_UNSIGNED)){
                 for (PhysicsRaycastResult r : hitResults){
                     StringHash nodeNameHash{r.body_->GetNode()->GetNameHash()};
-                    float distSquared = r.distance_ * r.distance_;
+                    float distSquared = (r.distance_+playerFactor) * (r.distance_+playerFactor);
                     if (nodeNameHash ==N_APPLE) {
-                        smell += (whiskerDirection / (distSquared + 1.0f)) * appleCount_;
+                        smell += 230.0f * (whiskerDirection / (distSquared)) * (appleCount_ - static_cast<float>(flightScore_ == 0));
                     } else if (nodeNameHash == N_HEART) {
-                        smell += (whiskerDirection / (distSquared + 1.0f)) * heartCount_;
+                        smell += 230.0f * (whiskerDirection / (distSquared)) * (heartCount_ - appleCount_);
                     } else if (nodeNameHash == N_CHAOMINE || nodeNameHash == N_CHAOBALL) {
-                        smell += 5.0f * whiskerDirection / (distSquared + 1.0f) * masterControl_->Sine(0.23f, -2.0f, 3.0f, playerFactor);
-                    } else if (nodeNameHash == N_PLAYER) {
-                        smell += whiskerDirection;
+                        smell += 666.0f * whiskerDirection / (distSquared * masterControl_->Sine(0.23f, -2.0f, 3.0f, playerFactor));
                     } else if (nodeNameHash == N_RAZOR) {
-                        smell -= 23.0f * (whiskerDirection / (distSquared + 1.0f));
+                        smell -= 340.0f * (whiskerDirection / (distSquared));
                     } else if (nodeNameHash == N_SPIRE) {
-                        smell -= 2.3f * (whiskerDirection / (distSquared + 0.23f));
+                        smell -= 230.0f * (whiskerDirection / (distSquared));
                     } else if (nodeNameHash == N_SEEKER) {
-                        smell -= 10.0f * (whiskerDirection / (distSquared + 3.0f));
+                        smell -= 420.0f * (whiskerDirection / (distSquared));
                     }
                 }
             }
