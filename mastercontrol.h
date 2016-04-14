@@ -178,6 +178,7 @@ public:
     void StartGame();
 
     void Eject();
+    bool NoHumans();
 private:
     Vector<double> sine_;
 

@@ -36,7 +36,7 @@
 Player::Player(Context *context, MasterControl *masterControl, int playerID):
     SceneObject(context, masterControl),
     playerID_{playerID},
-    autoPilot_{playerID_==2},
+    autoPilot_{true},//playerID_==2},
     autoMove_{Vector3::ZERO},
     autoFire_{Vector3::ZERO},
     alive_{true},
@@ -471,7 +471,7 @@ void Player::Pickup(PickupType pickup)
             appleCount_ = 0;
             PlaySample(powerup_s, 0.42f);
         }
-        else PlaySample(pickup_s, 0.23f);
+        else PlaySample(pickup_s, 0.34f);
     } break;
     case PT_HEART: {
         ++heartCount_;
@@ -483,7 +483,7 @@ void Player::Pickup(PickupType pickup)
         }
         else {
             SetHealth(Max(health_, Clamp(health_+5.0f, 0.0f, 10.0f)));
-            PlaySample(pickup_s, 0.23f);
+            PlaySample(pickup_s, 0.34f);
         }
     } break;
     case PT_MULTIX: {
@@ -713,7 +713,7 @@ void Player::CreateNewPilot()
     {
         switch (c){
         case 0:{
-            pilot_.colors_.Push(LucKey::RandomSkinColor());
+            pilot_.colors_.Push(autoPilot_? Color::GRAY : LucKey::RandomSkinColor());
         } break;
         case 4:{
             pilot_.colors_.Push(LucKey::RandomHairColor());
@@ -772,25 +772,28 @@ void Player::RemoveTails()
 //Updates autopilot input
 void Player::Think(StringHash eventType, VariantMap &eventData)
 {
-    float playerFactor{ playerID_==2 ? 3.4f : 2.3f };
+    float playerFactor{( playerID_==2 ? 3.4f : 2.3f )};
     Vector3 pickupPos{ Vector3::ZERO };
-
+    Vector3 smell{ Sniff(playerFactor) * playerFactor };
+    Vector3 taste{ Sniff(playerFactor, true) * playerFactor };
+    
     switch (masterControl_->GetGameState()){
     case GS_LOBBY: {
         //Enter play
-//        pickupPos = 4.2f * (playerID_==2 ? Vector3::RIGHT : Vector3::LEFT);
-//        autoMove_ = 2.0f * Vector3::BACK + (playerID_ == 2 ? Vector3::RIGHT : Vector3::LEFT);
-        autoMove_ = Vector3::ZERO;
+        if (masterControl_->NoHumans())
+            autoMove_ = 4.2f * (playerID_==2 ? Vector3::RIGHT : Vector3::LEFT) - GetPosition();
+        else autoMove_ = Vector3::ZERO;
         autoFire_ = Vector3::ZERO;
     } break;
     case GS_PLAY: {
         //Decide which pickup to pick up
         if (health_ < (5.0f - appleCount_)
-            || flightScore_ == 0
-            || (appleCount_ == 0 && health_ < 8.0f)
-            || (heartCount_ != 0 && health_ <= 10.0f && weaponLevel_ > 13)
-            || (weaponLevel_==23 && health_ <= 10.0f)) {
-                pickupPos = masterControl_->heart_->GetPosition();
+                || flightScore_ == 0
+                || (appleCount_ == 0 && health_ < 8.0f)
+                || (heartCount_ != 0 && health_ <= 10.0f && weaponLevel_ > 13)
+                || (weaponLevel_==23 && health_ <= 10.0f)
+                ||  heartCount_ == 4) {
+            pickupPos = masterControl_->heart_->GetPosition();
         }
         else {
             pickupPos = masterControl_->apple_->GetPosition();
@@ -805,7 +808,7 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
         pickupPos = newPickupPos;
         //Calculate move vector
         if (pickupPos.y_ < -10.0f || LucKey::Distance(
-                 GetPosition(), LucKey::Scale(pickupPos, Vector3(1.0f, 0.0f, 1.0f))) < playerFactor)
+                    GetPosition(), LucKey::Scale(pickupPos, Vector3(1.0f, 0.0f, 1.0f))) < playerFactor)
             pickupPos = GetPosition() + rootNode_->GetDirection() * playerFactor;
 
         autoMove_ = 0.5f * (autoMove_ +
@@ -813,7 +816,8 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
                                           - 0.05f * playerFactor * rigidBody_->GetLinearVelocity()
                                           - 0.1f * playerFactor * rootNode_->GetDirection()
                                           , Vector3(1.0f, 0.0f, 1.0f)).Normalized());
-        if (LucKey::Distance(pickupPos, GetPosition()) > playerFactor * 0.5f) autoMove_ += Sniff(playerFactor) * 5.0f;
+        if (LucKey::Distance(pickupPos, GetPosition()) > playerFactor)
+            autoMove_ += smell * 5.0f;
         autoMove_ += Vector3(
                     masterControl_->Sine(playerFactor, -0.05f, 0.05f, playerFactor),
                     0.0f,
@@ -834,7 +838,7 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
             }
         }
         for (SharedPtr<Spire> s : masterControl_->spawnMaster_->spires_.Values()){
-            if (s->IsEnabled() && s->IsEmerged()){
+            if (s->IsEnabled() && s->IsEmerged() && flightScore_ != 0){
                 float distance = LucKey::Distance(this->GetPosition(), s->GetPosition());
                 float panic = s->GetPanic();
                 float weight = (23.0f * panic) - (distance / playerFactor) + 32.0f;
@@ -852,39 +856,46 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
             autoFire_ = Quaternion((playerID_==2?-1.0f:1.0f)*masterControl_->Sine(playerFactor, -playerFactor, playerFactor), Vector3::UP) * autoFire_;
         }
         else autoFire_ = Vector3::ZERO;
-        autoFire_ -= Sniff(playerFactor);
+        autoFire_ -= LucKey::Scale(taste, LucKey::Scale(taste, taste));
     } break;
     default: break;
     }
 }
 
-    Vector3 Player::Sniff(float playerFactor)
-    {
-        Vector3 smell;
-        int whiskers = 13;
-        for (int i = 0; i < whiskers; ++i){
+Vector3 Player::Sniff(float playerFactor, bool taste)
+{
+    Vector3 smell;
+    int whiskers = 23;
+
+    //Smell across borders
+    for (int p{-1}; p < (taste ? 0 : 6); ++p){
+        Vector3 projectedPlayerPos{( (p != -1) ? GetPosition() + (Quaternion(p * 60.0f, Vector3::UP) * Vector3::FORWARD * 46.0f)
+                                               : GetPosition() )};
+        for (int w = 0; w < whiskers; ++w){
             PODVector<PhysicsRaycastResult> hitResults{};
-            Vector3 whiskerDirection = Quaternion((360.0f / whiskers) * i, Vector3::UP) * Vector3::FORWARD;
-            Ray whiskerRay{GetPosition(), whiskerDirection};
-            if (masterControl_->PhysicsRayCast(hitResults, whiskerRay, 5.0f, M_MAX_UNSIGNED)){
-                for (PhysicsRaycastResult r : hitResults){
+            Vector3 whiskerDirection = Quaternion((360.0f / whiskers) * w, Vector3::UP) * (2.0f * rootNode_->GetDirection() + 3.0f * autoMove_.Normalized());
+            Ray whiskerRay{projectedPlayerPos + Vector3::DOWN * Random(), whiskerDirection};
+            if (masterControl_->PhysicsRayCast(hitResults, whiskerRay, 2.0f * playerFactor, M_MAX_UNSIGNED)){
+                /*for (*/PhysicsRaycastResult r = hitResults[0];//){
                     StringHash nodeNameHash{r.body_->GetNode()->GetNameHash()};
-                    float distSquared = (r.distance_+playerFactor) * (r.distance_+playerFactor);
+                    float distSquared = playerFactor + (r.distance_ * r.distance_) / (0.01f * whiskerDirection.Angle(autoMove_) + playerFactor);
                     if (nodeNameHash ==N_APPLE) {
                         smell += 230.0f * (whiskerDirection / (distSquared)) * (appleCount_ - static_cast<float>(flightScore_ == 0));
                     } else if (nodeNameHash == N_HEART) {
-                        smell += 230.0f * (whiskerDirection / (distSquared)) * (heartCount_ - appleCount_);
+                        smell += 235.0f * (whiskerDirection / (distSquared)) * (heartCount_ - appleCount_);
                     } else if (nodeNameHash == N_CHAOMINE || nodeNameHash == N_CHAOBALL) {
-                        smell += 666.0f * whiskerDirection / (distSquared * masterControl_->Sine(0.23f, -2.0f, 3.0f, playerFactor));
+                        if (r.body_->GetNode()->GetComponent<RigidBody>()->GetLinearVelocity().Length() < 5.0f)
+                            smell += 666.0f * whiskerDirection / (distSquared * masterControl_->Sine(0.23f, -2.0f, 3.0f, playerFactor));
                     } else if (nodeNameHash == N_RAZOR) {
-                        smell -= 340.0f * (whiskerDirection / (distSquared));
+                        smell -= 320.0f * (whiskerDirection / (distSquared));
                     } else if (nodeNameHash == N_SPIRE) {
-                        smell -= 230.0f * (whiskerDirection / (distSquared));
-                    } else if (nodeNameHash == N_SEEKER) {
                         smell -= 420.0f * (whiskerDirection / (distSquared));
+                    } else if (nodeNameHash == N_SEEKER) {
+                        smell -= 880.0f * (whiskerDirection / r.distance_) * (3.0f - 2.0f * static_cast<float>(health_ > 10.0f));
                     }
                 }
-            }
+//            }
         }
         return smell / whiskers;
     }
+}

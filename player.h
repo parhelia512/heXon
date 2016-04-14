@@ -56,6 +56,7 @@ public:
     Vector3 GetWorldPosition() const { return rootNode_->GetWorldPosition(); }
     double GetHealth() const noexcept { return health_; }
     bool IsAlive() const noexcept { return alive_; }
+    bool IsHuman() const noexcept { return !autoPilot_; }
     void Hit(float damage, bool melee = true);
 
     void AddScore(int points);
@@ -147,7 +148,7 @@ private:
     void MoveMuzzle();
     void LoadPilot();
     void Think(StringHash eventType, VariantMap &eventData);
-    Vector3 Sniff(float playerFactor);
+    Vector3 Sniff(float playerFactor, bool taste = false);
 };
 
 #endif // PLAYER_H

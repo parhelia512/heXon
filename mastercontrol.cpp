@@ -170,6 +170,7 @@ void MasterControl::LoadResources()
 void MasterControl::CreateScene()
 {
     world.scene = new Scene(context_);
+//    world.scene->SetTimeScale(5.0f);
 
     world.octree = world.scene->CreateComponent<Octree>();
     physicsWorld_ = world.scene->CreateComponent<PhysicsWorld>();
@@ -445,6 +446,10 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
 //        musicSource_->SetGain(1.0f);
         lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) * Min(1.0f, sinceStateChange_));
     } break;
+    case GS_DEAD: {
+        if (sinceStateChange_ > 5.0f && NoHumans())
+            SetGameState(GS_LOBBY);
+    }
     default: break;
     }
 }
@@ -549,4 +554,9 @@ float MasterControl::Sine(const float freq, const float min, const float max, co
 Player* MasterControl::GetPlayer(int playerID)
 {
     return playerID == 1 ? player1_.Get() : player2_.Get();
+}
+
+bool MasterControl::NoHumans()
+{
+    return !GetPlayer(1)->IsHuman() && !GetPlayer(2)->IsHuman();
 }
