@@ -442,7 +442,7 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
         rightPointLight2_->SetBrightness(Sine(1.0f, 0.95, 1.23f, M_PI));
 
         if (!player1_->IsMoving() && !player2_->IsMoving()){
-            if (player1_->GetPosition().z_ > 5.23f && player2_->GetPosition().z_ > 5.23f)
+            if (player1_->GetPosition().z_ > 6.0f && player2_->GetPosition().z_ > 6.0f)
                 Exit();
         }
     }

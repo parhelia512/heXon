@@ -811,7 +811,7 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
         else if (otherPlayer->GetScore() == 0 && GetScore() != 0)
             //Reset Score
             autoMove_ = Vector3(playerID_==2 ? 2.26494f : -2.26494f, 0.0f, -3.91992f) - GetPosition();
-        else if (GetPosition().z_ < 5.23f && otherPlayer->GetPosition().z_ > 5.23f && !otherPlayer->IsMoving())
+        else if (GetPosition().z_ < 6.0f && otherPlayer->GetPosition().z_ > 6.0f && !otherPlayer->IsMoving())
             autoMove_ = Vector3::FORWARD;
         else autoMove_ = Vector3::ZERO;
         autoFire_ = Vector3::ZERO;
@@ -915,7 +915,7 @@ Vector3 Player::Sniff(float playerFactor, bool taste)
                     if (nodeNameHash ==N_APPLE) {
                         smell += 230.0f * (whiskerDirection / (distSquared)) * (appleCount_ - static_cast<float>(flightScore_ == 0));
                     } else if (nodeNameHash == N_HEART) {
-                        smell += 235.0f * (whiskerDirection / (distSquared)) * (heartCount_ - appleCount_);
+                        smell += 235.0f * (whiskerDirection / (distSquared)) * (heartCount_ * 2.0f - appleCount_ * 10.0f + (10.0f - health_));
                     } else if ((nodeNameHash == N_CHAOBALL) && !taste) {
                         if (r.body_->GetNode()->GetComponent<RigidBody>()->GetLinearVelocity().Length() < 5.0f)
                             smell += 666.0f * whiskerDirection / (distSquared * distSquared);
@@ -927,7 +927,7 @@ Vector3 Player::Sniff(float playerFactor, bool taste)
                     } else if (nodeNameHash == N_SPIRE) {
                         smell -= 3200.0f * (whiskerDirection / (distSquared * distSquared));
                     } else if (nodeNameHash == N_SEEKER && !taste) {
-                        smell -= 2350.0f * (whiskerDirection / r.distance_) * (3.0f - 2.0f * static_cast<float>(health_ > 10.0f));
+                        smell -= 1000.0f * (whiskerDirection / r.distance_) * (3.0f - 2.0f * static_cast<float>(health_ > 10.0f));
                         ++detected;
                     }
                     if (!taste){

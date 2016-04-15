@@ -31,6 +31,14 @@ Door::Door(Context* context, MasterControl* masterControl, bool right) :
     door_ = rootNode_->CreateComponent<AnimatedModel>();
     door_->SetModel(masterControl_->cache_->GetResource<Model>("Models/Door.mdl"));
     door_->SetMaterial(0, masterControl_->resources.materials.basic);
+    door_->SetCastShadows(true);
+
+    Node* lightNode = rootNode_->CreateChild("DoorLight");
+    lightNode->SetPosition(Vector3(0.0f, 0.666f, 2.3f));
+    Light* doorLight = lightNode->CreateComponent<Light>();
+    doorLight->SetBrightness(5.0f);
+    doorLight->SetCastShadows(true);
+    doorLight->SetShadowBias(BiasParameters(0.000023, 0.042f));
 
     doorSample_ = masterControl_->cache_->GetResource<Sound>("Samples/Door.ogg");
     doorSample_->SetLooped(false);
