@@ -65,7 +65,7 @@ void MasterControl::Setup()
 //    engineParameters_["VSync"] = true;
 //    engineParameters_["FullScreen"] = false;
 //    engineParameters_["Headless"] = true;
-//    engineParameters_["WindowWidth"] = 960;
+    engineParameters_["WindowWidth"] = 960;
 //    engineParameters_["WindowHeight"] = 900;
 //    engineParameters_["RenderPath"] = "RenderPaths/ForwardOutline.xml";
 }
@@ -170,7 +170,7 @@ void MasterControl::LoadResources()
 void MasterControl::CreateScene()
 {
     world.scene = new Scene(context_);
-//    world.scene->SetTimeScale(5.0f);
+    world.scene->SetTimeScale(1.23f);
 
     world.octree = world.scene->CreateComponent<Octree>();
     physicsWorld_ = world.scene->CreateComponent<PhysicsWorld>();
@@ -440,6 +440,11 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
         leftPointLight2_->SetBrightness(Sine(1.0f, 0.666, 0.95f, M_PI));
         rightPointLight1_->SetBrightness(Sine(1.0f, 0.95, 1.23f));
         rightPointLight2_->SetBrightness(Sine(1.0f, 0.95, 1.23f, M_PI));
+
+        if (!player1_->IsMoving() && !player2_->IsMoving()){
+            if (player1_->GetPosition().z_ > 5.23f && player2_->GetPosition().z_ > 5.23f)
+                Exit();
+        }
     }
         break;
     case GS_PLAY: {
@@ -506,32 +511,36 @@ void MasterControl::Exit()
 {
 
     //Save player1 pilot to file
-    std::ofstream fPilot1;
-    fPilot1.open("Resources/Pilot1.lkp");
-    fPilot1 << player1_->pilot_.male_ << '\n';
-    fPilot1 << player1_->pilot_.hairStyle_ << '\n';
-    for (Color c : player1_->pilot_.colors_){
-        fPilot1 << c.r_ << ' '
-                << c.g_ << ' '
-                << c.b_ << ' '
-                << '\n';
+    if (player1_->IsHuman()){
+        std::ofstream fPilot1;
+        fPilot1.open("Resources/Pilot1.lkp");
+        fPilot1 << player1_->pilot_.male_ << '\n';
+        fPilot1 << player1_->pilot_.hairStyle_ << '\n';
+        for (Color c : player1_->pilot_.colors_){
+            fPilot1 << c.r_ << ' '
+                    << c.g_ << ' '
+                    << c.b_ << ' '
+                    << '\n';
+        }
+        fPilot1 << player1_->GetScore();
     }
-    fPilot1 << player1_->GetScore();
 
     //Save player2 pilot to file
-    std::ofstream fPilot2;
-    fPilot2.open("Resources/Pilot2.lkp");
-    fPilot2 << player2_->pilot_.male_ << '\n';
-    fPilot2 << player2_->pilot_.hairStyle_ << '\n';
-    for (Color c : player1_->pilot_.colors_){
-        fPilot2 << c.r_ << ' '
-                << c.g_ << ' '
-                << c.b_ << ' '
-                << '\n';
+    if (player2_->IsHuman()){
+        std::ofstream fPilot2;
+        fPilot2.open("Resources/Pilot2.lkp");
+        fPilot2 << player2_->pilot_.male_ << '\n';
+        fPilot2 << player2_->pilot_.hairStyle_ << '\n';
+        for (Color c : player1_->pilot_.colors_){
+            fPilot2 << c.r_ << ' '
+                    << c.g_ << ' '
+                    << c.b_ << ' '
+                    << '\n';
+        }
+        fPilot2 << player2_->GetScore();
     }
-    fPilot2 << player2_->GetScore();
 
-    //And exit
+    //...and exit to the left
     engine_->Exit();
 }
 
@@ -551,9 +560,12 @@ float MasterControl::Sine(const float freq, const float min, const float max, co
     return Sine(phase) * 0.5f * (max - min) + add;
 }
 
-Player* MasterControl::GetPlayer(int playerID)
+Player* MasterControl::GetPlayer(int playerID, bool other) const
 {
-    return playerID == 1 ? player1_.Get() : player2_.Get();
+    if (!other)
+        return playerID == 1 ? player1_.Get() : player2_.Get();
+    else
+        return playerID != 1 ? player1_.Get() : player2_.Get();
 }
 
 bool MasterControl::NoHumans()

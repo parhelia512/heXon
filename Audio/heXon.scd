@@ -144,3 +144,18 @@ play{
     )
 }
 )
+
+//Lines
+(
+{
+	var ampEnv = Env(
+		levels: [0,0.9, 0.6,0],
+		times:[0.013, 0.01, 0.1],
+		curve: 1);
+	var freqEnv = Env(
+		levels: [100, 666,235],
+		times:[0.23],
+		curve:1);
+	Pulse.ar(EnvGen.kr(freqEnv) * MouseX.kr(0.5, 5, [2.3,3.2]), SinOsc.ar(MouseY.kr([2,3], 42)) * MouseY.kr(0.23, 0.88), EnvGen.kr(ampEnv))
+}.play();
+)

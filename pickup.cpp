@@ -84,6 +84,7 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
             case PT_APPLE: case PT_HEART: Respawn(); break;
             default: break;
             }
+            return;
         }
     }
 }

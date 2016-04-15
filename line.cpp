@@ -33,8 +33,8 @@ void Line::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
     float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
 
-    if ((!rootNode_->GetComponent<StaticModel>()->IsInView() && rootNode_->GetPosition().y_ > 5.0f)
-            || rootNode_->GetScale().x_ <= 0.0f)
+    if (((!rootNode_->GetComponent<StaticModel>()->IsInView() && rootNode_->GetPosition().y_ > 5.0f)
+            || rootNode_->GetScale().x_ <= 0.0f))
         Disable();
 
     rootNode_->Translate(Vector3::UP * timeStep * (42.23f + baseScale_ * 23.5f), TS_WORLD);

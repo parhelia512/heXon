@@ -164,7 +164,7 @@ public:
     float Cosine(float x) { return Sine(x+(0.5f*M_PI)); }
     float Cosine(float freq, float min, float max, float shift = 0.0f){ return Sine(freq, min, max, shift+0.5f*M_PI); }
 
-    Player* GetPlayer(int playerID);
+    Player* GetPlayer(int playerID, bool other = false) const;
     float SinceLastReset() const { return world.scene->GetElapsedTime() - world.lastReset; }
     void SetGameState(GameState newState);
     GameState GetGameState(){ return currentState_; }
@@ -172,6 +172,8 @@ public:
     void SetPaused(bool paused) { paused_ = paused; world.scene->SetUpdateEnabled(!paused);}
     void Pause() { SetPaused(true);}
     void Unpause() { SetPaused(false); }
+    float GetSinceStateChange() const noexcept { return sinceStateChange_; }
+
     bool editMode_;
     bool PhysicsRayCast(PODVector<PhysicsRaycastResult> &hitResults, Urho3D::Ray ray, float distance, unsigned collisionMask);
     bool PhysicsSphereCast(PODVector<RigidBody*> &hitResults, Vector3 center, float radius, unsigned collisionMask);

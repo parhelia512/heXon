@@ -57,6 +57,7 @@ public:
     double GetHealth() const noexcept { return health_; }
     bool IsAlive() const noexcept { return alive_; }
     bool IsHuman() const noexcept { return !autoPilot_; }
+    bool IsMoving() const { return rigidBody_->GetLinearVelocity().Length() > 0.01f; }
     void Hit(float damage, bool melee = true);
 
     void AddScore(int points);
@@ -149,6 +150,7 @@ private:
     void LoadPilot();
     void Think(StringHash eventType, VariantMap &eventData);
     Vector3 Sniff(float playerFactor, bool taste = false);
+    void CountScore();
 };
 
 #endif // PLAYER_H

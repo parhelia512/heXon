@@ -36,7 +36,8 @@
 Player::Player(Context *context, MasterControl *masterControl, int playerID):
     SceneObject(context, masterControl),
     playerID_{playerID},
-    autoPilot_{true},//playerID_==2},
+    autoPilot_{playerID_==2 && !GetSubsystem<Input>()->GetJoystickByIndex(playerID-1)},
+//    autoPilot_{true},
     autoMove_{Vector3::ZERO},
     autoFire_{Vector3::ZERO},
     alive_{true},
@@ -243,16 +244,21 @@ void Player::KillPilot()
     EnterLobby();
 }
 
-void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
+void Player::CountScore()
 {
-    //Count the score
-    int threshold = 2048;
+    int threshold = 1024;
     int lines = masterControl_->spawnMaster_->CountActiveLines();
     while (toCount_ > 0 && lines < threshold){
         masterControl_->spawnMaster_->SpawnLine(playerID_);
         --toCount_;
         ++lines;
     }
+}
+
+void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
+{
+    //Count the score
+    CountScore();
 
     //Take the frame time step, which is stored as a double
     float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
@@ -312,6 +318,11 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
     if (fire.Length() < 0.1f) fire *= 0.0f;
     else fire.Normalize();
+
+    //Flatten input
+    Vector3 xzPlane{Vector3::ONE - Vector3::UP};
+    LucKey::Scale(move, xzPlane);
+    LucKey::Scale(fire, xzPlane);
 
     //When in pilot mode
     if (pilotMode_){
@@ -622,40 +633,42 @@ void Player::UpgradeWeapons()
 
 void Player::LoadPilot()
 {
-    using namespace std;
-    ifstream fPilot("Resources/Pilot"+to_string(playerID_)+".lkp");
-    while (!fPilot.eof()){
-        string gender_str;
-        string hairStyle_str;
-        string color1_r_str, color1_g_str, color1_b_str;
-        string color2_r_str, color2_g_str, color2_b_str;
-        string color3_r_str, color3_g_str, color3_b_str;
-        string color4_r_str, color4_g_str, color4_b_str;
-        string color5_r_str, color5_g_str, color5_b_str;
-        string score_str;
+    if (IsHuman()){
+        using namespace std;
+        ifstream fPilot("Resources/Pilot"+to_string(playerID_)+".lkp");
+        while (!fPilot.eof()){
+            string gender_str;
+            string hairStyle_str;
+            string color1_r_str, color1_g_str, color1_b_str;
+            string color2_r_str, color2_g_str, color2_b_str;
+            string color3_r_str, color3_g_str, color3_b_str;
+            string color4_r_str, color4_g_str, color4_b_str;
+            string color5_r_str, color5_g_str, color5_b_str;
+            string score_str;
 
-        fPilot >> gender_str;
-        if (gender_str.empty()) break;
-        fPilot >>
-                hairStyle_str >>
-                color1_r_str >> color1_g_str >> color1_b_str >>
-                color2_r_str >> color2_g_str >> color2_b_str >>
-                color3_r_str >> color3_g_str >> color3_b_str >>
-                color4_r_str >> color4_g_str >> color4_b_str >>
-                color5_r_str >> color5_g_str >> color5_b_str >>
-                score_str;
+            fPilot >> gender_str;
+            if (gender_str.empty()) break;
+            fPilot >>
+                    hairStyle_str >>
+                    color1_r_str >> color1_g_str >> color1_b_str >>
+                    color2_r_str >> color2_g_str >> color2_b_str >>
+                    color3_r_str >> color3_g_str >> color3_b_str >>
+                    color4_r_str >> color4_g_str >> color4_b_str >>
+                    color5_r_str >> color5_g_str >> color5_b_str >>
+                    score_str;
 
-        pilot_.male_ = stoi(gender_str);
-        pilot_.hairStyle_ = stoi(hairStyle_str);
-        pilot_.colors_.Clear();
-        pilot_.colors_.Push(Color(stof(color1_r_str),stof(color1_g_str),stof(color1_b_str)));
-        pilot_.colors_.Push(Color(stof(color2_r_str),stof(color2_g_str),stof(color2_b_str)));
-        pilot_.colors_.Push(Color(stof(color3_r_str),stof(color3_g_str),stof(color3_b_str)));
-        pilot_.colors_.Push(Color(stof(color4_r_str),stof(color4_g_str),stof(color4_b_str)));
-        pilot_.colors_.Push(Color(stof(color5_r_str),stof(color5_g_str),stof(color5_b_str)));
+            pilot_.male_ = stoi(gender_str);
+            pilot_.hairStyle_ = stoi(hairStyle_str);
+            pilot_.colors_.Clear();
+            pilot_.colors_.Push(Color(stof(color1_r_str),stof(color1_g_str),stof(color1_b_str)));
+            pilot_.colors_.Push(Color(stof(color2_r_str),stof(color2_g_str),stof(color2_b_str)));
+            pilot_.colors_.Push(Color(stof(color3_r_str),stof(color3_g_str),stof(color3_b_str)));
+            pilot_.colors_.Push(Color(stof(color4_r_str),stof(color4_g_str),stof(color4_b_str)));
+            pilot_.colors_.Push(Color(stof(color5_r_str),stof(color5_g_str),stof(color5_b_str)));
 
-        unsigned long score = stoul(score_str, 0, 10);
-        SetScore(score);
+            unsigned long score = stoul(score_str, 0, 10);
+            SetScore(score);
+        }
     }
     if (!pilot_.colors_.Size()) {
         CreateNewPilot();
@@ -773,15 +786,33 @@ void Player::RemoveTails()
 void Player::Think(StringHash eventType, VariantMap &eventData)
 {
     float playerFactor{( playerID_==2 ? 3.4f : 2.3f )};
+    if (masterControl_->GetSinceStateChange() < playerFactor * 0.1f){
+        autoMove_ = Vector3::ZERO;
+        return;
+    }
+
     Vector3 pickupPos{ Vector3::ZERO };
     Vector3 smell{ Sniff(playerFactor) * playerFactor };
     Vector3 taste{ Sniff(playerFactor, true) * playerFactor };
+
+    Player* otherPlayer{masterControl_->GetPlayer(playerID_, true)};
     
     switch (masterControl_->GetGameState()){
     case GS_LOBBY: {
-        //Enter play
-        if (masterControl_->NoHumans())
-            autoMove_ = 4.2f * (playerID_==2 ? Vector3::RIGHT : Vector3::LEFT) - GetPosition();
+        if (masterControl_->NoHumans()){
+            //Enter play
+            if (GetScore() == 0 && masterControl_->GetPlayer(playerID_, true)->GetScore() == 0) {
+                autoMove_ = 4.2f * (playerID_==2 ? Vector3::RIGHT : Vector3::LEFT) - GetPosition();
+            //Reset Score
+            } else if (GetScore() != 0)
+                autoMove_ = Vector3(playerID_==2 ? 2.26494f : -2.26494f, 0.0f, -3.91992f) - GetPosition();
+            else autoMove_ = Vector3::ZERO;
+        }
+        else if (otherPlayer->GetScore() == 0 && GetScore() != 0)
+            //Reset Score
+            autoMove_ = Vector3(playerID_==2 ? 2.26494f : -2.26494f, 0.0f, -3.91992f) - GetPosition();
+        else if (GetPosition().z_ < 5.23f && otherPlayer->GetPosition().z_ > 5.23f && !otherPlayer->IsMoving())
+            autoMove_ = Vector3::FORWARD;
         else autoMove_ = Vector3::ZERO;
         autoFire_ = Vector3::ZERO;
     } break;
@@ -817,7 +848,7 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
                                           - 0.1f * playerFactor * rootNode_->GetDirection()
                                           , Vector3(1.0f, 0.0f, 1.0f)).Normalized());
         if (LucKey::Distance(pickupPos, GetPosition()) > playerFactor)
-            autoMove_ += smell * 5.0f;
+            autoMove_ += smell * 13.0f;
         autoMove_ += Vector3(
                     masterControl_->Sine(playerFactor, -0.05f, 0.05f, playerFactor),
                     0.0f,
@@ -826,7 +857,7 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
         bool fire{false};
         Pair<float, Vector3> target{};
         for (SharedPtr<Razor> r : masterControl_->spawnMaster_->razors_.Values()){
-            if (r->IsEnabled() && r->IsEmerged()){
+            if (r->IsEnabled() && r->GetPosition().y_ > (-playerFactor * 0.1f)){
                 float distance = LucKey::Distance(this->GetPosition(), r->GetPosition());
                 float panic = r->GetPanic();
                 float weight = (5.0f * panic) - (distance / playerFactor) + 42.0f;
@@ -838,7 +869,7 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
             }
         }
         for (SharedPtr<Spire> s : masterControl_->spawnMaster_->spires_.Values()){
-            if (s->IsEnabled() && s->IsEmerged() && flightScore_ != 0){
+            if (s->IsEnabled() && s->GetPosition().y_ > (-playerFactor * 0.23f) && flightScore_ != 0){
                 float distance = LucKey::Distance(this->GetPosition(), s->GetPosition());
                 float panic = s->GetPanic();
                 float weight = (23.0f * panic) - (distance / playerFactor) + 32.0f;
@@ -856,7 +887,7 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
             autoFire_ = Quaternion((playerID_==2?-1.0f:1.0f)*masterControl_->Sine(playerFactor, -playerFactor, playerFactor), Vector3::UP) * autoFire_;
         }
         else autoFire_ = Vector3::ZERO;
-        autoFire_ -= LucKey::Scale(taste, LucKey::Scale(taste, taste));
+        autoFire_ -= taste;
     } break;
     default: break;
     }
@@ -865,7 +896,8 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
 Vector3 Player::Sniff(float playerFactor, bool taste)
 {
     Vector3 smell;
-    int whiskers = 23;
+    int whiskers{42};
+    int detected{0};
 
     //Smell across borders
     for (int p{-1}; p < (taste ? 0 : 6); ++p){
@@ -874,28 +906,48 @@ Vector3 Player::Sniff(float playerFactor, bool taste)
         for (int w = 0; w < whiskers; ++w){
             PODVector<PhysicsRaycastResult> hitResults{};
             Vector3 whiskerDirection = Quaternion((360.0f / whiskers) * w, Vector3::UP) * (2.0f * rootNode_->GetDirection() + 3.0f * autoMove_.Normalized());
-            Ray whiskerRay{projectedPlayerPos + Vector3::DOWN * Random(), whiskerDirection};
-            if (masterControl_->PhysicsRayCast(hitResults, whiskerRay, 2.0f * playerFactor, M_MAX_UNSIGNED)){
+            Ray whiskerRay{projectedPlayerPos + Vector3::DOWN * Random(0.666f), whiskerDirection};
+            if (masterControl_->PhysicsRayCast(hitResults, whiskerRay, playerFactor * playerFactor, M_MAX_UNSIGNED)){
+                ++detected;
                 /*for (*/PhysicsRaycastResult r = hitResults[0];//){
                     StringHash nodeNameHash{r.body_->GetNode()->GetNameHash()};
-                    float distSquared = playerFactor + (r.distance_ * r.distance_) / (0.01f * whiskerDirection.Angle(autoMove_) + playerFactor);
+                    float distSquared = (r.distance_ * r.distance_) * (0.005f * whiskerDirection.Angle(autoMove_) + playerFactor * playerFactor);
                     if (nodeNameHash ==N_APPLE) {
                         smell += 230.0f * (whiskerDirection / (distSquared)) * (appleCount_ - static_cast<float>(flightScore_ == 0));
                     } else if (nodeNameHash == N_HEART) {
                         smell += 235.0f * (whiskerDirection / (distSquared)) * (heartCount_ - appleCount_);
-                    } else if (nodeNameHash == N_CHAOMINE || nodeNameHash == N_CHAOBALL) {
+                    } else if ((nodeNameHash == N_CHAOBALL) && !taste) {
                         if (r.body_->GetNode()->GetComponent<RigidBody>()->GetLinearVelocity().Length() < 5.0f)
-                            smell += 666.0f * whiskerDirection / (distSquared * masterControl_->Sine(0.23f, -2.0f, 3.0f, playerFactor));
+                            smell += 666.0f * whiskerDirection / (distSquared * distSquared);
+                    } else if ((nodeNameHash == N_CHAOMINE) && !taste) {
+                        if (r.body_->GetNode()->GetComponent<RigidBody>()->GetLinearVelocity().Length() < 5.0f)
+                            smell += 9000.0f * whiskerDirection / (distSquared * distSquared * Random(5.0f));
                     } else if (nodeNameHash == N_RAZOR) {
                         smell -= 320.0f * (whiskerDirection / (distSquared));
                     } else if (nodeNameHash == N_SPIRE) {
-                        smell -= 420.0f * (whiskerDirection / (distSquared));
-                    } else if (nodeNameHash == N_SEEKER) {
-                        smell -= 880.0f * (whiskerDirection / r.distance_) * (3.0f - 2.0f * static_cast<float>(health_ > 10.0f));
+                        smell -= 3200.0f * (whiskerDirection / (distSquared * distSquared));
+                    } else if (nodeNameHash == N_SEEKER && !taste) {
+                        smell -= 2350.0f * (whiskerDirection / r.distance_) * (3.0f - 2.0f * static_cast<float>(health_ > 10.0f));
+                        ++detected;
+                    }
+                    if (!taste){
+                        if (nodeNameHash != N_APPLE && nodeNameHash != N_HEART
+                                && nodeNameHash != N_CHAOBALL && nodeNameHash != N_CHAOMINE
+                                && nodeNameHash != StringHash("PickupTrigger"))
+                            smell += 0.005f * whiskerDirection * r.distance_;
+                        else smell += 0.005f * whiskerDirection * playerFactor * playerFactor;
                     }
                 }
+            else if (!taste) smell += 0.005f * whiskerDirection * playerFactor * playerFactor;
 //            }
         }
-        return smell / whiskers;
     }
+    //Rely more on scent in crowded spaces
+    if (!taste){
+        float scentEffect{0.23f * static_cast<float>(detected) / whiskers};
+        autoMove_ *= 1.0f - scentEffect;
+        autoMove_ -= 0.5f * scentEffect * rigidBody_->GetLinearVelocity();
+        smell *= 1.0f + (0.5f * scentEffect);
+    }
+    return smell / whiskers;
 }
