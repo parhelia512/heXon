@@ -43,7 +43,7 @@ class Bullet : public SceneObject
     friend class SpawnMaster;
     URHO3D_OBJECT(Bullet, SceneObject);
 public:
-    Bullet(Context *context, MasterControl* masterControl, int playerID);
+    Bullet(MasterControl* masterControl, int playerID);
     void Set(const Vector3 position);
     int GetPlayerID() const noexcept { return playerID_; }
 protected:

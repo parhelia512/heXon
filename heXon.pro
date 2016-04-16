@@ -45,7 +45,8 @@ SOURCES += \
     splatterpillar.cpp \
     TailGenerator.cpp \
     tile.cpp \
-    tilemaster.cpp
+    tilemaster.cpp \
+    remnants.cpp
 
 HEADERS += \
     apple.h \
@@ -79,7 +80,8 @@ HEADERS += \
     splatterpillar.h \
     TailGenerator.h \
     tile.h \
-    tilemaster.h
+    tilemaster.h \
+    remnants.h
 
 OTHER_FILES += \
     Docs/Todo.md \

@@ -21,8 +21,8 @@
 #include "player.h"
 #include "spawnmaster.h"
 
-ChaoFlash::ChaoFlash(Context *context, MasterControl *masterControl, int playerID):
-    SceneObject(context, masterControl),
+ChaoFlash::ChaoFlash(MasterControl *masterControl, int playerID):
+    SceneObject(masterControl),
     playerID_{playerID},
     age_{0.0f}
 {

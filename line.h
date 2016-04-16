@@ -26,7 +26,7 @@ class Line : public Object
 {
     URHO3D_OBJECT(Line, Object);
 public:
-    Line(Context* context, MasterControl *masterControl);
+    Line(MasterControl *masterControl);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void Set(const Vector3 position, int playerID);
     void Disable();

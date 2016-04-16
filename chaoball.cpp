@@ -20,8 +20,8 @@
 
 #include "spawnmaster.h"
 
-ChaoBall::ChaoBall(Context *context, MasterControl *masterControl):
-    Pickup(context, masterControl)
+ChaoBall::ChaoBall(MasterControl *masterControl):
+    Pickup(masterControl)
 {
     rootNode_->SetName("ChaoBall");
     pickupType_ = PT_CHAOBALL;

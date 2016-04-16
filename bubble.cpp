@@ -18,8 +18,8 @@
 
 #include "bubble.h"
 
-Bubble::Bubble(Context *context, MasterControl *masterControl):
-    Object(context),
+Bubble::Bubble(MasterControl *masterControl):
+    Object(masterControl->GetContext()),
     masterControl_{masterControl},
     spinAxis_{Vector3(Random(), Random(), Random()).Normalized()},
     spinVelocity_{LucKey::RandomSign() * Random(23.0f, 42.0f)},

@@ -18,8 +18,8 @@
 
 #include "line.h"
 
-Line::Line(Context* context, MasterControl *masterControl) :
-    Object(context),
+Line::Line(MasterControl *masterControl) :
+    Object(masterControl->GetContext()),
     masterControl_{masterControl},
     baseScale_{Random(1.0f, 2.3f)}
 {

@@ -27,7 +27,7 @@ class MultiX : public Pickup
 {
     URHO3D_OBJECT(MultiX, Pickup);
 public:
-    MultiX(Context* context, MasterControl* masterControl);
+    MultiX(MasterControl* masterControl);
 };
 
 #endif // MULTIX_H

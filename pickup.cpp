@@ -22,8 +22,8 @@
 #include "spawnmaster.h"
 #include "player.h"
 
-Pickup::Pickup(Context *context, MasterControl *masterControl):
-    SceneObject(context, masterControl),
+Pickup::Pickup(MasterControl *masterControl):
+    SceneObject(masterControl),
     sinceLastPickup_{0.0f},
     chaoInterval_{Random(23.0f, 100.0f)}
 {

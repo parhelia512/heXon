@@ -18,8 +18,8 @@
 
 #include "hitfx.h"
 
-HitFX::HitFX(Context *context, MasterControl *masterControl):
-    Effect(context, masterControl)
+HitFX::HitFX(MasterControl *masterControl):
+    Effect(masterControl)
 {
     rootNode_->SetName("HitFX");
     particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();

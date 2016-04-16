@@ -29,7 +29,7 @@ class Effect : public SceneObject
 {
     URHO3D_OBJECT(Effect, SceneObject);
 public:
-    Effect(Context* context, MasterControl* masterControl);
+    Effect(MasterControl* masterControl);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void Set(const Vector3 position);
     void Disable();

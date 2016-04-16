@@ -35,10 +35,11 @@ class SceneObject : public Object
     friend class Door;
     URHO3D_OBJECT(SceneObject, Object);
 public:
-    SceneObject(Context *context, MasterControl* masterControl);
+    SceneObject(MasterControl* masterControl);
     void Set(const Vector3 position);
     void Disable();
 
+    Node* GetRootNode() const { return rootNode_.Get(); }
     Vector3 GetPosition() const { return rootNode_->GetPosition(); }
     bool IsEmerged() const { return GetPosition().y_ > -0.1f; }
     bool IsEnabled() const { return rootNode_->IsEnabled(); }

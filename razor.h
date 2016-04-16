@@ -27,7 +27,7 @@ class Razor : public Enemy
 {
     URHO3D_OBJECT(Razor, Enemy);
 public:
-    Razor(Context* context, MasterControl* masterControl);
+    Razor(MasterControl* masterControl);
     void Hit(float damage, int ownerID);
     void Set(Vector3 position);
 protected:

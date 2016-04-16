@@ -36,7 +36,7 @@ class ChaoBall : public Pickup
 {
     URHO3D_OBJECT(ChaoBall, Pickup);
 public:
-    ChaoBall(Context* context, MasterControl* masterControl);
+    ChaoBall(MasterControl* masterControl);
 };
 
 #endif // CHAOBALL_H

@@ -31,7 +31,7 @@ class Seeker : public SceneObject
     friend class ChaoZap;
     URHO3D_OBJECT(Seeker, SceneObject);
 public:
-    Seeker(Context* context, MasterControl* masterControl);
+    Seeker(MasterControl* masterControl);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void HandleTriggerStart(StringHash eventType, VariantMap &eventData);
     void Set(Vector3 position);

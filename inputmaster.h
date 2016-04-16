@@ -50,7 +50,7 @@ class InputMaster : public Object
 {
     URHO3D_OBJECT(InputMaster, Object);
 public:
-    InputMaster(Context* context, MasterControl* masterControl);
+    InputMaster(MasterControl* masterControl);
 
     void Init();
 

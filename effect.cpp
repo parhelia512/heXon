@@ -18,8 +18,8 @@
 
 #include "effect.h"
 
-Effect::Effect(Context *context, MasterControl *masterControl):
-    SceneObject(context, masterControl),
+Effect::Effect(MasterControl *masterControl):
+    SceneObject(masterControl),
     age_{0.0f},
     emitTime_{0.1f}
 {
@@ -31,10 +31,10 @@ Effect::Effect(Context *context, MasterControl *masterControl):
 
 void Effect::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
+    float timeStep{eventData[Update::P_TIMESTEP].GetFloat()};
     age_ += timeStep;
 
-    ParticleEffect* effect = particleEmitter_->GetEffect();
+    ParticleEffect* effect{particleEmitter_->GetEffect()};
     if (effect){
         if (age_ > emitTime_ + effect->GetMaxTimeToLive()){
             Disable();

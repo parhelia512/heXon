@@ -33,8 +33,8 @@
 #include "heart.h"
 #include "apple.h"
 
-Player::Player(Context *context, MasterControl *masterControl, int playerID):
-    SceneObject(context, masterControl),
+Player::Player(MasterControl *masterControl, int playerID):
+    SceneObject(masterControl),
     playerID_{playerID},
     autoPilot_{playerID_==2 && !GetSubsystem<Input>()->GetJoystickByIndex(playerID-1)},
 //    autoPilot_{true},
@@ -79,7 +79,7 @@ Player::Player(Context *context, MasterControl *masterControl, int playerID):
     shieldModel_->SetMaterial(shieldMaterial_);
     
     //Setup ChaoFlash
-    chaoFlash_ = new ChaoFlash(context_, masterControl_, playerID_);
+    chaoFlash_ = new ChaoFlash(masterControl_, playerID_);
 
     //Setup player audio
     shot_s = masterControl_->cache_->GetResource<Sound>("Samples/Shot.ogg");
@@ -130,7 +130,7 @@ Player::Player(Context *context, MasterControl *masterControl, int playerID):
     if (autoPilot_) SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Player, Think));
 
     for (int b = 0; b < 64; b++){
-        Bullet* bullet = new Bullet(context_, masterControl_, playerID_);
+        Bullet* bullet = new Bullet(masterControl_, playerID_);
         bullets_.Push(SharedPtr<Bullet>(bullet));
     }
 }
@@ -450,7 +450,7 @@ void Player::FireBullet(Vector3 direction){
         }
     }
     if (bullet == nullptr){
-        bullet = new Bullet(context_, masterControl_, playerID_);
+        bullet = new Bullet(masterControl_, playerID_);
         bullets_.Push(bullet);
     }
     bullet->Set(rootNode_->GetPosition() + direction + Vector3::DOWN*0.42f);
@@ -461,7 +461,7 @@ void Player::FireBullet(Vector3 direction){
 void Player::MoveMuzzle()
 {
     if (muzzle_ == nullptr)
-        muzzle_ = new Muzzle(context_, masterControl_, playerID_);
+        muzzle_ = new Muzzle(masterControl_, playerID_);
     muzzle_->Set(rootNode_->GetPosition() + Vector3::DOWN * 0.42f);
 }
 

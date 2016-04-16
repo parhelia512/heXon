@@ -18,8 +18,8 @@
 
 #include "bullet.h"
 
-Bullet::Bullet(Context *context, MasterControl *masterControl, int playerID):
-    SceneObject(context, masterControl),
+Bullet::Bullet(MasterControl *masterControl, int playerID):
+    SceneObject(masterControl),
     playerID_{playerID},
     lifeTime_{1.0f},
     damage_{0.0f}

@@ -21,6 +21,7 @@
 #include "mastercontrol.h"
 #include "tile.h"
 
+//Makes IntVector2 available as HashMap key
 namespace Urho3D {
 template <> unsigned MakeHash(const IntVector2& value)
   {
@@ -28,11 +29,11 @@ template <> unsigned MakeHash(const IntVector2& value)
   }
 }
 
-TileMaster::TileMaster(Context *context, MasterControl* masterControl):
-Object(context),
-  masterControl_{masterControl},
-  targetPosition_{Vector3::UP * 0.666f},
-  targetScale_{Vector3::ONE * 0.05f}
+TileMaster::TileMaster(MasterControl* masterControl):
+    Object(masterControl->GetContext()),
+    masterControl_{masterControl},
+    targetPosition_{Vector3::UP * 0.666f},
+    targetScale_{Vector3::ONE * 0.05f}
 {
     rootNode_ = masterControl_->world.scene->CreateChild("TileMaster");
     rootNode_->SetPosition(targetPosition_);
@@ -48,7 +49,7 @@ Object(context),
                     i + 1 < (bigHexSize - bigHexSize / 4) + ((bigHexSize - j + 1)) / 2 &&   //Exclude top right
                     i - 1 > (bigHexSize / 4) - ((bigHexSize - j + 2) / 2)) {                //Exclude top left
                 Vector3 tilePos = Vector3((-bigHexSize / 2.0f + i) * 2.0f + j % 2, -0.1f, (-bigHexSize / 2.0f + j + 0.5f) * 1.8f);
-                tileMap_[IntVector2(i, j)] = new Tile(context_, this, tilePos);
+                tileMap_[IntVector2(i, j)] = new Tile(this, tilePos);
             }
         }
     }

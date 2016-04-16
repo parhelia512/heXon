@@ -18,8 +18,8 @@
 
 #include "flash.h"
 
-Flash::Flash(Context *context, MasterControl *masterControl):
-    Effect(context, masterControl),
+Flash::Flash(MasterControl *masterControl):
+    Effect(masterControl),
     initialBrightness_{2.0f}
 {  
     rootNode_->SetName("Flash");

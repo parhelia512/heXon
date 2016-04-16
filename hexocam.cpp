@@ -18,8 +18,8 @@
 
 #include "hexocam.h"
 
-heXoCam::heXoCam(Context *context, MasterControl *masterControl):
-    Object(context),
+heXoCam::heXoCam(MasterControl *masterControl):
+    Object(masterControl->GetContext()),
     yaw_{0.0f},
     pitch_{0.0f},
     yawDelta_{0.0f},
@@ -63,7 +63,7 @@ void heXoCam::SetupViewport()
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     Renderer* renderer = GetSubsystem<Renderer>();
 
-    SharedPtr<Viewport> viewport(new Viewport(context_, masterControl_->world.scene, camera_));
+    SharedPtr<Viewport> viewport{new Viewport(masterControl_->GetContext(), masterControl_->world.scene, camera_)};
     viewport_ = viewport;
 
     //Add anti-asliasing, bloom and a greyscale effects

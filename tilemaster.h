@@ -41,7 +41,7 @@ class TileMaster : public Object
     friend class MasterControl;
     friend class Tile;
 public:
-    TileMaster(Context *context, MasterControl* masterControl);
+    TileMaster(MasterControl* masterControl);
 
     MasterControl* masterControl_;
     Node* rootNode_;

@@ -29,7 +29,7 @@ class Door : public Object
 {
     URHO3D_OBJECT(Door, Object);
 public:
-    Door(Context* context, MasterControl* masterControl, bool right);
+    Door(MasterControl* masterControl, bool right);
     bool IsClosed() const { return door_->GetMorphWeight(0) < 0.023f; }
 private:
     MasterControl* masterControl_;

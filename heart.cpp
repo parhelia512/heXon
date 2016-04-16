@@ -18,8 +18,8 @@
 
 #include "heart.h"
 
-Heart::Heart(Context *context, MasterControl *masterControl):
-    Pickup(context, masterControl)
+Heart::Heart(MasterControl *masterControl):
+    Pickup(masterControl)
 {
     rootNode_->SetName("Heart");
     pickupType_ = PT_HEART;

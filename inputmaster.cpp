@@ -20,10 +20,11 @@
 
 #include "player.h"
 
-InputMaster::InputMaster(Context* context, MasterControl* masterControl) : Object(context)
+InputMaster::InputMaster(MasterControl* masterControl):
+    Object(masterControl->GetContext()),
+    masterControl_{masterControl},
+    input_{GetSubsystem<Input>()}
 {
-    masterControl_ = masterControl;
-    input_ = GetSubsystem<Input>();
     SubscribeToEvents();
 }
 

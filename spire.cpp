@@ -23,8 +23,8 @@
 #include "seeker.h"
 #include "spawnmaster.h"
 
-Spire::Spire(Context *context, MasterControl *masterControl):
-    Enemy(context, masterControl),
+Spire::Spire(MasterControl *masterControl):
+    Enemy(masterControl),
     initialShotInterval_{5.0f},
     shotInterval_{initialShotInterval_},
     sinceLastShot_{0.0f}

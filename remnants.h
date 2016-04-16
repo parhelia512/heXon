@@ -16,43 +16,19 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef TILE_H
-#define TILE_H
+#ifndef REMNANTS_H
+#define REMNANTS_H
 
 #include <Urho3D/Urho3D.h>
 
-#include "tilemaster.h"
+#include "effect.h"
 
-namespace Urho3D {
-class Node;
-}
-
-class Tile : public Object
+class Remnants : public Effect
 {
-    URHO3D_OBJECT(Tile, Object);
-    friend class TileMaster;
-    friend class InputMaster;
-    friend class SpawnMaster;
+    URHO3D_OBJECT(Remnants, Effect);
 public:
-    IntVector2 coords_;
-    TileType tileType_;
-    Tile(TileMaster* tileMaster, Vector3 position);
-private:
-    void HandleUpdate(StringHash eventType, VariantMap& eventData);
-    MasterControl* masterControl_;
-    TileMaster* tileMaster_;
-
-    Node* rootNode_;
-    Vector3 referencePosition_;
-    float centerDistExp_;
-    float wave_;
-    float lastOffsetY_;
-    StaticModel* model_;
-    bool flipped_;
-
-    Node* cursor_;
-    void FixFringe();
-    void SetTileType(TileType type);
+    Remnants(MasterControl *masterControl);
+    void Set(const Vector3 position, ParticleEmitter *emitter);
 };
 
-#endif // TILE_H
+#endif // REMNANTS_H

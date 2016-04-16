@@ -18,13 +18,14 @@
 
 #include "tile.h"
 
-Tile::Tile(Context *context, TileMaster* tileMaster, Vector3 position):
-    Object(context),
+Tile::Tile(TileMaster* tileMaster, Vector3 position):
+    Object(tileMaster->masterControl_->GetContext()),
     tileMaster_{tileMaster},
+    masterControl_{tileMaster->masterControl_},
     lastOffsetY_{0.666f},
-    flipped_{Random(2)}
+    flipped_{static_cast<bool>(Random(2))}
 {
-    masterControl_ = tileMaster->masterControl_;
+//    masterControl_ = tileMaster->masterControl_;
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Tile, HandleUpdate));
     rootNode_ = tileMaster_->rootNode_->CreateChild("Tile");
     rootNode_->SetPosition(position);

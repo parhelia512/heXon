@@ -20,8 +20,8 @@
 
 #include "spawnmaster.h"
 
-Explosion::Explosion(Context *context, MasterControl *masterControl):
-    Effect(context, masterControl),
+Explosion::Explosion(MasterControl *masterControl):
+    Effect(masterControl),
     playerID_{0},
     initialMass_{3.0f},
     initialBrightness_{8.0f}
@@ -36,7 +36,7 @@ Explosion::Explosion(Context *context, MasterControl *masterControl):
     light_->SetRange(13.0f);
     light_->SetBrightness(initialBrightness_);
 
-    particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
+//    particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
     particleEmitter_->SetEffect(masterControl_->cache_->GetResource<ParticleEffect>("Particles/Explosion.xml"));
 
     sample_ = masterControl_->cache_->GetResource<Sound>("Samples/Explode.ogg");

@@ -36,7 +36,7 @@ class Apple : public Pickup
 {
     URHO3D_OBJECT(Apple, Pickup);
 public:
-    Apple(Context* context, MasterControl* masterControl);
+    Apple(MasterControl* masterControl);
 };
 
 #endif // APPLE_H

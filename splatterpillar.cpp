@@ -20,8 +20,8 @@
 
 #include "player.h"
 
-SplatterPillar::SplatterPillar(Context *context, MasterControl *masterControl, bool right):
-    Object(context),
+SplatterPillar::SplatterPillar(MasterControl *masterControl, bool right):
+    Object(masterControl->GetContext()),
     masterControl_{masterControl},
     player_{},
     right_{right},

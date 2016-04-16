@@ -38,7 +38,7 @@ class heXoCam : public Object
     friend class MasterControl;
     friend class InputMaster;
 public:
-    heXoCam(Context *context, MasterControl* masterControl);
+    heXoCam(MasterControl* masterControl);
 
     virtual void Start();
     virtual void Stop();

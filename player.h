@@ -48,7 +48,7 @@ class Player : public SceneObject
     friend class ChaoMine;
     URHO3D_OBJECT(Player, SceneObject);
 public:
-    Player(Context* context, MasterControl* masterControl, int playerID);
+    Player(MasterControl* masterControl, int playerID);
     Pilot pilot_;
 
     unsigned GetRootNodeID() const { return rootNode_->GetID(); }

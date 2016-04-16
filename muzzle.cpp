@@ -18,8 +18,8 @@
 
 #include "muzzle.h"
 
-Muzzle::Muzzle(Context *context, MasterControl *masterControl, int playerID):
-    Effect(context, masterControl)
+Muzzle::Muzzle(MasterControl *masterControl, int playerID):
+    Effect(masterControl)
 {
     rootNode_->SetName("Muzzle");
 

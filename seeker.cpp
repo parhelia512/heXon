@@ -24,8 +24,8 @@
 #include "player.h"
 #include "spawnmaster.h"
 
-Seeker::Seeker(Context *context, MasterControl *masterControl):
-    SceneObject(context, masterControl),
+Seeker::Seeker(MasterControl *masterControl):
+    SceneObject(masterControl),
     age_{0.0f},
     lifeTime_{7.5f},
     damage_{2.3f}

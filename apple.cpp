@@ -18,8 +18,8 @@
 
 #include "apple.h"
 
-Apple::Apple(Context *context, MasterControl *masterControl):
-    Pickup(context, masterControl)
+Apple::Apple(MasterControl *masterControl):
+    Pickup(masterControl)
 {
     rootNode_->SetName("Apple");
     pickupType_ = PT_APPLE;

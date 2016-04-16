@@ -21,8 +21,8 @@
 #include "player.h"
 #include "spawnmaster.h"
 
-ChaoZap::ChaoZap(Context *context, MasterControl *masterControl):
-    SceneObject(context, masterControl),
+ChaoZap::ChaoZap(MasterControl *masterControl):
+    SceneObject(masterControl),
     playerID_{0},
     size_{5.0f}
 {

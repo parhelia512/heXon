@@ -18,8 +18,8 @@
 
 #include "razor.h"
 
-Razor::Razor(Context *context, MasterControl *masterControl):
-    Enemy(context, masterControl),
+Razor::Razor(MasterControl *masterControl):
+    Enemy(masterControl),
     topSpeed_{10.0f},
     aimSpeed_{0.25f*topSpeed_}
 {

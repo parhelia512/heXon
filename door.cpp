@@ -19,8 +19,8 @@
 #include "door.h"
 #include "player.h"
 
-Door::Door(Context* context, MasterControl* masterControl, bool right) :
-    Object(context),
+Door::Door(MasterControl* masterControl, bool right) :
+    Object(masterControl->GetContext()),
     masterControl_{masterControl},
     right_{right},
     wasNear_{false}

@@ -76,7 +76,7 @@ void MasterControl::Start()
 
     TailGenerator::RegisterObject(context_);
 
-    new InputMaster(context_, this);
+    new InputMaster(this);
     cache_ = GetSubsystem<ResourceCache>();
     graphics_ = GetSubsystem<Graphics>();
     renderer_ = GetSubsystem<Renderer>();
@@ -201,10 +201,10 @@ void MasterControl::CreateScene()
     planeObject->SetMaterial(cache_->GetResource<Material>("Materials/Invisible.xml"));
 
     //Create camera
-    world.camera = new heXoCam(context_, this);
+    world.camera = new heXoCam(this);
 
     //Create arena
-    tileMaster_ = new TileMaster(context_, this);
+    tileMaster_ = new TileMaster(this);
 
     //Construct lobby
     lobbyNode_ = world.scene->CreateChild("Lobby");
@@ -314,24 +314,24 @@ void MasterControl::CreateScene()
     rightPointLight2_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
     //Create game elements
-    spawnMaster_ = new SpawnMaster(context_, this);
+    spawnMaster_ = new SpawnMaster(this);
 
-    player1_ = new Player(context_, this, 1);
-    player2_ = new Player(context_, this, 2);
+    player1_ = new Player(this, 1);
+    player2_ = new Player(this, 2);
     players_[player1_->GetRootNodeID()] = player1_;
     players_[player2_->GetRootNodeID()] = player2_;
 
 
-    new Door(context_, this, false);
-    new Door(context_, this, true);
+    new Door(this, false);
+    new Door(this, true);
 
-    new SplatterPillar(context_, this, false);
-    new SplatterPillar(context_, this, true);
+    new SplatterPillar(this, false);
+    new SplatterPillar(this, true);
 
-    apple_ = new Apple(context_, this);
-    heart_ = new Heart(context_, this);
-    multiX_ = new MultiX(context_, this);
-    chaoBall_ = new ChaoBall(context_, this);
+    apple_ = new Apple(this);
+    heart_ = new Heart(this);
+    multiX_ = new MultiX(this);
+    chaoBall_ = new ChaoBall(this);
 }
 
 void MasterControl::SetGameState(const GameState newState)

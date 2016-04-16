@@ -22,12 +22,11 @@
 #include "spawnmaster.h"
 #include "bullet.h"
 
-SceneObject::SceneObject(Context* context, MasterControl* masterControl):
-    Object(context),
+SceneObject::SceneObject(MasterControl* masterControl):
+    Object(masterControl->GetContext()),
+    masterControl_{masterControl},
     blink_{true}
 {
-    masterControl_ = masterControl;
-
     rootNode_ = masterControl_->world.scene->CreateChild("SceneObject");
 
     flashSample_ = masterControl_->cache_->GetResource<Sound>("Samples/Flash.ogg");

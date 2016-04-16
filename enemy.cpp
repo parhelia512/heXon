@@ -21,8 +21,8 @@
 #include "spawnmaster.h"
 #include "player.h"
 
-Enemy::Enemy(Context *context, MasterControl *masterControl):
-    SceneObject(context, masterControl),
+Enemy::Enemy(MasterControl *masterControl):
+    SceneObject(masterControl),
     initialHealth_{1.0f},
     whackInterval_{0.5f},
     sinceLastWhack_{0.0f},

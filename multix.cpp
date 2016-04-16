@@ -18,8 +18,8 @@
 
 #include "multix.h"
 
-MultiX::MultiX(Context *context, MasterControl *masterControl):
-    Pickup(context, masterControl)
+MultiX::MultiX(MasterControl *masterControl):
+    Pickup(masterControl)
 {
     rootNode_->SetName("MultiX");
     pickupType_ = PT_MULTIX;

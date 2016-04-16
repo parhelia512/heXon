@@ -21,7 +21,8 @@
 #include "spawnmaster.h"
 #include "player.h"
 
-ChaoMine::ChaoMine(Context *context, MasterControl *masterControl): Enemy(context, masterControl),
+ChaoMine::ChaoMine(MasterControl *masterControl):
+    Enemy(masterControl),
     playerID_{0}
 {
     rootNode_->SetName("ChaoMine");

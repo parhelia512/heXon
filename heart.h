@@ -36,7 +36,7 @@ class Heart : public Pickup
 {
     URHO3D_OBJECT(Heart, Pickup);
 public:
-    Heart(Context* context, MasterControl* masterControl);
+    Heart(MasterControl* masterControl);
 };
 
 #endif // HEART_H

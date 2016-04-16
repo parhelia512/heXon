@@ -30,7 +30,7 @@ class SplatterPillar : public Object
 {
     URHO3D_OBJECT(SplatterPillar, Object);
 public:
-    SplatterPillar(Context* context, MasterControl* masterControl, bool right);
+    SplatterPillar(MasterControl* masterControl, bool right);
 private:
     MasterControl* masterControl_;
     Player* player_;
