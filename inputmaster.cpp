@@ -72,13 +72,13 @@ void InputMaster::HandleKeyUp(StringHash eventType, VariantMap &eventData)
 void InputMaster::HandleMouseUp(StringHash eventType, VariantMap &eventData)
 {
     using namespace MouseButtonUp;
-    int button = eventData[P_BUTTON].GetInt();
+    int button{eventData[P_BUTTON].GetInt()};
 }
 
 void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
 {
     //Get the triggering key
-    int key = eventData[KeyDown::P_KEY].GetInt();
+    int key{eventData[KeyDown::P_KEY].GetInt()};
 
     switch (key){
     //Exit when ESC is pressed
@@ -87,14 +87,7 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
     //Take screenshot when 9 is pressed
     case KEY_9:
     {
-        Graphics* graphics = GetSubsystem<Graphics>();
-        Image screenshot(context_);
-        graphics->TakeScreenShot(screenshot);
-        //Here we save in the Data folder with date and time appended
-        String fileName = GetSubsystem<FileSystem>()->GetProgramDir() + "Screenshots/Screenshot_" +
-                Time::GetTimeStamp().Replaced(':', '_').Replaced('.', '_').Replaced(' ', '_')+".png";
-        Log::Write(1, fileName);
-        screenshot.SavePNG(fileName);
+        Screenshot();
     } break;
     //Pause/Unpause game on P or joystick Start
     case KEY_P:
@@ -109,15 +102,24 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
 
 void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
 {
-    unsigned joystick = eventData[JoystickButtonDown::P_JOYSTICKID].GetInt();		//int
-    int button = eventData[JoystickButtonDown::P_BUTTON].GetInt();		//int
+    unsigned joystick{static_cast<unsigned>(eventData[JoystickButtonDown::P_JOYSTICKID].GetInt())};
+    int button{eventData[JoystickButtonDown::P_BUTTON].GetInt()};
+
+    JoystickState* joystickState{input_->GetJoystickByIndex(joystick)};
     // Process game event
     switch (button){
     case JB_START: PauseButtonPressed();
         break;
-    case JB_L2: case JB_R2: if (input_->GetJoystickByIndex(joystick)->GetButtonDown(JB_L2) &&
-                                input_->GetJoystickByIndex(joystick)->GetButtonDown(JB_R2) &&
-                                masterControl_->GetPlayer((int)joystick+1)->IsAlive()) EjectButtonPressed();
+    case JB_L2: case JB_R2:
+        if (joystickState->GetButtonDown(JB_L2) &&
+                joystickState->GetButtonDown(JB_R2) &&
+                masterControl_->GetPlayer((int)joystick+1)->IsAlive())
+            EjectButtonPressed();
+        break;
+    case JB_L1: case JB_R1:
+        if (joystickState->GetButtonDown(JB_L1) &&
+                joystickState->GetButtonDown(JB_R1))
+            Screenshot();
         break;
     default: break;
     }
@@ -139,6 +141,18 @@ void InputMaster::EjectButtonPressed()
         masterControl_->Eject();
     } else if (masterControl_->GetGameState()==GS_LOBBY) masterControl_->Exit();
     else if (masterControl_->GetGameState()==GS_DEAD) masterControl_->SetGameState(GS_LOBBY);
+}
+
+void InputMaster::Screenshot()
+{
+    Graphics* graphics{GetSubsystem<Graphics>()};
+    Image screenshot{context_};
+    graphics->TakeScreenShot(screenshot);
+    //Here we save in the Data folder with date and time appended
+    String fileName{GetSubsystem<FileSystem>()->GetProgramDir() + "Screenshots/Screenshot_" +
+            Time::GetTimeStamp().Replaced(':', '_').Replaced('.', '_').Replaced(' ', '_')+".png"};
+    Log::Write(1, fileName);
+    screenshot.SavePNG(fileName);
 }
 
 void InputMaster::HandleJoystickButtonUp(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)

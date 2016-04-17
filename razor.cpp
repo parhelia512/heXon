@@ -21,12 +21,12 @@
 Razor::Razor(MasterControl *masterControl):
     Enemy(masterControl),
     topSpeed_{10.0f},
-    aimSpeed_{0.25f*topSpeed_}
+    aimSpeed_{0.25f * topSpeed_}
 {
     rootNode_->SetName("Razor");
     meleeDamage_ = 0.9f;
 
-    SharedPtr<Material> black = masterControl_->cache_->GetTempResource<Material>("Materials/Razor.xml");
+    SharedPtr<Material> black{masterControl_->cache_->GetTempResource<Material>("Materials/Razor.xml")};
 
     topNode_ = rootNode_->CreateChild();
     topModel_ = topNode_->CreateComponent<StaticModel>();
@@ -46,7 +46,7 @@ Razor::Razor(MasterControl *masterControl):
 
 void Razor::HandleRazorUpdate(StringHash eventType, VariantMap &eventData)
 {
-    float timeStep = eventData[ScenePostUpdate::P_TIMESTEP].GetFloat();
+    float timeStep{eventData[ScenePostUpdate::P_TIMESTEP].GetFloat()};
 
     //Spin
     topNode_->Rotate(Quaternion(0.0f, timeStep*50.0f*aimSpeed_, 0.0f));
@@ -79,5 +79,3 @@ void Razor::Set(Vector3 position)
     Enemy::Set(position);
     SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(Razor, HandleRazorUpdate));
 }
-
-

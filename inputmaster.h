@@ -66,6 +66,8 @@ public:
     void HandleMouseWheel(StringHash eventType, VariantMap &eventData);
     void HandleKeyUp(StringHash eventType, VariantMap &eventData);
     void HandleMouseButtonUp(StringHash eventType, VariantMap &eventData);
+    void Screenshot();
+
 private:
     MasterControl* masterControl_;
 
