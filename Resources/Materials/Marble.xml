@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<material>
+	<technique name="Techniques/DiffEmissive.xml" quality="0" loddistance="0" />
+	<texture unit="emissive" name="Textures/ChamberLightmap.png" />
+	<parameter name="UOffset" value="1 0 0 0" />
+	<parameter name="VOffset" value="0 1 0 0" />
+	<parameter name="MatEmissiveColor" value="0.34 0.34 0.34 1" />
+	<parameter name="MatDiffColor" value="0.1 0.1 0.1 1" />
+	<parameter name="MatSpecColor" value="0.0 0.0 0.0 1" />
+</material>
