@@ -277,7 +277,8 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     Vector3 moveJoy = Vector3::ZERO;
     Vector3 moveKey = Vector3::ZERO;
     float thrust = pilotMode_ ? 256.0f : 2342.0f;
-    float maxSpeed = pilotMode_? 1.8f : 23.0f;    //Firing values
+    float maxSpeed = pilotMode_? 1.23f + 0.5f * pilot_.colors_[3].r_ : 23.0f;
+    //Firing values
     Vector3 fire = Vector3::ZERO;
     Vector3 fireJoy = Vector3::ZERO;
     Vector3 fireKey = Vector3::ZERO;
@@ -682,7 +683,7 @@ void Player::LoadPilot()
     }
     if (!pilot_.colors_.Size()) {
         CreateNewPilot();
-        alive_ = false;
+//        alive_ = false;
     }
 
     UpdatePilot();
@@ -698,7 +699,7 @@ void Player::UpdatePilot()
     }
 
     //Set colors for body model
-    for (unsigned m = 0; m < pilot_.bodyModel_->GetNumGeometries(); m++){
+    for (unsigned m = 0; m < pilot_.bodyModel_->GetNumGeometries(); ++m){
         pilot_.bodyModel_->SetMaterial(m, masterControl_->cache_->GetTempResource<Material>("Materials/Basic.xml"));
         Color diffColor = pilot_.colors_[m];
         pilot_.bodyModel_->GetMaterial(m)->SetShaderParameter("MatDiffColor", diffColor);
