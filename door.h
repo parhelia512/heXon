@@ -30,7 +30,8 @@ class Door : public Object
     URHO3D_OBJECT(Door, Object);
 public:
     Door(MasterControl* masterControl, bool right);
-    bool IsClosed() const { return door_->GetMorphWeight(0) < 0.023f; }
+    float HidesPlayer() const;
+    Vector3 GetPosition() const { return rootNode_->GetPosition(); }
 private:
     MasterControl* masterControl_;
     Player* player_;
@@ -40,6 +41,7 @@ private:
 
     bool right_;
     bool wasNear_;
+    float hiding_;
 
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 };

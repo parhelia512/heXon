@@ -48,6 +48,9 @@ class Player : public SceneObject
     friend class ChaoMine;
     URHO3D_OBJECT(Player, SceneObject);
 public:
+#define DOOR        (playerID_==2 ? masterControl_->door2_ : masterControl_->door1_)
+#define OTHERDOOR   (playerID_==1 ? masterControl_->door2_ : masterControl_->door1_)
+#define SPLATTERPILLAR (playerID_==2 ? masterControl_->splatterPillar2_ : masterControl_->splatterPillar1_)
     Player(MasterControl* masterControl, int playerID);
     Pilot pilot_;
 
@@ -73,7 +76,6 @@ public:
     void PickupChaoBall();
     void UpdatePilot();
     void KillPilot();
-
 private:
     int playerID_;
     bool pilotMode_;

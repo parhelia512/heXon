@@ -135,7 +135,7 @@ void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventDa
         }
         if (pillar_->GetMorphWeight(0) != 0.0f) pillar_->SetMorphWeight(0, 0.0f);
         //Trigger
-        if (player_ && LucKey::Distance(player_->GetWorldPosition(), rootNode_->GetWorldPosition()) < 0.23f) {
+        if (player_ && LucKey::Distance(player_->GetPosition(), rootNode_->GetWorldPosition()) < 0.23f) {
             Trigger();
         }
     }

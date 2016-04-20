@@ -34,6 +34,8 @@ class TileMaster;
 class SpawnMaster;
 class Razor;
 class Player;
+class Door;
+class SplatterPillar;
 class Apple;
 class MultiX;
 class ChaoBall;
@@ -143,6 +145,10 @@ public:
 
     SharedPtr<Player> player1_;
     SharedPtr<Player> player2_;
+    SharedPtr<Door> door1_;
+    SharedPtr<Door> door2_;
+    SharedPtr<SplatterPillar> splatterPillar1_;
+    SharedPtr<SplatterPillar> splatterPillar2_;
     HashMap<unsigned, SharedPtr<Player> > players_;
     SharedPtr<Apple> apple_;
     SharedPtr<Heart> heart_;

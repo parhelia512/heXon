@@ -23,7 +23,8 @@ Door::Door(MasterControl* masterControl, bool right) :
     Object(masterControl->GetContext()),
     masterControl_{masterControl},
     right_{right},
-    wasNear_{false}
+    wasNear_{false},
+    hiding_{0.0f}
 {
     player_ = right ? masterControl_->GetPlayer(2) : masterControl_->GetPlayer(1);
     rootNode_ = masterControl_->lobbyNode_->CreateChild("Door");
@@ -46,13 +47,22 @@ Door::Door(MasterControl* masterControl, bool right) :
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Door, HandleSceneUpdate));
 }
 
+float Door::HidesPlayer() const
+{
+    return hiding_;
+}
+
 void Door::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    bool playerNear = LucKey::Distance(rootNode_->GetWorldPosition(), player_->GetWorldPosition()) < 0.666f;
+    bool playerNear = LucKey::Distance(rootNode_->GetWorldPosition(), player_->GetPosition()) < 0.666f;
     if (playerNear != wasNear_){
         player_->PlaySample(doorSample_);
     }
     wasNear_ = playerNear;
+
+    if (door_->GetMorphWeight(0) < 0.023f && player_->GetPosition().z_ > GetPosition().z_)
+        hiding_ += eventData[SceneUpdate::P_TIMESTEP].GetFloat();
+    else hiding_ = 0.0f;
 
     door_->SetMorphWeight(0, Lerp(door_->GetMorphWeight(0),
                                   static_cast<float>(playerNear),

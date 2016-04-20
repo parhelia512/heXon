@@ -322,11 +322,11 @@ void MasterControl::CreateScene()
     players_[player2_->GetRootNodeID()] = player2_;
 
 
-    new Door(this, false);
-    new Door(this, true);
+    door1_ = new Door(this, false);
+    door2_ = new Door(this, true);
 
-    new SplatterPillar(this, false);
-    new SplatterPillar(this, true);
+    splatterPillar1_ = new SplatterPillar(this, false);
+    splatterPillar2_ = new SplatterPillar(this, true);
 
     apple_ = new Apple(this);
     heart_ = new Heart(this);
@@ -423,14 +423,6 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
     sinceStateChange_ += timeStep;
     UpdateCursor(timeStep);
 
-
-//    resources.materials.basic->SetShaderParameter(
-//                "MatDiffColor",resources.materials.basic->GetShaderParameter("MatDiffColor").GetColor().Lerp(
-//                                          GetGameState() == GS_LOBBY
-//                                          ? Color(0.13f, 0.13f, 0.13f) * Sine(5.0f, 0.666f, 1.0f, 1.23f) * Min(2.3f * sinceStateChange_, 1.0f)
-//                                          : Color(0.0f, 0.0f, 0.0f, 0.0f)
-//                                            , timeStep));
-
     switch (currentState_){
     case GS_LOBBY: {
 //        musicSource_->SetGain(Max(1.0f, sinceStateChange_));
@@ -441,8 +433,7 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
         rightPointLight1_->SetBrightness(Sine(1.0f, 0.95, 1.23f));
         rightPointLight2_->SetBrightness(Sine(1.0f, 0.95, 1.23f, M_PI));
 
-        if (!player1_->IsMoving() && !player2_->IsMoving()){
-            if (player1_->GetPosition().z_ > 6.0f && player2_->GetPosition().z_ > 6.0f)
+        if (door1_->HidesPlayer() > 0.5f && door2_->HidesPlayer() > 0.5f){
                 Exit();
         }
     }

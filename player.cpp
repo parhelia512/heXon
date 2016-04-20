@@ -32,6 +32,8 @@
 #include "explosion.h"
 #include "heart.h"
 #include "apple.h"
+#include "splatterpillar.h"
+#include "door.h"
 
 Player::Player(MasterControl *masterControl, int playerID):
     SceneObject(masterControl),
@@ -152,7 +154,7 @@ void Player::CreateGUI()
                                 ? masterControl_->resources.materials.ship2Secondary
                                 : masterControl_->resources.materials.ship1Secondary);
     }
-    scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 5.94252f : -5.94252f, 0.88069f, 0.82951f));
+    scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 5.94252f : -5.94252f, 0.9f, 0.82951f));
     scoreNode_->Rotate(Quaternion(-90.0f, Vector3::RIGHT));
     scoreNode_->Rotate(Quaternion(playerID_ == 2 ? 60.0f : -60.0f, Vector3::UP), TS_WORLD);
 
@@ -523,7 +525,7 @@ void Player::Pickup(PickupType pickup)
 
 void Player::PickupChaoBall()
 {
-    chaoFlash_->Set(GetWorldPosition());
+    chaoFlash_->Set(GetPosition());
     rootNode_->Translate(Quaternion(Random(360.0f), Vector3::UP) * Vector3::FORWARD * Random(5.0f));
     PlaySample(chaoball_s, 0.8f);
 }
@@ -568,11 +570,14 @@ void Player::EnterLobby()
     StopAllSound();
     chaoFlash_->Disable();
     rootNode_->SetPosition(Vector3(playerID_==2 ? 2.23f + 0.5f*alive_ : -2.23f - 0.5f*alive_, 0.0f, !alive_ * 5.5f));
-    rigidBody_->SetLinearVelocity(!alive_ * Vector3::BACK*2.3f + alive_ * ((playerID_ == 2) ? Vector3::LEFT : Vector3::RIGHT));
+    if (!alive_)
+        rigidBody_->SetLinearVelocity(Vector3::BACK * 2.3f);
+    else rigidBody_->SetLinearVelocity(((playerID_ == 2) ? Vector3::LEFT : Vector3::RIGHT));
+
     rigidBody_->ResetForces();
 
     scoreNode_->SetWorldScale(1.0f);
-    scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 5.94252f : -5.94252f, 0.88069f, 0.82951f));
+    scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 5.94252f : -5.94252f, 0.9f, 0.82951f));
 
     if (!IsAlive()){
         CreateNewPilot();
@@ -805,13 +810,14 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
                 autoMove_ = 4.2f * (playerID_==2 ? Vector3::RIGHT : Vector3::LEFT) - GetPosition();
             //Reset Score
             } else if (GetScore() != 0)
-                autoMove_ = Vector3(playerID_==2 ? 2.26494f : -2.26494f, 0.0f, -3.91992f) - GetPosition();
+                autoMove_ = SPLATTERPILLAR->GetPosition() - GetPosition();
             else autoMove_ = Vector3::ZERO;
         }
+        //Reset Score
         else if (otherPlayer->GetScore() == 0 && GetScore() != 0)
-            //Reset Score
-            autoMove_ = Vector3(playerID_==2 ? 2.26494f : -2.26494f, 0.0f, -3.91992f) - GetPosition();
-        else if (GetPosition().z_ < 6.0f && otherPlayer->GetPosition().z_ > 6.0f && !otherPlayer->IsMoving())
+            autoMove_ = SPLATTERPILLAR->GetPosition() - GetPosition();
+        //Exit
+        else if (DOOR->HidesPlayer() == 0.0f && OTHERDOOR->HidesPlayer() > 0.1f * playerFactor)
             autoMove_ = Vector3::FORWARD;
         else autoMove_ = Vector3::ZERO;
         autoFire_ = Vector3::ZERO;

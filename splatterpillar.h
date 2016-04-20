@@ -31,6 +31,7 @@ class SplatterPillar : public Object
     URHO3D_OBJECT(SplatterPillar, Object);
 public:
     SplatterPillar(MasterControl* masterControl, bool right);
+    Vector3 GetPosition() const { return rootNode_->GetPosition(); }
 private:
     MasterControl* masterControl_;
     Player* player_;
