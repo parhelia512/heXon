@@ -338,6 +338,7 @@ void MasterControl::SetGameState(const GameState newState)
 {
     if (newState != currentState_){
         LeaveGameState();
+        previousState_ = currentState_;
         currentState_ = newState;
         sinceStateChange_ = 0.0f;
         EnterGameState();
@@ -368,7 +369,6 @@ void MasterControl::EnterGameState()
         GetPlayer(1)->EnterLobby();
         GetPlayer(2)->EnterLobby();
         musicSource_->Play(menuMusic_);
-//        musicSource_->Stop();
         lobbyNode_->SetEnabledRecursive(true);
         world.camera->EnterLobby();
         spawnMaster_->Clear();

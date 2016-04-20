@@ -569,10 +569,15 @@ void Player::EnterLobby()
 {
     StopAllSound();
     chaoFlash_->Disable();
-    rootNode_->SetPosition(Vector3(playerID_==2 ? 2.23f + 0.5f*alive_ : -2.23f - 0.5f*alive_, 0.0f, !alive_ * 5.5f));
-    if (!alive_)
+    bool throughDoor = !alive_ || masterControl_->GetPreviousGameState() == GS_INTRO;
+    if (throughDoor){
+        rootNode_->SetPosition(Vector3(playerID_==2 ? 2.23f : -2.23f, 0.0f, 5.5f));
         rigidBody_->SetLinearVelocity(Vector3::BACK * 2.3f);
-    else rigidBody_->SetLinearVelocity(((playerID_ == 2) ? Vector3::LEFT : Vector3::RIGHT));
+    }
+    else {
+        rigidBody_->SetLinearVelocity(((playerID_ == 2) ? Vector3::LEFT : Vector3::RIGHT));
+        rootNode_->SetPosition(Vector3(playerID_==2 ? 2.23f + 0.5f : -2.23f - 0.5f, 0.0f, 0.0f));
+    }
 
     rigidBody_->ResetForces();
 

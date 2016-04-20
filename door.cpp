@@ -23,7 +23,7 @@ Door::Door(MasterControl* masterControl, bool right) :
     Object(masterControl->GetContext()),
     masterControl_{masterControl},
     right_{right},
-    wasNear_{false},
+    wasNear_{true},
     hiding_{0.0f}
 {
     player_ = right ? masterControl_->GetPlayer(2) : masterControl_->GetPlayer(1);
