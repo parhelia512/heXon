@@ -51,11 +51,11 @@ void ChaoMine::Set(const Vector3 position, int playerID)
 {
     playerID_ = playerID;
 
-    if (playerID_ == 1){
+    if (playerID_ == 1) {
         innerModel_->SetMaterial(0, masterControl_->resources.materials.ship1Primary);
         outerModel_->SetMaterial(0, masterControl_->resources.materials.ship1Secondary);
         outerModel_->SetMaterial(1, masterControl_->resources.materials.ship1Primary);
-    } else if (playerID_ == 2){
+    } else if (playerID_ == 2) {
         innerModel_->SetMaterial(0, masterControl_->resources.materials.ship2Primary);
         outerModel_->SetMaterial(0, masterControl_->resources.materials.ship2Secondary);
         outerModel_->SetMaterial(1, masterControl_->resources.materials.ship2Primary);
@@ -68,7 +68,7 @@ void ChaoMine::Set(const Vector3 position, int playerID)
 
 void ChaoMine::HandleMineUpdate(StringHash eventType, VariantMap &eventData)
 {
-    float timeStep = eventData[ScenePostUpdate::P_TIMESTEP].GetFloat();
+    float timeStep{eventData[ScenePostUpdate::P_TIMESTEP].GetFloat()};
 
     //Spin
     innerNode_->Rotate(Quaternion(50.0f*timeStep, 80.0f*timeStep, 92.0f*timeStep));
@@ -77,7 +77,7 @@ void ChaoMine::HandleMineUpdate(StringHash eventType, VariantMap &eventData)
 
 void ChaoMine::CheckHealth()
 {
-    if (rootNode_->IsEnabled() && health_ <= 0 || panicTime_ > 23.0f){
+    if (rootNode_->IsEnabled() && health_ <= 0 || panicTime_ > 23.0f) {
         masterControl_->spawnMaster_->SpawnChaoZap(GetPosition(), playerID_);
         Disable();
     }
@@ -85,7 +85,7 @@ void ChaoMine::CheckHealth()
 
 void ChaoMine::HandleCollision(StringHash eventType, VariantMap &eventData)
 {
-    PODVector<RigidBody*> collidingBodies;
+    PODVector<RigidBody*> collidingBodies{};
     rigidBody_->GetCollidingBodies(collidingBodies);
 
     for (RigidBody* b : collidingBodies) {

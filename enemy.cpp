@@ -33,13 +33,13 @@ Enemy::Enemy(MasterControl *masterControl):
     health_ = initialHealth_;
 
     //Generate random color
-    int randomizer = Random(6);
+    int randomizer{Random(6)};
     color_ = Color(0.5f + (randomizer * 0.075f), 0.9f - (randomizer * 0.075f), 0.5f+Max(randomizer-3.0f, 3.0f)/6.0f, 1.0f);
 
     centerNode_ = rootNode_->CreateChild("SmokeTrail");
     particleEmitter_ = centerNode_->CreateComponent<ParticleEmitter>();
     particleEffect_ = masterControl_->cache_->GetTempResource<ParticleEffect>("Particles/Enemy.xml");
-    Vector<ColorFrame> colorFrames;
+    Vector<ColorFrame> colorFrames{};
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
     colorFrames.Push(ColorFrame(Color(color_.r_*0.666f, color_.g_*0.666f, color_.b_*0.666f, 0.5f), 0.1f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 1.0f));
@@ -58,18 +58,18 @@ Enemy::Enemy(MasterControl *masterControl):
     rigidBody_->SetMass(2.0f);
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
     rigidBody_->SetAngularFactor(Vector3::ZERO);
-    CollisionShape* collider = rootNode_->CreateComponent<CollisionShape>();
+    CollisionShape* collider{rootNode_->CreateComponent<CollisionShape>()};
     collider->SetSphere(2.0f);
     collider->SetPosition(Vector3::UP * 0.23f);
 
-    for (int s = 1; s <= 5; ++s){
+    for (int s{1}; s <= 5; ++s) {
         samples_.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Samples/Melee"+String(s)+".ogg")));
     }
-    for (SharedPtr<Sound> s : samples_){
+    for (SharedPtr<Sound> s : samples_) {
         s->SetLooped(false);
     }
 
-    Node* soundNode = masterControl_->world.scene->CreateChild("SoundSource");
+    Node* soundNode{masterControl_->world.scene->CreateChild("SoundSource")};
     soundSource_ = soundNode->CreateComponent<SoundSource>();
     soundSource_->SetGain(0.1f);
     soundSource_->SetSoundType(SOUND_EFFECT);
@@ -77,7 +77,6 @@ Enemy::Enemy(MasterControl *masterControl):
 
 void Enemy::Set(const Vector3 position)
 {
-
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();
 
@@ -120,7 +119,8 @@ void Enemy::CheckHealth()
 {
     //Die
     if (rootNode_->IsEnabled() && health_ <= 0.0f) {
-        if (lastHitBy_ != 0) masterControl_->GetPlayer(lastHitBy_)->AddScore(bonus_ ? worth_ : 2 * worth_ / 3);
+        if (lastHitBy_ != 0)
+            masterControl_->GetPlayer(lastHitBy_)->AddScore(bonus_ ? worth_ : 2 * worth_ / 3);
 
         masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(),
                                                      Color(color_.r_*color_.r_, color_.g_*color_.g_, color_.b_*color_.b_),
@@ -137,15 +137,15 @@ void Enemy::Disable()
 
 Color Enemy::GetGlowColor() const
 {
-    float factor = (Sin(200.0f*(masterControl_->world.scene->GetElapsedTime()+panicTime_))*(0.25f+panic_*0.25f)+(panic_*0.5f));
+    float factor{(Sin(200.0f*(masterControl_->world.scene->GetElapsedTime()+panicTime_))*(0.25f+panic_*0.25f)+(panic_*0.5f))};
     factor *= factor * 2.0f;
     return color_*factor;
 }
 
 void Enemy::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    float time = masterControl_->world.scene->GetElapsedTime() + rootNode_->GetID() * 0.023f;
-    float timeStep = eventData[SceneUpdate::P_TIMESTEP].GetFloat();
+    float time{masterControl_->world.scene->GetElapsedTime() + rootNode_->GetID() * 0.023f};
+    float timeStep{eventData[SceneUpdate::P_TIMESTEP].GetFloat()};
     panicTime_ += 3.0f * panic_ * timeStep;
     sinceLastWhack_ += timeStep;
 
@@ -159,16 +159,16 @@ void Enemy::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
 void Enemy::HandleCollision(StringHash eventType, VariantMap &eventData)
 {
-    PODVector<RigidBody*> collidingBodies;
+    PODVector<RigidBody*> collidingBodies{};
     rigidBody_->GetCollidingBodies(collidingBodies);
 
-    if (sinceLastWhack_ > whackInterval_){
-        for (RigidBody* collider : collidingBodies) {
-            StringHash otherNameHash = collider->GetNode()->GetNameHash();
+    if (sinceLastWhack_ > whackInterval_) {
+        for (RigidBody* r : collidingBodies) {
+            StringHash otherNameHash = r->GetNode()->GetNameHash();
             if (otherNameHash == N_PLAYER) {
                 PlaySample(samples_[Random(static_cast<int>(samples_.Size()))], 0.16f);
 
-                Player* hitPlayer = masterControl_->players_[collider->GetNode()->GetID()];
+                Player* hitPlayer{masterControl_->players_[r->GetNode()->GetID()]};
 
                 hitPlayer->Hit(meleeDamage_ + meleeDamage_*panic_);
                 masterControl_->spawnMaster_->SpawnHitFX(

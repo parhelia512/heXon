@@ -24,6 +24,7 @@
 
 SpawnMaster::SpawnMaster(MasterControl *masterControl):
     Object(masterControl->GetContext()),
+    masterControl_{masterControl},
     spawning_{false},
     razorInterval_{2.0f},
     sinceRazorSpawn_{0.0f},
@@ -32,48 +33,47 @@ SpawnMaster::SpawnMaster(MasterControl *masterControl):
     bubbleInterval_{0.23f},
     sinceBubbleSpawn_{bubbleInterval_}
 {
-    masterControl_ = masterControl;
-    Audio* audio = GetSubsystem<Audio>();
+    Audio* audio{GetSubsystem<Audio>()};
     audio->SetMasterGain(SOUND_EFFECT, 0.0f);
-    for (int r = 0; r < 23; ++r) {
-        Razor* newRazor = new Razor(masterControl_);
+    for (int r{0}; r < 23; ++r) {
+        Razor* newRazor{new Razor(masterControl_)};
         razors_[newRazor->rootNode_->GetID()] = SharedPtr<Razor>(newRazor);
     }
-    for (int s = 0; s < 7; ++s) {
-        Spire* newSpire = new Spire(masterControl_);
+    for (int s{0}; s < 7; ++s) {
+        Spire* newSpire{new Spire(masterControl_)};
         spires_[newSpire->rootNode_->GetID()] = SharedPtr<Spire>(newSpire);
     }
-    for (int m = 0; m < 8; ++m) {
-        ChaoMine* newChaoMine = new ChaoMine(masterControl_);
+    for (int m{0}; m < 8; ++m) {
+        ChaoMine* newChaoMine{new ChaoMine(masterControl_)};
         chaoMines_[newChaoMine->rootNode_->GetID()] = SharedPtr<ChaoMine>(newChaoMine);
     }
 
-    for (int s = 0; s < 13; ++s) {
-        Seeker* newSeeker = new Seeker(masterControl_);
+    for (int s{0}; s < 13; ++s) {
+        Seeker* newSeeker{new Seeker(masterControl_)};
         seekers_[newSeeker->rootNode_->GetID()] = SharedPtr<Seeker>(newSeeker);
     }
-    for (int h = 0; h < 16; ++h) {
-        HitFX* newHitFX = new HitFX(masterControl_);
+    for (int h{0}; h < 16; ++h) {
+        HitFX* newHitFX{new HitFX(masterControl_)};
         hitFXs_.Push(SharedPtr<HitFX>(newHitFX));
     }
-    for (int e = 0; e < 9; ++e) {
-        Explosion* newExplosion = new Explosion(masterControl_);
+    for (int e{0}; e < 9; ++e) {
+        Explosion* newExplosion{new Explosion(masterControl_)};
         explosions_.Push(SharedPtr<Explosion>(newExplosion));
     }
-    for (int f = 0; f < 13; ++f) {
-        Flash* newFlash= new Flash(masterControl_);
+    for (int f{0}; f < 13; ++f) {
+        Flash* newFlash{new Flash(masterControl_)};
         flashes_.Push(SharedPtr<Flash>(newFlash));
     }
-    for (int b = 0; b < 42; ++b) {
-        Bubble* newBubble= new Bubble(masterControl_);
+    for (int b{0}; b < 42; ++b) {
+        Bubble* newBubble{new Bubble(masterControl_)};
         bubbles_.Push(SharedPtr<Bubble>(newBubble));
     }
-    for (int l = 0; l < 2048; ++l) {
-        Line* newLine= new Line(masterControl_);
+    for (int l{0}; l < 2048; ++l) {
+        Line* newLine{new Line(masterControl_)};
         lines_.Push(SharedPtr<Line>(newLine));
     }
-    for (int z = 0; z < 8; ++z) {
-        ChaoZap* newChaoZap = new ChaoZap(masterControl_);
+    for (int z{0}; z < 8; ++z) {
+        ChaoZap* newChaoZap{new ChaoZap(masterControl_)};
         chaoZaps_.Push(SharedPtr<ChaoZap>(newChaoZap));
     }
     Clear();
@@ -90,38 +90,34 @@ void SpawnMaster::Deactivate()
 }
 void SpawnMaster::Clear()
 {
-    Vector<SharedPtr<Razor> > razors = razors_.Values();
-    for (SharedPtr<Razor> r : razors){
+    for (SharedPtr<Razor> r : razors_.Values()) {
         if (r->IsEnabled()) r->Disable();
     }
-    Vector<SharedPtr<Spire> > spires = spires_.Values();
-    for (SharedPtr<Spire> s : spires){
+    for (SharedPtr<Spire> s : spires_.Values()) {
         if (s->IsEnabled()) s->Disable();
     }
-    Vector<SharedPtr<ChaoMine> > chaoMines = chaoMines_.Values();
-    for (SharedPtr<ChaoMine> c : chaoMines){
+    for (SharedPtr<ChaoMine> c : chaoMines_.Values()) {
         if (c->IsEnabled()) c->Disable();
     }
-    Vector<SharedPtr<Seeker> > seekers = seekers_.Values();
-    for (SharedPtr<Seeker> s : seekers){
+    for (SharedPtr<Seeker> s : seekers_.Values()) {
         if (s->IsEnabled()) s->Disable();
     }
-    for (SharedPtr<HitFX> h : hitFXs_){
+    for (SharedPtr<HitFX> h : hitFXs_) {
         if (h->IsEnabled()) h->Disable();
     }
-    for (SharedPtr<Explosion> e : explosions_){
+    for (SharedPtr<Explosion> e : explosions_) {
         if (e->IsEnabled()) e->Disable();
     }
-    for (SharedPtr<Flash> f : flashes_){
+    for (SharedPtr<Flash> f : flashes_) {
         if (f->IsEnabled()) f->Disable();
     }
-    for (SharedPtr<Bubble> b : bubbles_){
+    for (SharedPtr<Bubble> b : bubbles_) {
         if (b->IsEnabled()) b->Disable();
     }
-    for (SharedPtr<Line> l : lines_){
+    for (SharedPtr<Line> l : lines_) {
         if (l->IsEnabled()) l->Disable();
     }
-    for (SharedPtr<ChaoZap> c : chaoZaps_){
+    for (SharedPtr<ChaoZap> c : chaoZaps_) {
         if (c->IsEnabled()) c->Disable();
     }
 }
@@ -138,7 +134,7 @@ void SpawnMaster::Restart()
 
 Vector3 SpawnMaster::SpawnPoint()
 {
-    Tile* randomTile = masterControl_->tileMaster_->GetRandomTile();
+    Tile* randomTile{masterControl_->tileMaster_->GetRandomTile()};
     if (randomTile) {
         Vector3 tilePosition = randomTile->rootNode_->GetPosition();
         return Vector3(tilePosition.x_, -23.0f, tilePosition.z_);
@@ -148,12 +144,12 @@ Vector3 SpawnMaster::SpawnPoint()
 
 void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    const float timeStep = eventData[SceneUpdate::P_TIMESTEP].GetFloat();
+    const float timeStep{eventData[SceneUpdate::P_TIMESTEP].GetFloat()};
 
     sinceRazorSpawn_ += timeStep;
     sinceSpireSpawn_ += timeStep;
 
-    if (masterControl_->GetPlayer(1)->IsEnabled() || masterControl_->GetPlayer(2)->IsEnabled()){
+    if (masterControl_->GetPlayer(1)->IsEnabled() || masterControl_->GetPlayer(2)->IsEnabled()) {
         if (sinceRazorSpawn_ > razorInterval_ && CountActiveRazors() < 23)
             SpawnRazor(SpawnPoint());
         if (sinceSpireSpawn_ > spireInterval_ && CountActiveSpires() < 7)
@@ -162,33 +158,31 @@ void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
     sinceBubbleSpawn_ += timeStep;
 
-    if (sinceBubbleSpawn_ > bubbleInterval_){
+    if (sinceBubbleSpawn_ > bubbleInterval_) {
         SpawnBubble(BubbleSpawnPoint());
     }
 }
 
 int SpawnMaster::CountActiveRazors()
 {
-    int razorCount = 0;
-    Vector<SharedPtr<Razor> > razors = razors_.Values();
-    for (SharedPtr<Razor> r : razors){
+    int razorCount{0};
+    for (SharedPtr<Razor> r : razors_.Values()) {
         if (r->IsEnabled()) ++razorCount;
     }
     return razorCount;
 }
 int SpawnMaster::CountActiveSpires()
 {
-    int spireCount = 0;
-    Vector<SharedPtr<Spire> > spires = spires_.Values();
-    for (SharedPtr<Spire> s : spires){
+    int spireCount{0};
+    for (SharedPtr<Spire> s : spires_.Values()) {
         if (s->IsEnabled()) ++spireCount;
     }
     return spireCount;
 }
 int SpawnMaster::CountActiveLines()
 {
-    int lineCount = 0;
-    for (SharedPtr<Line> l : lines_){
+    int lineCount{0};
+    for (SharedPtr<Line> l : lines_) {
         if (l->IsEnabled()) ++lineCount;
     }
     return lineCount;
@@ -197,8 +191,8 @@ int SpawnMaster::CountActiveLines()
 void SpawnMaster::SpawnRazor(const Vector3 &position)
 {
     sinceRazorSpawn_ = 0.0f;
-    if (!RespawnRazor(position)){
-        Razor* newRazor = new Razor(masterControl_);
+    if (!RespawnRazor(position)) {
+        Razor* newRazor{new Razor(masterControl_)};
         newRazor->Set(position);
         razors_[newRazor->rootNode_->GetID()] = SharedPtr<Razor>(newRazor);
     }
@@ -206,9 +200,8 @@ void SpawnMaster::SpawnRazor(const Vector3 &position)
 }
 bool SpawnMaster::RespawnRazor(const Vector3 &position)
 {
-    Vector<SharedPtr<Razor> > razors = razors_.Values();
-    for (SharedPtr<Razor> r : razors){
-        if (!r->IsEnabled()){
+    for (SharedPtr<Razor> r : razors_.Values()){
+        if (!r->IsEnabled()) {
             r->Set(position);
             return true;
         }
@@ -219,8 +212,8 @@ bool SpawnMaster::RespawnRazor(const Vector3 &position)
 void SpawnMaster::SpawnSpire(const Vector3 &position)
 {
     sinceSpireSpawn_ = 0.0f;
-    if (!RespawnSpire(position)){
-        Spire* newSpire = new Spire(masterControl_);
+    if (!RespawnSpire(position)) {
+        Spire* newSpire{new Spire(masterControl_)};
         newSpire->Set(position);
         spires_[newSpire->rootNode_->GetID()] = SharedPtr<Spire>(newSpire);
     }
@@ -228,8 +221,7 @@ void SpawnMaster::SpawnSpire(const Vector3 &position)
 }
 bool SpawnMaster::RespawnSpire(const Vector3 &position)
 {
-    Vector<SharedPtr<Spire> > spires = spires_.Values();
-    for (SharedPtr<Spire> s : spires){
+    for (SharedPtr<Spire> s : spires_.Values()) {
         if (!s->IsEnabled()){
             s->Set(position);
             return true;
@@ -240,17 +232,16 @@ bool SpawnMaster::RespawnSpire(const Vector3 &position)
 
 void SpawnMaster::SpawnSeeker(const Vector3& position)
 {
-    if (!RespawnSeeker(position)){
-        Seeker* newSeeker = new Seeker(masterControl_);
+    if (!RespawnSeeker(position)) {
+        Seeker* newSeeker{new Seeker(masterControl_)};
         newSeeker->Set(position);
         seekers_[newSeeker->rootNode_->GetID()] = SharedPtr<Seeker>(newSeeker);
     }
 }
 bool SpawnMaster::RespawnSeeker(const Vector3& position)
 {
-    Vector<SharedPtr<Seeker> > seekers = seekers_.Values();
-    for (SharedPtr<Seeker> s : seekers){
-        if (!s->IsEnabled()){
+    for (SharedPtr<Seeker> s : seekers_.Values()) {
+        if (!s->IsEnabled()) {
             s->Set(position);
             return true;
         }
@@ -260,17 +251,16 @@ bool SpawnMaster::RespawnSeeker(const Vector3& position)
 
 void SpawnMaster::SpawnChaoMine(const Vector3& position, int playerID)
 {
-    if (!RespawnChaoMine(position, playerID)){
-        ChaoMine* newChaoMine = new ChaoMine(masterControl_);
+    if (!RespawnChaoMine(position, playerID)) {
+        ChaoMine* newChaoMine{new ChaoMine(masterControl_)};
         newChaoMine->Set(position, playerID);
         chaoMines_[newChaoMine->rootNode_->GetID()] = SharedPtr<ChaoMine>(newChaoMine);
     }
 }
 bool SpawnMaster::RespawnChaoMine(const Vector3& position, int playerID)
 {
-    Vector<SharedPtr<ChaoMine> > chaoMines = chaoMines_.Values();
-    for (SharedPtr<ChaoMine> c : chaoMines){
-        if (!c->IsEnabled()){
+    for (SharedPtr<ChaoMine> c : chaoMines_.Values()) {
+        if (!c->IsEnabled()) {
             c->Set(position, playerID);
             return true;
         }
@@ -279,16 +269,16 @@ bool SpawnMaster::RespawnChaoMine(const Vector3& position, int playerID)
 }
 void SpawnMaster::SpawnChaoZap(const Vector3& position, int playerID)
 {
-    if (!RespawnChaoZap(position, playerID)){
-        ChaoZap* newZap = new ChaoZap(masterControl_);
+    if (!RespawnChaoZap(position, playerID)) {
+        ChaoZap* newZap{new ChaoZap(masterControl_)};
         newZap->Set(position, playerID);
         chaoZaps_.Push(SharedPtr<ChaoZap>(newZap));
     }
 }
 bool SpawnMaster::RespawnChaoZap(const Vector3& position, int playerID)
 {
-    for (SharedPtr<ChaoZap> c : chaoZaps_){
-        if (!c->IsEnabled()){
+    for (SharedPtr<ChaoZap> c : chaoZaps_) {
+        if (!c->IsEnabled()) {
             c->Set(position, playerID);
             return true;
         }
@@ -298,16 +288,16 @@ bool SpawnMaster::RespawnChaoZap(const Vector3& position, int playerID)
 
 void SpawnMaster::SpawnHitFX(const Vector3 &position, int playerID, bool sound)
 {
-    if (!RespawnHitFX(position, playerID, sound)){
-        HitFX* newHitFX = new HitFX(masterControl_);
+    if (!RespawnHitFX(position, playerID, sound)) {
+        HitFX* newHitFX{new HitFX(masterControl_)};
         newHitFX->Set(position, playerID, sound);
         hitFXs_.Push(SharedPtr<HitFX>(newHitFX));
     }
 }
 bool SpawnMaster::RespawnHitFX(const Vector3& position, int playerID, bool sound)
 {
-    for (SharedPtr<HitFX> h : hitFXs_){
-        if (!h->IsEnabled()){
+    for (SharedPtr<HitFX> h : hitFXs_) {
+        if (!h->IsEnabled()) {
             h->Set(position, playerID, sound);
             return true;
         }
@@ -317,16 +307,16 @@ bool SpawnMaster::RespawnHitFX(const Vector3& position, int playerID, bool sound
 
 void SpawnMaster::SpawnFlash(const Vector3& position)
 {
-    if (!RespawnFlash(position)){
-        Flash* newFlash = new Flash(masterControl_);
+    if (!RespawnFlash(position)) {
+        Flash* newFlash{new Flash(masterControl_)};
         newFlash->Set(position);
         flashes_.Push(SharedPtr<Flash>(newFlash));
     }
 }
 bool SpawnMaster::RespawnFlash(const Vector3& position)
 {
-    for (SharedPtr<Flash> f : flashes_){
-        if (!f->IsEnabled()){
+    for (SharedPtr<Flash> f : flashes_) {
+        if (!f->IsEnabled()) {
             f->Set(position);
             return true;
         }
@@ -336,8 +326,8 @@ bool SpawnMaster::RespawnFlash(const Vector3& position)
 
 bool SpawnMaster::SpawnExplosion(const Vector3& position, const Color& color, float size, int playerID)
 {
-    if (!RespawnExplosion(position, color, size, playerID)){
-        Explosion* explosion = new Explosion(masterControl_);
+    if (!RespawnExplosion(position, color, size, playerID)) {
+        Explosion* explosion{new Explosion(masterControl_)};
         explosion->Set(position, color, size, playerID);
         explosions_.Push(SharedPtr<Explosion>(explosion));
     }
@@ -345,8 +335,8 @@ bool SpawnMaster::SpawnExplosion(const Vector3& position, const Color& color, fl
 }
 bool SpawnMaster::RespawnExplosion(const Vector3& position, const Color& color, float size, int playerID)
 {
-    for (WeakPtr<Explosion> e : explosions_){
-        if (!e->IsEnabled()){
+    for (WeakPtr<Explosion> e : explosions_) {
+        if (!e->IsEnabled()) {
             e->Set(position, color, size, playerID);
             return true;
         }
@@ -358,16 +348,16 @@ void SpawnMaster::SpawnBubble(const Vector3& position)
 {
     sinceBubbleSpawn_ = 0.0f;
     bubbleInterval_ = Random(23.0f, 42.0f) / (masterControl_->SinceLastReset() + 88);
-    if (!RespawnBubble(position)){
-        Bubble* newBubble = new Bubble(masterControl_);
+    if (!RespawnBubble(position)) {
+        Bubble* newBubble{new Bubble(masterControl_)};
         newBubble->Set(position);
         bubbles_.Push(SharedPtr<Bubble>(newBubble));
     }
 }
 bool SpawnMaster::RespawnBubble(const Vector3& position)
 {
-    for (SharedPtr<Bubble> b : bubbles_){
-        if (!b->IsEnabled()){
+    for (SharedPtr<Bubble> b : bubbles_) {
+        if (!b->IsEnabled()) {
             b->Set(position);
             return true;
         }
@@ -383,16 +373,16 @@ Vector3 SpawnMaster::BubbleSpawnPoint()
 
 void SpawnMaster::SpawnLine(int playerID_)
 {
-    if (!RespawnLine(playerID_)){
-        Line* newLine = new Line(masterControl_);
+    if (!RespawnLine(playerID_)) {
+        Line* newLine{new Line(masterControl_)};
         newLine->Set(LineSpawnPoint(playerID_), playerID_);
         lines_.Push(SharedPtr<Line>(newLine));
     }
 }
 bool SpawnMaster::RespawnLine(int playerID)
 {
-    for (SharedPtr<Line> l : lines_){
-        if (!l->IsEnabled()){
+    for (SharedPtr<Line> l : lines_) {
+        if (!l->IsEnabled()) {
             l->Set(LineSpawnPoint(playerID), playerID);
             return true;
         }

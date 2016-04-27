@@ -30,10 +30,10 @@ heXoCam::heXoCam(MasterControl *masterControl):
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(heXoCam, HandleSceneUpdate));
 
     rootNode_ = masterControl_->world.scene->CreateChild("Camera");
-    Node* leftEye = rootNode_->CreateChild("Left Eye");
+    Node* leftEye{rootNode_->CreateChild("Left Eye")};
     leftEye->SetPosition(Vector3::LEFT);
     stereoCam_.first_ = leftEye->CreateComponent<Camera>();
-    Node* rightEye = rootNode_->CreateChild("Right Eye");
+    Node* rightEye{rootNode_->CreateChild("Right Eye")};
     rightEye->SetPosition(Vector3::RIGHT);
     stereoCam_.second_ = rightEye->CreateComponent<Camera>();
 
@@ -43,7 +43,7 @@ heXoCam::heXoCam(MasterControl *masterControl):
     rootNode_->SetRotation(Quaternion(65.0f, 0.0f, 0.0f));
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
     rigidBody_->SetAngularDamping(10.0f);
-    CollisionShape* collisionShape = rootNode_->CreateComponent<CollisionShape>();
+    CollisionShape* collisionShape{rootNode_->CreateComponent<CollisionShape>()};
     collisionShape->SetSphere(0.1f);
     rigidBody_->SetMass(1.0f);
 
@@ -60,8 +60,8 @@ void heXoCam::Stop()
 
 void heXoCam::SetupViewport()
 {
-    ResourceCache* cache = GetSubsystem<ResourceCache>();
-    Renderer* renderer = GetSubsystem<Renderer>();
+    ResourceCache* cache{GetSubsystem<ResourceCache>()};
+    Renderer* renderer{GetSubsystem<Renderer>()};
 
     SharedPtr<Viewport> viewport{new Viewport(masterControl_->GetContext(), masterControl_->world.scene, camera_)};
     viewport_ = viewport;
@@ -93,13 +93,12 @@ Quaternion heXoCam::GetRotation()
 
 void heXoCam::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    float timeStep = eventData[SceneUpdate::P_TIMESTEP].GetFloat();
+    float timeStep{eventData[SceneUpdate::P_TIMESTEP].GetFloat()};
 
-    rootNode_->SetPosition(rootNode_->GetPosition().Lerp(
-                               closeUp_?
-                                   Vector3(0.0f, 13.5f, -6.23f) :
-                                   Vector3(0.0f, 42.0f, -23.0f)
-                                   , 13.0f * timeStep));
+    rootNode_->SetPosition(rootNode_->GetPosition().Lerp(closeUp_?
+                                     Vector3(0.0f, 13.5f, -6.23f):
+                                     Vector3(0.0f, 42.0f, -23.0f),
+                                                    Clamp(13.0f * timeStep, 0.0f, 1.0f)));
 }
 
 void heXoCam::SetGreyScale(const bool enabled)

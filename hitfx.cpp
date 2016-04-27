@@ -30,8 +30,8 @@ HitFX::HitFX(MasterControl *masterControl):
 
 void HitFX::Set(const Vector3 position, int playerID, const bool sound)
 {
-    ParticleEffect* effect = nullptr;
-    switch (playerID){
+    ParticleEffect* effect{nullptr};
+    switch (playerID) {
     case 1: effect = masterControl_->cache_->GetResource<ParticleEffect>("Particles/GreenHitFX.xml");
         break;
     case 2: effect = masterControl_->cache_->GetResource<ParticleEffect>("Particles/PurpleHitFX.xml");

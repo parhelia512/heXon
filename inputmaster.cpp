@@ -47,8 +47,7 @@ void InputMaster::HandleMouseButtonUp(StringHash eventType, VariantMap &eventDat
 
 void InputMaster::HandleMouseButtonDown(StringHash eventType, VariantMap &eventData)
 {
-    using namespace MouseButtonDown;
-    int button = eventData[P_BUTTON].GetInt();
+    int button{eventData[MouseButtonDown::P_BUTTON].GetInt()};
     if (button == MOUSEB_LEFT){
         //Set tile type
     }
@@ -71,8 +70,7 @@ void InputMaster::HandleKeyUp(StringHash eventType, VariantMap &eventData)
 
 void InputMaster::HandleMouseUp(StringHash eventType, VariantMap &eventData)
 {
-    using namespace MouseButtonUp;
-    int button{eventData[P_BUTTON].GetInt()};
+    int button{eventData[MouseButtonUp::P_BUTTON].GetInt()};
 }
 
 void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
@@ -107,7 +105,7 @@ void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D:
 
     JoystickState* joystickState{input_->GetJoystickByIndex(joystick)};
     // Process game event
-    switch (button){
+    switch (button) {
     case JB_START: PauseButtonPressed();
         break;
     case JB_L2: case JB_R2:
@@ -126,7 +124,7 @@ void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D:
 }
 void InputMaster::PauseButtonPressed()
 {
-    switch (masterControl_->GetGameState()){
+    switch (masterControl_->GetGameState()) {
     case GS_INTRO: break;
     case GS_LOBBY: /*masterControl_->SetGameState(GS_PLAY);*/ break;
     case GS_PLAY: masterControl_->SetPaused(!masterControl_->GetPaused()); break;
@@ -157,13 +155,13 @@ void InputMaster::Screenshot()
 
 void InputMaster::HandleJoystickButtonUp(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
 {
-    int joyID = eventData[JoystickButtonUp::P_JOYSTICKID].GetInt();		//int
-    int button = eventData[JoystickButtonUp::P_BUTTON].GetInt();		//int
+    int joyID{eventData[JoystickButtonUp::P_JOYSTICKID].GetInt()};		//int
+    int button{eventData[JoystickButtonUp::P_BUTTON].GetInt()};		//int
 }
 
 void InputMaster::HandleJoystickAxisMove(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
 {
     eventData[JoystickAxisMove::P_JOYSTICKID];		//int
-    int axis = eventData[JoystickAxisMove::P_AXIS].GetInt();			//int
-    float pos = eventData[JoystickAxisMove::P_POSITION].GetFloat();		//float
+    int axis{eventData[JoystickAxisMove::P_AXIS].GetInt()};			//int
+    float pos{eventData[JoystickAxisMove::P_POSITION].GetFloat()};		//float
 }

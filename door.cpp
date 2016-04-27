@@ -34,9 +34,9 @@ Door::Door(MasterControl* masterControl, bool right) :
     door_->SetMaterial(0, masterControl_->resources.materials.basic);
     door_->SetCastShadows(true);
 
-    Node* lightNode = rootNode_->CreateChild("DoorLight");
+    Node* lightNode{rootNode_->CreateChild("DoorLight")};
     lightNode->SetPosition(Vector3(0.0f, 0.666f, 2.3f));
-    Light* doorLight = lightNode->CreateComponent<Light>();
+    Light* doorLight{lightNode->CreateComponent<Light>()};
     doorLight->SetBrightness(5.0f);
     doorLight->SetCastShadows(true);
     doorLight->SetShadowBias(BiasParameters(0.000023, 0.042f));
@@ -54,8 +54,8 @@ float Door::HidesPlayer() const
 
 void Door::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    bool playerNear = LucKey::Distance(rootNode_->GetWorldPosition(), player_->GetPosition()) < 0.666f;
-    if (playerNear != wasNear_){
+    bool playerNear{LucKey::Distance(rootNode_->GetWorldPosition(), player_->GetPosition()) < 0.666f};
+    if (playerNear != wasNear_) {
         player_->PlaySample(doorSample_);
     }
     wasNear_ = playerNear;

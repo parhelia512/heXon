@@ -28,7 +28,7 @@ Heart::Heart(MasterControl *masterControl):
     model_->SetModel(masterControl_->cache_->GetResource<Model>("Models/Heart.mdl"));
     model_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Materials/RedEnvmap.xml"));
 
-    Vector<ColorFrame> colorFrames;
+    Vector<ColorFrame> colorFrames{};
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
     colorFrames.Push(ColorFrame(Color(0.7f, 0.23f, 0.23f, 0.42f), 0.1f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));

@@ -33,13 +33,13 @@ Urho3D::IntVector2 LucKey::Scale(const Urho3D::IntVector2 lhs, const Urho3D::Int
 }
 
 Vector2 LucKey::Rotate(const Vector2 vec2, const float angle){
-    float x = vec2.x_;
-    float y = vec2.y_;
+    float x{vec2.x_};
+    float y{vec2.y_};
 
-    float theta = M_DEGTORAD * angle;
+    float theta{M_DEGTORAD * angle};
 
-    float cs = cos(theta);
-    float sn = sin(theta);
+    float cs{cos(theta)};
+    float sn{sin(theta)};
 
     return Vector2(x * cs - y * sn, x * sn + y * cs);
 }

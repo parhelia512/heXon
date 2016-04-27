@@ -35,11 +35,10 @@ void Effect::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     age_ += timeStep;
 
     ParticleEffect* effect{particleEmitter_->GetEffect()};
-    if (effect){
-        if (age_ > emitTime_ + effect->GetMaxTimeToLive()){
+    if (effect) {
+        if (age_ > emitTime_ + effect->GetMaxTimeToLive()) {
             Disable();
-        }
-        else if (age_ > emitTime_){
+        } else if (age_ > emitTime_) {
             particleEmitter_->SetEmitting(false);
         }
     }
