@@ -65,8 +65,8 @@ void MasterControl::Setup()
 //    engineParameters_["VSync"] = true;
 //    engineParameters_["FullScreen"] = false;
 //    engineParameters_["Headless"] = true;
-    engineParameters_["WindowWidth"] = 960;
-    engineParameters_["WindowHeight"] = 540;
+//    engineParameters_["WindowWidth"] = 960;
+//    engineParameters_["WindowHeight"] = 540;
 //    engineParameters_["RenderPath"] = "RenderPaths/ForwardOutline.xml";
 }
 void MasterControl::Start()

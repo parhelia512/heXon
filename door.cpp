@@ -37,6 +37,7 @@ Door::Door(MasterControl* masterControl, bool right) :
     Node* lightNode{rootNode_->CreateChild("DoorLight")};
     lightNode->SetPosition(Vector3(0.0f, 0.666f, 2.3f));
     Light* doorLight{lightNode->CreateComponent<Light>()};
+    doorLight->SetRange(10.0f);
     doorLight->SetBrightness(5.0f);
     doorLight->SetCastShadows(true);
     doorLight->SetShadowBias(BiasParameters(0.000023, 0.042f));
