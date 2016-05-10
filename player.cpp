@@ -812,7 +812,7 @@ void Player::Think()
     switch (masterControl_->GetGameState()) {
     case GS_LOBBY: {
         bool splatterPillarsIdle{SPLATTERPILLAR->IsIdle() && OTHERSPLATTERPILLAR->IsIdle()};
-        Vector3 toPillar{SPLATTERPILLAR->GetPosition() - GetPosition() * static_cast<float>(splatterPillarsIdle)};
+        Vector3 toPillar{SPLATTERPILLAR->GetPosition() - GetPosition() * static_cast<float>(SPLATTERPILLAR->IsIdle())};
 
         if (masterControl_->NoHumans()){
             //Enter play
