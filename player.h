@@ -23,6 +23,11 @@
 
 #include "sceneobject.h"
 
+#define DOOR        (playerID_==2 ? masterControl_->door2_ : masterControl_->door1_)
+#define OTHERDOOR   (playerID_==1 ? masterControl_->door2_ : masterControl_->door1_)
+#define SPLATTERPILLAR (playerID_==2 ? masterControl_->splatterPillar2_ : masterControl_->splatterPillar1_)
+#define OTHERSPLATTERPILLAR (playerID_==1 ? masterControl_->splatterPillar2_ : masterControl_->splatterPillar1_)
+
 class Bullet;
 class Muzzle;
 class ChaoFlash;
@@ -48,9 +53,6 @@ class Player : public SceneObject
     friend class ChaoMine;
     URHO3D_OBJECT(Player, SceneObject);
 public:
-#define DOOR        (playerID_==2 ? masterControl_->door2_ : masterControl_->door1_)
-#define OTHERDOOR   (playerID_==1 ? masterControl_->door2_ : masterControl_->door1_)
-#define SPLATTERPILLAR (playerID_==2 ? masterControl_->splatterPillar2_ : masterControl_->splatterPillar1_)
     Player(MasterControl* masterControl, int playerID);
     Pilot pilot_;
 
@@ -150,7 +152,7 @@ private:
     void SetPilotMode(bool pilotMode);
     void MoveMuzzle();
     void LoadPilot();
-    void Think(StringHash eventType, VariantMap &eventData);
+    void Think();
     Vector3 Sniff(float playerFactor, bool taste = false);
     void CountScore();
 };

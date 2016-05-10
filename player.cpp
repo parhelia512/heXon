@@ -38,8 +38,8 @@
 Player::Player(MasterControl *masterControl, int playerID):
     SceneObject(masterControl),
     playerID_{playerID},
-    autoPilot_{playerID_==2 && !GetSubsystem<Input>()->GetJoystickByIndex(playerID-1)},
-//    autoPilot_{true},
+//    autoPilot_{playerID_==2 && !GetSubsystem<Input>()->GetJoystickByIndex(playerID-1)},
+    autoPilot_{true},
     autoMove_{Vector3::ZERO},
     autoFire_{Vector3::ZERO},
     alive_{true},
@@ -129,7 +129,7 @@ Player::Player(MasterControl *masterControl, int playerID):
 
     //Subscribe to events
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Player, HandleSceneUpdate));
-    if (autoPilot_) SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Player, Think));
+//    if (autoPilot_) SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Player, Think));
 
     for (int b = 0; b < 64; b++){
         Bullet* bullet = new Bullet(masterControl_, playerID_);
@@ -310,6 +310,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     fireJoy.Length() > fireKey.Length() ? fire = fireJoy : fire = fireKey;
 
     if (autoPilot_){
+        Think();
         move = autoMove_;
         fire = autoFire_;
     }
@@ -485,7 +486,7 @@ void Player::Pickup(PickupType pickup)
             appleCount_ = 0;
             PlaySample(powerup_s, 0.42f);
         }
-        else PlaySample(pickup_s, 0.34f);
+        else PlaySample(pickup_s, 0.42f);
     } break;
     case PT_HEART: {
         ++heartCount_;
@@ -497,7 +498,7 @@ void Player::Pickup(PickupType pickup)
         }
         else {
             SetHealth(Max(health_, Clamp(health_+5.0f, 0.0f, 10.0f)));
-            PlaySample(pickup_s, 0.34f);
+            PlaySample(pickup_s, 0.42f);
         }
     } break;
     case PT_MULTIX: {
@@ -794,7 +795,7 @@ void Player::RemoveTails()
 }
 
 //Updates autopilot input
-void Player::Think(StringHash eventType, VariantMap &eventData)
+void Player::Think()
 {
     float playerFactor{( playerID_==2 ? 3.4f : 2.3f )};
     if (masterControl_->GetSinceStateChange() < playerFactor * 0.1f){
@@ -802,26 +803,31 @@ void Player::Think(StringHash eventType, VariantMap &eventData)
         return;
     }
 
-    Vector3 pickupPos{ Vector3::ZERO };
-    Vector3 smell{ Sniff(playerFactor) * playerFactor };
-    Vector3 taste{ Sniff(playerFactor, true) * playerFactor };
+    Vector3 pickupPos{Vector3::ZERO};
+    Vector3 smell{Sniff(playerFactor) * playerFactor};
+    Vector3 taste{Sniff(playerFactor, true) * playerFactor};
 
     Player* otherPlayer{masterControl_->GetPlayer(playerID_, true)};
     
-    switch (masterControl_->GetGameState()){
+    switch (masterControl_->GetGameState()) {
     case GS_LOBBY: {
+        bool splatterPillarsIdle{SPLATTERPILLAR->IsIdle() && OTHERSPLATTERPILLAR->IsIdle()};
+        Vector3 toPillar{SPLATTERPILLAR->GetPosition() - GetPosition() * static_cast<float>(splatterPillarsIdle)};
+
         if (masterControl_->NoHumans()){
             //Enter play
-            if (GetScore() == 0 && masterControl_->GetPlayer(playerID_, true)->GetScore() == 0) {
+            if (GetScore() == 0 && masterControl_->GetPlayer(playerID_, true)->GetScore() == 0 && splatterPillarsIdle)
                 autoMove_ = 4.2f * (playerID_==2 ? Vector3::RIGHT : Vector3::LEFT) - GetPosition();
             //Reset Score
-            } else if (GetScore() != 0)
-                autoMove_ = SPLATTERPILLAR->GetPosition() - GetPosition();
-            else autoMove_ = Vector3::ZERO;
+            else if (GetScore() != 0)
+                autoMove_ = toPillar;
+            //Stay put
+            else
+                autoMove_ = Vector3::ZERO;
         }
         //Reset Score
         else if (otherPlayer->GetScore() == 0 && GetScore() != 0)
-            autoMove_ = SPLATTERPILLAR->GetPosition() - GetPosition();
+            autoMove_ = toPillar;
         //Exit
         else if (DOOR->HidesPlayer() == 0.0f && OTHERDOOR->HidesPlayer() > 0.1f * playerFactor)
             autoMove_ = Vector3::FORWARD;

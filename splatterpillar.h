@@ -32,6 +32,7 @@ class SplatterPillar : public Object
 public:
     SplatterPillar(MasterControl* masterControl, bool right);
     Vector3 GetPosition() const { return rootNode_->GetPosition(); }
+    bool IsIdle() const;
 private:
     MasterControl* masterControl_;
     Player* player_;

@@ -55,12 +55,12 @@ void ChaoZap::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     Color newDiffColor{chaoColor.r_ * Random(0.1f , 1.23f),
                        chaoColor.g_ * Random(0.23f, 0.9f),
                        chaoColor.b_ * Random(0.16f, 0.5f),
-                       chaoColor.a_ * Random(0.42f , 0.9f)};
+                       chaoColor.a_ * Random(0.42f, 0.9f)};
     chaoMaterial_->SetShaderParameter("MatDiffColor", chaoColor.Lerp(newDiffColor, Clamp(23.0f*timeStep, 0.0f, 1.0f)));
     Color newSpecColor{Random(0.3f, 1.5f),
                        Random(0.5f, 1.8f),
                        Random(0.4f, 1.4f),
-                       Random(4.0f , 64.0f)};
+                       Random(4.0f, 64.0f)};
     chaoMaterial_->SetShaderParameter("MatSpecColor", newSpecColor);
     rootNode_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
 }
