@@ -27,7 +27,7 @@ class Pickup : public SceneObject
 {
     URHO3D_OBJECT(Pickup, SceneObject);
 public:
-    Pickup(MasterControl* masterControl);
+    Pickup();
     void Set(Vector3 position);
     void Respawn(bool restart = false);
     void Deactivate();

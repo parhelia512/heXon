@@ -20,10 +20,8 @@
 
 #include "player.h"
 
-InputMaster::InputMaster(MasterControl* masterControl):
-    Object(masterControl->GetContext()),
-    masterControl_{masterControl},
-    input_{GetSubsystem<Input>()}
+InputMaster::InputMaster():
+    Object(MC->GetContext())
 {
     SubscribeToEvents();
 }
@@ -93,7 +91,7 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
         PauseButtonPressed();
     } break;
     //Toggle music on M
-    case KEY_M: masterControl_->musicSource_->SetGain(masterControl_->musicSource_->GetGain()==0.0f ? 0.32f : 0.0f);
+    case KEY_M: MC->musicSource_->SetGain(MC->musicSource_->GetGain()==0.0f ? 0.32f : 0.0f);
         break;
     }
 }
@@ -103,7 +101,7 @@ void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D:
     unsigned joystick{static_cast<unsigned>(eventData[JoystickButtonDown::P_JOYSTICKID].GetInt())};
     int button{eventData[JoystickButtonDown::P_BUTTON].GetInt()};
 
-    JoystickState* joystickState{input_->GetJoystickByIndex(joystick)};
+    JoystickState* joystickState{INPUT->GetJoystickByIndex(joystick)};
     // Process game event
     switch (button) {
     case JB_START: PauseButtonPressed();
@@ -111,7 +109,7 @@ void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D:
     case JB_L2: case JB_R2:
         if (joystickState->GetButtonDown(JB_L2) &&
                 joystickState->GetButtonDown(JB_R2) &&
-                masterControl_->GetPlayer((int)joystick+1)->IsAlive())
+                MC->GetPlayer((int)joystick+1)->IsAlive())
             EjectButtonPressed();
         break;
     case JB_L1: case JB_R1:
@@ -124,21 +122,21 @@ void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D:
 }
 void InputMaster::PauseButtonPressed()
 {
-    switch (masterControl_->GetGameState()) {
+    switch (MC->GetGameState()) {
     case GS_INTRO: break;
-    case GS_LOBBY: /*masterControl_->SetGameState(GS_PLAY);*/ break;
-    case GS_PLAY: masterControl_->SetPaused(!masterControl_->GetPaused()); break;
-    case GS_DEAD: masterControl_->SetGameState(GS_LOBBY); break;
+    case GS_LOBBY: /*MC->SetGameState(GS_PLAY);*/ break;
+    case GS_PLAY: MC->SetPaused(!MC->GetPaused()); break;
+    case GS_DEAD: MC->SetGameState(GS_LOBBY); break;
     case GS_EDIT: break;
         default: break;
     }
 }
 void InputMaster::EjectButtonPressed()
 {
-    if (masterControl_->GetGameState()==GS_PLAY && !masterControl_->GetPaused()) {
-        masterControl_->Eject();
-    } else if (masterControl_->GetGameState()==GS_LOBBY) masterControl_->Exit();
-    else if (masterControl_->GetGameState()==GS_DEAD) masterControl_->SetGameState(GS_LOBBY);
+    if (MC->GetGameState()==GS_PLAY && !MC->GetPaused()) {
+        MC->Eject();
+    } else if (MC->GetGameState()==GS_LOBBY) MC->Exit();
+    else if (MC->GetGameState()==GS_DEAD) MC->SetGameState(GS_LOBBY);
 }
 
 void InputMaster::Screenshot()

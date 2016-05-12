@@ -46,7 +46,7 @@ Vector2 LucKey::Rotate(const Vector2 vec2, const float angle){
 
 float LucKey::RandomSign()
 {
-    return Random(2)*2-1;
+    return static_cast<float>(Random(2)*2-1);
 }
 
 Color LucKey::RandomHairColor()

@@ -24,8 +24,8 @@
 #include "player.h"
 #include "spawnmaster.h"
 
-Seeker::Seeker(MasterControl *masterControl):
-    SceneObject(masterControl),
+Seeker::Seeker():
+    SceneObject(),
     age_{0.0f},
     lifeTime_{7.5f},
     damage_{2.3f}
@@ -41,7 +41,7 @@ Seeker::Seeker(MasterControl *masterControl):
     trigger->SetSphere(1.0f);
 
     ParticleEmitter* particleEmitter = rootNode_->CreateComponent<ParticleEmitter>();
-    particleEmitter->SetEffect(masterControl_->cache_->GetResource<ParticleEffect>("Particles/Seeker.xml"));
+    particleEmitter->SetEffect(MC->cache_->GetResource<ParticleEffect>("Particles/Seeker.xml"));
 
     AddTail();
 
@@ -50,7 +50,7 @@ Seeker::Seeker(MasterControl *masterControl):
     light->SetBrightness(2.3f);
     light->SetColor(Color(1.0f, 1.0f, 1.0f));
 
-    sample_ = masterControl_->cache_->GetResource<Sound>("Samples/Seeker.ogg");
+    sample_ = MC->cache_->GetResource<Sound>("Samples/Seeker.ogg");
     sample_->SetLooped(false);
 }
 
@@ -62,13 +62,13 @@ void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
     age_ += timeStep;
     if (age_ > lifeTime_ && rootNode_->IsEnabled()) {
-        masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), 0, false);
+        MC->spawnMaster_->SpawnHitFX(GetPosition(), 0, false);
         Disable();
     }
 
     Vector3 targetPosition = Vector3::ZERO;
-    Player* player1 = masterControl_->GetPlayer(1);
-    Player* player2 = masterControl_->GetPlayer(2);
+    Player* player1 = MC->GetPlayer(1);
+    Player* player2 = MC->GetPlayer(2);
     if (player1->IsAlive() && player2->IsAlive())
         targetPosition =
                 LucKey::Distance(rootNode_->GetPosition(), player1->GetPosition()) <
@@ -88,18 +88,18 @@ void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
     for (int i = 0; i < collidingBodies.Size(); i++) {
         RigidBody* collider = collidingBodies[i];
         if (collider->GetNode()->GetNameHash() == N_PLAYER) {
-            Player* hitPlayer = masterControl_->players_[collider->GetNode()->GetID()];
+            Player* hitPlayer = MC->players_[collider->GetNode()->GetID()];
 
             hitPlayer->Hit(2.3f, false);
-            masterControl_->spawnMaster_->SpawnHitFX(rootNode_->GetPosition(), 0, false);
+            MC->spawnMaster_->SpawnHitFX(rootNode_->GetPosition(), 0, false);
             collider->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.5f);
             Disable();
         }
         else if (collider->GetNode()->GetNameHash() == N_CHAOMINE){
-            masterControl_->spawnMaster_->chaoMines_[collider->GetNode()->GetID()]->Hit(damage_, 0);
+            MC->spawnMaster_->chaoMines_[collider->GetNode()->GetID()]->Hit(damage_, 0);
         }
         else if (collider->GetNode()->GetNameHash() == N_SEEKER){
-            masterControl_->spawnMaster_->SpawnHitFX(rootNode_->GetPosition(), false);
+            MC->spawnMaster_->SpawnHitFX(rootNode_->GetPosition(), false);
             Disable();
         }
     }
@@ -111,7 +111,7 @@ void Seeker::Set(Vector3 position)
     SceneObject::Set(position);
     rigidBody_->ResetForces();
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
-    masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
+    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
     AddTail();
     PlaySample(sample_, 0.666f);
 

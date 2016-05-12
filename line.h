@@ -26,13 +26,12 @@ class Line : public Object
 {
     URHO3D_OBJECT(Line, Object);
 public:
-    Line(MasterControl *masterControl);
+    Line();
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void Set(const Vector3 position, int playerID);
     void Disable();
     bool IsEnabled() { return rootNode_->IsEnabled(); }
 private:
-    MasterControl* masterControl_;
     Node* rootNode_;
     float baseScale_;
     StaticModel* model_;

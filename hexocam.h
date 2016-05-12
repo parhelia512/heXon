@@ -38,7 +38,7 @@ class heXoCam : public Object
     friend class MasterControl;
     friend class InputMaster;
 public:
-    heXoCam(MasterControl* masterControl);
+    heXoCam();
 
     virtual void Start();
     virtual void Stop();
@@ -52,7 +52,6 @@ public:
     Quaternion GetRotation();
     void SetGreyScale(const bool enabled);
 private:
-    MasterControl* masterControl_;
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     SharedPtr<Node> rootNode_;
 

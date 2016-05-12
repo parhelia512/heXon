@@ -18,18 +18,17 @@
 
 #include "bubble.h"
 
-Bubble::Bubble(MasterControl *masterControl):
-    Object(masterControl->GetContext()),
-    masterControl_{masterControl},
+Bubble::Bubble():
+    Object(MC->GetContext()),
     spinAxis_{Vector3(Random(), Random(), Random()).Normalized()},
     spinVelocity_{LucKey::RandomSign() * Random(23.0f, 42.0f)},
     baseScale_{Random(0.25f, 0.95f)}
 {
     baseScale_ *= baseScale_;
-    rootNode_ = masterControl_->world.scene->CreateChild("Bubble");
+    rootNode_ = MC->world.scene->CreateChild("Bubble");
     StaticModel* model = rootNode_->CreateComponent<StaticModel>();
-    model->SetModel(masterControl_->cache_->GetResource<Model>("Models/Box.mdl"));
-    model->SetMaterial(masterControl_->cache_->GetResource<Material>("Materials/Bubble.xml"));
+    model->SetModel(MC->cache_->GetResource<Model>("Models/Box.mdl"));
+    model->SetMaterial(MC->cache_->GetResource<Material>("Materials/Bubble.xml"));
 }
 
 void Bubble::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
@@ -39,11 +38,11 @@ void Bubble::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     if (!rootNode_->GetComponent<StaticModel>()->IsInView() && rootNode_->GetPosition().y_ > 5.0f)
         Disable();
 
-    rootNode_->Translate(Vector3::UP * timeStep * (6.66f + masterControl_->SinceLastReset() * 0.0023f), TS_WORLD);
+    rootNode_->Translate(Vector3::UP * timeStep * (6.66f + MC->SinceLastReset() * 0.0023f), TS_WORLD);
     rootNode_->Rotate(Quaternion(timeStep * spinVelocity_, spinAxis_));
-    rootNode_->SetWorldScale(Vector3(masterControl_->Sine(4.0f - baseScale_, baseScale_*0.88f, baseScale_*1.23f, spinVelocity_),
-                                     masterControl_->Sine(5.0f - baseScale_, baseScale_*0.88f, baseScale_*1.23f, spinVelocity_ + 2.0f),
-                                     masterControl_->Sine(4.2f - baseScale_, baseScale_*0.88f, baseScale_*1.23f, spinVelocity_ + 3.0f)));
+    rootNode_->SetWorldScale(Vector3(MC->Sine(4.0f - baseScale_, baseScale_*0.88f, baseScale_*1.23f, spinVelocity_),
+                                     MC->Sine(5.0f - baseScale_, baseScale_*0.88f, baseScale_*1.23f, spinVelocity_ + 2.0f),
+                                     MC->Sine(4.2f - baseScale_, baseScale_*0.88f, baseScale_*1.23f, spinVelocity_ + 3.0f)));
 }
 
 void Bubble::Set(const Vector3 position)

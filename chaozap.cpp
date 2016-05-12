@@ -21,8 +21,8 @@
 #include "player.h"
 #include "spawnmaster.h"
 
-ChaoZap::ChaoZap(MasterControl *masterControl):
-    SceneObject(masterControl),
+ChaoZap::ChaoZap():
+    SceneObject(),
     playerID_{0},
     size_{5.0f}
 {
@@ -30,15 +30,15 @@ ChaoZap::ChaoZap(MasterControl *masterControl):
     rootNode_->SetEnabled(false);
 
     chaoModel_ = rootNode_->CreateComponent<StaticModel>();
-    chaoModel_->SetModel(masterControl_->cache_->GetResource<Model>("Models/ChaoFlash.mdl"));
-    chaoMaterial_ = masterControl_->cache_->GetTempResource<Material>("Materials/ChaoFlash.xml");
+    chaoModel_->SetModel(MC->cache_->GetResource<Model>("Models/ChaoFlash.mdl"));
+    chaoMaterial_ = MC->cache_->GetTempResource<Material>("Materials/ChaoFlash.xml");
     chaoModel_->SetMaterial(chaoMaterial_);
 
-    samples_.Push(masterControl_->cache_->GetResource<Sound>("Samples/Mine1.ogg"));
-    samples_.Push(masterControl_->cache_->GetResource<Sound>("Samples/Mine2.ogg"));
-    samples_.Push(masterControl_->cache_->GetResource<Sound>("Samples/Mine3.ogg"));
-    samples_.Push(masterControl_->cache_->GetResource<Sound>("Samples/Mine4.ogg"));
-    samples_.Push(masterControl_->cache_->GetResource<Sound>("Samples/Mine5.ogg"));
+    samples_.Push(MC->cache_->GetResource<Sound>("Samples/Mine1.ogg"));
+    samples_.Push(MC->cache_->GetResource<Sound>("Samples/Mine2.ogg"));
+    samples_.Push(MC->cache_->GetResource<Sound>("Samples/Mine3.ogg"));
+    samples_.Push(MC->cache_->GetResource<Sound>("Samples/Mine4.ogg"));
+    samples_.Push(MC->cache_->GetResource<Sound>("Samples/Mine5.ogg"));
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
 }
@@ -76,24 +76,24 @@ void ChaoZap::Set(const Vector3 position, int playerID)
     rootNode_->SetEnabled(true);
     chaoMaterial_->SetShaderParameter("MatDiffColor", Color(0.1f, 0.5f, 0.2f, 0.5f));
 
-    if (masterControl_->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), size_, M_MAX_UNSIGNED)) {
+    if (MC->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), size_, M_MAX_UNSIGNED)) {
         for (RigidBody* r : hitResults) {
             unsigned hitID{r->GetNode()->GetID()};
 
-            if(masterControl_->spawnMaster_->spires_.Contains(hitID)) {
-                WeakPtr<Spire> spire{masterControl_->spawnMaster_->spires_[hitID]};
+            if(MC->spawnMaster_->spires_.Contains(hitID)) {
+                WeakPtr<Spire> spire{MC->spawnMaster_->spires_[hitID]};
                 spire->Hit(spire->GetHealth(), 1);
-                masterControl_->GetPlayer(playerID)->AddScore(Random(23, 42));
+                MC->GetPlayer(playerID)->AddScore(Random(23, 42));
             }
-            else if(masterControl_->spawnMaster_->razors_.Contains(hitID)) {
-                WeakPtr<Razor> razor{masterControl_->spawnMaster_->razors_[hitID]};
+            else if(MC->spawnMaster_->razors_.Contains(hitID)) {
+                WeakPtr<Razor> razor{MC->spawnMaster_->razors_[hitID]};
                 razor->Hit(razor->GetHealth(), 1);
-                masterControl_->GetPlayer(playerID)->AddScore(Random(5, 23));
+                MC->GetPlayer(playerID)->AddScore(Random(5, 23));
             }
-            else if(masterControl_->spawnMaster_->seekers_.Contains(hitID)) {
-                WeakPtr<Seeker> seeker{masterControl_->spawnMaster_->seekers_[hitID]};
+            else if(MC->spawnMaster_->seekers_.Contains(hitID)) {
+                WeakPtr<Seeker> seeker{MC->spawnMaster_->seekers_[hitID]};
                 seeker->Disable();
-                masterControl_->GetPlayer(playerID)->AddScore(Random(2, 3));
+                MC->GetPlayer(playerID)->AddScore(Random(2, 3));
             }
         }
     }

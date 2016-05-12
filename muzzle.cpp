@@ -18,8 +18,8 @@
 
 #include "muzzle.h"
 
-Muzzle::Muzzle(MasterControl *masterControl, int playerID):
-    Effect(masterControl)
+Muzzle::Muzzle(int playerID):
+    Effect()
 {
     rootNode_->SetName("Muzzle");
 
@@ -27,9 +27,9 @@ Muzzle::Muzzle(MasterControl *masterControl, int playerID):
     ParticleEffect* particleEffect{};
 
     if (playerID == 2)
-        particleEffect = masterControl_->cache_->GetResource<ParticleEffect>("Particles/PurpleMuzzle.xml");
+        particleEffect = MC->cache_->GetResource<ParticleEffect>("Particles/PurpleMuzzle.xml");
     else
-        particleEffect = masterControl_->cache_->GetResource<ParticleEffect>("Particles/GreenMuzzle.xml");
+        particleEffect = MC->cache_->GetResource<ParticleEffect>("Particles/GreenMuzzle.xml");
 
     particleEmitter_->SetEffect(particleEffect);
 }

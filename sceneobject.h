@@ -35,7 +35,7 @@ class SceneObject : public Object
     friend class Door;
     URHO3D_OBJECT(SceneObject, Object);
 public:
-    SceneObject(MasterControl* masterControl);
+    SceneObject();
     void Set(const Vector3 position);
     void Disable();
 
@@ -45,7 +45,6 @@ public:
     bool IsEnabled() const { return rootNode_->IsEnabled(); }
 protected:
     bool blink_;
-    MasterControl* masterControl_;
     SharedPtr<Node> rootNode_;
     SharedPtr<Node> soundNode_;
     SharedPtr<Node> graphicsNode_;

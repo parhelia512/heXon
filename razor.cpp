@@ -18,25 +18,25 @@
 
 #include "razor.h"
 
-Razor::Razor(MasterControl *masterControl):
-    Enemy(masterControl),
+Razor::Razor():
+    Enemy(),
     topSpeed_{10.0f},
     aimSpeed_{0.25f * topSpeed_}
 {
     rootNode_->SetName("Razor");
     meleeDamage_ = 0.9f;
 
-    SharedPtr<Material> black{masterControl_->cache_->GetTempResource<Material>("Materials/Razor.xml")};
+    SharedPtr<Material> black{MC->cache_->GetTempResource<Material>("Materials/Razor.xml")};
 
     topNode_ = rootNode_->CreateChild();
     topModel_ = topNode_->CreateComponent<StaticModel>();
-    topModel_->SetModel(masterControl_->cache_->GetResource<Model>("Models/RazorTop.mdl"));
+    topModel_->SetModel(MC->cache_->GetResource<Model>("Models/RazorTop.mdl"));
     topModel_->SetMaterial(0, black);
     topModel_->SetMaterial(1, centerModel_->GetMaterial());
 
     bottomNode_ = rootNode_->CreateChild();
     bottomModel_ = bottomNode_->CreateComponent<StaticModel>();
-    bottomModel_->SetModel(masterControl_->cache_->GetResource<Model>("Models/RazorBottom.mdl"));
+    bottomModel_->SetModel(MC->cache_->GetResource<Model>("Models/RazorBottom.mdl"));
     bottomModel_->SetMaterial(0, black);
     bottomModel_->SetMaterial(1, centerModel_->GetMaterial());
 

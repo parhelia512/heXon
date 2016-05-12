@@ -29,13 +29,12 @@ template <> unsigned MakeHash(const IntVector2& value)
   }
 }
 
-TileMaster::TileMaster(MasterControl* masterControl):
-    Object(masterControl->GetContext()),
-    masterControl_{masterControl},
+TileMaster::TileMaster():
+    Object(MC->GetContext()),
     targetPosition_{Vector3::UP * 0.666f},
     targetScale_{Vector3::ONE * 0.05f}
 {
-    rootNode_ = masterControl_->world.scene->CreateChild("TileMaster");
+    rootNode_ = MC->world.scene->CreateChild("TileMaster");
     rootNode_->SetPosition(targetPosition_);
     rootNode_->SetScale(targetScale_);
 
@@ -70,9 +69,9 @@ TileMaster::TileMaster(MasterControl* masterControl):
     logoNode_->SetRotation(Quaternion(0.0f, 180.0f, 0.0f));
     logoNode_->SetScale(16.0f);
     StaticModel* logoModel = logoNode_->CreateComponent<StaticModel>();
-    logoModel->SetModel(masterControl_->cache_->GetResource<Model>("Models/heXon.mdl"));
-    logoMaterial_ = masterControl_->cache_->GetResource<Material>("Materials/Loglow.xml");
-    xMaterial_ = masterControl_->cache_->GetResource<Material>("Materials/X.xml");
+    logoModel->SetModel(MC->cache_->GetResource<Model>("Models/heXon.mdl"));
+    logoMaterial_ = MC->cache_->GetResource<Material>("Materials/Loglow.xml");
+    xMaterial_ = MC->cache_->GetResource<Material>("Materials/X.xml");
     logoModel->SetMaterial(0, logoMaterial_);
     logoModel->SetMaterial(1, xMaterial_);
 
@@ -97,29 +96,29 @@ void TileMaster::EnterLobbyState()
 void TileMaster::HandleUpdate(StringHash eventType, VariantMap& eventData)
 {
     float timestep = eventData[Update::P_TIMESTEP].GetFloat();
-    float lerpFactor = masterControl_->GetGameState() == GS_LOBBY ? 13.0f : 6.66f ;
+    float lerpFactor = MC->GetGameState() == GS_LOBBY ? 13.0f : 6.66f ;
     float t = Min(1.0f, timestep * lerpFactor);
     rootNode_->SetPosition(rootNode_->GetPosition().Lerp(targetPosition_, t));
     rootNode_->SetScale(rootNode_->GetScale().Lerp(targetScale_, pow(t, 0.88f) ));
 
-    logoNode_->SetPosition(logoNode_->GetPosition().Lerp(masterControl_->GetGameState() == GS_LOBBY
-                                                         ? Vector3::UP * 4.0f * masterControl_->Sine(5.0f, 0.23f, 1.23f)
+    logoNode_->SetPosition(logoNode_->GetPosition().Lerp(MC->GetGameState() == GS_LOBBY
+                                                         ? Vector3::UP * 4.0f * MC->Sine(5.0f, 0.23f, 1.23f)
                                                          : Vector3::UP * -4.0f, t));
     logoMaterial_->SetShaderParameter("MatDiffColor", logoMaterial_->GetShaderParameter("MatDiffColor").GetColor().Lerp(
-                                          masterControl_->GetGameState() == GS_LOBBY
-                                          ? Color(0.42f, Random(0.666f), Random(0.666f), 2.0f) * masterControl_->Sine(5.0f, 0.88f, 1.0f, 0.23f)
+                                          MC->GetGameState() == GS_LOBBY
+                                          ? Color(0.42f, Random(0.666f), Random(0.666f), 2.0f) * MC->Sine(5.0f, 0.88f, 1.0f, 0.23f)
                                           : Color(0.0666f, 0.16f, 0.16f, 0.23f), t));
     logoMaterial_->SetShaderParameter("MatEmissiveColor", logoMaterial_->GetShaderParameter("MatEmissiveColor").GetColor().Lerp(
-                                          masterControl_->GetGameState() == GS_LOBBY
-                                          ? Color(Random(0.42f), Random(0.42f), Random(0.42f)) * masterControl_->Sine(5.0f, 0.88f, 1.0f, 0.23f)
+                                          MC->GetGameState() == GS_LOBBY
+                                          ? Color(Random(0.42f), Random(0.42f), Random(0.42f)) * MC->Sine(5.0f, 0.88f, 1.0f, 0.23f)
                                           : Color(0.005f, 0.05f, 0.02f), t));
-    xMaterial_->SetShaderParameter("MatDiffColor", masterControl_->GetGameState() == GS_LOBBY
+    xMaterial_->SetShaderParameter("MatDiffColor", MC->GetGameState() == GS_LOBBY
                                           ? logoMaterial_->GetShaderParameter("MatDiffColor").GetColor()
                                           : xMaterial_->GetShaderParameter("MatDiffColor").GetColor().Lerp(Color(0.0666f, 0.16f, 0.16f, 0.23f), t));
-    xMaterial_->SetShaderParameter("MatEmissiveColor", masterControl_->GetGameState() == GS_LOBBY
+    xMaterial_->SetShaderParameter("MatEmissiveColor", MC->GetGameState() == GS_LOBBY
                                           ? logoMaterial_->GetShaderParameter("MatEmissiveColor").GetColor()
                                           : xMaterial_->GetShaderParameter("MatEmissiveColor").GetColor().Lerp(Color(0.005f, 0.05f, 0.02f), t));
-    playLight_->SetBrightness(masterControl_->GetGameState() == GS_PLAY? 0.8f : 0.0f);
+    playLight_->SetBrightness(MC->GetGameState() == GS_PLAY? 0.8f : 0.0f);
 }
 
 Tile* TileMaster::GetRandomTile()
@@ -131,7 +130,7 @@ Tile* TileMaster::GetRandomTile()
             SharedPtr<Tile> tryTile = tiles[Random((int)tiles.Size())];
             PODVector<PhysicsRaycastResult> hitResults;
             Ray spawnRay(tryTile->rootNode_->GetPosition()-Vector3::UP, Vector3::UP*10.0f);
-            if (!masterControl_->PhysicsRayCast(hitResults, spawnRay, 23.0f, M_MAX_UNSIGNED)){
+            if (!MC->PhysicsRayCast(hitResults, spawnRay, 23.0f, M_MAX_UNSIGNED)){
                 tile = tryTile;
             }
         }

@@ -22,16 +22,15 @@
 #include "spawnmaster.h"
 #include "bullet.h"
 
-SceneObject::SceneObject(MasterControl* masterControl):
-    Object(masterControl->GetContext()),
-    masterControl_{masterControl},
+SceneObject::SceneObject():
+    Object(MC->GetContext()),
     blink_{true}
 {
-    rootNode_ = masterControl_->world.scene->CreateChild("SceneObject");
+    rootNode_ = MC->world.scene->CreateChild("SceneObject");
 
-    flashSample_ = masterControl_->cache_->GetResource<Sound>("Samples/Flash.ogg");
+    flashSample_ = MC->cache_->GetResource<Sound>("Samples/Flash.ogg");
     flashSample_->SetLooped(false);
-    for (int i = 0; i < 5; ++i){
+    for (int i{0}; i < 5; ++i){
         SharedPtr<SoundSource> sampleSource = SharedPtr<SoundSource>(rootNode_->CreateComponent<SoundSource>());
         sampleSource->SetSoundType(SOUND_EFFECT);
         sampleSources_.Push(sampleSource);
@@ -48,7 +47,7 @@ void SceneObject::Set(const Vector3 position)
 
 void SceneObject::Disable()
 {
-    masterControl_->tileMaster_->RemoveFromAffectors(rootNode_);
+    MC->tileMaster_->RemoveFromAffectors(rootNode_);
     rootNode_->SetEnabledRecursive(false);
     if (blink_)
         UnsubscribeFromEvent(E_POSTRENDERUPDATE);
@@ -57,52 +56,53 @@ void SceneObject::Disable()
 
 void SceneObject::PlaySample(Sound* sample, const float gain)
 {
-    for (SharedPtr<SoundSource> s : sampleSources_){
+    for (SharedPtr<SoundSource> s : sampleSources_)
         if (!s->IsPlaying()){
             s->SetGain(gain);
             s->Play(sample);
             return;
         }
-    }
 }
 void SceneObject::StopAllSound()
 {
-    for (SharedPtr<SoundSource> s : sampleSources_){
+    for (SharedPtr<SoundSource> s : sampleSources_)
         s->Stop();
-    }
 }
 bool SceneObject::IsPlayingSound()
 {
-    for (SharedPtr<SoundSource> s : sampleSources_){
+    for (SharedPtr<SoundSource> s : sampleSources_)
         if (s->IsPlaying()) return true;
-    }
     return false;
 }
 
 void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
 {
-    if (masterControl_->GetPaused()) return;
+    if (MC->GetPaused()) return;
 
-    Vector3 flatPosition = LucKey::Scale(rootNode_->GetPosition(), Vector3::ONE-Vector3::UP);
-    float radius = 20.0f;
+    Vector3 flatPosition{LucKey::Scale(rootNode_->GetPosition(), Vector3::ONE-Vector3::UP)};
+    float radius{20.0f};
     if (flatPosition.Length() > radius){
-        Vector3 hexantNormal = Vector3::FORWARD;
-        int sides = 6;
-        for (int h = 0; h < sides; h++){
-            Vector3 otherHexantNormal = Quaternion(h * (360.0f/sides), Vector3::UP)*Vector3::FORWARD;
+        Vector3 hexantNormal{Vector3::FORWARD};
+        int sides{6};
+        for (int h{0}; h < sides; ++h){
+            Vector3 otherHexantNormal{Quaternion(h * (360.0f/sides), Vector3::UP)*Vector3::FORWARD};
             hexantNormal = flatPosition.Angle(otherHexantNormal) < flatPosition.Angle(hexantNormal)
                     ? otherHexantNormal : hexantNormal;
         }
-        float boundsCheck = flatPosition.Length() * masterControl_->Cosine(M_DEGTORAD * flatPosition.Angle(hexantNormal));
+        float boundsCheck{flatPosition.Length() * MC->Cosine(M_DEGTORAD * flatPosition.Angle(hexantNormal))};
         if (boundsCheck > radius){
             if (rootNode_->GetNameHash() == N_BULLET){
-                masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), 0, false);
+                MC->spawnMaster_->SpawnHitFX(GetPosition(), 0, false);
                 Disable();
+
             } else if (blink_){
-                masterControl_->spawnMaster_->SpawnFlash(rootNode_->GetPosition());
-                Vector3 newPosition = rootNode_->GetPosition()-(1.995f*radius)*hexantNormal;
+                MC->spawnMaster_->SpawnFlash(rootNode_->GetPosition());
+
+                Vector3 newPosition{rootNode_->GetPosition()-(1.995f*radius)*hexantNormal};
                 rootNode_->SetPosition(newPosition);
-                masterControl_->spawnMaster_->SpawnFlash(newPosition);
+
+                MC->spawnMaster_->SpawnFlash(newPosition);
+
                 PlaySample(flashSample_, 0.16f);
             }
         }
@@ -111,7 +111,8 @@ void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
 
 void SceneObject::Emerge(const float timeStep)
 {
-    if (!IsEmerged()) {
-        rootNode_->Translate(2.3f*Vector3::UP * timeStep * (0.23f - rootNode_->GetPosition().y_), TS_WORLD);
-    }
+    if (!IsEmerged())
+        rootNode_->Translate(2.3f * Vector3::UP * timeStep *
+                             (0.23f - rootNode_->GetPosition().y_),
+                             TS_WORLD);
 }

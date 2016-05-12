@@ -20,45 +20,46 @@
 
 #include "player.h"
 
-SplatterPillar::SplatterPillar(MasterControl *masterControl, bool right):
-    Object(masterControl->GetContext()),
-    masterControl_{masterControl},
+SplatterPillar::SplatterPillar(bool right):
+    Object(MC->GetContext()),
     player_{},
     right_{right},
     spun_{false},
     reset_{true},
+    delayed_{0.0f},
+    delay_{0.5f},
     sequenceLength_{5.0f},
     lastTriggered_{-5.0f},
     rotationSpeed_{}
 {
-    rootNode_ = masterControl->lobbyNode_->CreateChild("SplatterPillar");
+    rootNode_ = MC->lobbyNode_->CreateChild("SplatterPillar");
     rootNode_->SetPosition(Vector3(right_? 2.26494f : -2.26494f, 0.0f, -3.91992f));
     rootNode_->Rotate(Quaternion(Random(6)*60.0f, Vector3::UP));
     pillarNode_ = rootNode_->CreateChild("Pillar");
     bloodNode_ = rootNode_->CreateChild("Blood");
     pillar_ = pillarNode_->CreateComponent<AnimatedModel>();
-    pillar_->SetModel(masterControl_->cache_->GetResource<Model>("Models/SplatterPillar.mdl"));
+    pillar_->SetModel(MC->cache_->GetResource<Model>("Models/SplatterPillar.mdl"));
     pillar_->SetMorphWeight(0, 0.0f);
     pillar_->SetCastShadows(true);
-    pillar_->SetMaterial(0, masterControl_->resources.materials.basic);
-    if (!right_) pillar_->SetMaterial(1, masterControl_->cache_->GetResource<Material>("Materials/GreenGlow.xml"));
-    else pillar_->SetMaterial(1, masterControl_->cache_->GetResource<Material>("Materials/PurpleGlow.xml"));
-    pillar_->SetMaterial(2, masterControl_->cache_->GetResource<Material>("Materials/Metal.xml"));
-    pillar_->SetMaterial(3, masterControl_->cache_->GetResource<Material>("Materials/Drain.xml"));
+    pillar_->SetMaterial(0, MC->resources.materials.basic);
+    if (!right_) pillar_->SetMaterial(1, MC->cache_->GetResource<Material>("Materials/GreenGlow.xml"));
+    else pillar_->SetMaterial(1, MC->cache_->GetResource<Material>("Materials/PurpleGlow.xml"));
+    pillar_->SetMaterial(2, MC->cache_->GetResource<Material>("Materials/Metal.xml"));
+    pillar_->SetMaterial(3, MC->cache_->GetResource<Material>("Materials/Drain.xml"));
 
     blood_ = bloodNode_->CreateComponent<AnimatedModel>();
     blood_->SetEnabled(false);
     blood_->SetCastShadows(true);
-    blood_->SetModel(masterControl_->cache_->GetResource<Model>("Models/Blood.mdl"));
-    blood_->SetMaterial(0, masterControl_->cache_->GetTempResource<Material>("Materials/Blood.xml"));
+    blood_->SetModel(MC->cache_->GetResource<Model>("Models/Blood.mdl"));
+    blood_->SetMaterial(0, MC->cache_->GetTempResource<Material>("Materials/Blood.xml"));
 
     particleNode_ = rootNode_->CreateChild("BloodParticles");
     particleNode_->Translate(Vector3::UP*2.3f);
     splatEmitter_ = particleNode_->CreateComponent<ParticleEmitter>();
-    splatEmitter_->SetEffect(masterControl_->cache_->GetResource<ParticleEffect>("Particles/BloodSplat.xml"));
+    splatEmitter_->SetEffect(MC->cache_->GetResource<ParticleEffect>("Particles/BloodSplat.xml"));
     splatEmitter_->SetEmitting(false);
     dripEmitter_ = particleNode_->CreateComponent<ParticleEmitter>();
-    dripEmitter_->SetEffect(masterControl_->cache_->GetTempResource<ParticleEffect>("Particles/BloodDrip.xml"));
+    dripEmitter_->SetEffect(MC->cache_->GetTempResource<ParticleEffect>("Particles/BloodDrip.xml"));
     dripEmitter_->SetEmitting(false);
 
     soundSource_ = rootNode_->CreateComponent<SoundSource>();
@@ -70,20 +71,21 @@ SplatterPillar::SplatterPillar(MasterControl *masterControl, bool right):
 void SplatterPillar::Trigger()
 {
     rotationSpeed_ = Random(-1.0f, 1.0f);
-    lastTriggered_ = masterControl_->world.scene->GetElapsedTime();
+    lastTriggered_ = MC->world.scene->GetElapsedTime();
     player_->KillPilot();
     bloodNode_->Rotate(Quaternion(Random(360.0f), Vector3::UP));
     blood_->SetEnabled(true);
-    soundSource_->Play(masterControl_->cache_->GetResource<Sound>("Samples/Splatter" + String(Random(1,6)) + ".ogg"));
+    soundSource_->Play(MC->cache_->GetResource<Sound>("Samples/Splatter" + String(Random(1,6)) + ".ogg"));
 }
 
 void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
 {
-    if (player_ == nullptr) player_ = masterControl_->GetPlayer(right_+1);
+    if (player_ == nullptr) player_ = MC->GetPlayer(right_+1);
 
-    if (masterControl_->GetGameState() != GS_LOBBY) return;
+    if (MC->GetGameState() != GS_LOBBY) return;
 
-    float elapsedTime{masterControl_->world.scene->GetElapsedTime()};
+    float timeStep_{eventData[SceneUpdate::P_TIMESTEP].GetFloat()};
+    float elapsedTime{MC->world.scene->GetElapsedTime()};
     float intoSequence{(elapsedTime - lastTriggered_)/sequenceLength_};
     unsigned numMorphs{blood_->GetNumMorphs()};
 
@@ -135,8 +137,12 @@ void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventDa
         if (pillar_->GetMorphWeight(0) != 0.0f) pillar_->SetMorphWeight(0, 0.0f);
         //Trigger
         if (player_ && LucKey::Distance(player_->GetPosition(), rootNode_->GetWorldPosition()) < 0.23f) {
-            Trigger();
-        }
+            delayed_ += timeStep_;
+            if (delayed_ > delay_){
+                Trigger();
+                delayed_ = 0.0f;
+            }
+        } else delayed_ = 0.0f;
     }
 }
 

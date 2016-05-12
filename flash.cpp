@@ -18,14 +18,14 @@
 
 #include "flash.h"
 
-Flash::Flash(MasterControl *masterControl):
-    Effect(masterControl),
+Flash::Flash():
+    Effect(),
     initialBrightness_{2.0f}
 {  
     rootNode_->SetName("Flash");
 
     particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
-    ParticleEffect* particleEffect{masterControl_->cache_->GetResource<ParticleEffect>("Particles/Flash.xml")};
+    ParticleEffect* particleEffect{MC->cache_->GetResource<ParticleEffect>("Particles/Flash.xml")};
     particleEmitter_->SetEffect(particleEffect);
 
     light_ = rootNode_->CreateComponent<Light>();

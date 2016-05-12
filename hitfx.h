@@ -33,7 +33,7 @@ class HitFX : public Effect
 {
     URHO3D_OBJECT(HitFX, Effect);
 public:
-    HitFX(MasterControl* masterControl);
+    HitFX();
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void Set(Vector3 position, int playerID, bool sound = true);
 private:

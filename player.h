@@ -23,38 +23,29 @@
 
 #include "sceneobject.h"
 
-#define DOOR        (playerID_==2 ? masterControl_->door2_ : masterControl_->door1_)
-#define OTHERDOOR   (playerID_==1 ? masterControl_->door2_ : masterControl_->door1_)
-#define SPLATTERPILLAR (playerID_==2 ? masterControl_->splatterPillar2_ : masterControl_->splatterPillar1_)
-#define OTHERSPLATTERPILLAR (playerID_==1 ? masterControl_->splatterPillar2_ : masterControl_->splatterPillar1_)
+#define DOOR        (playerID_==2 ? MC->door2_ : MC->door1_)
+#define OTHERDOOR   (playerID_==1 ? MC->door2_ : MC->door1_)
+#define SPLATTERPILLAR (playerID_==2 ? MC->splatterPillar2_ : MC->splatterPillar1_)
+#define OTHERSPLATTERPILLAR (playerID_==1 ? MC->splatterPillar2_ : MC->splatterPillar1_)
 
 class Bullet;
 class Muzzle;
 class ChaoFlash;
 class TailGenerator;
+class Pilot;
 
 typedef struct Ship
 {
     Node* node_;
     StaticModel* model_;
 } Ship;
-typedef struct Pilot
-{
-    Node* node_;
-    bool male_;
-    int hairStyle_;
-    Vector<Color> colors_;
-    AnimatedModel* bodyModel_;
-    StaticModel* hairModel_;
-} Pilot;
 
 class Player : public SceneObject
 {
     friend class ChaoMine;
     URHO3D_OBJECT(Player, SceneObject);
 public:
-    Player(MasterControl* masterControl, int playerID);
-    Pilot pilot_;
+    Player(int playerID);
 
     unsigned GetRootNodeID() const { return rootNode_->GetID(); }
     int GetPlayerID() const { return playerID_; }
@@ -78,6 +69,7 @@ public:
     void PickupChaoBall();
     void UpdatePilot();
     void KillPilot();
+    void SavePilot();
 private:
     int playerID_;
     bool pilotMode_;
@@ -101,6 +93,7 @@ private:
     float shotInterval_;
     float sinceLastShot_;
 
+    SharedPtr<Pilot> pilot_;
     Ship ship_;
     Node* shieldNode_;
     StaticModel* shieldModel_;

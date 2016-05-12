@@ -77,7 +77,10 @@
 
 #include <Urho3D/DebugNew.h>
 
+#define INPUT GetSubsystem<Input>()
+
 using namespace Urho3D;
+
 namespace LucKey {
 
 enum class SixaxisButton {  SELECT, LEFTSTICK, RIGHTSTICK, START,

@@ -29,11 +29,10 @@ class Door : public Object
 {
     URHO3D_OBJECT(Door, Object);
 public:
-    Door(MasterControl* masterControl, bool right);
+    Door(bool right);
     float HidesPlayer() const;
     Vector3 GetPosition() const { return rootNode_->GetPosition(); }
 private:
-    MasterControl* masterControl_;
     Player* player_;
     Node* rootNode_;
     AnimatedModel* door_;

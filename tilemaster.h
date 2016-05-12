@@ -41,9 +41,8 @@ class TileMaster : public Object
     friend class MasterControl;
     friend class Tile;
 public:
-    TileMaster(MasterControl* masterControl);
+    TileMaster();
 
-    MasterControl* masterControl_;
     Node* rootNode_;
     RigidBody* rigidBody_;
 

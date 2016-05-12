@@ -40,7 +40,7 @@ class SpawnMaster : public Object
     friend class MasterControl;
     URHO3D_OBJECT(SpawnMaster, Object);
 public:
-    SpawnMaster(MasterControl *masterControl);
+    SpawnMaster();
 
     HashMap<unsigned, SharedPtr<Razor> > razors_;
     HashMap<unsigned, SharedPtr<Spire> > spires_;
@@ -70,7 +70,6 @@ public:
     void SpawnLine(int playerID_);
 
 private:
-    MasterControl* masterControl_;
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 
     bool spawning_;

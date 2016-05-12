@@ -18,18 +18,17 @@
 
 #include "hexocam.h"
 
-heXoCam::heXoCam(MasterControl *masterControl):
-    Object(masterControl->GetContext()),
+heXoCam::heXoCam():
+    Object(MC->GetContext()),
     yaw_{0.0f},
     pitch_{0.0f},
     yawDelta_{0.0f},
     pitchDelta_{0.0f},
     forceMultiplier{1.0f}
 {
-    masterControl_ = masterControl;
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(heXoCam, HandleSceneUpdate));
 
-    rootNode_ = masterControl_->world.scene->CreateChild("Camera");
+    rootNode_ = MC->world.scene->CreateChild("Camera");
     Node* leftEye{rootNode_->CreateChild("Left Eye")};
     leftEye->SetPosition(Vector3::LEFT);
     stereoCam_.first_ = leftEye->CreateComponent<Camera>();
@@ -63,7 +62,7 @@ void heXoCam::SetupViewport()
     ResourceCache* cache{GetSubsystem<ResourceCache>()};
     Renderer* renderer{GetSubsystem<Renderer>()};
 
-    SharedPtr<Viewport> viewport{new Viewport(masterControl_->GetContext(), masterControl_->world.scene, camera_)};
+    SharedPtr<Viewport> viewport{new Viewport(MC->GetContext(), MC->world.scene, camera_)};
     viewport_ = viewport;
 
     //Add anti-asliasing, bloom and a greyscale effects

@@ -39,7 +39,6 @@ public:
     Tile(TileMaster* tileMaster, Vector3 position);
 private:
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
-    MasterControl* masterControl_;
     TileMaster* tileMaster_;
 
     Node* rootNode_;

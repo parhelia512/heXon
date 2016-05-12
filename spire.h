@@ -28,7 +28,7 @@ class Spire : public Enemy
     URHO3D_OBJECT(Spire, Enemy);
     friend class SpawnMaster;
 public:
-    Spire(MasterControl* masterControl);
+    Spire();
     void Hit(float damage, int ownerID);
     void Set(Vector3 position);
 protected:

@@ -18,15 +18,15 @@
 
 #include "multix.h"
 
-MultiX::MultiX(MasterControl *masterControl):
-    Pickup(masterControl)
+MultiX::MultiX():
+    Pickup()
 {
     rootNode_->SetName("MultiX");
     pickupType_ = PT_MULTIX;
     initialPosition_ = Vector3::DOWN*42.0f;
     rootNode_->SetPosition(initialPosition_);
-    model_->SetModel(masterControl_->cache_->GetResource<Model>("Models/X.mdl"));
-    model_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Materials/BlueGlowEnvmap.xml"));
+    model_->SetModel(MC->cache_->GetResource<Model>("Models/X.mdl"));
+    model_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/BlueGlowEnvmap.xml"));
 
     rigidBody_->SetMass(2.0f);
 
@@ -35,7 +35,7 @@ MultiX::MultiX(MasterControl *masterControl):
     colorFrames.Push(ColorFrame(Color(0.05f, 0.23f, 0.75f, 0.42f), 0.1f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
     particleEmitter_->GetEffect()->SetColorFrames(colorFrames);
-    particleEmitter_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Materials/Rift.xml"));
+    particleEmitter_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/Rift.xml"));
 
     Disable();
 }

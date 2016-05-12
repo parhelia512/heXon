@@ -18,7 +18,6 @@
 
 #include "player.h"
 
-#include <fstream>
 #include "TailGenerator.h"
 
 #include "mastercontrol.h"
@@ -32,17 +31,18 @@
 #include "explosion.h"
 #include "heart.h"
 #include "apple.h"
+#include "pilot.h"
 #include "splatterpillar.h"
 #include "door.h"
 
-Player::Player(MasterControl *masterControl, int playerID):
-    SceneObject(masterControl),
+Player::Player(int playerID):
+    SceneObject(),
     playerID_{playerID},
-//    autoPilot_{playerID_==2 && !GetSubsystem<Input>()->GetJoystickByIndex(playerID-1)},
-    autoPilot_{true},
+    autoPilot_{playerID_==2 && !GetSubsystem<Input>()->GetJoystickByIndex(playerID-1)},
+//    autoPilot_{true},
     autoMove_{Vector3::ZERO},
     autoFire_{Vector3::ZERO},
-    alive_{true},
+    alive_{false},
     appleCount_{0},
     heartCount_{0},
     initialHealth_{1.0f},
@@ -64,50 +64,46 @@ Player::Player(MasterControl *masterControl, int playerID):
     SetupShip();
 
     //Setup pilot
-    pilot_.node_ = rootNode_->CreateChild("Pilot");
-    pilot_.bodyModel_ = pilot_.node_->CreateComponent<AnimatedModel>();
-    pilot_.bodyModel_->SetModel(masterControl_->resources.models.pilots.male);
-    pilot_.bodyModel_->SetCastShadows(true);
-    pilot_.hairModel_ = pilot_.node_->GetChild("Head", true)->CreateComponent<StaticModel>();
-    pilot_.hairModel_->SetCastShadows(true);
-    LoadPilot();
-    animCtrl_ = pilot_.node_->CreateComponent<AnimationController>();
+    pilot_ = new Pilot(rootNode_.Get(),
+                       "Resources/.Pilot"+std::to_string(playerID_)+".lkp",
+                       score_);
+    if (score_ != 0) alive_ = true;
 
     //Setup shield
     shieldNode_ = rootNode_->CreateChild("Shield");
     shieldModel_ = shieldNode_->CreateComponent<StaticModel>();
-    shieldModel_->SetModel(masterControl_->cache_->GetResource<Model>("Models/Shield.mdl"));
-    shieldMaterial_ = masterControl_->cache_->GetTempResource<Material>("Materials/Shield.xml");
+    shieldModel_->SetModel(MC->cache_->GetResource<Model>("Models/Shield.mdl"));
+    shieldMaterial_ = MC->cache_->GetTempResource<Material>("Materials/Shield.xml");
     shieldModel_->SetMaterial(shieldMaterial_);
     
     //Setup ChaoFlash
-    chaoFlash_ = new ChaoFlash(masterControl_, playerID_);
+    chaoFlash_ = new ChaoFlash(playerID_);
 
     //Setup player audio
-    shot_s = masterControl_->cache_->GetResource<Sound>("Samples/Shot.ogg");
+    shot_s = MC->cache_->GetResource<Sound>("Samples/Shot.ogg");
     shot_s->SetLooped(false);
-    shieldHit_s = masterControl_->cache_->GetResource<Sound>("Samples/ShieldHit.ogg");
+    shieldHit_s = MC->cache_->GetResource<Sound>("Samples/ShieldHit.ogg");
     shieldHit_s->SetLooped(false);
-    death_s = masterControl_->cache_->GetResource<Sound>("Samples/Death.ogg");
+    death_s = MC->cache_->GetResource<Sound>("Samples/Death.ogg");
     death_s->SetLooped(false);
-    pickup_s = masterControl_->cache_->GetResource<Sound>("Samples/Pickup.ogg");
+    pickup_s = MC->cache_->GetResource<Sound>("Samples/Pickup.ogg");
     pickup_s->SetLooped(false);
-    powerup_s = masterControl_->cache_->GetResource<Sound>("Samples/Powerup.ogg");
+    powerup_s = MC->cache_->GetResource<Sound>("Samples/Powerup.ogg");
     powerup_s->SetLooped(false);
-    multix_s= masterControl_->cache_->GetResource<Sound>("Samples/MultiX.ogg");
+    multix_s= MC->cache_->GetResource<Sound>("Samples/MultiX.ogg");
     multix_s->SetLooped(false);
-    chaoball_s = masterControl_->cache_->GetResource<Sound>("Samples/Chaos.ogg");
+    chaoball_s = MC->cache_->GetResource<Sound>("Samples/Chaos.ogg");
     chaoball_s->SetLooped(false);
-    for (int s = 1; s < 5; ++s){
-        seekerHits_s.Push(SharedPtr<Sound>(masterControl_->cache_->GetResource<Sound>("Samples/SeekerHit"+String(s)+".ogg")));
+    for (int s{1}; s < 5; ++s){
+        seekerHits_s.Push(SharedPtr<Sound>(MC->cache_->GetResource<Sound>("Samples/SeekerHit"+String(s)+".ogg")));
     }
     //Some extra sources for the players
-    for (int i = 0; i < 5; ++i){
+    for (int i{0}; i < 5; ++i){
         SharedPtr<SoundSource> extraSampleSource = SharedPtr<SoundSource>(rootNode_->CreateComponent<SoundSource>());
         extraSampleSource->SetSoundType(SOUND_EFFECT);
         sampleSources_.Push(extraSampleSource);
     }
-    Node* deathSourceNode = masterControl_->world.scene->CreateChild("DeathSound");
+    Node* deathSourceNode = MC->world.scene->CreateChild("DeathSound");
     deathSource_ = deathSourceNode->CreateComponent<SoundSource>();
     deathSource_->SetSoundType(SOUND_EFFECT);
     deathSource_->SetGain(2.3f);
@@ -125,83 +121,89 @@ Player::Player(MasterControl *masterControl, int playerID):
     collisionShape_ = rootNode_->CreateComponent<CollisionShape>();
     collisionShape_->SetSphere(2.0f);
 
-    masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
+    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 
     //Subscribe to events
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Player, HandleSceneUpdate));
 //    if (autoPilot_) SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Player, Think));
 
-    for (int b = 0; b < 64; b++){
-        Bullet* bullet = new Bullet(masterControl_, playerID_);
+    for (int b{0}; b < 64; ++b){
+        Bullet* bullet{new Bullet(playerID_)};
         bullets_.Push(SharedPtr<Bullet>(bullet));
     }
+}
+
+void Player::SavePilot()
+{
+    if (IsHuman())
+        pilot_->Save(playerID_, score_);
 }
 
 void Player::CreateGUI()
 {
     //Setup 3D GUI elements
-    guiNode_ = masterControl_->world.scene->CreateChild("GUI3D");
+    guiNode_ = MC->world.scene->CreateChild("GUI3D");
 
     scoreNode_ = guiNode_->CreateChild("Score");
-    for (int d = 0; d < 10; ++d){
+    for (int d{0}; d < 10; ++d){
         scoreDigits_[d] = scoreNode_->CreateChild("Digit");
         scoreDigits_[d]->SetEnabled( d == 0 );
         scoreDigits_[d]->Translate(Vector3::RIGHT * (playerID_ == 2 ? -0.5f : 0.5f) * d);
         scoreDigits_[d]->Rotate(Quaternion(playerID_ == 2 ? 0.0f : 180.0f, Vector3::UP), TS_WORLD);
         StaticModel* digitModel = scoreDigits_[d]->CreateComponent<StaticModel>();
-        digitModel->SetModel(masterControl_->cache_->GetResource<Model>("Models/0.mdl"));
+        digitModel->SetModel(MC->cache_->GetResource<Model>("Models/0.mdl"));
         digitModel->SetMaterial(playerID_==2
-                                ? masterControl_->resources.materials.ship2Secondary
-                                : masterControl_->resources.materials.ship1Secondary);
+                                ? MC->resources.materials.ship2Secondary
+                                : MC->resources.materials.ship1Secondary);
     }
     scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 5.94252f : -5.94252f, 0.9f, 0.82951f));
     scoreNode_->Rotate(Quaternion(-90.0f, Vector3::RIGHT));
     scoreNode_->Rotate(Quaternion(playerID_ == 2 ? 60.0f : -60.0f, Vector3::UP), TS_WORLD);
 
     Model* barModel = (playerID_ == 2)
-            ? masterControl_->cache_->GetResource<Model>("Models/BarRight.mdl")
-            : masterControl_->cache_->GetResource<Model>("Models/BarLeft.mdl");
+            ? MC->cache_->GetResource<Model>("Models/BarRight.mdl")
+            : MC->cache_->GetResource<Model>("Models/BarLeft.mdl");
 
     healthBarNode_ = guiNode_->CreateChild("HealthBar");
     healthBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
     healthBarNode_->SetScale(Vector3(health_, 1.0f, 1.0f));
     healthBarModel_ = healthBarNode_->CreateComponent<StaticModel>();
     healthBarModel_->SetModel(barModel);
-    healthBarModel_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Materials/GreenGlowEnvmap.xml"));
+    healthBarModel_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/GreenGlowEnvmap.xml"));
 
     shieldBarNode_ = guiNode_->CreateChild("HealthBar");
     shieldBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
     shieldBarNode_->SetScale(Vector3(health_, 0.9f, 0.9f));
     shieldBarModel_ = shieldBarNode_->CreateComponent<StaticModel>();
     shieldBarModel_->SetModel(barModel);
-    shieldBarModel_->SetMaterial(masterControl_->cache_->GetResource<Material>("Materials/BlueGlowEnvmap.xml"));
+    shieldBarModel_->SetMaterial(MC->cache_->GetResource<Material>("Materials/BlueGlowEnvmap.xml"));
 
     Node* healthBarHolderNode = guiNode_->CreateChild("HealthBarHolder");
     healthBarHolderNode->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
     StaticModel* healthBarHolderModel = healthBarHolderNode->CreateComponent<StaticModel>();
-    healthBarHolderModel->SetModel(masterControl_->cache_->GetResource<Model>("Models/BarHolder.mdl"));
-    healthBarHolderModel->SetMaterial(masterControl_->cache_->GetResource<Material>("Materials/BarHolder.xml"));
+    healthBarHolderModel->SetModel(MC->cache_->GetResource<Model>("Models/BarHolder.mdl"));
+    healthBarHolderModel->SetMaterial(MC->cache_->GetResource<Material>("Materials/BarHolder.xml"));
 
     appleCounterRoot_ = guiNode_->CreateChild("AppleCounter");
-    for (int a = 0; a < 4; a++){
+    for (int a{0}; a < 4; ++a){
         appleCounter_[a] = appleCounterRoot_->CreateChild();
         appleCounter_[a]->SetEnabled(false);
         appleCounter_[a]->SetPosition(Vector3(playerID_ == 2 ? (a + 8.0f) : -(a + 8.0f), 1.0f, 21.0f));
         appleCounter_[a]->SetScale(0.333f);
-        StaticModel* apple = appleCounter_[a]->CreateComponent<StaticModel>();
-        apple->SetModel(masterControl_->cache_->GetResource<Model>("Models/Apple.mdl"));
-        apple->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Materials/GoldEnvmap.xml"));
+        StaticModel* apple{appleCounter_[a]->CreateComponent<StaticModel>()};
+        apple->SetModel(MC->cache_->GetResource<Model>("Models/Apple.mdl"));
+        apple->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/GoldEnvmap.xml"));
     }
 
     heartCounterRoot_ = guiNode_->CreateChild("HeartCounter");
-    for (int h = 0; h < 4; h++){
+    for (int h{0}; h < 4; ++h){
         heartCounter_[h] = heartCounterRoot_->CreateChild();
         heartCounter_[h]->SetEnabled(false);
         heartCounter_[h]->SetPosition(Vector3(playerID_ == 2 ? (h + 8.0f) : -(h + 8.0f), 1.0f, 21.0f));
         heartCounter_[h]->SetScale(0.333f);
-        StaticModel* heart = heartCounter_[h]->CreateComponent<StaticModel>();
-        heart->SetModel(masterControl_->cache_->GetResource<Model>("Models/Heart.mdl"));
-        heart->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Materials/RedEnvmap.xml"));
+        StaticModel* heart{heartCounter_[h]->CreateComponent<StaticModel>()};
+        heart->SetModel(MC->cache_->GetResource<Model>("Models/Heart.mdl"));
+        heart->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/RedEnvmap.xml"));
     }
 }
 
@@ -209,9 +211,9 @@ void Player::SetScore(int points)
 {
     score_ = points;
     //Update score graphics
-    for (int d = 0; d < 10; ++d){
+    for (int d{0}; d < 10; ++d){
         StaticModel* digitModel = scoreDigits_[d]->GetComponent<StaticModel>();
-        digitModel->SetModel(masterControl_->cache_->GetResource<Model>(
+        digitModel->SetModel(MC->cache_->GetResource<Model>(
                                  "Models/"+String( static_cast<int>(score_ / static_cast<unsigned>(pow(10, d)))%10 )+".mdl"));
         scoreDigits_[d]->SetEnabled( score_ >= static_cast<unsigned>(pow(10, d)) || d == 0 );
     }
@@ -227,12 +229,12 @@ void Player::AddScore(int points)
     points *= static_cast<int>(pow(2.0, static_cast<double>(multiplier_-1)));
     SetScore(GetScore()+points);
     //Check for multiplier increase
-    for (int i = 0; i < 10; ++i){
-        unsigned tenPow = static_cast<unsigned>(pow(10, i));
+    for (int i{0}; i < 10; ++i){
+        unsigned tenPow{static_cast<unsigned>(pow(10, i))};
         if (flightScore_ < tenPow && (flightScore_ + points) > tenPow){
             ++multiplier_;
             PlaySample(multix_s, 0.42f);
-            masterControl_->tileMaster_->FlashX(playerID_);
+            MC->tileMaster_->FlashX(playerID_);
             break;
         }
     }
@@ -242,16 +244,20 @@ void Player::AddScore(int points)
 
 void Player::KillPilot()
 {
+    if (MC->highestScore_ < score_ && IsHuman()){
+        pilot_->Save(0, score_);
+        MC->LoadHighest();
+    }
     alive_ = false;
     EnterLobby();
 }
 
 void Player::CountScore()
 {
-    int threshold = 1024;
-    int lines = masterControl_->spawnMaster_->CountActiveLines();
+    int threshold{1024};
+    int lines{MC->spawnMaster_->CountActiveLines()};
     while (toCount_ > 0 && lines < threshold){
-        masterControl_->spawnMaster_->SpawnLine(playerID_);
+        MC->spawnMaster_->SpawnLine(playerID_);
         --toCount_;
         ++lines;
     }
@@ -263,46 +269,47 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     CountScore();
 
     //Take the frame time step, which is stored as a double
-    float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
+    float timeStep{eventData[Update::P_TIMESTEP].GetFloat()};
     //Pulse and spin the counters' apples and hearts
     UpdateGUI(timeStep);
 
     //Only handle input when player is active
     if (!rootNode_->IsEnabled()) return;
 
-    Input* input = GetSubsystem<Input>();
-
     //Movement values
-    Vector3 move = Vector3::ZERO;
-    Vector3 moveJoy = Vector3::ZERO;
-    Vector3 moveKey = Vector3::ZERO;
+    Vector3 move{};
+    Vector3 moveJoy{};
+    Vector3 moveKey{};
     float thrust = pilotMode_ ? 256.0f : 2342.0f;
-    float maxSpeed = pilotMode_? 1.23f + 0.5f * pilot_.colors_[3].r_ : 23.0f;
+    float maxSpeed = pilotMode_? 1.23f + 0.5f * pilot_->colors_[3].r_ : 23.0f;
     //Firing values
-    Vector3 fire = Vector3::ZERO;
-    Vector3 fireJoy = Vector3::ZERO;
-    Vector3 fireKey = Vector3::ZERO;
+    Vector3 fire{};
+    Vector3 fireJoy{};
+    Vector3 fireKey{};
 
     //Read input
-    if (input->GetJoystickByIndex(playerID_ - 1)){
-        JoystickState* joystick = input->GetJoystickByIndex(playerID_ - 1);
+    if (INPUT->GetJoystickByIndex(playerID_ - 1)){
+        JoystickState* joystick{INPUT->GetJoystickByIndex(playerID_ - 1)};
+
         moveJoy = Vector3::RIGHT * joystick->GetAxisPosition(0) +
-                Vector3::BACK * joystick->GetAxisPosition(1);
+                  Vector3::BACK * joystick->GetAxisPosition(1);
         fireJoy = Vector3::RIGHT * joystick->GetAxisPosition(2) +
-                Vector3::BACK * joystick->GetAxisPosition(3);
-    } else if (playerID_ == 1 || input->GetJoystickByIndex(0)) {
-        moveKey = Vector3::LEFT * input->GetKeyDown(KEY_A) +
-                Vector3::RIGHT * input->GetKeyDown(KEY_D) +
-                Vector3::FORWARD * input->GetKeyDown(KEY_W) +
-                Vector3::BACK * input->GetKeyDown(KEY_S);
-        fireKey = Vector3::LEFT * (input->GetKeyDown(KEY_J) || input->GetKeyDown(KEY_KP_4)) +
-                Vector3::RIGHT * (input->GetKeyDown(KEY_L) || input->GetKeyDown(KEY_KP_6)) +
-                Vector3::FORWARD * (input->GetKeyDown(KEY_I) || input->GetKeyDown(KEY_KP_8)) +
-                Vector3::BACK * (input->GetKeyDown(KEY_K) || input->GetKeyDown(KEY_KP_2) || input->GetKeyDown(KEY_KP_5)) +
-                Quaternion(45.0f, Vector3::UP)*Vector3::LEFT * input->GetKeyDown(KEY_KP_7) +
-                Quaternion(45.0f, Vector3::UP)*Vector3::RIGHT * input->GetKeyDown(KEY_KP_3) +
-                Quaternion(45.0f, Vector3::UP)*Vector3::FORWARD * input->GetKeyDown(KEY_KP_9) +
-                Quaternion(45.0f, Vector3::UP)*Vector3::BACK * input->GetKeyDown(KEY_KP_1);
+                  Vector3::BACK * joystick->GetAxisPosition(3);
+    } else {
+        if (playerID_ == 1 || INPUT->GetJoystickByIndex(0)) {
+            moveKey = Vector3::LEFT * INPUT->GetKeyDown(KEY_A) +
+                      Vector3::RIGHT * INPUT->GetKeyDown(KEY_D) +
+                      Vector3::FORWARD * INPUT->GetKeyDown(KEY_W) +
+                      Vector3::BACK * INPUT->GetKeyDown(KEY_S);
+            fireKey = Vector3::LEFT * (INPUT->GetKeyDown(KEY_J) || INPUT->GetKeyDown(KEY_KP_4)) +
+                      Vector3::RIGHT * (INPUT->GetKeyDown(KEY_L) || INPUT->GetKeyDown(KEY_KP_6)) +
+                      Vector3::FORWARD * (INPUT->GetKeyDown(KEY_I) || INPUT->GetKeyDown(KEY_KP_8)) +
+                      Vector3::BACK * (INPUT->GetKeyDown(KEY_K) || INPUT->GetKeyDown(KEY_KP_2) || INPUT->GetKeyDown(KEY_KP_5)) +
+                      Quaternion(45.0f, Vector3::UP)*Vector3::LEFT * INPUT->GetKeyDown(KEY_KP_7) +
+                      Quaternion(45.0f, Vector3::UP)*Vector3::RIGHT * INPUT->GetKeyDown(KEY_KP_3) +
+                      Quaternion(45.0f, Vector3::UP)*Vector3::FORWARD * INPUT->GetKeyDown(KEY_KP_9) +
+                      Quaternion(45.0f, Vector3::UP)*Vector3::BACK * INPUT->GetKeyDown(KEY_KP_1);
+        }
     }
 
     //Pick most significant input
@@ -347,13 +354,13 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
         //Update animation
         if (velocity.Length() > 0.1f){
-            animCtrl_->PlayExclusive("Models/WalkRelax.ani", 0, true, 0.15f);
-            animCtrl_->SetSpeed("Models/WalkRelax.ani", velocity.Length()*2.3f);
-            animCtrl_->SetStartBone("Models/WalkRelax.ani", "MasterBone");
+            pilot_->animCtrl_->PlayExclusive("Models/WalkRelax.ani", 0, true, 0.15f);
+            pilot_->animCtrl_->SetSpeed("Models/WalkRelax.ani", velocity.Length()*2.3f);
+            pilot_->animCtrl_->SetStartBone("Models/WalkRelax.ani", "MasterBone");
         }
         else {
-            animCtrl_->PlayExclusive("Models/IdleRelax.ani", 0, true, 0.15f);
-            animCtrl_->SetStartBone("Models/IdleRelax.ani", "MasterBone");
+            pilot_->animCtrl_->PlayExclusive("Models/IdleRelax.ani", 0, true, 0.15f);
+            pilot_->animCtrl_->SetStartBone("Models/IdleRelax.ani", "MasterBone");
         }
     // When in ship mode
     } else {
@@ -367,7 +374,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         shieldMaterial_->SetShaderParameter("MatDiffColor", shieldColor.Lerp(newColor, Min(timeStep * 23.5f, 1.0f)));
         
         //Float
-        ship_.node_->SetPosition(Vector3::UP *masterControl_->Sine(2.3f, -0.1f, 0.1f));
+        ship_.node_->SetPosition(Vector3::UP *MC->Sine(2.3f, -0.1f, 0.1f));
         //Apply movement
         Vector3 force = move * thrust * timeStep;
         if (rigidBody_->GetLinearVelocity().Length() < maxSpeed ||
@@ -404,9 +411,9 @@ void Player::UpdateGUI(float timeStep)
 {
     for (int i = 0; i < 4; i++){
         appleCounter_[i]->Rotate(Quaternion(0.0f, (i*i+10.0f) * 23.0f * timeStep, 0.0f));
-        appleCounter_[i]->SetScale(masterControl_->Sine((1.0f+(appleCount_))*2.0f, 0.2f, 0.4, -i));
+        appleCounter_[i]->SetScale(MC->Sine((1.0f+(appleCount_))*2.0f, 0.2f, 0.4, -i));
         heartCounter_[i]->Rotate(Quaternion(0.0f, (i*i+10.0f) * 23.0f * timeStep, 0.0f));
-        heartCounter_[i]->SetScale(masterControl_->Sine((1.0f+(heartCount_))*2.0f, 0.2f, 0.4, -i));
+        heartCounter_[i]->SetScale(MC->Sine((1.0f+(heartCount_))*2.0f, 0.2f, 0.4, -i));
     }
     //Update HealthBar color
     healthBarModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", HealthToColor(health_));
@@ -454,7 +461,7 @@ void Player::FireBullet(Vector3 direction){
         }
     }
     if (bullet == nullptr){
-        bullet = new Bullet(masterControl_, playerID_);
+        bullet = new Bullet(playerID_);
         bullets_.Push(bullet);
     }
     bullet->Set(rootNode_->GetPosition() + direction + Vector3::DOWN*0.42f);
@@ -465,7 +472,7 @@ void Player::FireBullet(Vector3 direction){
 void Player::MoveMuzzle()
 {
     if (muzzle_ == nullptr)
-        muzzle_ = new Muzzle(masterControl_, playerID_);
+        muzzle_ = new Muzzle(playerID_);
     muzzle_->Set(rootNode_->GetPosition() + Vector3::DOWN * 0.42f);
 }
 
@@ -537,12 +544,12 @@ void Player::Die()
     alive_ = false;
 
     Disable();
-    masterControl_->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), playerID_ == 2 ? Color(1.0f, 0.42f, 0.0f) : Color(0.23f, 1.0f, 0.0f), 2.0f, playerID_);
+    MC->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), playerID_ == 2 ? Color(1.0f, 0.42f, 0.0f) : Color(0.23f, 1.0f, 0.0f), 2.0f, playerID_);
     deathSource_->Play(death_s);
 
     int otherplayer = playerID_ == 2 ? 1 : 2;
-    if (!masterControl_->GetPlayer(otherplayer)->IsAlive())
-        masterControl_->SetGameState(GS_DEAD);
+    if (!MC->GetPlayer(otherplayer)->IsAlive())
+        MC->SetGameState(GS_DEAD);
 }
 
 void Player::EnterPlay()
@@ -569,14 +576,22 @@ void Player::EnterPlay()
 }
 void Player::EnterLobby()
 {
+    bool enterThroughDoor{!alive_ || MC->GetPreviousGameState() == GS_INTRO};
+
     StopAllSound();
     chaoFlash_->Disable();
-    bool throughDoor = !alive_ || masterControl_->GetPreviousGameState() == GS_INTRO;
-    if (throughDoor){
+
+    if (!IsAlive()){
+        alive_ = true;
+        pilot_->Randomize(autoPilot_);
+        ResetScore();
+    }
+    SetPilotMode(true);
+
+    if (enterThroughDoor){
         rootNode_->SetPosition(Vector3(playerID_==2 ? 2.23f : -2.23f, 0.0f, 5.5f));
         rigidBody_->SetLinearVelocity(Vector3::BACK * 2.3f);
-    }
-    else {
+    } else {
         rigidBody_->SetLinearVelocity(((playerID_ == 2) ? Vector3::LEFT : Vector3::RIGHT));
         rootNode_->SetPosition(Vector3(playerID_==2 ? 2.23f + 0.5f : -2.23f - 0.5f, 0.0f, 0.0f));
     }
@@ -586,16 +601,11 @@ void Player::EnterLobby()
     scoreNode_->SetWorldScale(1.0f);
     scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 5.94252f : -5.94252f, 0.9f, 0.82951f));
 
-    if (!IsAlive()){
-        CreateNewPilot();
-        ResetScore();
-    }
-    SetPilotMode(true);
 }
 void Player::SetPilotMode(bool pilotMode){
     pilotMode_ = pilotMode;
     rootNode_->SetEnabled(true);
-    pilot_.node_->SetEnabledRecursive(pilotMode_);
+    pilot_->rootNode_->SetEnabledRecursive(pilotMode_);
     ship_.node_->SetEnabledRecursive(!pilotMode_);
     shieldNode_->SetEnabled(!pilotMode_);
     collisionShape_->SetSphere(pilotMode_? 0.23f : 2.0f);
@@ -618,8 +628,8 @@ Color Player::HealthToColor(float health)
 {
     Color color(1.0f, 1.0f, 0.05f, 1.0f);
     health = Clamp(health, 0.0f, 10.0f);
-    float maxBright = 1.0f;
-    if (health < 5.0f) maxBright = masterControl_->Sine(2.0f+3.0f*(5.0f-health), 0.2f*health, 1.0f);
+    float maxBright{1.0f};
+    if (health < 5.0f) maxBright = MC->Sine(2.0f+3.0f*(5.0f-health), 0.2f*health, 1.0f);
     color.r_ = Clamp((3.0f - (health - 3.0f))/3.0f, 0.0f, maxBright);
     color.g_ = Clamp((health - 3.0f)/4.0f, 0.0f, maxBright);
     return color;
@@ -642,7 +652,7 @@ void Player::UpgradeWeapons()
     bulletAmount_ = 1 + ((weaponLevel_+5) / 6);
     shotInterval_ = initialShotInterval_ - 0.0042f*weaponLevel_;
 }
-
+/*
 void Player::LoadPilot()
 {
     if (IsHuman()){
@@ -694,14 +704,14 @@ void Player::UpdatePilot()
 {
     //Set body model
     if (pilot_.male_){
-        pilot_.bodyModel_->SetModel(masterControl_->resources.models.pilots.male);}
+        pilot_.bodyModel_->SetModel(MC->resources.models.pilots.male);}
     else{
-        pilot_.bodyModel_->SetModel(masterControl_->resources.models.pilots.female);
+        pilot_.bodyModel_->SetModel(MC->resources.models.pilots.female);
     }
 
     //Set colors for body model
     for (unsigned m = 0; m < pilot_.bodyModel_->GetNumGeometries(); ++m){
-        pilot_.bodyModel_->SetMaterial(m, masterControl_->cache_->GetTempResource<Material>("Materials/Basic.xml"));
+        pilot_.bodyModel_->SetMaterial(m, MC->cache_->GetTempResource<Material>("Materials/Basic.xml"));
         Color diffColor = pilot_.colors_[m];
         pilot_.bodyModel_->GetMaterial(m)->SetShaderParameter("MatDiffColor", diffColor);
         Color specColor = diffColor*(1.0f-0.1f*m);
@@ -713,9 +723,9 @@ void Player::UpdatePilot()
     if (!pilot_.hairStyle_)
         pilot_.hairModel_->SetModel(nullptr);
     else {
-        pilot_.hairModel_->SetModel(masterControl_->resources.models.pilots.hairStyles[pilot_.hairStyle_ - 1]);
+        pilot_.hairModel_->SetModel(MC->resources.models.pilots.hairStyles[pilot_.hairStyle_ - 1]);
         //Set color for hair model
-        pilot_.hairModel_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Materials/Basic.xml"));
+        pilot_.hairModel_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/Basic.xml"));
         Color diffColor = pilot_.colors_[4];
         pilot_.hairModel_->GetMaterial()->SetShaderParameter("MatDiffColor", diffColor);
         Color specColor = diffColor*0.23f;
@@ -729,7 +739,7 @@ void Player::CreateNewPilot()
     alive_ = true;
 
     pilot_.male_ = Random(2);
-    pilot_.hairStyle_ = Random((int)masterControl_->resources.models.pilots.hairStyles.Size() + 1);
+    pilot_.hairStyle_ = Random((int)MC->resources.models.pilots.hairStyles.Size() + 1);
 
     pilot_.node_->SetRotation(Quaternion(0.0f, 0.0f, 0.0f));
 
@@ -749,17 +759,19 @@ void Player::CreateNewPilot()
     UpdatePilot();
 }
 
+*/
+
 void Player::SetupShip()
 {
     ship_.node_ = rootNode_->CreateChild("Ship");
     ship_.model_ = ship_.node_->CreateComponent<StaticModel>();
-    ship_.model_->SetModel(masterControl_->resources.models.ships.swift);
-    ship_.model_->SetMaterial(0, playerID_==2 ? masterControl_->resources.materials.ship2Secondary : masterControl_->resources.materials.ship1Secondary);
-    ship_.model_->SetMaterial(1, playerID_==2 ? masterControl_->resources.materials.ship2Primary : masterControl_->resources.materials.ship1Primary);
+    ship_.model_->SetModel(MC->resources.models.ships.swift);
+    ship_.model_->SetMaterial(0, playerID_==2 ? MC->resources.materials.ship2Secondary : MC->resources.materials.ship1Secondary);
+    ship_.model_->SetMaterial(1, playerID_==2 ? MC->resources.materials.ship2Primary : MC->resources.materials.ship1Primary);
 
-    ParticleEmitter* particleEmitter = ship_.node_->CreateComponent<ParticleEmitter>();
-    SharedPtr<ParticleEffect> particleEffect = masterControl_->cache_->GetTempResource<ParticleEffect>("Particles/Shine.xml");
-    Vector<ColorFrame> colorFrames;
+    ParticleEmitter* particleEmitter{ship_.node_->CreateComponent<ParticleEmitter>()};
+    SharedPtr<ParticleEffect> particleEffect{MC->cache_->GetTempResource<ParticleEffect>("Particles/Shine.xml")};
+    Vector<ColorFrame> colorFrames{};
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
     colorFrames.Push(ColorFrame(playerID_==2 ? Color(0.42f, 0.0f, 0.88f, 0.23f) : Color(0.42f, 0.7f, 0.23f, 0.23f), 0.2f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
@@ -771,11 +783,10 @@ void Player::SetupShip()
 
 void Player::CreateTails()
 {
-    for (int t{0}; t < 3; t++)
-    {
-        Node* tailNode = ship_.node_->CreateChild("Tail");
+    for (int t{0}; t < 3; ++t) {
+        Node* tailNode{ship_.node_->CreateChild("Tail")};
         tailNode->SetPosition(Vector3(-0.85f+0.85f*t, t==1? 0.0f : -0.5f, t==1? -0.5f : -0.23f));
-        TailGenerator* tailGen = tailNode->CreateComponent<TailGenerator>();
+        TailGenerator* tailGen{tailNode->CreateComponent<TailGenerator>()};
         tailGen->SetDrawHorizontal(true);
         tailGen->SetDrawVertical(t==1?true:false);
         tailGen->SetTailLength(t==1? 0.1f : 0.075f);
@@ -788,9 +799,9 @@ void Player::CreateTails()
 }
 void Player::RemoveTails()
 {
-    for (SharedPtr<TailGenerator> t : tailGens_){
+    for (SharedPtr<TailGenerator> t : tailGens_)
         t->GetNode()->Remove();
-    }
+
     tailGens_.Clear();
 }
 
@@ -798,7 +809,8 @@ void Player::RemoveTails()
 void Player::Think()
 {
     float playerFactor{( playerID_==2 ? 3.4f : 2.3f )};
-    if (masterControl_->GetSinceStateChange() < playerFactor * 0.1f){
+
+    if (MC->GetSinceStateChange() < playerFactor * 0.1f){
         autoMove_ = Vector3::ZERO;
         return;
     }
@@ -807,16 +819,16 @@ void Player::Think()
     Vector3 smell{Sniff(playerFactor) * playerFactor};
     Vector3 taste{Sniff(playerFactor, true) * playerFactor};
 
-    Player* otherPlayer{masterControl_->GetPlayer(playerID_, true)};
+    Player* otherPlayer{MC->GetPlayer(playerID_, true)};
     
-    switch (masterControl_->GetGameState()) {
+    switch (MC->GetGameState()) {
     case GS_LOBBY: {
         bool splatterPillarsIdle{SPLATTERPILLAR->IsIdle() && OTHERSPLATTERPILLAR->IsIdle()};
         Vector3 toPillar{SPLATTERPILLAR->GetPosition() - GetPosition() * static_cast<float>(SPLATTERPILLAR->IsIdle())};
 
-        if (masterControl_->NoHumans()){
+        if (MC->NoHumans()){
             //Enter play
-            if (GetScore() == 0 && masterControl_->GetPlayer(playerID_, true)->GetScore() == 0 && splatterPillarsIdle)
+            if (GetScore() == 0 && MC->GetPlayer(playerID_, true)->GetScore() == 0 && splatterPillarsIdle)
                 autoMove_ = 4.2f * (playerID_==2 ? Vector3::RIGHT : Vector3::LEFT) - GetPosition();
             //Reset Score
             else if (GetScore() != 0)
@@ -842,10 +854,10 @@ void Player::Think()
                 || (heartCount_ != 0 && health_ <= 10.0f && weaponLevel_ > 13)
                 || (weaponLevel_==23 && health_ <= 10.0f)
                 ||  heartCount_ == 4) {
-            pickupPos = masterControl_->heart_->GetPosition();
+            pickupPos = MC->heart_->GetPosition();
         }
         else {
-            pickupPos = masterControl_->apple_->GetPosition();
+            pickupPos = MC->apple_->GetPosition();
         }
         //Calculate shortest route
         Vector3 newPickupPos{pickupPos};
@@ -868,13 +880,13 @@ void Player::Think()
         if (LucKey::Distance(pickupPos, GetPosition()) > playerFactor)
             autoMove_ += smell * 13.0f;
         autoMove_ += Vector3(
-                    masterControl_->Sine(playerFactor, -0.05f, 0.05f, playerFactor),
+                    MC->Sine(playerFactor, -0.05f, 0.05f, playerFactor),
                     0.0f,
-                    masterControl_->Sine(playerFactor, -0.05f, 0.05f, -playerFactor));
+                    MC->Sine(playerFactor, -0.05f, 0.05f, -playerFactor));
         //Pick firing target
         bool fire{false};
         Pair<float, Vector3> target{};
-        for (SharedPtr<Razor> r : masterControl_->spawnMaster_->razors_.Values()){
+        for (SharedPtr<Razor> r : MC->spawnMaster_->razors_.Values()){
             if (r->IsEnabled() && r->GetPosition().y_ > (-playerFactor * 0.1f)){
                 float distance = LucKey::Distance(this->GetPosition(), r->GetPosition());
                 float panic = r->GetPanic();
@@ -886,7 +898,7 @@ void Player::Think()
                 }
             }
         }
-        for (SharedPtr<Spire> s : masterControl_->spawnMaster_->spires_.Values()){
+        for (SharedPtr<Spire> s : MC->spawnMaster_->spires_.Values()){
             if (s->IsEnabled() && s->GetPosition().y_ > (-playerFactor * 0.23f) && flightScore_ != 0){
                 float distance = LucKey::Distance(this->GetPosition(), s->GetPosition());
                 float panic = s->GetPanic();
@@ -902,7 +914,7 @@ void Player::Think()
             autoFire_ = (target.second_ - GetPosition()).Normalized();
             if (bulletAmount_ == 2 || bulletAmount_ == 3)
                 autoFire_ = Quaternion((playerID_==2?-1.0f:1.0f)*Min(0.666f * LucKey::Distance(this->GetPosition(), target.second_), 5.0f), Vector3::UP) * autoFire_;
-            autoFire_ = Quaternion((playerID_==2?-1.0f:1.0f)*masterControl_->Sine(playerFactor, -playerFactor, playerFactor), Vector3::UP) * autoFire_;
+            autoFire_ = Quaternion((playerID_==2?-1.0f:1.0f)*MC->Sine(playerFactor, -playerFactor, playerFactor), Vector3::UP) * autoFire_;
         }
         else autoFire_ = Vector3::ZERO;
         autoFire_ -= taste;
@@ -925,11 +937,13 @@ Vector3 Player::Sniff(float playerFactor, bool taste)
             PODVector<PhysicsRaycastResult> hitResults{};
             Vector3 whiskerDirection = Quaternion((360.0f / whiskers) * w, Vector3::UP) * (2.0f * rootNode_->GetDirection() + 3.0f * autoMove_.Normalized());
             Ray whiskerRay{projectedPlayerPos + Vector3::DOWN * Random(0.666f), whiskerDirection};
-            if (masterControl_->PhysicsRayCast(hitResults, whiskerRay, playerFactor * playerFactor, M_MAX_UNSIGNED)){
+            if (MC->PhysicsRayCast(hitResults, whiskerRay, playerFactor * playerFactor, M_MAX_UNSIGNED)){
                 ++detected;
-                /*for (*/PhysicsRaycastResult r = hitResults[0];//){
+                /*for (*/PhysicsRaycastResult r{hitResults[0]};//){
                     StringHash nodeNameHash{r.body_->GetNode()->GetNameHash()};
-                    float distSquared = (r.distance_ * r.distance_) * (0.005f * whiskerDirection.Angle(autoMove_) + playerFactor * playerFactor);
+                    float distSquared{(r.distance_ * r.distance_) *
+                                (0.005f * whiskerDirection.Angle(autoMove_) +
+                                 playerFactor * playerFactor)};
                     if (nodeNameHash ==N_APPLE) {
                         smell += 230.0f * (whiskerDirection / (distSquared)) * (appleCount_ - static_cast<float>(flightScore_ == 0));
                     } else if (nodeNameHash == N_HEART) {

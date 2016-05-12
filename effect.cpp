@@ -18,8 +18,8 @@
 
 #include "effect.h"
 
-Effect::Effect(MasterControl *masterControl):
-    SceneObject(masterControl),
+Effect::Effect():
+    SceneObject(),
     age_{0.0f},
     emitTime_{0.1f}
 {

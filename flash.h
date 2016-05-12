@@ -36,7 +36,7 @@ class Flash : public Effect
 {
     URHO3D_OBJECT(Flash, Effect);
 public:
-    Flash(MasterControl* masterControl);
+    Flash();
     SharedPtr<Light> light_;
 
     void UpdateFlash(StringHash eventType, VariantMap &eventData);

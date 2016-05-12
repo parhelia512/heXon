@@ -19,9 +19,8 @@
 #include "tile.h"
 
 Tile::Tile(TileMaster* tileMaster, Vector3 position):
-    Object(tileMaster->masterControl_->GetContext()),
+    Object(MC->GetContext()),
     tileMaster_{tileMaster},
-    masterControl_{tileMaster->masterControl_},
     lastOffsetY_{0.666f},
     flipped_{static_cast<bool>(Random(2))}
 {
@@ -30,8 +29,8 @@ Tile::Tile(TileMaster* tileMaster, Vector3 position):
     rootNode_->SetPosition(position);
     rootNode_->SetScale(1.1f);
     model_ = rootNode_->CreateComponent<StaticModel>();
-    model_->SetModel(masterControl_->cache_->GetResource<Model>("Models/Hexagon.mdl"));
-    model_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Materials/BackgroundTile.xml"));
+    model_->SetModel(MC->cache_->GetResource<Model>("Models/Hexagon.mdl"));
+    model_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/BackgroundTile.xml"));
     model_->SetCastShadows(false);
 
     referencePosition_ = rootNode_->GetPosition();
@@ -40,7 +39,7 @@ Tile::Tile(TileMaster* tileMaster, Vector3 position):
 
 void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
 {
-    float elapsedTime{masterControl_->world.scene->GetElapsedTime()};
+    float elapsedTime{MC->world.scene->GetElapsedTime()};
     float offsetY{0.0f};
 
     //Switch curcuit
@@ -48,7 +47,7 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
         rootNode_->SetRotation(Quaternion(Random(3)*120.0f + 60.0f*flipped_, Vector3::UP));
 
     //Calculate periodic tile movement
-    wave_ = 6.0f * pow(masterControl_->Sine(Abs(centerDistExp_ - elapsedTime * 5.2625f)), 4.0f);
+    wave_ = 6.0f * pow(MC->Sine(Abs(centerDistExp_ - elapsedTime * 5.2625f)), 4.0f);
 
     unsigned nHexAffectors{tileMaster_->hexAffectors_.Size()};
     if (nHexAffectors) {
@@ -74,8 +73,8 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     Vector3 newPos{lastPos.x_, referencePosition_.y_ - Min(offsetY, 4.0f), lastPos.z_};
     rootNode_->SetPosition(newPos);
 
-    bool lobby{masterControl_->GetGameState() == GS_LOBBY};
+    bool lobby{MC->GetGameState() == GS_LOBBY};
     float brightness{Clamp((0.23f * offsetY) + 0.25f, 0.0f, 1.0f) + 0.42f*(float)(lobby)};
-    Color color{brightness +  offsetY * lobby, brightness + offsetY * 0.00042f * (masterControl_->Sine(23.0f, -23.0f - 1000.0f * lobby, 23.0f + 1000.0f * lobby, 23.0f) * wave_), brightness - Random(0.23f) * lobby, brightness + (0.023f * wave_)};
+    Color color{brightness +  offsetY * lobby, brightness + offsetY * 0.00042f * (MC->Sine(23.0f, -23.0f - 1000.0f * lobby, 23.0f + 1000.0f * lobby, 23.0f) * wave_), brightness - Random(0.23f) * lobby, brightness + (0.023f * wave_)};
     model_->GetMaterial(0)->SetShaderParameter("MatDiffColor", color);
 }

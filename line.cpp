@@ -18,15 +18,14 @@
 
 #include "line.h"
 
-Line::Line(MasterControl *masterControl) :
-    Object(masterControl->GetContext()),
-    masterControl_{masterControl},
+Line::Line() :
+    Object(MC->GetContext()),
     baseScale_{Random(1.0f, 2.3f)}
 {
-    rootNode_ = masterControl_->world.scene->CreateChild("Line");
+    rootNode_ = MC->world.scene->CreateChild("Line");
     rootNode_->SetScale(baseScale_);
     model_ = rootNode_->CreateComponent<StaticModel>();
-    model_->SetModel(masterControl_->cache_->GetResource<Model>("Models/Line.mdl"));
+    model_->SetModel(MC->cache_->GetResource<Model>("Models/Line.mdl"));
 }
 
 void Line::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
@@ -44,8 +43,8 @@ void Line::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 void Line::Set(const Vector3 position, int playerID)
 {
     model_->SetMaterial(playerID == 2
-                        ? masterControl_->cache_->GetResource<Material>("Materials/PurpleBullet.xml")
-                        : masterControl_->cache_->GetResource<Material>("Materials/GreenBullet.xml"));
+                        ? MC->cache_->GetResource<Material>("Materials/PurpleBullet.xml")
+                        : MC->cache_->GetResource<Material>("Materials/GreenBullet.xml"));
     rootNode_->SetEnabledRecursive(true);
     rootNode_->SetPosition(position);
     rootNode_->SetScale(baseScale_);

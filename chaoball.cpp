@@ -20,16 +20,16 @@
 
 #include "spawnmaster.h"
 
-ChaoBall::ChaoBall(MasterControl *masterControl):
-    Pickup(masterControl)
+ChaoBall::ChaoBall():
+    Pickup()
 {
     rootNode_->SetName("ChaoBall");
     pickupType_ = PT_CHAOBALL;
     rootNode_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
     initialPosition_ = Vector3::FORWARD*5.0f;
     rootNode_->SetPosition(initialPosition_);
-    model_->SetModel(masterControl_->cache_->GetResource<Model>("Models/Chaosphere.mdl"));
-    model_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Materials/Chaosphere.xml"));
+    model_->SetModel(MC->cache_->GetResource<Model>("Models/Chaosphere.mdl"));
+    model_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/Chaosphere.xml"));
 
     rigidBody_->SetMass(3.0f);
 

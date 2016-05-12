@@ -28,13 +28,12 @@ class Bubble : public Object
 {
     URHO3D_OBJECT(Bubble, Object);
 public:
-    Bubble(MasterControl* masterControl);
+    Bubble();
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void Set(const Vector3 position);
     void Disable();
     bool IsEnabled() { return rootNode_->IsEnabled(); }
 private:
-    MasterControl* masterControl_;
     Node* rootNode_;
     Vector3 spinAxis_;
     float spinVelocity_;

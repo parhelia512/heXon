@@ -22,8 +22,7 @@
 #include "spawnmaster.h"
 #include "player.h"
 
-Pickup::Pickup(MasterControl *masterControl):
-    SceneObject(masterControl),
+Pickup::Pickup() : SceneObject(),
     sinceLastPickup_{0.0f},
     chaoInterval_{Random(23.0f, 100.0f)}
 {
@@ -49,9 +48,9 @@ Pickup::Pickup(MasterControl *masterControl):
     CollisionShape* collisionShape = rootNode_->CreateComponent<CollisionShape>();
     collisionShape->SetSphere(2.3f);
 
-    masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
+    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 
-    triggerNode_ = masterControl_->world.scene->CreateChild("PickupTrigger");
+    triggerNode_ = MC->world.scene->CreateChild("PickupTrigger");
     triggerBody_ = triggerNode_->CreateComponent<RigidBody>();
     triggerBody_->SetTrigger(true);
     triggerBody_->SetMass(0.0f);
@@ -61,7 +60,7 @@ Pickup::Pickup(MasterControl *masterControl):
 
     particleEmitter_ = graphicsNode_->CreateComponent<ParticleEmitter>();
 
-    particleEmitter_->SetEffect(masterControl_->cache_->GetTempResource<ParticleEffect>("Particles/Shine.xml"));
+    particleEmitter_->SetEffect(MC->cache_->GetTempResource<ParticleEffect>("Particles/Shine.xml"));
 
     SubscribeToEvent(triggerNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Pickup, HandleTriggerStart));
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Pickup, HandleSceneUpdate));
@@ -76,9 +75,9 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
     for (int i = 0; i < collidingBodies.Size(); i++) {
         RigidBody* collider = collidingBodies[i];
         if (collider->GetNode()->GetNameHash() == N_PLAYER) {
-            Player* hitPlayer = masterControl_->players_[collider->GetNode()->GetID()];
+            Player* hitPlayer = MC->players_[collider->GetNode()->GetID()];
             hitPlayer->Pickup(pickupType_);
-            masterControl_->spawnMaster_->SpawnHitFX(GetPosition(), hitPlayer->GetPlayerID(), false);
+            MC->spawnMaster_->SpawnHitFX(GetPosition(), hitPlayer->GetPlayerID(), false);
             switch (pickupType_){
             case PT_MULTIX: case PT_CHAOBALL: Deactivate(); break;
             case PT_APPLE: case PT_HEART: Respawn(); break;
@@ -92,8 +91,8 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
 void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
 {
     float timeStep = eventData[SceneUpdate::P_TIMESTEP].GetFloat();
-    Player* player1 = masterControl_->GetPlayer(1);
-    Player* player2 = masterControl_->GetPlayer(2);
+    Player* player1 = MC->GetPlayer(1);
+    Player* player2 = MC->GetPlayer(2);
 
     //Move trigger along
     triggerNode_->SetPosition(rootNode_->GetPosition());
@@ -115,17 +114,17 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     case PT_HEART: break;
     case PT_MULTIX:
         xSpin = 64.0f; zSpin = 10.0f; frequency = 5.0f;
-        if (IsEmerged() && masterControl_->GetGameState() == GS_PLAY)
+        if (IsEmerged() && MC->GetGameState() == GS_PLAY)
             rigidBody_->ApplyForce(player1->IsAlive() * player1->GetPosition() +
                                    player1->IsAlive() * player2->GetPosition() -
                                    rigidBody_->GetLinearVelocity()); break;
     case PT_CHAOBALL: {
         xSpin = 23.0f; zSpin = 42.0f; frequency = 5.0f; shift = 0.23f;
-        if (!rootNode_->IsEnabled() && masterControl_->GetGameState() == GS_PLAY) {
+        if (!rootNode_->IsEnabled() && MC->GetGameState() == GS_PLAY) {
             if (sinceLastPickup_ > chaoInterval_) Respawn();
             else sinceLastPickup_ += timeStep;
         }
-        else if (IsEmerged() && masterControl_->GetGameState() == GS_PLAY){
+        else if (IsEmerged() && MC->GetGameState() == GS_PLAY){
             Vector3 force{};
             force += player1->IsAlive() * -3.0f*player1->GetPosition() - rigidBody_->GetLinearVelocity();
             force += player2->IsAlive() * -3.0f*player2->GetPosition() - rigidBody_->GetLinearVelocity();
@@ -138,7 +137,7 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     rootNode_->Rotate(Quaternion(xSpin * timeStep, ySpin * timeStep, zSpin * timeStep));
     //Float like a float
     float floatFactor = 0.5f - Min(0.5f, 0.5f * Abs(rootNode_->GetPosition().y_));
-    graphicsNode_->SetPosition(Vector3::UP * masterControl_->Sine(frequency, -floatFactor, floatFactor, shift));
+    graphicsNode_->SetPosition(Vector3::UP * MC->Sine(frequency, -floatFactor, floatFactor, shift));
 }
 
 void Pickup::Set(Vector3 position)
@@ -153,8 +152,8 @@ void Pickup::Respawn(bool restart)
     rigidBody_->ResetForces();
 
     Set(restart ? initialPosition_
-                : masterControl_->spawnMaster_->SpawnPoint());
-    masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
+                : MC->spawnMaster_->SpawnPoint());
+    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 }
 void Pickup::Deactivate()
 {

@@ -50,7 +50,7 @@ class InputMaster : public Object
 {
     URHO3D_OBJECT(InputMaster, Object);
 public:
-    InputMaster(MasterControl* masterControl);
+    InputMaster();
 
     void Init();
 
@@ -69,10 +69,6 @@ public:
     void Screenshot();
 
 private:
-    MasterControl* masterControl_;
-
-    Input* input_;
-
     void PauseButtonPressed();
     void EjectButtonPressed();
 };

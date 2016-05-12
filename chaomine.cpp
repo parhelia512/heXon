@@ -21,8 +21,7 @@
 #include "spawnmaster.h"
 #include "player.h"
 
-ChaoMine::ChaoMine(MasterControl *masterControl):
-    Enemy(masterControl),
+ChaoMine::ChaoMine() : Enemy(),
     playerID_{0}
 {
     rootNode_->SetName("ChaoMine");
@@ -36,14 +35,14 @@ ChaoMine::ChaoMine(MasterControl *masterControl):
     countDown_ = Random(1.0f, 5.0f);
     innerNode_ = rootNode_->CreateChild();
     innerModel_ = innerNode_->CreateComponent<StaticModel>();
-    innerModel_->SetModel(masterControl_->cache_->GetResource<Model>("Models/MineInner.mdl"));
-    innerModel_->SetMaterial(0, masterControl_->resources.materials.ship1Primary);
+    innerModel_->SetModel(MC->cache_->GetResource<Model>("Models/MineInner.mdl"));
+    innerModel_->SetMaterial(0, MC->resources.materials.ship1Primary);
 
     outerNode_ = rootNode_->CreateChild();
     outerModel_ = outerNode_->CreateComponent<StaticModel>();
-    outerModel_->SetModel(masterControl_->cache_->GetResource<Model>("Models/MineOuter.mdl"));
-    outerModel_->SetMaterial(0, masterControl_->resources.materials.ship1Secondary);
-    outerModel_->SetMaterial(1, masterControl_->resources.materials.ship1Primary);
+    outerModel_->SetModel(MC->cache_->GetResource<Model>("Models/MineOuter.mdl"));
+    outerModel_->SetMaterial(0, MC->resources.materials.ship1Secondary);
+    outerModel_->SetMaterial(1, MC->resources.materials.ship1Primary);
 
 }
 
@@ -52,13 +51,13 @@ void ChaoMine::Set(const Vector3 position, int playerID)
     playerID_ = playerID;
 
     if (playerID_ == 1) {
-        innerModel_->SetMaterial(0, masterControl_->resources.materials.ship1Primary);
-        outerModel_->SetMaterial(0, masterControl_->resources.materials.ship1Secondary);
-        outerModel_->SetMaterial(1, masterControl_->resources.materials.ship1Primary);
+        innerModel_->SetMaterial(0, MC->resources.materials.ship1Primary);
+        outerModel_->SetMaterial(0, MC->resources.materials.ship1Secondary);
+        outerModel_->SetMaterial(1, MC->resources.materials.ship1Primary);
     } else if (playerID_ == 2) {
-        innerModel_->SetMaterial(0, masterControl_->resources.materials.ship2Primary);
-        outerModel_->SetMaterial(0, masterControl_->resources.materials.ship2Secondary);
-        outerModel_->SetMaterial(1, masterControl_->resources.materials.ship2Primary);
+        innerModel_->SetMaterial(0, MC->resources.materials.ship2Primary);
+        outerModel_->SetMaterial(0, MC->resources.materials.ship2Secondary);
+        outerModel_->SetMaterial(1, MC->resources.materials.ship2Primary);
     }
 
 
@@ -78,7 +77,7 @@ void ChaoMine::HandleMineUpdate(StringHash eventType, VariantMap &eventData)
 void ChaoMine::CheckHealth()
 {
     if (rootNode_->IsEnabled() && health_ <= 0 || panicTime_ > 23.0f) {
-        masterControl_->spawnMaster_->SpawnChaoZap(GetPosition(), playerID_);
+        MC->spawnMaster_->SpawnChaoZap(GetPosition(), playerID_);
         Disable();
     }
 }

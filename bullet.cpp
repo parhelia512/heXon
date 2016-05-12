@@ -18,8 +18,8 @@
 
 #include "bullet.h"
 
-Bullet::Bullet(MasterControl *masterControl, int playerID):
-    SceneObject(masterControl),
+Bullet::Bullet(int playerID):
+    SceneObject(),
     playerID_{playerID},
     lifeTime_{1.0f},
     damage_{0.0f}
@@ -28,10 +28,10 @@ Bullet::Bullet(MasterControl *masterControl, int playerID):
     rootNode_->SetEnabled(false);
     rootNode_->SetScale(Vector3(1.0f+damage_, 1.0f+damage_, 0.1f));
     model_ = rootNode_->CreateComponent<StaticModel>();
-    model_->SetModel(masterControl_->cache_->GetTempResource<Model>("Models/Bullet.mdl"));
+    model_->SetModel(MC->cache_->GetTempResource<Model>("Models/Bullet.mdl"));
     model_->SetMaterial(playerID_ == 2
-                        ? masterControl_->cache_->GetResource<Material>("Materials/PurpleBullet.xml")
-                        : masterControl_->cache_->GetResource<Material>("Materials/GreenBullet.xml"));
+                        ? MC->cache_->GetResource<Material>("Materials/PurpleBullet.xml")
+                        : MC->cache_->GetResource<Material>("Materials/GreenBullet.xml"));
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
     rigidBody_->SetMass(0.5f);
@@ -82,21 +82,21 @@ void Bullet::HitCheck(float timeStep) {
     if (!fading_) {
         PODVector<PhysicsRaycastResult> hitResults{};
         Ray bulletRay(rootNode_->GetPosition() - rigidBody_->GetLinearVelocity()*timeStep, rootNode_->GetDirection());
-        if (masterControl_->PhysicsRayCast(hitResults, bulletRay, 2.3f * rigidBody_->GetLinearVelocity().Length() * timeStep, M_MAX_UNSIGNED)){
+        if (MC->PhysicsRayCast(hitResults, bulletRay, 2.3f * rigidBody_->GetLinearVelocity().Length() * timeStep, M_MAX_UNSIGNED)){
             for (PhysicsRaycastResult h : hitResults){
                 if (!h.body_->IsTrigger()){// && h.body_->GetNode()->GetNameHash() != N_PLAYER){
                     h.body_->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.05f);
-                    masterControl_->spawnMaster_->SpawnHitFX(h.position_, playerID_);
+                    MC->spawnMaster_->SpawnHitFX(h.position_, playerID_);
                     //Deal damage
                     unsigned hitID = h.body_->GetNode()->GetID();
-                    if(masterControl_->spawnMaster_->spires_.Keys().Contains(hitID)){
-                        masterControl_->spawnMaster_->spires_[hitID]->Hit(damage_, playerID_);
+                    if(MC->spawnMaster_->spires_.Keys().Contains(hitID)){
+                        MC->spawnMaster_->spires_[hitID]->Hit(damage_, playerID_);
                     }
-                    else if(masterControl_->spawnMaster_->razors_.Keys().Contains(hitID)){
-                        masterControl_->spawnMaster_->razors_[hitID]->Hit(damage_, playerID_);
+                    else if(MC->spawnMaster_->razors_.Keys().Contains(hitID)){
+                        MC->spawnMaster_->razors_[hitID]->Hit(damage_, playerID_);
                     }
-                    else if(masterControl_->spawnMaster_->chaoMines_.Keys().Contains(hitID)){
-                        masterControl_->spawnMaster_->chaoMines_[hitID]->Hit(damage_, playerID_);
+                    else if(MC->spawnMaster_->chaoMines_.Keys().Contains(hitID)){
+                        MC->spawnMaster_->chaoMines_[hitID]->Hit(damage_, playerID_);
                     }
                     Disable();
                 }

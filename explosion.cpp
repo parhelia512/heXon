@@ -20,8 +20,8 @@
 
 #include "spawnmaster.h"
 
-Explosion::Explosion(MasterControl *masterControl):
-    Effect(masterControl),
+Explosion::Explosion():
+    Effect(),
     playerID_{0},
     initialMass_{3.0f},
     initialBrightness_{8.0f}
@@ -37,9 +37,9 @@ Explosion::Explosion(MasterControl *masterControl):
     light_->SetBrightness(initialBrightness_);
 
 //    particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
-    particleEmitter_->SetEffect(masterControl_->cache_->GetResource<ParticleEffect>("Particles/Explosion.xml"));
+    particleEmitter_->SetEffect(MC->cache_->GetResource<ParticleEffect>("Particles/Explosion.xml"));
 
-    sample_ = masterControl_->cache_->GetResource<Sound>("Samples/Explode.ogg");
+    sample_ = MC->cache_->GetResource<Sound>("Samples/Explode.ogg");
     sample_->SetLooped(false);
     sampleSource_ = rootNode_->CreateComponent<SoundSource>();
     sampleSource_->SetSoundType(SOUND_EFFECT);
@@ -52,10 +52,10 @@ void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
     rigidBody_->SetMass(Max(initialMass_*((0.1f - age_)/0.1f),0.01f));
     light_->SetBrightness(Max(initialBrightness_*(0.32f - age_)/0.32f,0.0f));
 
-    if (rootNode_->IsEnabled() && masterControl_->world.scene->IsUpdateEnabled()) {
+    if (rootNode_->IsEnabled() && MC->world.scene->IsUpdateEnabled()) {
         PODVector<RigidBody* > hitResults{};
         float radius{2.0f * initialMass_ + age_ * 7.0f};
-        if (masterControl_->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), radius, M_MAX_UNSIGNED)) {
+        if (MC->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), radius, M_MAX_UNSIGNED)) {
             for (int i = 0; i < hitResults.Size(); i++){
                 Vector3 hitNodeWorldPos{hitResults[i]->GetNode()->GetWorldPosition()};
                 if (!hitResults[i]->IsTrigger() && hitResults[i]->GetPosition().y_ > -0.1f) {
@@ -68,10 +68,10 @@ void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
                     //Deal damage
                     unsigned hitID{hitResults[i]->GetNode()->GetID()};
                     float damage{rigidBody_->GetMass()*timeStep};
-                    if (masterControl_->spawnMaster_->spires_.Keys().Contains(hitID)) {
-                        masterControl_->spawnMaster_->spires_[hitID]->Hit(damage, playerID_);
-                    } else if (masterControl_->spawnMaster_->razors_.Keys().Contains(hitID)) {
-                        masterControl_->spawnMaster_->razors_[hitID]->Hit(damage, playerID_);
+                    if (MC->spawnMaster_->spires_.Keys().Contains(hitID)) {
+                        MC->spawnMaster_->spires_[hitID]->Hit(damage, playerID_);
+                    } else if (MC->spawnMaster_->razors_.Keys().Contains(hitID)) {
+                        MC->spawnMaster_->razors_[hitID]->Hit(damage, playerID_);
                     }
                 }
             }
@@ -101,7 +101,7 @@ void Explosion::Set(const Vector3 position, const Color color, const float size,
     sampleSource_->SetGain(Min(0.5f*size, 1.0f));
     sampleSource_->Play(sample_);
 
-    masterControl_->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
+    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
 
     SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(Explosion, UpdateExplosion));
 }

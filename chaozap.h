@@ -29,7 +29,7 @@ class ChaoZap : public SceneObject
     friend class SpawnMaster;
     URHO3D_OBJECT(ChaoZap, SceneObject);
 public:
-    ChaoZap(MasterControl* masterControl);
+    ChaoZap();
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void Set(const Vector3 position, int playerID);
 protected:

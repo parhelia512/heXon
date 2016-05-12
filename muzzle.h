@@ -27,7 +27,7 @@ class Muzzle : public Effect
 {
     URHO3D_OBJECT(Muzzle, Effect);
 public:
-    Muzzle(MasterControl* masterControl, int playerID);
+    Muzzle(int playerID);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 };
 

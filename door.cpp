@@ -19,19 +19,18 @@
 #include "door.h"
 #include "player.h"
 
-Door::Door(MasterControl* masterControl, bool right) :
-    Object(masterControl->GetContext()),
-    masterControl_{masterControl},
+Door::Door(bool right) :
+    Object(MC->GetContext()),
     right_{right},
     wasNear_{true},
     hiding_{0.0f}
 {
-    player_ = right ? masterControl_->GetPlayer(2) : masterControl_->GetPlayer(1);
-    rootNode_ = masterControl_->lobbyNode_->CreateChild("Door");
+    player_ = right ? MC->GetPlayer(2) : MC->GetPlayer(1);
+    rootNode_ = MC->lobbyNode_->CreateChild("Door");
     rootNode_->SetPosition(Vector3(right_? 2.26494f : -2.26494f, 0.0f, 5.21843f));
     door_ = rootNode_->CreateComponent<AnimatedModel>();
-    door_->SetModel(masterControl_->cache_->GetResource<Model>("Models/Door.mdl"));
-    door_->SetMaterial(0, masterControl_->resources.materials.basic);
+    door_->SetModel(MC->cache_->GetResource<Model>("Models/Door.mdl"));
+    door_->SetMaterial(0, MC->resources.materials.basic);
     door_->SetCastShadows(true);
 
     Node* lightNode{rootNode_->CreateChild("DoorLight")};
@@ -42,7 +41,7 @@ Door::Door(MasterControl* masterControl, bool right) :
     doorLight->SetCastShadows(true);
     doorLight->SetShadowBias(BiasParameters(0.000023, 0.042f));
 
-    doorSample_ = masterControl_->cache_->GetResource<Sound>("Samples/Door.ogg");
+    doorSample_ = MC->cache_->GetResource<Sound>("Samples/Door.ogg");
     doorSample_->SetLooped(false);
 
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Door, HandleSceneUpdate));

@@ -18,15 +18,15 @@
 
 #include "heart.h"
 
-Heart::Heart(MasterControl *masterControl):
-    Pickup(masterControl)
+Heart::Heart():
+    Pickup()
 {
     rootNode_->SetName("Heart");
     pickupType_ = PT_HEART;
     initialPosition_ = Vector3::BACK*10.0f;
     rootNode_->SetPosition(initialPosition_);
-    model_->SetModel(masterControl_->cache_->GetResource<Model>("Models/Heart.mdl"));
-    model_->SetMaterial(masterControl_->cache_->GetTempResource<Material>("Materials/RedEnvmap.xml"));
+    model_->SetModel(MC->cache_->GetResource<Model>("Models/Heart.mdl"));
+    model_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/RedEnvmap.xml"));
 
     Vector<ColorFrame> colorFrames{};
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));

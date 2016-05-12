@@ -35,6 +35,7 @@ class SpawnMaster;
 class Razor;
 class Player;
 class Door;
+class Pilot;
 class SplatterPillar;
 class Apple;
 class MultiX;
@@ -125,11 +126,15 @@ enum JoyStickButton {JB_SELECT, JB_LEFTSTICK, JB_RIGHTSTICK, JB_START,
                      JB_L2, JB_R2, JB_L1, JB_R1, JB_TRIANGLE, JB_CIRCLE, JB_CROSS, JB_SQUARE};
 enum PickupType {PT_RESET, PT_APPLE, PT_HEART, PT_MULTIX, PT_CHAOBALL};
 
+#define MC MasterControl::GetInstance()
+
 class MasterControl : public Application
 {
     URHO3D_OBJECT(MasterControl, Application);
 public:
     MasterControl(Context* context);
+    static MasterControl* GetInstance();
+
     GameWorld world;
     Resources resources;
     SharedPtr<PhysicsWorld> physicsWorld_;
@@ -145,6 +150,12 @@ public:
 
     SharedPtr<Player> player1_;
     SharedPtr<Player> player2_;
+    SharedPtr<Pilot> highestPilot_;
+    SharedPtr<Node> highestNode_;
+    unsigned highestScore_;
+    SharedPtr<Text> highestScoreText_;
+    SharedPtr<Node> podiumNode_;
+
     SharedPtr<Door> door1_;
     SharedPtr<Door> door2_;
     SharedPtr<SplatterPillar> splatterPillar1_;
@@ -165,7 +176,10 @@ public:
     void Exit();
 
     void CreateSineLookupTable();
-    float Sine(float x) { return sine_[(int)round(sine_.Size() * LucKey::Cycle((float)(x/(2.0f*M_PI)), 0.0f, 1.0f))%sine_.Size()]; }
+    float Sine(float x) { return sine_[ static_cast<int>(round(sine_.Size() *
+                LucKey::Cycle( x/(2.0f*M_PI), 0.0f, 1.0f ))) %
+                static_cast<int>(sine_.Size()) ]; }
+
     float Sine(float freq, float min, float max, float shift = 0.0f);
     float Cosine(float x) { return Sine(x+(0.5f*M_PI)); }
     float Cosine(float freq, float min, float max, float shift = 0.0f){ return Sine(freq, min, max, shift+0.5f*M_PI); }
@@ -188,7 +202,10 @@ public:
 
     void Eject();
     bool NoHumans();
+    void LoadHighest();
 private:
+    static MasterControl* instance_;
+
     Vector<double> sine_;
 
     bool paused_;

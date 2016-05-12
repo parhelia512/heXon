@@ -38,10 +38,18 @@
 #include "explosion.h"
 #include "muzzle.h"
 #include "chaomine.h"
+#include "pilot.h"
 #include "splatterpillar.h"
 #include "door.h"
 
 URHO3D_DEFINE_APPLICATION_MAIN(MasterControl);
+
+MasterControl* MasterControl::instance_ = NULL;
+
+MasterControl* MasterControl::GetInstance()
+{
+    return MasterControl::instance_;
+}
 
 MasterControl::MasterControl(Context *context):
     Application(context),
@@ -51,6 +59,7 @@ MasterControl::MasterControl(Context *context):
     sinceStateChange_{0.0f},
     sinceFrameRateReport_{0.0f}
 {
+    instance_ = this;
 }
 
 void MasterControl::Setup()
@@ -59,7 +68,7 @@ void MasterControl::Setup()
     //Set custom window title and icon.
     engineParameters_["WindowTitle"] = "heXon";
     engineParameters_["LogName"] = GetSubsystem<FileSystem>()->GetAppPreferencesDir("urho3d", "logs")+"heXon.log";
-    engineParameters_["ResourcePaths"] = "Data;CoreData;Resources";
+    engineParameters_["ResourcePaths"] = "Resources";
     engineParameters_["WindowIcon"] = "icon.png";
 
 //    engineParameters_["VSync"] = true;
@@ -76,7 +85,7 @@ void MasterControl::Start()
 
     TailGenerator::RegisterObject(context_);
 
-    new InputMaster(this);
+    new InputMaster();
     cache_ = GetSubsystem<ResourceCache>();
     graphics_ = GetSubsystem<Graphics>();
     renderer_ = GetSubsystem<Renderer>();
@@ -167,6 +176,22 @@ void MasterControl::LoadResources()
     resources.materials.ship2Secondary = cache_->GetResource<Material>("Materials/PurpleGlowEnvmap.xml");
 }
 
+void MasterControl::LoadHighest()
+{
+    highestPilot_->Load("Resources/.Pilot0.lkp", highestScore_);
+    if (highestScore_ == 0){
+        highestNode_->SetEnabledRecursive(false);
+        highestScoreText_->SetColor(Color{0.0f, 0.0f, 0.0f, 0.0f});
+
+    } else {
+        podiumNode_->SetRotation(Quaternion::IDENTITY);
+        podiumNode_->Rotate(Quaternion(LucKey::RandomSign()*30.0f, Vector3::UP));
+        highestNode_->SetEnabledRecursive(true);
+        highestScoreText_->SetText(String(highestScore_));
+        highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f));
+    }
+}
+
 void MasterControl::CreateScene()
 {
     world.scene = new Scene(context_);
@@ -184,6 +209,10 @@ void MasterControl::CreateScene()
     zone->SetFogColor(Color(0.0f, 0.0f, 0.0f));
     zone->SetFogStart(56.8f);
     zone->SetFogEnd(61.8f);
+    zone->SetHeightFog(true);
+    zone->SetFogHeight(-5.0f);
+    zone->SetFogHeightScale(0.5f);
+
 
     //Create cursor
     world.cursor.sceneCursor = world.scene->CreateChild("Cursor");
@@ -193,18 +222,19 @@ void MasterControl::CreateScene()
     world.cursor.sceneCursor->SetEnabled(false);
 
     //Create an invisible plane for mouse raycasting
-    world.voidNode = world.scene->CreateChild("MouseHitPlane");
+    world.voidNode = world.scene->CreateChild("Void");
     //Location is set in update since the plane moves with the camera.
+    world.voidNode->SetPosition(Vector3::DOWN * 5.0f);
     world.voidNode->SetScale(Vector3(1000.0f, 1.0f, 1000.0f));
     StaticModel* planeObject{world.voidNode->CreateComponent<StaticModel>()};
     planeObject->SetModel(cache_->GetResource<Model>("Models/Plane.mdl"));
-    planeObject->SetMaterial(cache_->GetResource<Material>("Materials/Invisible.xml"));
+    planeObject->SetMaterial(cache_->GetResource<Material>("Materials/PitchBlack.xml"));
 
     //Create camera
-    world.camera = new heXoCam(this);
+    world.camera = new heXoCam();
 
     //Create arena
-    tileMaster_ = new TileMaster(this);
+    tileMaster_ = new TileMaster();
 
     //Construct lobby
     lobbyNode_ = world.scene->CreateChild("Lobby");
@@ -235,6 +265,43 @@ void MasterControl::CreateScene()
     ship1Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
     SubscribeToEvent(ship1Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandlePlayTrigger1));
 
+    //Create highest
+    highestNode_ = lobbyNode_->CreateChild("Highest");
+    highestNode_->Translate(Vector3(0.0f, 3.2f, -5.0f));
+    highestNode_->Rotate(Quaternion(45.0f, Vector3::RIGHT));
+    highestNode_->Rotate(Quaternion(180.0f, Vector3::UP));
+    podiumNode_ = highestNode_->CreateChild("Podium");
+    podiumNode_->SetScale(0.5f);
+    StaticModel* hexPodium{podiumNode_->CreateComponent<StaticModel>()};
+    hexPodium->SetModel(cache_->GetResource<Model>("Models/Hexagon.mdl"));
+    hexPodium->SetMaterial(cache_->GetTempResource<Material>("Materials/BackgroundTile.xml"));
+    Node* highestPilotNode{podiumNode_->CreateChild("HighestPilot")};
+    highestPilotNode->SetScale(2.0f);
+
+
+    Node* spotNode{highestNode_->CreateChild("HighestSpot")};
+    spotNode->Translate(Vector3(0.0f, -2.0f, 3.0f));
+    spotNode->LookAt(highestNode_->GetWorldPosition());
+    Light* highestSpot{spotNode->CreateComponent<Light>()};
+    highestSpot->SetLightType(LIGHT_SPOT);
+    highestSpot->SetRange(5.0f);
+    highestSpot->SetFov(23.5f);
+    highestSpot->SetColor(Color(0.6f, 0.7f, 1.0f));
+    highestSpot->SetBrightness(2.0f);
+    highestSpot->SetSpecularIntensity(0.23f);
+
+    UI* ui{GetSubsystem<UI>()};
+    highestScoreText_ = ui->GetRoot()->CreateChild<Text>();
+    highestScoreText_->SetName("HighestScore");
+    highestScoreText_->SetText("0");
+    highestScoreText_->SetFont(cache_->GetResource<Font>("Fonts/skirmishergrad.ttf"), 32);
+    highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f));
+    highestScoreText_->SetHorizontalAlignment(HA_CENTER);
+    highestScoreText_->SetVerticalAlignment(VA_CENTER);
+    highestScoreText_->SetPosition(0, ui->GetRoot()->GetHeight()/2.13f);
+
+    highestPilot_ = new Pilot(highestPilotNode);
+    LoadHighest();
 
     //Create player 2 ship
     Node* ship2Node{lobbyNode_->CreateChild("Ship")};
@@ -314,24 +381,24 @@ void MasterControl::CreateScene()
     rightPointLight2_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
     //Create game elements
-    spawnMaster_ = new SpawnMaster(this);
+    spawnMaster_ = new SpawnMaster();
 
-    player1_ = new Player(this, 1);
-    player2_ = new Player(this, 2);
+    player1_ = new Player(1);
+    player2_ = new Player(2);
     players_[player1_->GetRootNodeID()] = player1_;
     players_[player2_->GetRootNodeID()] = player2_;
 
 
-    door1_ = new Door(this, false);
-    door2_ = new Door(this, true);
+    door1_ = new Door(false);
+    door2_ = new Door(true);
 
-    splatterPillar1_ = new SplatterPillar(this, false);
-    splatterPillar2_ = new SplatterPillar(this, true);
+    splatterPillar1_ = new SplatterPillar(false);
+    splatterPillar2_ = new SplatterPillar(true);
 
-    apple_ = new Apple(this);
-    heart_ = new Heart(this);
-    multiX_ = new MultiX(this);
-    chaoBall_ = new ChaoBall(this);
+    apple_ = new Apple();
+    heart_ = new Heart();
+    multiX_ = new MultiX();
+    chaoBall_ = new ChaoBall();
 }
 
 void MasterControl::SetGameState(const GameState newState)
@@ -350,6 +417,8 @@ void MasterControl::LeaveGameState()
     case GS_INTRO : break;
     case GS_LOBBY : {
         lobbyNode_->SetEnabledRecursive(false);
+        if (highestScore_ != 0)
+            highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.23f));
     } break;
     case GS_PLAY : {
         spawnMaster_->Deactivate();
@@ -373,6 +442,8 @@ void MasterControl::EnterGameState()
         world.camera->EnterLobby();
         spawnMaster_->Clear();
         tileMaster_->EnterLobbyState();
+        highestNode_->SetEnabledRecursive(highestScore_ != 0);
+        highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f) * static_cast<float>(highestScore_ != 0));
 
         apple_->Disable();
         heart_->Disable();
@@ -496,35 +567,9 @@ bool MasterControl::PhysicsSphereCast(PODVector<RigidBody*> &hitResults, const V
 
 void MasterControl::Exit()
 {
-    //Save player1 pilot to file
-    if (player1_->IsHuman()) {
-        std::ofstream fPilot1{};
-        fPilot1.open("Resources/Pilot1.lkp");
-        fPilot1 << player1_->pilot_.male_ << '\n';
-        fPilot1 << player1_->pilot_.hairStyle_ << '\n';
-        for (Color c : player1_->pilot_.colors_) {
-            fPilot1 << c.r_ << ' '
-                    << c.g_ << ' '
-                    << c.b_ << ' '
-                    << '\n';
-        }
-        fPilot1 << player1_->GetScore();
-    }
-
-    //Save player2 pilot to file
-    if (player2_->IsHuman()) {
-        std::ofstream fPilot2{};
-        fPilot2.open("Resources/Pilot2.lkp");
-        fPilot2 << player2_->pilot_.male_ << '\n';
-        fPilot2 << player2_->pilot_.hairStyle_ << '\n';
-        for (Color c : player1_->pilot_.colors_) {
-            fPilot2 << c.r_ << ' '
-                    << c.g_ << ' '
-                    << c.b_ << ' '
-                    << '\n';
-        }
-        fPilot2 << player2_->GetScore();
-    }
+    //Save pilots and their scores
+    player1_->SavePilot();
+    player2_->SavePilot();
 
     //...and exit to the left
     engine_->Exit();

@@ -30,11 +30,10 @@ class SplatterPillar : public Object
 {
     URHO3D_OBJECT(SplatterPillar, Object);
 public:
-    SplatterPillar(MasterControl* masterControl, bool right);
+    SplatterPillar(bool right);
     Vector3 GetPosition() const { return rootNode_->GetPosition(); }
     bool IsIdle() const;
 private:
-    MasterControl* masterControl_;
     Player* player_;
     Node* rootNode_;
     Node* pillarNode_;
@@ -50,6 +49,8 @@ private:
     bool spun_;
     bool reset_;
     float lastTriggered_;
+    float delay_;
+    float delayed_;
     float sequenceLength_;
     float rotationSpeed_;
 

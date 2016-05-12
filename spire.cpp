@@ -23,8 +23,8 @@
 #include "seeker.h"
 #include "spawnmaster.h"
 
-Spire::Spire(MasterControl *masterControl):
-    Enemy(masterControl),
+Spire::Spire():
+    Enemy(),
     initialShotInterval_{5.0f},
     shotInterval_{initialShotInterval_},
     sinceLastShot_{0.0f}
@@ -36,16 +36,16 @@ Spire::Spire(MasterControl *masterControl):
     rigidBody_->SetMass(3.0f);
     rigidBody_->SetLinearFactor(Vector3::ZERO);
 
-    SharedPtr<Material> black = masterControl_->cache_->GetTempResource<Material>("Materials/Spire.xml");
+    SharedPtr<Material> black = MC->cache_->GetTempResource<Material>("Materials/Spire.xml");
 
     topNode_ = rootNode_->CreateChild();
     topModel_ = topNode_->CreateComponent<StaticModel>();
-    topModel_->SetModel(masterControl_->cache_->GetResource<Model>("Models/SpireTop.mdl"));
+    topModel_->SetModel(MC->cache_->GetResource<Model>("Models/SpireTop.mdl"));
     topModel_->SetMaterial(black);
 
     bottomNode_ = rootNode_->CreateChild();
     bottomModel_ = bottomNode_->CreateComponent<StaticModel>();
-    bottomModel_->SetModel(masterControl_->cache_->GetResource<Model>("Models/SpireBottom.mdl"));
+    bottomModel_->SetModel(MC->cache_->GetResource<Model>("Models/SpireBottom.mdl"));
     bottomModel_->SetMaterial(black);
 
     SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(Spire, HandleSpireUpdate));
@@ -63,12 +63,12 @@ void Spire::HandleSpireUpdate(StringHash eventType, VariantMap &eventData)
     topNode_->Rotate(Quaternion(0.0f, timeStep*(50.0f+panic_*300.0f), 0.0f));
     bottomNode_->Rotate(Quaternion(0.0f, timeStep*-(50.0f+panic_*300.0f), 0.0f));
 
-    if (masterControl_->GetGameState() == GS_PLAY && IsEmerged()){
+    if (MC->GetGameState() == GS_PLAY && IsEmerged()){
         //Shoot
         sinceLastShot_ += timeStep;
         if (sinceLastShot_ > shotInterval_){
             sinceLastShot_ = 0.0f;
-            masterControl_->spawnMaster_->SpawnSeeker(rootNode_->GetPosition());
+            MC->spawnMaster_->SpawnSeeker(rootNode_->GetPosition());
         }
     }
 }
