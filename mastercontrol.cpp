@@ -210,8 +210,8 @@ void MasterControl::CreateScene()
     zone->SetFogStart(56.8f);
     zone->SetFogEnd(61.8f);
     zone->SetHeightFog(true);
-    zone->SetFogHeight(-5.0f);
-    zone->SetFogHeightScale(0.5f);
+    zone->SetFogHeight(-10.0f);
+    zone->SetFogHeightScale(0.23f);
 
 
     //Create cursor
@@ -221,10 +221,9 @@ void MasterControl::CreateScene()
     cursorObject->SetMaterial(cache_->GetResource<Material>("Materials/Glow.xml"));
     world.cursor.sceneCursor->SetEnabled(false);
 
-    //Create an invisible plane for mouse raycasting
+    //Create an solid black plane to hide everything beyond full fog
     world.voidNode = world.scene->CreateChild("Void");
-    //Location is set in update since the plane moves with the camera.
-    world.voidNode->SetPosition(Vector3::DOWN * 5.0f);
+    world.voidNode->SetPosition(Vector3::DOWN * 10.0f);
     world.voidNode->SetScale(Vector3(1000.0f, 1.0f, 1000.0f));
     StaticModel* planeObject{world.voidNode->CreateComponent<StaticModel>()};
     planeObject->SetModel(cache_->GetResource<Model>("Models/Plane.mdl"));
@@ -287,7 +286,7 @@ void MasterControl::CreateScene()
     highestSpot->SetRange(5.0f);
     highestSpot->SetFov(23.5f);
     highestSpot->SetColor(Color(0.6f, 0.7f, 1.0f));
-    highestSpot->SetBrightness(2.0f);
+    highestSpot->SetBrightness(5.0f);
     highestSpot->SetSpecularIntensity(0.23f);
 
     UI* ui{GetSubsystem<UI>()};
