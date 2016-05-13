@@ -125,7 +125,7 @@ private:
     SharedPtr<Sound> shot_s;
     SharedPtr<Sound> shieldHit_s;
     SharedPtr<Sound> death_s;
-    SharedPtr<Sound> pickup_s;
+    Vector<SharedPtr<Sound>> pickup_s;
     SharedPtr<Sound> powerup_s;
     SharedPtr<Sound> multix_s;
     SharedPtr<Sound> chaoball_s;

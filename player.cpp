@@ -89,8 +89,11 @@ Player::Player(int playerID):
     shieldHit_s->SetLooped(false);
     death_s = MC->cache_->GetResource<Sound>("Samples/Death.ogg");
     death_s->SetLooped(false);
-    pickup_s = MC->cache_->GetResource<Sound>("Samples/Pickup.ogg");
-    pickup_s->SetLooped(false);
+    for (int p{1}; p <= 4; ++p){
+        pickup_s.Push(SharedPtr<Sound>(MC->cache_->GetResource<Sound>("Samples/Pickup"+String{p}+".ogg")));
+        pickup_s[p-1]->SetLooped(false);
+    }
+
     powerup_s = MC->cache_->GetResource<Sound>("Samples/Powerup.ogg");
     powerup_s->SetLooped(false);
     multix_s= MC->cache_->GetResource<Sound>("Samples/MultiX.ogg");
@@ -496,7 +499,7 @@ void Player::Pickup(PickupType pickup)
             appleCount_ = 0;
             PlaySample(powerup_s, 0.42f);
         }
-        else PlaySample(pickup_s, 0.42f);
+        else PlaySample(pickup_s[appleCount_-1], 0.42f);
     } break;
     case PT_HEART: {
         ++heartCount_;
@@ -508,7 +511,7 @@ void Player::Pickup(PickupType pickup)
         }
         else {
             SetHealth(Max(health_, Clamp(health_+5.0f, 0.0f, 10.0f)));
-            PlaySample(pickup_s, 0.42f);
+            PlaySample(pickup_s[heartCount_-1], 0.42f);
         }
     } break;
     case PT_MULTIX: {

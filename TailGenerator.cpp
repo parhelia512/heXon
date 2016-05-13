@@ -10,8 +10,8 @@ TailGenerator::TailGenerator(Context* context) :
 	vertexBuffer_ = SharedPtr<VertexBuffer>(new VertexBuffer(context));
 	indexBuffer_ = SharedPtr<IndexBuffer>(new IndexBuffer(context));
 
-    vertexBuffer_->SetSize(0, MASK_POSITION | MASK_COLOR | MASK_TEXCOORD1, true);
-    geometry_->SetVertexBuffer(0, vertexBuffer_/*, MASK_POSITION | MASK_COLOR | MASK_TEXCOORD1*/);
+    vertexBuffer_->SetSize(0, SEM_POSITION | SEM_COLOR | SEM_TEXCOORD, true);
+//    geometry_->SetVertexBuffer(0, vertexBuffer_/*, MASK_POSITION | MASK_COLOR | MASK_TEXCOORD1*/);
     geometry_->SetIndexBuffer(indexBuffer_);
 
     indexBuffer_->SetShadowed(false);
@@ -19,7 +19,7 @@ TailGenerator::TailGenerator(Context* context) :
 	transforms_[0] = Matrix3x4::IDENTITY;
 	transforms_[1] = Matrix3x4(Vector3::ZERO, Quaternion(0, 0, 0), Vector3::ONE);
 	
-    batches_.Resize(1);
+     batches_.Resize(1);
     batches_[0].geometry_ = geometry_;
     batches_[0].geometryType_ = GEOM_BILLBOARD;
     batches_[0].worldTransform_ = &transforms_[0];
