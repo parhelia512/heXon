@@ -81,8 +81,7 @@ void MasterControl::Setup()
 }
 void MasterControl::Start()
 {
-    Engine* engine{GetSubsystem<Engine>()};
-    engine->SetMaxFps(100);
+    ENGINE->SetMaxFps(100);
 
     TailGenerator::RegisterObject(context_);
 
@@ -481,8 +480,9 @@ void MasterControl::Eject()
 
 void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    double timeStep{eventData[Update::P_TIMESTEP].GetFloat()};
+    float timeStep{eventData[Update::P_TIMESTEP].GetFloat()};
 
+    //Output FPS
     spf_ *= 1.0f - timeStep;
     spf_ += timeStep * timeStep;
     sinceFrameRateReport_ += timeStep;
@@ -499,10 +499,10 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
 //        musicSource_->SetGain(Max(1.0f, sinceStateChange_));
         lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) / (128.0f * sinceStateChange_+23.0f));
 
-        leftPointLight1_->SetBrightness(Sine(1.0f, 0.666, 0.95f));
-        leftPointLight2_->SetBrightness(Sine(1.0f, 0.666, 0.95f, M_PI));
-        rightPointLight1_->SetBrightness(Sine(1.0f, 0.95, 1.23f));
-        rightPointLight2_->SetBrightness(Sine(1.0f, 0.95, 1.23f, M_PI));
+        leftPointLight1_->SetBrightness(Sine(1.0f, 0.666f, 0.95f));
+        leftPointLight2_->SetBrightness(Sine(1.0f, 0.666f, 0.95f, M_PI));
+        rightPointLight1_->SetBrightness(Sine(1.0f, 0.95f, 1.23f));
+        rightPointLight2_->SetBrightness(Sine(1.0f, 0.95f, 1.23f, M_PI));
 
         if (door1_->HidesPlayer() > 0.5f && door2_->HidesPlayer() > 0.5f){
                 Exit();
@@ -524,17 +524,14 @@ void MasterControl::UpdateCursor(const float timeStep)
 {
     world.cursor.sceneCursor->Rotate(Quaternion(0.0f,100.0f*timeStep,0.0f));
     //world.cursor.sceneCursor->SetScale((world.cursor.sceneCursor->GetWorldPosition() - world.camera->GetWorldPosition()).Length()*0.05f);
-    if (CursorRayCast(250.0f, world.cursor.hitResults)) {
-        for (RayQueryResult r : world.cursor.hitResults) {
-            if (r.node_->GetNameHash() == N_TILE) {
+    if (CursorRayCast(250.0f, world.cursor.hitResults))
+        for (RayQueryResult r : world.cursor.hitResults)
+            if (r.node_->GetNameHash() == N_TILE)
                 world.cursor.sceneCursor->SetWorldPosition(r.node_->GetPosition()+Vector3::UP);
                 /*Vector3 camHitDifference = world.camera->rootNode_->GetWorldPosition() - world.cursor.hitResults[i].position_;
                 camHitDifference /= world.camera->rootNode_->GetWorldPosition().y_ - world.voidNode->GetPosition().y_;
                 camHitDifference *= world.camera->rootNode_->GetWorldPosition().y_;
                 world.cursor.sceneCursor->SetWorldPosition(world.camera->rootNode_->GetWorldPosition()-camHitDifference);*/
-            }
-        }
-    }
 }
 
 bool MasterControl::CursorRayCast(const float maxDistance, PODVector<RayQueryResult> &hitResults)
@@ -544,12 +541,15 @@ bool MasterControl::CursorRayCast(const float maxDistance, PODVector<RayQueryRes
                                                         (float)mousePos.y_/graphics_->GetHeight())};
     RayOctreeQuery query{hitResults, cameraRay, RAY_TRIANGLE, maxDistance, DRAWABLE_GEOMETRY};
     world.scene->GetComponent<Octree>()->Raycast(query);
-    if (hitResults.Size()) return true;
-    else return false;
+
+    if (hitResults.Size())
+        return true;
+    else
+        return false;
 }
 
 bool MasterControl::PhysicsRayCast(PODVector<PhysicsRaycastResult> &hitResults, const Ray ray,
-                                   const float distance, const unsigned collisionMask = M_MAX_UNSIGNED)
+                                   const float distance, const unsigned collisionMask)
 {
     if (distance > 1.0e-9)
         physicsWorld_->Raycast(hitResults, ray, distance, collisionMask);
@@ -558,7 +558,7 @@ bool MasterControl::PhysicsRayCast(PODVector<PhysicsRaycastResult> &hitResults, 
 }
 
 bool MasterControl::PhysicsSphereCast(PODVector<RigidBody*> &hitResults, const Vector3 center,
-                                      const float radius, const unsigned collisionMask = M_MAX_UNSIGNED)
+                                      const float radius, const unsigned collisionMask)
 {
     physicsWorld_->GetRigidBodies(hitResults, Sphere(center, radius), collisionMask);
     if (hitResults.Size()) return true;
@@ -579,9 +579,10 @@ void MasterControl::CreateSineLookupTable()
 {
     //Populate sine lookup vector
     int resolution{4096};
-    for (int i{0}; i < resolution; ++i) {
-        sine_.Push(sin(((float)i/resolution)*2.0*M_PI));
-    }
+    for (int i{0}; i < resolution; ++i)
+        sine_.Push(sin(static_cast<double>(
+                           (static_cast<float>(i)/resolution) * 2.0f * M_PI
+                           )));
 }
 
 float MasterControl::Sine(const float freq, const float min, const float max, const float shift)

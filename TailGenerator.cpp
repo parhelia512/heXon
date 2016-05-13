@@ -10,7 +10,8 @@ TailGenerator::TailGenerator(Context* context) :
 	vertexBuffer_ = SharedPtr<VertexBuffer>(new VertexBuffer(context));
 	indexBuffer_ = SharedPtr<IndexBuffer>(new IndexBuffer(context));
 
-    geometry_->SetVertexBuffer(0, vertexBuffer_, MASK_POSITION | MASK_COLOR | MASK_TEXCOORD1);
+    vertexBuffer_->SetSize(0, MASK_POSITION | MASK_COLOR | MASK_TEXCOORD1, true);
+    geometry_->SetVertexBuffer(0, vertexBuffer_/*, MASK_POSITION | MASK_COLOR | MASK_TEXCOORD1*/);
     geometry_->SetIndexBuffer(indexBuffer_);
 
     indexBuffer_->SetShadowed(false);

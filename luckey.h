@@ -78,6 +78,7 @@
 #include <Urho3D/DebugNew.h>
 
 #define INPUT GetSubsystem<Input>()
+#define ENGINE GetSubsystem<Engine>()
 
 using namespace Urho3D;
 

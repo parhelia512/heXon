@@ -1,4 +1,6 @@
-#pragma once
+#ifndef TAILGENERATOR_H
+#define TAILGENERATOR_H
+
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Scene/Node.h>
 #include <Urho3D/Resource/ResourceCache.h>
@@ -155,3 +157,4 @@ private:
     ///
 	Color tailHeadColor;
 };
+#endif // TAILGENERATOR_H
