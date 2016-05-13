@@ -67,7 +67,10 @@ Player::Player(int playerID):
     pilot_ = new Pilot(rootNode_.Get(),
                        "Resources/.Pilot"+std::to_string(playerID_)+".lkp",
                        score_);
-    if (score_ != 0) alive_ = true;
+    if (score_ != 0) {
+        alive_ = true;
+        SetScore(score_);
+    }
 
     //Setup shield
     shieldNode_ = rootNode_->CreateChild("Shield");

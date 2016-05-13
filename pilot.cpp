@@ -36,8 +36,6 @@ Pilot::Pilot(Node* parent, const std::string file, unsigned& score) : SceneObjec
     Initialize(parent);
 
     Load(file, score);
-
-    score = 0;
 }
 
 void Pilot::Initialize(Node* parent)

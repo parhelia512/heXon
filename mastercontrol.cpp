@@ -64,6 +64,7 @@ MasterControl::MasterControl(Context *context):
 
 void MasterControl::Setup()
 {
+    SetRandomSeed(GetSubsystem<Time>()->GetSystemTime());
     // Modify engine startup parameters.
     //Set custom window title and icon.
     engineParameters_["WindowTitle"] = "heXon";
