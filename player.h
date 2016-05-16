@@ -25,8 +25,9 @@
 
 #define DOOR        (playerID_==2 ? MC->door2_ : MC->door1_)
 #define OTHERDOOR   (playerID_==1 ? MC->door2_ : MC->door1_)
-#define SPLATTERPILLAR (playerID_==2 ? MC->splatterPillar2_ : MC->splatterPillar1_)
+#define SPLATTERPILLAR      (playerID_==2 ? MC->splatterPillar2_ : MC->splatterPillar1_)
 #define OTHERSPLATTERPILLAR (playerID_==1 ? MC->splatterPillar2_ : MC->splatterPillar1_)
+#define JOY INPUT->GetJoystickByIndex(playerID_ - 1)
 
 class Bullet;
 class Muzzle;
@@ -148,6 +149,7 @@ private:
     void Think();
     Vector3 Sniff(float playerFactor, bool taste = false);
     void CountScore();
+    void Eject();
 };
 
 #endif // PLAYER_H

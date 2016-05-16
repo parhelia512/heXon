@@ -139,7 +139,7 @@ Color Enemy::GetGlowColor() const
 {
     float factor{(Sin(200.0f*(MC->world.scene->GetElapsedTime()+panicTime_))*(0.25f+panic_*0.25f)+(panic_*0.5f))};
     factor *= factor * 2.0f;
-    return color_*factor;
+    return color_ * factor;
 }
 
 void Enemy::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)

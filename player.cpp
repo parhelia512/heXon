@@ -34,11 +34,13 @@
 #include "pilot.h"
 #include "splatterpillar.h"
 #include "door.h"
+#include "phaser.h"
 
 Player::Player(int playerID):
     SceneObject(),
     playerID_{playerID},
     autoPilot_{playerID_==2 && !GetSubsystem<Input>()->GetJoystickByIndex(playerID-1)},
+//    autoPilot_{false},
 //    autoPilot_{true},
     autoMove_{Vector3::ZERO},
     autoFire_{Vector3::ZERO},
@@ -269,6 +271,13 @@ void Player::CountScore()
     }
 }
 
+void Player::Eject()
+{
+    new Phaser(ship_.model_->GetModel(), GetPosition(),
+               rigidBody_->GetLinearVelocity() + rootNode_->GetDirection() * 10e-5);
+    Disable();
+}
+
 void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
     //Count the score
@@ -294,15 +303,24 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     Vector3 fireKey{};
 
     //Read input
-    if (INPUT->GetJoystickByIndex(playerID_ - 1)){
-        JoystickState* joystick{INPUT->GetJoystickByIndex(playerID_ - 1)};
+    if (JOY){
+        //Eject
+        if (JOY->GetButtonDown(JB_L2) && JOY->GetButtonDown(JB_R2)
+                && rootNode_->IsEnabled() && MC->GetGameState() == GS_PLAY){
+            Eject();
+        }
 
-        moveJoy = Vector3::RIGHT * joystick->GetAxisPosition(0) +
-                  Vector3::BACK * joystick->GetAxisPosition(1);
-        fireJoy = Vector3::RIGHT * joystick->GetAxisPosition(2) +
-                  Vector3::BACK * joystick->GetAxisPosition(3);
+        moveJoy = Vector3::RIGHT * JOY->GetAxisPosition(0) +
+                  Vector3::BACK * JOY->GetAxisPosition(1);
+        fireJoy = Vector3::RIGHT * JOY->GetAxisPosition(2) +
+                  Vector3::BACK * JOY->GetAxisPosition(3);
     } else {
         if (playerID_ == 1 || INPUT->GetJoystickByIndex(0)) {
+            //Eject
+            if (INPUT->GetKeyDown(KEY_ESC)
+                    && rootNode_->IsEnabled() && MC->GetGameState() == GS_PLAY){
+                Eject();
+            }
             moveKey = Vector3::LEFT * INPUT->GetKeyDown(KEY_A) +
                       Vector3::RIGHT * INPUT->GetKeyDown(KEY_D) +
                       Vector3::FORWARD * INPUT->GetKeyDown(KEY_W) +
@@ -311,10 +329,10 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
                       Vector3::RIGHT * (INPUT->GetKeyDown(KEY_L) || INPUT->GetKeyDown(KEY_KP_6)) +
                       Vector3::FORWARD * (INPUT->GetKeyDown(KEY_I) || INPUT->GetKeyDown(KEY_KP_8)) +
                       Vector3::BACK * (INPUT->GetKeyDown(KEY_K) || INPUT->GetKeyDown(KEY_KP_2) || INPUT->GetKeyDown(KEY_KP_5)) +
-                      Quaternion(45.0f, Vector3::UP)*Vector3::LEFT * INPUT->GetKeyDown(KEY_KP_7) +
-                      Quaternion(45.0f, Vector3::UP)*Vector3::RIGHT * INPUT->GetKeyDown(KEY_KP_3) +
-                      Quaternion(45.0f, Vector3::UP)*Vector3::FORWARD * INPUT->GetKeyDown(KEY_KP_9) +
-                      Quaternion(45.0f, Vector3::UP)*Vector3::BACK * INPUT->GetKeyDown(KEY_KP_1);
+                      Quaternion(45.0f, Vector3::UP) * Vector3::LEFT * INPUT->GetKeyDown(KEY_KP_7) +
+                      Quaternion(45.0f, Vector3::UP) * Vector3::RIGHT * INPUT->GetKeyDown(KEY_KP_3) +
+                      Quaternion(45.0f, Vector3::UP) * Vector3::FORWARD * INPUT->GetKeyDown(KEY_KP_9) +
+                      Quaternion(45.0f, Vector3::UP) * Vector3::BACK * INPUT->GetKeyDown(KEY_KP_1);
         }
     }
 
@@ -323,18 +341,31 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     fireJoy.Length() > fireKey.Length() ? fire = fireJoy : fire = fireKey;
 
     if (autoPilot_){
+        //Eject
+        if (((JOY && JOY->GetButtonDown(JB_L2) && JOY->GetButtonDown(JB_R2)) || INPUT->GetKeyPress(KEY_ESC)) &&
+                rootNode_->IsEnabled() && !MC->GetPlayer(playerID_, true)->IsEnabled() && MC->GetGameState() == GS_PLAY &&
+                !MC->world.scene->GetChild(StringHash{"Phaser"}, true))
+        {
+            Eject();
+        }
+
+
         Think();
         move = autoMove_;
         fire = autoFire_;
     }
 
     //Restrict move vector length
-    if (move.Length() > 1.0f) move /= move.Length();
+    if (move.Length() > 1.0f)
+        move /= move.Length();
     //Deadzones
-    else if (move.Length() < 0.1f) move *= 0.0f;
+    else if (move.Length() < 0.1f)
+        move *= 0.0f;
 
-    if (fire.Length() < 0.1f) fire *= 0.0f;
-    else fire.Normalize();
+    if (fire.Length() < 0.1f)
+        fire *= 0.0f;
+    else
+        fire.Normalize();
 
     //Flatten input
     Vector3 xzPlane{Vector3::ONE - Vector3::UP};
@@ -396,10 +427,12 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         for (int t = 0; t < 3; t++)
         {
             float velocityToScale = Clamp(0.23f * rigidBody_->GetLinearVelocity().Length(), 0.0f, 1.0f);
-            TailGenerator* tailGen = tailGens_[t];
-            tailGen->SetTailLength(t==1? velocityToScale * 0.1f : velocityToScale * 0.075f);
-//            tailGen->SetNumTails(t==1? (int)(velocityToScale * 23) : (int)(velocityToScale * 16));
-            tailGen->SetWidthScale(t==1? velocityToScale * 0.666f : velocityToScale * 0.23f);
+            TailGenerator* tailGen{tailGens_[t]};
+            if (tailGen) {
+                tailGen->SetTailLength(t==1? velocityToScale * 0.1f : velocityToScale * 0.075f);
+                //            tailGen->SetNumTails(t==1? (int)(velocityToScale * 23) : (int)(velocityToScale * 16));
+                tailGen->SetWidthScale(t==1? velocityToScale * 0.666f : velocityToScale * 0.23f);
+            }
         }
 
         //Shooting
@@ -528,13 +561,11 @@ void Player::Pickup(PickupType pickup)
     }
 
     //Update Pickup GUI elements
-    for (int a = 0; a < 4; a++){
-        if (appleCount_ > a) appleCounter_[a]->SetEnabled(true);
-        else appleCounter_[a]->SetEnabled(false);
+    for (int a{0}; a < 4; ++a){
+        appleCounter_[a]->SetEnabled(appleCount_ > a);
     }
-    for (int h = 0; h < 4; h++){
-        if (heartCount_ > h) heartCounter_[h]->SetEnabled(true);
-        else heartCounter_[h]->SetEnabled(false);
+    for (int h{0}; h < 4; ++h){
+        heartCounter_[h]->SetEnabled(heartCount_ > h);
     }
 }
 
@@ -791,7 +822,7 @@ void Player::CreateTails()
 {
     for (int t{0}; t < 3; ++t) {
         Node* tailNode{ship_.node_->CreateChild("Tail")};
-        tailNode->SetPosition(Vector3(-0.85f+0.85f*t, t==1? 0.0f : -0.5f, t==1? -0.5f : -0.23f));
+        tailNode->SetPosition(Vector3(-0.85f + 0.85f * t, t==1? 0.0f : -0.5f, t==1? -0.5f : -0.23f));
         TailGenerator* tailGen{tailNode->CreateComponent<TailGenerator>()};
         tailGen->SetDrawHorizontal(true);
         tailGen->SetDrawVertical(t==1?true:false);

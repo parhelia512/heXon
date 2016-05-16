@@ -16,13 +16,13 @@
 #### Panel
 
 - Top panel: Instructions
-- Bottom panel: Game type selection (single, battle, coop)
+- Bottom panel: Options
 
 -----------------------
 
 ### Play
 
-- Dissolve ship on eject
+- Static dissolve ship on eject
 - Immediate powerup when pickup is caught in chaoflash, without affecting counter
 - Swap places with other player if both are caught in chaoflash
 - Remaining points to other player for dealing more than half the damage

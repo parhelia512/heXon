@@ -16,6 +16,8 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+//The multiplier used to be a pickup
+
 #include "multix.h"
 
 MultiX::MultiX():

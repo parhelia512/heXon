@@ -3,6 +3,7 @@
 TailGenerator::TailGenerator(Context* context) : 
                 Drawable(context, DRAWABLE_GEOMETRY)
 {
+    SetEnabled(false);
 
     matchNode_ = false;
 
@@ -11,7 +12,7 @@ TailGenerator::TailGenerator(Context* context) :
 	indexBuffer_ = SharedPtr<IndexBuffer>(new IndexBuffer(context));
 
     vertexBuffer_->SetSize(0, SEM_POSITION | SEM_COLOR | SEM_TEXCOORD, true);
-//    geometry_->SetVertexBuffer(0, vertexBuffer_/*, MASK_POSITION | MASK_COLOR | MASK_TEXCOORD1*/);
+    geometry_->SetVertexBuffer(0, vertexBuffer_/*, MASK_POSITION | MASK_COLOR | MASK_TEXCOORD1*/);
     geometry_->SetIndexBuffer(indexBuffer_);
 
     indexBuffer_->SetShadowed(false);

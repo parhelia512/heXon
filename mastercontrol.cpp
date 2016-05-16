@@ -480,6 +480,16 @@ void MasterControl::Eject()
 
 void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
+//    Material* phase{cache_->GetResource<Material>("Materials/Phase.xml")};
+//    phase->SetShaderParameter("Dissolve", Sine(5.0f, 0.0f, 1.0f));
+//    phase->SetShaderParameter("UOffset",
+//                    Vector4(LucKey::Cycle(GetSubsystem<Time>()->GetElapsedTime(), 0.0f, 1.0f),
+//                            0.0f, LucKey::Cycle(GetSubsystem<Time>()->GetElapsedTime(), 0.0f, 1.0f), 0.0f));
+//    phase->SetShaderParameter("VOffset",
+//                              Vector4(0.0f,
+//                                      LucKey::Cycle(GetSubsystem<Time>()->GetElapsedTime() * 0.1f, 0.0f, 1.0f),
+//                                      0.0f, LucKey::Cycle(GetSubsystem<Time>()->GetElapsedTime() * 0.1f, 0.0f, 1.0f)));
+
     float timeStep{eventData[Update::P_TIMESTEP].GetFloat()};
 
     //Output FPS

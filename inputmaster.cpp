@@ -133,10 +133,10 @@ void InputMaster::PauseButtonPressed()
 }
 void InputMaster::EjectButtonPressed()
 {
-    if (MC->GetGameState()==GS_PLAY && !MC->GetPaused()) {
-        MC->Eject();
-    } else if (MC->GetGameState()==GS_LOBBY) MC->Exit();
-    else if (MC->GetGameState()==GS_DEAD) MC->SetGameState(GS_LOBBY);
+//    if (MC->GetGameState()==GS_PLAY && !MC->GetPaused()) {
+//        MC->Eject();
+//    } else if (MC->GetGameState()==GS_LOBBY) MC->Exit();
+//    else if (MC->GetGameState()==GS_DEAD) MC->SetGameState(GS_LOBBY);
 }
 
 void InputMaster::Screenshot()

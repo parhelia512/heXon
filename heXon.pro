@@ -46,7 +46,8 @@ SOURCES += \
     TailGenerator.cpp \
     tile.cpp \
     tilemaster.cpp \
-    pilot.cpp
+    pilot.cpp \
+    phaser.cpp
 
 HEADERS += \
     apple.h \
@@ -81,7 +82,8 @@ HEADERS += \
     TailGenerator.h \
     tile.h \
     tilemaster.h \
-    pilot.h
+    pilot.h \
+    phaser.h
 
 OTHER_FILES += \
     Docs/Todo.md \
