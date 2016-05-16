@@ -22,7 +22,6 @@
 
 ### Play
 
-- Static dissolve ship on eject
 - Immediate powerup when pickup is caught in chaoflash, without affecting counter
 - Swap places with other player if both are caught in chaoflash
 - Remaining points to other player for dealing more than half the damage
