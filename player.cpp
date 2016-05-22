@@ -66,9 +66,14 @@ Player::Player(int playerID):
     SetupShip();
 
     //Setup pilot
-    pilot_ = new Pilot(rootNode_.Get(),
-                       "Resources/.Pilot"+std::to_string(playerID_)+".lkp",
-                       score_);
+    if (!autoPilot_){
+        pilot_ = new Pilot(rootNode_.Get(),
+                           "Resources/.Pilot"+std::to_string(playerID_)+".lkp",
+                           score_);
+    } else {
+        pilot_ = new Pilot(rootNode_.Get());
+    }
+
     if (score_ != 0) {
         alive_ = true;
         SetScore(score_);
