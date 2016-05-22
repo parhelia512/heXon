@@ -175,15 +175,6 @@ public:
     virtual void Stop();
     void Exit();
 
-    void CreateSineLookupTable();
-    float Sine(float x) { return sine_[ static_cast<int>(round(sine_.Size() *
-                LucKey::Cycle( x/(2.0f*M_PI), 0.0f, 1.0f ))) %
-                static_cast<int>(sine_.Size()) ]; }
-
-    float Sine(float freq, float min, float max, float shift = 0.0f);
-    float Cosine(float x) { return Sine(x+(0.5f*M_PI)); }
-    float Cosine(float freq, float min, float max, float shift = 0.0f){ return Sine(freq, min, max, shift+0.5f*M_PI); }
-
     Player* GetPlayer(int playerID, bool other = false) const;
     float SinceLastReset() const { return world.scene->GetElapsedTime() - world.lastReset; }
     void SetGameState(GameState newState);
@@ -203,6 +194,9 @@ public:
     void Eject();
     bool NoHumans();
     void LoadHighest();
+
+    float Sine(const float freq, const float min, const float max, const float shift = 0.0f);
+    float Cosine(const float freq, const float min, const float max, const float shift = 0.0f);
 private:
     static MasterControl* instance_;
 
@@ -245,7 +239,7 @@ private:
     void EnterGameState();
     void LoadResources();
 
-    float spf_;
+    float secondsPerFrame_;
     float sinceFrameRateReport_;
 };
 

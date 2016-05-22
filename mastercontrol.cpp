@@ -89,7 +89,6 @@ void MasterControl::Start()
     cache_ = GetSubsystem<ResourceCache>();
     graphics_ = GetSubsystem<Graphics>();
     renderer_ = GetSubsystem<Renderer>();
-    CreateSineLookupTable();
 
     LoadResources();
 
@@ -493,11 +492,11 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
     float timeStep{eventData[Update::P_TIMESTEP].GetFloat()};
 
     //Output FPS
-    spf_ *= 1.0f - timeStep;
-    spf_ += timeStep * timeStep;
+    secondsPerFrame_ *= 1.0f - timeStep;
+    secondsPerFrame_ += timeStep * timeStep;
     sinceFrameRateReport_ += timeStep;
     if (sinceFrameRateReport_ >= 1.0f) {
-        Log::Write(1, String(1.0f / spf_));
+        Log::Write(1, String(1.0f / secondsPerFrame_));
         sinceFrameRateReport_ = 0.0f;
     }
 
@@ -585,21 +584,17 @@ void MasterControl::Exit()
     engine_->Exit();
 }
 
-void MasterControl::CreateSineLookupTable()
-{
-    //Populate sine lookup vector
-    int resolution{4096};
-    for (int i{0}; i < resolution; ++i)
-        sine_.Push(sin(static_cast<double>(
-                           (static_cast<float>(i)/resolution) * 2.0f * M_PI
-                           )));
-}
-
 float MasterControl::Sine(const float freq, const float min, const float max, const float shift)
 {
     float phase{freq * world.scene->GetElapsedTime() + shift};
-    float add{0.5f*(min+max)};
-    return Sine(phase) * 0.5f * (max - min) + add;
+    float add{0.5f * (min + max)};
+    return LucKey::Sine(phase) * 0.5f * (max - min) + add;
+}
+float MasterControl::Cosine(const float freq, const float min, const float max, const float shift)
+{
+    float phase{freq * world.scene->GetElapsedTime() + shift};
+    float add{0.5f * (min + max)};
+    return LucKey::Cosine(phase) * 0.5f * (max - min) + add;
 }
 
 Player* MasterControl::GetPlayer(int playerID, bool other) const

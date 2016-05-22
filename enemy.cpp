@@ -23,7 +23,13 @@
 
 Enemy::Enemy():
     SceneObject(),
+    panicTime_{0.0f},
     initialHealth_{1.0f},
+    panic_{0.0f},
+    worth_{5},
+    bonus_{true},
+    firstHitBy_{0},
+    lastHitBy_{0},
     whackInterval_{0.5f},
     sinceLastWhack_{0.0f},
     meleeDamage_{0.44f}

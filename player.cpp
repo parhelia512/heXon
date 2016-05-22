@@ -585,8 +585,11 @@ void Player::Die()
     deathSource_->Play(death_s);
 
     int otherplayer = playerID_ == 2 ? 1 : 2;
-    if (!MC->GetPlayer(otherplayer)->IsAlive())
+    if (!MC->GetPlayer(otherplayer)->IsAlive()
+        || !MC->GetPlayer(otherplayer)->IsEnabled())
+    {
         MC->SetGameState(GS_DEAD);
+    }
 }
 
 void Player::EnterPlay()

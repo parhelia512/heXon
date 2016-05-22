@@ -69,14 +69,14 @@ void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     Vector3 targetPosition = Vector3::ZERO;
     Player* player1 = MC->GetPlayer(1);
     Player* player2 = MC->GetPlayer(2);
-    if (player1->IsAlive() && player2->IsAlive())
+    if (player1->IsActive() && player2->IsActive())
         targetPosition =
                 LucKey::Distance(rootNode_->GetPosition(), player1->GetPosition()) <
                 LucKey::Distance(rootNode_->GetPosition(), player2->GetPosition())
                 ? player1->GetPosition()
                 : player2->GetPosition();
-    else if (player1->IsAlive()) targetPosition = player1->GetPosition();
-    else if (player2->IsAlive()) targetPosition = player2->GetPosition();
+    else if (player1->IsActive()) targetPosition = player1->GetPosition();
+    else if (player2->IsActive()) targetPosition = player2->GetPosition();
     rigidBody_->ApplyForce((targetPosition - rootNode_->GetPosition()).Normalized() * timeStep * 666.0f);
 }
 

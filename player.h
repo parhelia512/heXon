@@ -53,6 +53,7 @@ public:
     Vector3 GetWorldPosition() const { return rootNode_->GetWorldPosition(); }
     double GetHealth() const noexcept { return health_; }
     bool IsAlive() const noexcept { return alive_; }
+    bool IsActive() const noexcept { return alive_ && IsEnabled(); }
     bool IsHuman() const noexcept { return !autoPilot_; }
     bool IsMoving() const { return rigidBody_->GetLinearVelocity().Length() > 0.01f; }
     void Hit(float damage, bool melee = true);

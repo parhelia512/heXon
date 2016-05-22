@@ -68,3 +68,33 @@ Color LucKey::RandomColor()
     color.FromHSV(Random(), Random(), Random());
     return color;
 }
+
+float LucKey::Sine(float x)
+{
+    if (x < -M_PI){
+        while (x < -M_PI) {
+            x += 2.0f * M_PI;
+        }
+    } else while (x > M_PI) {
+        x -= 2.0f * M_PI;
+    }
+
+
+    float sin{};
+
+    if (x < 0.0f)
+        sin = 1.27323954f * x + 0.405284735f * x * x;
+    else
+        sin = 1.27323954f * x - 0.405284735f * x * x;
+
+    if (sin < 0)
+        sin = 0.225f * (sin *-sin - sin) + sin;
+    else
+        sin = 0.225f * (sin * sin - sin) + sin;
+
+    return sin;
+}
+float LucKey::Cosine(float x)
+{
+    return Sine(x + M_PI * 0.5f);
+}

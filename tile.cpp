@@ -47,7 +47,7 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
         rootNode_->SetRotation(Quaternion(Random(3)*120.0f + 60.0f*flipped_, Vector3::UP));
 
     //Calculate periodic tile movement
-    wave_ = 6.0f * pow(MC->Sine(Abs(centerDistExp_ - elapsedTime * 5.2625f)), 4.0f);
+    wave_ = 6.0f * pow(LucKey::Sine(Abs(centerDistExp_ - elapsedTime * 5.2625f)), 4.0f);
 
     unsigned nHexAffectors{tileMaster_->hexAffectors_.Size()};
     if (nHexAffectors) {

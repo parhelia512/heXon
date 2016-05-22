@@ -39,6 +39,7 @@ SceneObject::SceneObject():
 
 void SceneObject::Set(const Vector3 position)
 {
+    StopAllSound();
     rootNode_->SetEnabledRecursive(true);
     rootNode_->SetPosition(position);
     if (blink_)
@@ -89,7 +90,7 @@ void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
             hexantNormal = flatPosition.Angle(otherHexantNormal) < flatPosition.Angle(hexantNormal)
                     ? otherHexantNormal : hexantNormal;
         }
-        float boundsCheck{flatPosition.Length() * MC->Cosine(M_DEGTORAD * flatPosition.Angle(hexantNormal))};
+        float boundsCheck{flatPosition.Length() * LucKey::Cosine(M_DEGTORAD * flatPosition.Angle(hexantNormal))};
         if (boundsCheck > radius){
             if (rootNode_->GetNameHash() == N_BULLET){
                 MC->spawnMaster_->SpawnHitFX(GetPosition(), 0, false);

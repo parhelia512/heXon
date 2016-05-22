@@ -48,14 +48,14 @@ public:
     void Hit(const float damage, const int ownerID);
     void Set(const Vector3 position);
 protected:
-    float panicTime_ = 0.0f;
+    float panicTime_;
     float health_;
     float initialHealth_;
-    float panic_ = 0.0f;
-    int worth_ = 5;
-    bool bonus_ = true;
-    int firstHitBy_ = 0;
-    int lastHitBy_ = 0;
+    float panic_;
+    int worth_;
+    bool bonus_;
+    int firstHitBy_;
+    int lastHitBy_;
 
     float sinceLastWhack_;
     const float whackInterval_;
