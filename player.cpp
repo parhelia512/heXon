@@ -138,7 +138,6 @@ Player::Player(int playerID):
 
     //Subscribe to events
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Player, HandleSceneUpdate));
-//    if (autoPilot_) SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Player, Think));
 
     for (int b{0}; b < 64; ++b){
         Bullet* bullet{new Bullet(playerID_)};

@@ -1,3 +1,5 @@
+TARGET = hexon
+
 LIBS += ../heXon/Urho3D/lib/libUrho3D.a \
     -lpthread \
     -ldl \

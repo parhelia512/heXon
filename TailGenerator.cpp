@@ -3,7 +3,7 @@
 TailGenerator::TailGenerator(Context* context) : 
                 Drawable(context, DRAWABLE_GEOMETRY)
 {
-    SetEnabled(false);
+    SetEnabled(false);///Drawing glitches with latest Urho3D
 
     matchNode_ = false;
 
@@ -20,7 +20,7 @@ TailGenerator::TailGenerator(Context* context) :
 	transforms_[0] = Matrix3x4::IDENTITY;
 	transforms_[1] = Matrix3x4(Vector3::ZERO, Quaternion(0, 0, 0), Vector3::ONE);
 	
-     batches_.Resize(1);
+    batches_.Resize(1);
     batches_[0].geometry_ = geometry_;
     batches_[0].geometryType_ = GEOM_BILLBOARD;
     batches_[0].worldTransform_ = &transforms_[0];
@@ -392,13 +392,13 @@ unsigned TailGenerator::GetNumTails()
 void TailGenerator::SetDrawVertical(bool value)
 {
     vertical_ = value;
-    //SetupBatches();
+//    SetupBatches();
 }
 
 void TailGenerator::SetDrawHorizontal(bool value)
 {
     horizontal_ = value;
-    //SetupBatches();
+//    SetupBatches();
 }
 
 void TailGenerator::SetMatchNodeOrientation(bool value)
