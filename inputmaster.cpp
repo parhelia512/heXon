@@ -78,7 +78,7 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
 
     switch (key){
     //Exit when ESC is pressed
-    case KEY_ESC: EjectButtonPressed();
+    case KEY_ESCAPE: EjectButtonPressed();
         break;
     //Take screenshot when 9 is pressed
     case KEY_9:

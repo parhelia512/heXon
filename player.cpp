@@ -321,7 +321,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     } else {
         if (playerID_ == 1 || INPUT->GetJoystickByIndex(0)) {
             //Eject
-            if (INPUT->GetKeyDown(KEY_ESC)
+            if (INPUT->GetKeyDown(KEY_ESCAPE)
                     && rootNode_->IsEnabled() && MC->GetGameState() == GS_PLAY){
                 Eject();
             }
@@ -346,7 +346,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
     if (autoPilot_){
         //Eject
-        if (((JOY && JOY->GetButtonDown(JB_L2) && JOY->GetButtonDown(JB_R2)) || INPUT->GetKeyPress(KEY_ESC)) &&
+        if (((JOY && JOY->GetButtonDown(JB_L2) && JOY->GetButtonDown(JB_R2)) || INPUT->GetKeyPress(KEY_ESCAPE)) &&
                 rootNode_->IsEnabled() && !MC->GetPlayer(playerID_, true)->IsEnabled() && MC->GetGameState() == GS_PLAY &&
                 !MC->world.scene->GetChild(StringHash{"Phaser"}, true))
         {
