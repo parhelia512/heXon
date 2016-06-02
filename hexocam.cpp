@@ -69,10 +69,10 @@ void heXoCam::SetupViewport()
     effectRenderPath_ = viewport_->GetRenderPath()->Clone();
     effectRenderPath_->Append(cache->GetResource<XMLFile>("PostProcess/FXAA3.xml"));
     effectRenderPath_->SetEnabled("FXAA3", true);
-    effectRenderPath_->Append(cache->GetResource<XMLFile>("PostProcess/Bloom.xml"));
-    effectRenderPath_->SetShaderParameter("BloomThreshold", 0.23f);
-    effectRenderPath_->SetShaderParameter("BloomMix", Vector2(1.75f, 2.25f));
-    effectRenderPath_->SetEnabled("Bloom", true);
+    effectRenderPath_->Append(cache->GetResource<XMLFile>("PostProcess/BloomHDR.xml"));
+    effectRenderPath_->SetShaderParameter("BloomHDRThreshold", 0.42f);
+    effectRenderPath_->SetShaderParameter("BloomHDRMix", Vector2(1.75f, 2.25f));
+    effectRenderPath_->SetEnabled("BloomHDR", true);
     effectRenderPath_->Append(cache->GetResource<XMLFile>("PostProcess/GreyScale.xml"));
     SetGreyScale(false);
     viewport_->SetRenderPath(effectRenderPath_);
@@ -107,7 +107,9 @@ void heXoCam::SetGreyScale(const bool enabled)
 
 void heXoCam::EnterLobby(){
     closeUp_ = true;
+    effectRenderPath_->SetShaderParameter("BloomHDRThreshold", 0.42f);
 }
 void heXoCam::EnterPlay(){
     closeUp_ = false;
+    effectRenderPath_->SetShaderParameter("BloomHDRThreshold", 0.3f);
 }

@@ -7,7 +7,7 @@
 	<parameter name="MatDiffColor" value="0.23 0.11 0.05 1" />
 	<parameter name="MatEmissiveColor" value="0 0 0" />
 	<parameter name="MatEnvMapColor" value="1 1 1" />
-	<parameter name="MatSpecColor" value="1 1 0.5 12" />
+	<parameter name="MatSpecColor" value="1 1 0.75 12" />
 	<cull value="ccw" />
 	<shadowcull value="ccw" />
 	<depthbias constant="0" slopescaled="0" />
