@@ -111,5 +111,5 @@ void heXoCam::EnterLobby(){
 }
 void heXoCam::EnterPlay(){
     closeUp_ = false;
-    effectRenderPath_->SetShaderParameter("BloomHDRThreshold", 0.3f);
+    effectRenderPath_->SetShaderParameter("BloomHDRThreshold", 0.32f);
 }
