@@ -138,6 +138,8 @@ bool InputMaster::MultipleJoysticks()
 
 void InputMaster::EjectButtonPressed(int playerId)
 {
+    if (MC->GetGameState() == GS_DEAD)
+        MC->SetGameState(GS_LOBBY);
     if (MC->GetGameState() != GS_PLAY)
         return;
 
