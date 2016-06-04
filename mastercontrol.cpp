@@ -54,6 +54,7 @@ MasterControl* MasterControl::GetInstance()
 MasterControl::MasterControl(Context *context):
     Application(context),
     currentState_{GS_INTRO},
+    aspectRatio_{},
     paused_{false},
     editMode_{false},
     sinceStateChange_{0.0f},
@@ -75,13 +76,14 @@ void MasterControl::Setup()
 //    engineParameters_["VSync"] = true;
 //    engineParameters_["FullScreen"] = false;
 //    engineParameters_["Headless"] = true;
-//    engineParameters_["WindowWidth"] = 960;
-//    engineParameters_["WindowHeight"] = 540;
+//    engineParameters_["WindowWidth"] = 1280;
+//    engineParameters_["WindowHeight"] = 1024;
 //    engineParameters_["RenderPath"] = "RenderPaths/ForwardOutline.xml";
 }
 void MasterControl::Start()
 {
     ENGINE->SetMaxFps(100);
+    aspectRatio_ = static_cast<float>(GRAPHICS->GetWidth()) / GRAPHICS->GetHeight();
 
     TailGenerator::RegisterObject(context_);
 
@@ -114,6 +116,7 @@ void MasterControl::Start()
     SetGameState(GS_LOBBY);
 
     SubscribeToEvents();
+
 }
 void MasterControl::Stop()
 {
@@ -292,7 +295,7 @@ void MasterControl::CreateScene()
     highestScoreText_ = ui->GetRoot()->CreateChild<Text>();
     highestScoreText_->SetName("HighestScore");
     highestScoreText_->SetText("0");
-    highestScoreText_->SetFont(cache_->GetResource<Font>("Fonts/skirmishergrad.ttf"), 32);
+    highestScoreText_->SetFont(cache_->GetResource<Font>("Fonts/skirmishergrad.ttf"), 23);
     highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f));
     highestScoreText_->SetHorizontalAlignment(HA_CENTER);
     highestScoreText_->SetVerticalAlignment(VA_CENTER);

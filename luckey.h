@@ -79,6 +79,8 @@
 
 #define INPUT GetSubsystem<Input>()
 #define ENGINE GetSubsystem<Engine>()
+#define GRAPHICS GetSubsystem<Graphics>()
+#define TIME GetSubsystem<Time>()
 
 using namespace Urho3D;
 

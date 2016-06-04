@@ -180,6 +180,7 @@ public:
     void SetGameState(GameState newState);
     GameState GetGameState(){ return currentState_; }
     GameState GetPreviousGameState(){ return previousState_; }
+    float GetAspectRatio() const noexcept { return aspectRatio_; }
     bool GetPaused() { return paused_; }
     void SetPaused(bool paused) { paused_ = paused; world.scene->SetUpdateEnabled(!paused);}
     void Pause() { SetPaused(true);}
@@ -202,6 +203,7 @@ private:
 
     Vector<double> sine_;
 
+    float aspectRatio_;
     bool paused_;
     GameState previousState_;
     GameState currentState_;

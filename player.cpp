@@ -596,8 +596,14 @@ void Player::EnterPlay()
     Set(Vector3(playerID_==2 ? 4.2f : -4.2f, 0.0f, 0.0f));
     SetPilotMode(false);
 
-    scoreNode_->SetWorldScale(4.2f);
     scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 23.5f : -23.5f, 2.23f, 1.23f));
+    if (MC->GetAspectRatio() > 1.5f)
+        scoreNode_->SetWorldScale(4.2f);
+    else {
+        scoreNode_->SetWorldScale(3.666f);
+        scoreNode_->Translate((playerID_ == 2 ? Vector3::LEFT : Vector3::RIGHT) * 2.3f);
+        SetScore(2000000000);
+    }
 }
 void Player::EnterLobby()
 {
