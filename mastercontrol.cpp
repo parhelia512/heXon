@@ -74,10 +74,10 @@ void MasterControl::Setup()
     engineParameters_["WindowIcon"] = "icon.png";
 
 //    engineParameters_["VSync"] = true;
-//    engineParameters_["FullScreen"] = false;
+    engineParameters_["FullScreen"] = false;
 //    engineParameters_["Headless"] = true;
-//    engineParameters_["WindowWidth"] = 1280;
-//    engineParameters_["WindowHeight"] = 1024;
+    engineParameters_["WindowWidth"] = 1280;
+    engineParameters_["WindowHeight"] = 1024;
 //    engineParameters_["RenderPath"] = "RenderPaths/ForwardOutline.xml";
 }
 void MasterControl::Start()

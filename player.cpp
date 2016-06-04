@@ -602,7 +602,6 @@ void Player::EnterPlay()
     else {
         scoreNode_->SetWorldScale(3.666f);
         scoreNode_->Translate((playerID_ == 2 ? Vector3::LEFT : Vector3::RIGHT) * 2.3f);
-        SetScore(2000000000);
     }
 }
 void Player::EnterLobby()
