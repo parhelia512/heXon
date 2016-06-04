@@ -24,7 +24,8 @@
 
 SceneObject::SceneObject():
     Object(MC->GetContext()),
-    blink_{true}
+    blink_{true},
+    big_{true}
 {
     rootNode_ = MC->world.scene->CreateChild("SceneObject");
 
@@ -97,12 +98,12 @@ void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
                 Disable();
 
             } else if (blink_){
-                MC->spawnMaster_->SpawnFlash(rootNode_->GetPosition());
+                MC->spawnMaster_->SpawnFlash(rootNode_->GetPosition(), big_);
 
                 Vector3 newPosition{rootNode_->GetPosition()-(1.995f*radius)*hexantNormal};
                 rootNode_->SetPosition(newPosition);
 
-                MC->spawnMaster_->SpawnFlash(newPosition);
+                MC->spawnMaster_->SpawnFlash(newPosition, big_);
 
                 PlaySample(flashSample_, 0.16f);
             }

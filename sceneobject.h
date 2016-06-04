@@ -45,6 +45,7 @@ public:
     bool IsEnabled() const { return rootNode_->IsEnabled(); }
 protected:
     bool blink_;
+    bool big_;
     SharedPtr<Node> rootNode_;
     SharedPtr<Node> soundNode_;
     SharedPtr<Node> graphicsNode_;

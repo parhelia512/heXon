@@ -157,13 +157,13 @@ void InputMaster::EjectButtonPressed(int playerId)
     } else if (playerId == 1) {
         if (player1->IsActive() && player1->IsHuman()){
             player1->Eject();
-        } else if (!player2->IsHuman()){
+        } else if (player2->IsActive() && !player2->IsHuman()){
             player2->Eject();
         }
     } else if (playerId == 2) {
         if (player2->IsActive() && player2->IsHuman()){
             player2->Eject();
-        } else if (!player1->IsHuman()){
+        } else if (player1->IsActive() && !player1->IsHuman()){
             player1->Eject();
         }
     }

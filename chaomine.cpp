@@ -25,6 +25,7 @@ ChaoMine::ChaoMine() : Enemy(),
     playerID_{0}
 {
     rootNode_->SetName("ChaoMine");
+    big_ = false;
 
     rigidBody_->SetMass(0.5f);
     //Overrides Enemy values

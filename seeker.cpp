@@ -31,6 +31,7 @@ Seeker::Seeker():
     damage_{2.3f}
 {
     rootNode_->SetName("Seeker");
+    big_ = false;
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
     rigidBody_->SetMass(2.3f);

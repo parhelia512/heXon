@@ -20,13 +20,14 @@
 
 Flash::Flash():
     Effect(),
+    bigFlash_{MC->cache_->GetResource<ParticleEffect>("Particles/Flash.xml")},
+    smallFlash_{MC->cache_->GetResource<ParticleEffect>("Particles/FlashSmall.xml")},
     initialBrightness_{2.0f}
 {  
     rootNode_->SetName("Flash");
 
     particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
-    ParticleEffect* particleEffect{MC->cache_->GetResource<ParticleEffect>("Particles/Flash.xml")};
-    particleEmitter_->SetEffect(particleEffect);
+    particleEmitter_->SetEffect(bigFlash_);
 
     light_ = rootNode_->CreateComponent<Light>();
     light_->SetRange(10.0f);
@@ -39,9 +40,16 @@ void Flash::UpdateFlash(StringHash eventType, VariantMap &eventData)
     light_->SetBrightness(Max(initialBrightness_*(0.25f - age_)/0.25f,0.0f));
 }
 
-void Flash::Set(const Vector3 position)
+void Flash::Set(const Vector3 position, bool big)
 {
     SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(Flash, UpdateFlash));
+
+    if (big && particleEmitter_->GetEffect() != bigFlash_){
+        particleEmitter_->SetEffect(bigFlash_);
+    } else if (!big && particleEmitter_->GetEffect() != smallFlash_){
+        particleEmitter_->SetEffect(smallFlash_);
+    }
+
     Effect::Set(position);
 }
 

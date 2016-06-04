@@ -64,7 +64,7 @@ public:
     void SpawnChaoMine(const Vector3 &position, int playerID);
     void SpawnSeeker(const Vector3& position);
     void SpawnHitFX(const Vector3& position, int playerID, bool sound = true);
-    void SpawnFlash(const Vector3& position);
+    void SpawnFlash(const Vector3& position, bool big);
     void SpawnBubble(const Vector3& position);
     bool SpawnExplosion(const Vector3& position, const Color &color, float size, int playerID);
     void SpawnLine(int playerID_);
@@ -91,7 +91,7 @@ private:
     bool RespawnChaoZap(const Vector3& position, int playerID);
     bool RespawnChaoMine(const Vector3& position, int playerID);
     bool RespawnSeeker(const Vector3& position);
-    bool RespawnFlash(const Vector3& position);
+    bool RespawnFlash(const Vector3& position, bool big);
     bool RespawnBubble(const Vector3& position);
     bool RespawnLine(int playerID);
     bool RespawnExplosion(const Vector3& position, const Color& color, float size, int playerID);

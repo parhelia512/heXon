@@ -40,9 +40,11 @@ public:
     SharedPtr<Light> light_;
 
     void UpdateFlash(StringHash eventType, VariantMap &eventData);
-    void Set(const Vector3 position);
+    void Set(const Vector3 position, bool big);
     void Disable();
 private:
+    ParticleEffect* bigFlash_;
+    ParticleEffect* smallFlash_;
     float initialBrightness_;
 };
 

@@ -304,19 +304,19 @@ bool SpawnMaster::RespawnHitFX(const Vector3& position, int playerID, bool sound
     return false;
 }
 
-void SpawnMaster::SpawnFlash(const Vector3& position)
+void SpawnMaster::SpawnFlash(const Vector3& position, bool big)
 {
-    if (!RespawnFlash(position)) {
+    if (!RespawnFlash(position, big)) {
         Flash* newFlash{new Flash()};
-        newFlash->Set(position);
+        newFlash->Set(position, big);
         flashes_.Push(SharedPtr<Flash>(newFlash));
     }
 }
-bool SpawnMaster::RespawnFlash(const Vector3& position)
+bool SpawnMaster::RespawnFlash(const Vector3& position, bool big)
 {
     for (SharedPtr<Flash> f : flashes_) {
         if (!f->IsEnabled()) {
-            f->Set(position);
+            f->Set(position, big);
             return true;
         }
     }
