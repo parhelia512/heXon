@@ -1,6 +1,4 @@
-#ifndef TAILGENERATOR_H
-#define TAILGENERATOR_H
-
+#pragma once
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Scene/Node.h>
 #include <Urho3D/Resource/ResourceCache.h>
@@ -15,7 +13,7 @@
 
 using namespace Urho3D;
 
-/// Vertex struct for tail  
+/// Vertex struct for tail
 struct URHO3D_API TailVertex
 {
     Vector3 position_;
@@ -37,7 +35,7 @@ static const unsigned MAX_TAILS = 65536 / 6;
 /// Custom component that creates a tail
 class URHO3D_API TailGenerator : public Drawable
 {
-	URHO3D_OBJECT(TailGenerator, Drawable);
+    URHO3D_OBJECT(TailGenerator, Drawable);
 public:
     /// Construct.
     TailGenerator(Context* context);
@@ -64,21 +62,21 @@ public:
     void SetTailLength(float length);
     /// Get tail segment length
     float GetTailLength();
-    /// Set count segments of all tail 
+    /// Set count segments of all tail
     void SetNumTails(unsigned num);
-    /// Get count segments of all tail 
+    /// Get count segments of all tail
     unsigned GetNumTails();
     /// Set width scale of the tail
     void SetWidthScale(float scale);
     /// Set vertex blended color for tip of all tail. The alpha-value of new color resets by default to zero.
     void SetColorForTip(const Color& c);
-    /// Set vertex blended color for head of all tail. The alpha-value of new color resets by default to one.
+    // Set vertex blended color for head of all tail. The alpha-value of new color resets by default to one.
     void SetColorForHead(const Color& c);
     /// Set material attribute.
     void SetMaterialAttr(const ResourceRef& value);
     /// Return material attribute.
     ResourceRef GetMaterialAttr() const;
-    
+
     /// Get whether to draw the vertical strip or not
     bool GetDrawVertical() const { return vertical_; }
     /// Get whether to draw the horizontal strip or not
@@ -91,7 +89,7 @@ public:
     void SetDrawHorizontal(bool value);
     /// Set whether or not this tail is matching node direction vectors
     void SetMatchNodeOrientation(bool value);
-	///
+    ///
     float GetWidthScale() const { return scale_; }
     unsigned  GetNumTails() const { return tailNum_; }
     float GetTailLength() const { return tailLength_;  }
@@ -106,7 +104,6 @@ protected:
     /// Mark vertex buffer to need an update.
     void MarkPositionsDirty();
     /// Tails.
-    PODVector<Tail> tails_;
     PODVector<Tail> fullPointPath;
 
 private:
@@ -114,8 +111,8 @@ private:
     void UpdateBufferSize();
     /// Rewrite TailGenerator vertex buffer.
     void UpdateVertexBuffer(const FrameInfo& frame);
-	/// Update/Rebuild tail mesh only if position changed (called by UpdateBatches())
-	void UpdateTail();
+    /// Update/Rebuild tail mesh only if position changed (called by UpdateBatches())
+    void UpdateTail();
     /// Geometry.
     SharedPtr<Geometry> geometry_;
     /// Vertex buffer.
@@ -128,33 +125,32 @@ private:
     bool bufferSizeDirty_;
     /// Vertex buffer needs rewrite flag.
     bool bufferDirty_;
-	///
-	bool forceUpdateVertexBuffer_;
-	///
-	bool vertical_;
-	///
-	bool matchNode_;
-	///
-	bool horizontal_;
+    ///
+    bool forceUpdateVertexBuffer_;
+    ///
+    bool vertical_;
+    ///
+    bool matchNode_;
+    ///
+    bool horizontal_;
     /// Previous position of tail
     Vector3 previousPosition_;
     ///
-	float tailLength_;
+    float tailLength_;
     ///
-	float scale_;
-	///
-	unsigned tailNum_;
-	///
+    float scale_;
+    ///
+    unsigned tailNum_;
+    ///
     Vector<TailVertex> tailMesh;
     ///
-	Vector<Tail> activeTails;
-	///
-	Vector3 bbmin;
-	///
-	Vector3 bbmax;
-	///
+    Vector<Tail> activeTails;
+    ///
+    Vector3 bbmin;
+    ///
+    Vector3 bbmax;
+    ///
     Color tailTipColor;
     ///
-	Color tailHeadColor;
+    Color tailHeadColor;
 };
-#endif // TAILGENERATOR_H

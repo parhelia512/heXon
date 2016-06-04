@@ -68,9 +68,10 @@ public:
     void HandleMouseButtonUp(StringHash eventType, VariantMap &eventData);
     void Screenshot();
 
+    bool MultipleJoysticks();
 private:
     void PauseButtonPressed();
-    void EjectButtonPressed();
+    void EjectButtonPressed(int playerID);
 };
 
 #endif // INPUTMASTER_H

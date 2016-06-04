@@ -59,6 +59,7 @@ public:
     void Hit(float damage, bool melee = true);
 
     void AddScore(int points);
+    void Eject();
     void Die();
     void ResetScore();
     unsigned GetScore() const { return score_; }
@@ -150,7 +151,6 @@ private:
     void Think();
     Vector3 Sniff(float playerFactor, bool taste = false);
     void CountScore();
-    void Eject();
 };
 
 #endif // PLAYER_H

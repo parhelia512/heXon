@@ -308,23 +308,13 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
     //Read input
     if (JOY){
-        //Eject
-        if (JOY->GetButtonDown(JB_L2) && JOY->GetButtonDown(JB_R2)
-                && rootNode_->IsEnabled() && MC->GetGameState() == GS_PLAY){
-            Eject();
-        }
-
         moveJoy = Vector3::RIGHT * JOY->GetAxisPosition(0) +
                   Vector3::BACK * JOY->GetAxisPosition(1);
         fireJoy = Vector3::RIGHT * JOY->GetAxisPosition(2) +
                   Vector3::BACK * JOY->GetAxisPosition(3);
     } else {
         if (playerID_ == 1 || INPUT->GetJoystickByIndex(0)) {
-            //Eject
-            if (INPUT->GetKeyDown(KEY_ESCAPE)
-                    && rootNode_->IsEnabled() && MC->GetGameState() == GS_PLAY){
-                Eject();
-            }
+
             moveKey = Vector3::LEFT * INPUT->GetKeyDown(KEY_A) +
                       Vector3::RIGHT * INPUT->GetKeyDown(KEY_D) +
                       Vector3::FORWARD * INPUT->GetKeyDown(KEY_W) +
@@ -345,15 +335,6 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     fireJoy.Length() > fireKey.Length() ? fire = fireJoy : fire = fireKey;
 
     if (autoPilot_){
-        //Eject
-        if (((JOY && JOY->GetButtonDown(JB_L2) && JOY->GetButtonDown(JB_R2)) || INPUT->GetKeyPress(KEY_ESCAPE)) &&
-                rootNode_->IsEnabled() && !MC->GetPlayer(playerID_, true)->IsEnabled() && MC->GetGameState() == GS_PLAY &&
-                !MC->world.scene->GetChild(StringHash{"Phaser"}, true))
-        {
-            Eject();
-        }
-
-
         Think();
         move = autoMove_;
         fire = autoFire_;
@@ -817,7 +798,7 @@ void Player::SetupShip()
     SharedPtr<ParticleEffect> particleEffect{MC->cache_->GetTempResource<ParticleEffect>("Particles/Shine.xml")};
     Vector<ColorFrame> colorFrames{};
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
-    colorFrames.Push(ColorFrame(playerID_==2 ? Color(0.42f, 0.0f, 0.88f, 0.23f) : Color(0.42f, 0.7f, 0.23f, 0.23f), 0.2f));
+    colorFrames.Push(ColorFrame(playerID_==2 ? Color(0.42f, 0.0f, 0.88f, 0.05f) : Color(0.42f, 0.7f, 0.23f, 0.23f), 0.05f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
     particleEffect->SetColorFrames(colorFrames);
     particleEmitter->SetEffect(particleEffect);
@@ -833,11 +814,11 @@ void Player::CreateTails()
         TailGenerator* tailGen{tailNode->CreateComponent<TailGenerator>()};
         tailGen->SetDrawHorizontal(true);
         tailGen->SetDrawVertical(t==1?true:false);
-        tailGen->SetTailLength(t==1? 0.1f : 0.075f);
-        tailGen->SetNumTails(t==1? 23 : 16);
-        tailGen->SetWidthScale(t==1? 0.666f : 0.23f);
-        tailGen->SetColorForHead(playerID_==2 ? Color(1.0f, 0.666f, 0.23f) : Color(1.0f, 1.0f, 0.23f));
-        tailGen->SetColorForTip(playerID_==2 ? Color(1.0f, 0.23f, 0.0f) : Color(0.42f, 1.0f, 0.0f));
+        tailGen->SetTailLength(t==1? 0.05f : 0.025f);
+        tailGen->SetNumTails(t==1? 13 : 7);
+        tailGen->SetWidthScale(t==1? 0.5f : 0.13f);
+        tailGen->SetColorForHead(playerID_==2 ? Color(1.0f, 0.666f, 0.23f) : Color(0.8f, 0.8f, 0.2f));
+        tailGen->SetColorForTip(playerID_==2 ? Color(1.0f, 0.23f, 0.0f) : Color(0.23f, 0.6f, 0.0f));
         tailGens_.Push(SharedPtr<TailGenerator>(tailGen));
     }
 }

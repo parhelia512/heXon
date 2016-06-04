@@ -44,7 +44,8 @@ void Pilot::Initialize(Node* parent)
     bodyModel_ = rootNode_->CreateComponent<AnimatedModel>();
     bodyModel_->SetModel(MC->resources.models.pilots.male);
     bodyModel_->SetCastShadows(true);
-    hairModel_ = rootNode_->GetChild("Head", true)->CreateComponent<StaticModel>();
+    Node* hairNode{rootNode_->GetChild("Head", true)->CreateChild("Hair")};
+    hairModel_ = hairNode->CreateComponent<StaticModel>();
     hairModel_->SetCastShadows(true);
     animCtrl_ = rootNode_->CreateComponent<AnimationController>();
 
@@ -135,6 +136,7 @@ void Pilot::UpdateModel()
     if (!hairStyle_)
         hairModel_->SetModel(nullptr);
     else {
+        hairModel_->GetNode()->SetScale(1.0f - (0.1f * !male_));
         hairModel_->SetModel(MC->resources.models.pilots.hairStyles[hairStyle_ - 1]);
         //Set color for hair model
         hairModel_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/Basic.xml"));

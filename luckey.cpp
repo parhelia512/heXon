@@ -49,17 +49,39 @@ float LucKey::RandomSign()
     return static_cast<float>(Random(2)*2-1);
 }
 
-Color LucKey::RandomHairColor()
+Color LucKey::RandomHairColor(bool onlyNatural)
 {
+    bool grey{!Random(23)};
+    bool dyed{!Random(23)};
     Color hairColor{};
-    hairColor.FromHSV(Random(0.1666f), Random(0.05f, 0.7f), Random(0.9f));
+    if (onlyNatural || (!dyed && !grey)){
+        //Natural
+        hairColor.FromHSV(Random(0.034f, 0.15f),
+                          Random(0.34f, 0.65f),
+                          Random(0.05f, 0.9f));
+    } else if (!dyed && grey){
+        //Grey
+        hairColor.FromHSV(Random(0.034f, 0.16f),
+                          Random(0.0f, 0.05f),
+                          Random(0.23f, 0.86f));
+    } else if (dyed && !grey){
+        //Bright dye
+        hairColor.FromHSV(Random(6)*0.1666f,
+                          Random(0.6f, 0.9f),
+                          Random(0.5f, 0.71f));
+    } else if (dyed && grey){
+        //Fake black
+        hairColor.FromHSV(0.666f,
+                          0.05f,
+                          Random(0.01f, 0.05f));
+    }
     return hairColor;
 }
 
 Color LucKey::RandomSkinColor()
 {
     Color skinColor{};
-    skinColor.FromHSV(Random(0.05f, 0.18f), Random(0.5f, 0.75f), Random(0.23f, 0.8f));
+    skinColor.FromHSV(Random(0.05f, 0.13f), Random(0.6f, 0.8f), Random(0.23f, 0.8f));
     return skinColor;
 }
 Color LucKey::RandomColor()

@@ -78,7 +78,8 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
 
     switch (key){
     //Exit when ESC is pressed
-    case KEY_ESCAPE: EjectButtonPressed();
+    case KEY_ESCAPE:
+        EjectButtonPressed(0);
         break;
     //Take screenshot when 9 is pressed
     case KEY_9:
@@ -98,19 +99,18 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
 
 void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
 {
-    unsigned joystick{static_cast<unsigned>(eventData[JoystickButtonDown::P_JOYSTICKID].GetInt())};
+    unsigned joystickId{static_cast<unsigned>(eventData[JoystickButtonDown::P_JOYSTICKID].GetInt())};
     int button{eventData[JoystickButtonDown::P_BUTTON].GetInt()};
 
-    JoystickState* joystickState{INPUT->GetJoystickByIndex(joystick)};
+    JoystickState* joystickState{INPUT->GetJoystickByIndex(joystickId)};
     // Process game event
     switch (button) {
     case JB_START: PauseButtonPressed();
         break;
     case JB_L2: case JB_R2:
         if (joystickState->GetButtonDown(JB_L2) &&
-                joystickState->GetButtonDown(JB_R2) &&
-                MC->GetPlayer((int)joystick+1)->IsAlive())
-            EjectButtonPressed();
+                joystickState->GetButtonDown(JB_R2))
+            EjectButtonPressed(static_cast<int>(joystickId+1));
         break;
     case JB_L1: case JB_R1:
         if (joystickState->GetButtonDown(JB_L1) &&
@@ -131,12 +131,40 @@ void InputMaster::PauseButtonPressed()
         default: break;
     }
 }
-void InputMaster::EjectButtonPressed()
+bool InputMaster::MultipleJoysticks()
 {
-//    if (MC->GetGameState()==GS_PLAY && !MC->GetPaused()) {
-//        MC->Eject();
-//    } else if (MC->GetGameState()==GS_LOBBY) MC->Exit();
-//    else if (MC->GetGameState()==GS_DEAD) MC->SetGameState(GS_LOBBY);
+    return INPUT->GetJoystickByIndex(0) && INPUT->GetJoystickByIndex(1);
+}
+
+void InputMaster::EjectButtonPressed(int playerId)
+{
+    if (MC->GetGameState() != GS_PLAY)
+        return;
+
+    Player* player1{MC->GetPlayer(1)};
+    Player* player2{MC->GetPlayer(2)};
+
+    //Keyboard
+    if (playerId == 0) {
+        if (player1->IsActive()){
+            player1->Eject();
+        } else if (player2->IsActive()){
+            player2->Eject();
+        }
+    //Joysticks
+    } else if (playerId == 1) {
+        if (player1->IsActive() && player1->IsHuman()){
+            player1->Eject();
+        } else if (!player2->IsHuman()){
+            player2->Eject();
+        }
+    } else if (playerId == 2) {
+        if (player2->IsActive() && player2->IsHuman()){
+            player2->Eject();
+        } else if (!player1->IsHuman()){
+            player1->Eject();
+        }
+    }
 }
 
 void InputMaster::Screenshot()

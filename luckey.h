@@ -111,7 +111,7 @@ Vector2 Rotate(const Vector2 vec2, const float angle);
 float RandomSign();
 Color RandomColor();
 Color RandomSkinColor();
-Color RandomHairColor();
+Color RandomHairColor(bool onlyNatural = false);
 
 float Sine(float x);
 float Cosine(float x);
