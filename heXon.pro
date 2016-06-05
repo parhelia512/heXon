@@ -98,24 +98,23 @@ unix {
         BINDIR = $$PREFIX/bin
     }
     isEmpty(DATADIR) {
-        DATADIR = $$PREFIX/share
+        DATADIR = ~/.local/share
     }
     DEFINES += DATADIR=\\\"$${DATADIR}/hexon\\\"
 
     target.path = $$BINDIR
 
     icon.files = hexon.svg
-    icon.path = $$DATADIR/icons/hicolor/scalable/apps/
+    icon.path = $$DATADIR/icons/
+
+    pixmap.files = Resources/*
+    pixmap.path = $$DATADIR/hexon/
 
     desktop.files = hexon.desktop
     desktop.path = $$DATADIR/applications/
 
-    resources.files = Resources/*
-    resources.path = $$DATADIR/hexon/
-
-
     appdata.files = hexon.appdata.xml
     appdata.path = $$DATADIR/appdata/
 
-    INSTALLS += target icon desktop resources appdata
+    INSTALLS += target icon desktop appdata
 }
