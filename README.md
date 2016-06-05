@@ -36,8 +36,8 @@ hēXōn is best played with a controller that has at least two analog sticks. Th
 * ...
 
 ### Screenshots
-![heXon screenshot](https://raw.githubusercontent.com/LucKeyProductions/heXon/master/Screenshots/Screenshot_Sun_Apr_17_02_29_53_2016.png)
-![heXon screenshot](https://raw.githubusercontent.com/LucKeyProductions/heXon/master/Screenshots/Screenshot_Sun_Apr_17_02_20_06_2016.png)
+![heXon screenshot](https://raw.githubusercontent.com/LucKeyProductions/heXon/master/Screenshots/Screenshot_Sun_Jun__5_02_51_53_2016.png)
+![heXon screenshot](https://raw.githubusercontent.com/LucKeyProductions/heXon/master/Screenshots/Screenshot_Sun_Jun__5_03_02_18_2016.png)
 
 ### Tools
 [Urho3D](http://urho3d.github.io), [QtCreator](http://wiki.qt.io/Category:Tools::QtCreator), [Blender](http://www.blender.org/), [Inkscape](http://inkscape.org/), [GIMP](http://gimp.org), [SuperCollider](http://supercollider.github.io/), [Audacity](http://web.audacityteam.org/)
