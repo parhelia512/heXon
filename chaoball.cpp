@@ -28,8 +28,8 @@ ChaoBall::ChaoBall():
     rootNode_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
     initialPosition_ = Vector3::FORWARD*5.0f;
     rootNode_->SetPosition(initialPosition_);
-    model_->SetModel(MC->cache_->GetResource<Model>("Models/Chaosphere.mdl"));
-    model_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/Chaosphere.xml"));
+    model_->SetModel(MC->GetModel("Chaosphere"));
+    model_->SetMaterial(MC->GetMaterial("Chaosphere")->Clone());
 
     rigidBody_->SetMass(3.0f);
 

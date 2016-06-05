@@ -29,21 +29,21 @@ ChaoFlash::ChaoFlash(int playerID):
     rootNode_->SetName("ChaoFlash");
     rootNode_->SetScale(7.0f);
     chaoModel_ = rootNode_->CreateComponent<StaticModel>();
-    chaoModel_->SetModel(MC->cache_->GetResource<Model>("Models/ChaoFlash.mdl"));
-    chaoMaterial_ = MC->cache_->GetResource<Material>("Materials/ChaoFlash.xml");
+    chaoModel_->SetModel(MC->GetModel("ChaoFlash"));
+    chaoMaterial_ = MC->GetMaterial("ChaoFlash");
     chaoModel_->SetMaterial(chaoMaterial_);
 
     Node* sunNode{MC->world.scene->CreateChild("SunDisk")};
     sunNode->SetTransform(Vector3::UP, Quaternion::IDENTITY, 42.0f);
     StaticModel* sunPlane{sunNode->CreateComponent<StaticModel>()};
-    sunPlane->SetModel(MC->cache_->GetResource<Model>("Models/Plane.mdl"));;
-    sunMaterial_ = MC->cache_->GetResource<Material>("Materials/SunDisc.xml");
+    sunPlane->SetModel(MC->GetModel("Plane"));;
+    sunMaterial_ = MC->GetMaterial("SunDisc");
     sunPlane->SetMaterial(sunMaterial_);
 
     rootNode_->SetEnabled(false);
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(ChaoFlash, HandleSceneUpdate));
 
-    sample_ = MC->cache_->GetResource<Sound>("Samples/Chaos.ogg");
+    sample_ = MC->GetSample("Chaos");
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
     rigidBody_->SetMass(5.0f);

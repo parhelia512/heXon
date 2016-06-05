@@ -20,7 +20,7 @@
 #include "player.h"
 
 Phaser::Phaser(Model *model, Vector3 pos, Vector3 vel) : Effect(),
-    phaseMaterial_{MC->cache_->GetTempResource<Material>("Materials/Phase.xml")},
+    phaseMaterial_{MC->GetMaterial("Phase")->Clone()},
     staticModels_{},
     velocity_{vel}
 {

@@ -81,6 +81,7 @@
 #define ENGINE GetSubsystem<Engine>()
 #define GRAPHICS GetSubsystem<Graphics>()
 #define TIME GetSubsystem<Time>()
+#define CACHE GetSubsystem<ResourceCache>()
 
 using namespace Urho3D;
 

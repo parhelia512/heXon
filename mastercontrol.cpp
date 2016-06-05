@@ -53,10 +53,9 @@ MasterControl* MasterControl::GetInstance()
 
 MasterControl::MasterControl(Context *context):
     Application(context),
-    currentState_{GS_INTRO},
     aspectRatio_{},
     paused_{false},
-    editMode_{false},
+    currentState_{GS_INTRO},
     sinceStateChange_{0.0f},
     sinceFrameRateReport_{0.0f}
 {
@@ -88,14 +87,12 @@ void MasterControl::Start()
     TailGenerator::RegisterObject(context_);
 
     new InputMaster();
-    cache_ = GetSubsystem<ResourceCache>();
-    graphics_ = GetSubsystem<Graphics>();
     renderer_ = GetSubsystem<Renderer>();
 
-    LoadResources();
+    LoadHair();
 
     // Get default style
-    defaultStyle_ = cache_->GetResource<XMLFile>("UI/DefaultStyle.xml");
+    defaultStyle_ = CACHE->GetResource<XMLFile>("UI/DefaultStyle.xml");
     //Create console and debug HUD.
     CreateConsoleAndDebugHud();
     //Create the scene content
@@ -104,9 +101,9 @@ void MasterControl::Start()
     CreateUI();
     //Hook up to the frame update and render post-update events
 
-    menuMusic_ = cache_->GetResource<Sound>("Music/Modanung - BulletProof MagiRex.ogg");
+    menuMusic_ = GetMusic("Modanung - BulletProof MagiRex");
     menuMusic_->SetLooped(true);
-    gameMusic_ = cache_->GetResource<Sound>("Music/Alien Chaos - Disorder.ogg");
+    gameMusic_ = GetMusic("Alien Chaos - Disorder");
     gameMusic_->SetLooped(true);
     Node* musicNode{world.scene->CreateChild("Music")};
     musicSource_ = musicNode->CreateComponent<SoundSource>();
@@ -151,31 +148,27 @@ void MasterControl::CreateUI()
     ui_->SetCursor(world.cursor.uiCursor);
 
     //Set starting position of the cursor at the rendering window center
-    world.cursor.uiCursor->SetPosition(graphics_->GetWidth()/2, graphics_->GetHeight()/2);
+    world.cursor.uiCursor->SetPosition(GRAPHICS->GetWidth()/2, GRAPHICS->GetHeight()/2);
 }
 
-void MasterControl::LoadResources()
+Sound* MasterControl::GetMusic(String name) const {
+    Sound* song{CACHE->GetResource<Sound>("Music/"+name+".ogg")};
+    song->SetLooped(true);
+    return song;
+}
+Sound*MasterControl::GetSample(String name) const {
+    Sound* sample{CACHE->GetResource<Sound>("Samples/"+name+".ogg")};
+    sample->SetLooped(false);
+    return sample;
+}
+
+void MasterControl::LoadHair()
 {
-    //Load models
-    resources.models.pilots.male = cache_->GetResource<Model>("Models/Male.mdl");
-    resources.models.pilots.female = cache_->GetResource<Model>("Models/Female.mdl");
-    resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Models/Mohawk.mdl")));
-    resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Models/Seagull.mdl")));
-    resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Models/Mustain.mdl")));
-    resources.models.pilots.hairStyles.Push(SharedPtr<Model>(cache_->GetResource<Model>("Models/Frotoad.mdl")));
-
-    resources.models.ships.swift = cache_->GetResource<Model>("Models/KlåMk10.mdl");
-
-    resources.models.arenaElements.backgroundTile = cache_->GetResource<Model>("Models/BackgroundTile.mdl");
-    resources.models.arenaElements.obstacle = cache_->GetResource<Model>("Models/Obstacle.mdl");
-
-    //Load materials
-    resources.materials.basic = SharedPtr<Material>(cache_->GetResource<Material>("Materials/Basic.xml"));
-
-    resources.materials.ship1Primary = cache_->GetResource<Material>("Materials/GreenEnvmap.xml");
-    resources.materials.ship1Secondary = cache_->GetResource<Material>("Materials/GreenGlowEnvmap.xml");
-    resources.materials.ship2Primary = cache_->GetResource<Material>("Materials/PurpleEnvmap.xml");
-    resources.materials.ship2Secondary = cache_->GetResource<Material>("Materials/PurpleGlowEnvmap.xml");
+    //Load hairmodels
+    hairStyles_.Push(SharedPtr<Model>(GetModel("Mohawk")));
+    hairStyles_.Push(SharedPtr<Model>(GetModel("Seagull")));
+    hairStyles_.Push(SharedPtr<Model>(GetModel("Mustain")));
+    hairStyles_.Push(SharedPtr<Model>(GetModel("Frotoad")));
 }
 
 void MasterControl::LoadHighest()
@@ -215,12 +208,11 @@ void MasterControl::CreateScene()
     zone->SetFogHeight(-10.0f);
     zone->SetFogHeightScale(0.23f);
 
-
     //Create cursor
     world.cursor.sceneCursor = world.scene->CreateChild("Cursor");
     StaticModel* cursorObject{world.cursor.sceneCursor->CreateComponent<StaticModel>()};
-    cursorObject->SetModel(cache_->GetResource<Model>("Models/Hexagon.mdl"));
-    cursorObject->SetMaterial(cache_->GetResource<Material>("Materials/Glow.xml"));
+    cursorObject->SetModel(GetModel("Hexagon"));
+    cursorObject->SetMaterial(GetMaterial("Glow"));
     world.cursor.sceneCursor->SetEnabled(false);
 
     //Create an solid black plane to hide everything beyond full fog
@@ -228,8 +220,8 @@ void MasterControl::CreateScene()
     world.voidNode->SetPosition(Vector3::DOWN * 10.0f);
     world.voidNode->SetScale(Vector3(1000.0f, 1.0f, 1000.0f));
     StaticModel* planeObject{world.voidNode->CreateComponent<StaticModel>()};
-    planeObject->SetModel(cache_->GetResource<Model>("Models/Plane.mdl"));
-    planeObject->SetMaterial(cache_->GetResource<Material>("Materials/PitchBlack.xml"));
+    planeObject->SetModel(GetModel("Plane"));
+    planeObject->SetMaterial(GetMaterial("PitchBlack"));
 
     //Create camera
     world.camera = new heXoCam();
@@ -242,29 +234,43 @@ void MasterControl::CreateScene()
     lobbyNode_->Rotate(Quaternion(0.0f, 0.0f, 0.0f));
     Node* chamberNode{lobbyNode_->CreateChild("Chamber")};
     StaticModel* chamberModel{chamberNode->CreateComponent<StaticModel>()};
-    chamberModel->SetModel(cache_->GetResource<Model>("Models/Chamber.mdl"));
-    chamberModel->SetMaterial(0, cache_->GetResource<Material>("Materials/Basic.xml"));
-    chamberModel->SetMaterial(1, cache_->GetResource<Material>("Materials/PitchBlack.xml"));
-    chamberModel->SetMaterial(4, cache_->GetResource<Material>("Materials/Drain.xml"));
-    lobbyGlowGreen_ = cache_->GetResource<Material>("Materials/GreenGlow.xml");
+    chamberModel->SetModel(GetModel("Chamber"));
+    chamberModel->SetMaterial(0, GetMaterial("Basic"));
+    chamberModel->SetMaterial(1, GetMaterial("PitchBlack"));
+    chamberModel->SetMaterial(4, GetMaterial("Drain"));
+    lobbyGlowGreen_ = GetMaterial("GreenGlow");
     chamberModel->SetMaterial(2, lobbyGlowGreen_);
-    lobbyGlowPurple_ = cache_->GetResource<Material>("Materials/PurpleGlow.xml");
+    lobbyGlowPurple_ = GetMaterial("PurpleGlow");
     chamberModel->SetMaterial(3, lobbyGlowPurple_);
     chamberModel->SetCastShadows(true);
 
-    //Create player 1 ship
+    //Create player 1 lobby ship
     Node* ship1Node{lobbyNode_->CreateChild("Ship")};
     ship1Node->SetWorldPosition(Vector3(-4.2f, 0.6f, 0.0f));
     ship1Node->Rotate(Quaternion(90.0f, Vector3::UP));
     StaticModel* ship1{ship1Node->CreateComponent<StaticModel>()};
-    ship1->SetModel(resources.models.ships.swift);
-    ship1->SetMaterial(0, cache_->GetResource<Material>("Materials/GreenGlow.xml"));
-    ship1->SetMaterial(1, cache_->GetResource<Material>("Materials/Green.xml"));
+    ship1->SetModel(GetModel("KlåMk10"));
+    ship1->SetMaterial(0, GetMaterial("GreenGlow"));
+    ship1->SetMaterial(1, GetMaterial("Green"));
     ship1->SetCastShadows(true);
     RigidBody* ship1Body{ship1Node->CreateComponent<RigidBody>()};
     ship1Body->SetTrigger(true);
     ship1Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
     SubscribeToEvent(ship1Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandlePlayTrigger1));
+
+    //Create player 2 lobby ship
+    Node* ship2Node{lobbyNode_->CreateChild("Ship")};
+    ship2Node->SetWorldPosition(Vector3(4.2f, 0.6f, 0.0f));
+    ship2Node->Rotate(Quaternion(270.0f, Vector3::UP));
+    StaticModel* ship2{ship2Node->CreateComponent<StaticModel>()};
+    ship2->SetModel(GetModel("KlåMk10"));
+    ship2->SetMaterial(0, GetMaterial("PurpleGlow"));
+    ship2->SetMaterial(1, GetMaterial("Purple"));
+    ship2->SetCastShadows(true);
+    RigidBody* ship2Body{ship2Node->CreateComponent<RigidBody>()};
+    ship2Body->SetTrigger(true);
+    ship2Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
+    SubscribeToEvent(ship2Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandlePlayTrigger2));
 
     //Create highest
     highestNode_ = lobbyNode_->CreateChild("Highest");
@@ -274,8 +280,8 @@ void MasterControl::CreateScene()
     podiumNode_ = highestNode_->CreateChild("Podium");
     podiumNode_->SetScale(0.5f);
     StaticModel* hexPodium{podiumNode_->CreateComponent<StaticModel>()};
-    hexPodium->SetModel(cache_->GetResource<Model>("Models/Hexagon.mdl"));
-    hexPodium->SetMaterial(cache_->GetTempResource<Material>("Materials/BackgroundTile.xml"));
+    hexPodium->SetModel(GetModel("Hexagon"));
+    hexPodium->SetMaterial(GetMaterial("BackgroundTile")->Clone());
     Node* highestPilotNode{podiumNode_->CreateChild("HighestPilot")};
     highestPilotNode->SetScale(2.0f);
 
@@ -295,7 +301,7 @@ void MasterControl::CreateScene()
     highestScoreText_ = ui->GetRoot()->CreateChild<Text>();
     highestScoreText_->SetName("HighestScore");
     highestScoreText_->SetText("0");
-    highestScoreText_->SetFont(cache_->GetResource<Font>("Fonts/skirmishergrad.ttf"), 23);
+    highestScoreText_->SetFont(CACHE->GetResource<Font>("Fonts/skirmishergrad.ttf"), 23);
     highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f));
     highestScoreText_->SetHorizontalAlignment(HA_CENTER);
     highestScoreText_->SetVerticalAlignment(VA_CENTER);
@@ -304,40 +310,26 @@ void MasterControl::CreateScene()
     highestPilot_ = new Pilot(highestPilotNode);
     LoadHighest();
 
-    //Create player 2 ship
-    Node* ship2Node{lobbyNode_->CreateChild("Ship")};
-    ship2Node->SetWorldPosition(Vector3(4.2f, 0.6f, 0.0f));
-    ship2Node->Rotate(Quaternion(270.0f, Vector3::UP));
-    StaticModel* ship2{ship2Node->CreateComponent<StaticModel>()};
-    ship2->SetModel(resources.models.ships.swift);
-    ship2->SetMaterial(0, cache_->GetResource<Material>("Materials/PurpleGlow.xml"));
-    ship2->SetMaterial(1, cache_->GetResource<Material>("Materials/Purple.xml"));
-    ship2->SetCastShadows(true);
-    RigidBody* ship2Body{ship2Node->CreateComponent<RigidBody>()};
-    ship2Body->SetTrigger(true);
-    ship2Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
-    SubscribeToEvent(ship2Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandlePlayTrigger2));
-
     lobbyNode_->CreateComponent<RigidBody>();
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Models/CC_Center.mdl"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Models/CC_CentralBox.mdl"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Models/CC_Edge1.mdl"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Models/CC_Edge2.mdl"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Models/CC_Side1.mdl"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(cache_->GetResource<Model>("Models/CC_Side2.mdl"));
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_Center"));
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_CentralBox"));
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_Edge1"));
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_Edge2"));
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_Side1"));
+    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_Side2"));
 
     CollisionShape* edge1Shape{lobbyNode_->CreateComponent<CollisionShape>()};
-    edge1Shape->SetConvexHull(cache_->GetResource<Model>("Models/CC_Edge1.mdl"));
+    edge1Shape->SetConvexHull(GetModel("CC_Edge1"));
     edge1Shape->SetPosition(Vector3::FORWARD * 1.23f);
     edge1Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
     CollisionShape* edge2Shape{lobbyNode_->CreateComponent<CollisionShape>()};
-    edge2Shape->SetConvexHull(cache_->GetResource<Model>("Models/CC_Edge2.mdl"));
+    edge2Shape->SetConvexHull(GetModel("CC_Edge2"));
     edge2Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
     CollisionShape* side1Shape{lobbyNode_->CreateComponent<CollisionShape>()};
-    side1Shape->SetConvexHull(cache_->GetResource<Model>("Models/CC_Side1.mdl"));
+    side1Shape->SetConvexHull(GetModel("CC_Side1"));
     side1Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
     CollisionShape* side2Shape{lobbyNode_->CreateComponent<CollisionShape>()};
-    side2Shape->SetConvexHull(cache_->GetResource<Model>("Models/CC_Side2.mdl"));
+    side2Shape->SetConvexHull(GetModel("CC_Side2"));
     side2Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
 
 
@@ -481,34 +473,25 @@ void MasterControl::Eject()
 }
 
 void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
-{
-//    Material* phase{cache_->GetResource<Material>("Materials/Phase.xml")};
-//    phase->SetShaderParameter("Dissolve", Sine(5.0f, 0.0f, 1.0f));
-//    phase->SetShaderParameter("UOffset",
-//                    Vector4(LucKey::Cycle(GetSubsystem<Time>()->GetElapsedTime(), 0.0f, 1.0f),
-//                            0.0f, LucKey::Cycle(GetSubsystem<Time>()->GetElapsedTime(), 0.0f, 1.0f), 0.0f));
-//    phase->SetShaderParameter("VOffset",
-//                              Vector4(0.0f,
-//                                      LucKey::Cycle(GetSubsystem<Time>()->GetElapsedTime() * 0.1f, 0.0f, 1.0f),
-//                                      0.0f, LucKey::Cycle(GetSubsystem<Time>()->GetElapsedTime() * 0.1f, 0.0f, 1.0f)));
+{ (void)eventType;
 
-    float timeStep{eventData[Update::P_TIMESTEP].GetFloat()};
+    float t{eventData[Update::P_TIMESTEP].GetFloat()};
 
+/*
     //Output FPS
-    secondsPerFrame_ *= 1.0f - timeStep;
-    secondsPerFrame_ += timeStep * timeStep;
-    sinceFrameRateReport_ += timeStep;
+    secondsPerFrame_ *= 1.0f - t;
+    secondsPerFrame_ += t * t;
+    sinceFrameRateReport_ += t;
     if (sinceFrameRateReport_ >= 1.0f) {
         Log::Write(1, String(1.0f / secondsPerFrame_));
         sinceFrameRateReport_ = 0.0f;
     }
-
-    sinceStateChange_ += timeStep;
-    UpdateCursor(timeStep);
+*/
+    sinceStateChange_ += t;
+    UpdateCursor(t);
 
     switch (currentState_) {
     case GS_LOBBY: {
-//        musicSource_->SetGain(Max(1.0f, sinceStateChange_));
         lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) / (128.0f * sinceStateChange_+23.0f));
 
         leftPointLight1_->SetBrightness(Sine(1.0f, 0.666f, 0.95f));
@@ -521,7 +504,6 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
         }
     } break;
     case GS_PLAY: {
-//        musicSource_->SetGain(1.0f);
         lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) * Min(1.0f, sinceStateChange_));
     } break;
     case GS_DEAD: {
@@ -533,14 +515,14 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
 }
 
 void MasterControl::UpdateCursor(const float timeStep)
-{
+{ (void)timeStep;/*
     world.cursor.sceneCursor->Rotate(Quaternion(0.0f,100.0f*timeStep,0.0f));
     //world.cursor.sceneCursor->SetScale((world.cursor.sceneCursor->GetWorldPosition() - world.camera->GetWorldPosition()).Length()*0.05f);
     if (CursorRayCast(250.0f, world.cursor.hitResults))
         for (RayQueryResult r : world.cursor.hitResults)
             if (r.node_->GetNameHash() == N_TILE)
                 world.cursor.sceneCursor->SetWorldPosition(r.node_->GetPosition()+Vector3::UP);
-                /*Vector3 camHitDifference = world.camera->rootNode_->GetWorldPosition() - world.cursor.hitResults[i].position_;
+                Vector3 camHitDifference = world.camera->rootNode_->GetWorldPosition() - world.cursor.hitResults[i].position_;
                 camHitDifference /= world.camera->rootNode_->GetWorldPosition().y_ - world.voidNode->GetPosition().y_;
                 camHitDifference *= world.camera->rootNode_->GetWorldPosition().y_;
                 world.cursor.sceneCursor->SetWorldPosition(world.camera->rootNode_->GetWorldPosition()-camHitDifference);*/
@@ -549,8 +531,8 @@ void MasterControl::UpdateCursor(const float timeStep)
 bool MasterControl::CursorRayCast(const float maxDistance, PODVector<RayQueryResult> &hitResults)
 {
     IntVector2 mousePos{world.cursor.uiCursor->GetPosition()};
-    Ray cameraRay{world.camera->camera_->GetScreenRay((float)mousePos.x_/graphics_->GetWidth(),
-                                                        (float)mousePos.y_/graphics_->GetHeight())};
+    Ray cameraRay{world.camera->camera_->GetScreenRay((float)mousePos.x_/GRAPHICS->GetWidth(),
+                                                        (float)mousePos.y_/GRAPHICS->GetHeight())};
     RayOctreeQuery query{hitResults, cameraRay, RAY_TRIANGLE, maxDistance, DRAWABLE_GEOMETRY};
     world.scene->GetComponent<Octree>()->Raycast(query);
 

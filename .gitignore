@@ -41,4 +41,7 @@ heXon
 # LucKey
 *.lks
 *.lkp
+
+# Blender
+
 *.blend*

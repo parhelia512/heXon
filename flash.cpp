@@ -20,8 +20,8 @@
 
 Flash::Flash():
     Effect(),
-    bigFlash_{MC->cache_->GetResource<ParticleEffect>("Particles/Flash.xml")},
-    smallFlash_{MC->cache_->GetResource<ParticleEffect>("Particles/FlashSmall.xml")},
+    bigFlash_{CACHE->GetResource<ParticleEffect>("Particles/Flash.xml")},
+    smallFlash_{CACHE->GetResource<ParticleEffect>("Particles/FlashSmall.xml")},
     initialBrightness_{2.0f}
 {  
     rootNode_->SetName("Flash");

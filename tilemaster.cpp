@@ -69,9 +69,9 @@ TileMaster::TileMaster():
     logoNode_->SetRotation(Quaternion(0.0f, 180.0f, 0.0f));
     logoNode_->SetScale(16.0f);
     StaticModel* logoModel = logoNode_->CreateComponent<StaticModel>();
-    logoModel->SetModel(MC->cache_->GetResource<Model>("Models/heXon.mdl"));
-    logoMaterial_ = MC->cache_->GetResource<Material>("Materials/Loglow.xml");
-    xMaterial_ = MC->cache_->GetResource<Material>("Materials/X.xml");
+    logoModel->SetModel(MC->GetModel("heXon"));
+    logoMaterial_ = MC->GetMaterial("Loglow");
+    xMaterial_ = MC->GetMaterial("X");
     logoModel->SetMaterial(0, logoMaterial_);
     logoModel->SetMaterial(1, xMaterial_);
 

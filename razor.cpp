@@ -26,17 +26,17 @@ Razor::Razor():
     rootNode_->SetName("Razor");
     meleeDamage_ = 0.9f;
 
-    SharedPtr<Material> black{MC->cache_->GetTempResource<Material>("Materials/Razor.xml")};
+    SharedPtr<Material> black{MC->GetMaterial("Razor")};
 
     topNode_ = rootNode_->CreateChild();
     topModel_ = topNode_->CreateComponent<StaticModel>();
-    topModel_->SetModel(MC->cache_->GetResource<Model>("Models/RazorTop.mdl"));
+    topModel_->SetModel(MC->GetModel("RazorTop"));
     topModel_->SetMaterial(0, black);
     topModel_->SetMaterial(1, centerModel_->GetMaterial());
 
     bottomNode_ = rootNode_->CreateChild();
     bottomModel_ = bottomNode_->CreateComponent<StaticModel>();
-    bottomModel_->SetModel(MC->cache_->GetResource<Model>("Models/RazorBottom.mdl"));
+    bottomModel_->SetModel(MC->GetModel("RazorBottom"));
     bottomModel_->SetMaterial(0, black);
     bottomModel_->SetMaterial(1, centerModel_->GetMaterial());
 

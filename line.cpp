@@ -25,7 +25,7 @@ Line::Line() :
     rootNode_ = MC->world.scene->CreateChild("Line");
     rootNode_->SetScale(baseScale_);
     model_ = rootNode_->CreateComponent<StaticModel>();
-    model_->SetModel(MC->cache_->GetResource<Model>("Models/Line.mdl"));
+    model_->SetModel(MC->GetModel("Line"));
 }
 
 void Line::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
@@ -43,8 +43,8 @@ void Line::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 void Line::Set(const Vector3 position, int playerID)
 {
     model_->SetMaterial(playerID == 2
-                        ? MC->cache_->GetResource<Material>("Materials/PurpleBullet.xml")
-                        : MC->cache_->GetResource<Material>("Materials/GreenBullet.xml"));
+                        ? MC->GetMaterial("PurpleBullet")
+                        : MC->GetMaterial("GreenBullet"));
     rootNode_->SetEnabledRecursive(true);
     rootNode_->SetPosition(position);
     rootNode_->SetScale(baseScale_);

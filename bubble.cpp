@@ -27,8 +27,8 @@ Bubble::Bubble():
     baseScale_ *= baseScale_;
     rootNode_ = MC->world.scene->CreateChild("Bubble");
     StaticModel* model = rootNode_->CreateComponent<StaticModel>();
-    model->SetModel(MC->cache_->GetResource<Model>("Models/Box.mdl"));
-    model->SetMaterial(MC->cache_->GetResource<Material>("Materials/Bubble.xml"));
+    model->SetModel(MC->GetModel("Box"));
+    model->SetMaterial(MC->GetMaterial("Bubble"));
 }
 
 void Bubble::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)

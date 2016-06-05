@@ -27,9 +27,9 @@ Muzzle::Muzzle(int playerID):
     ParticleEffect* particleEffect{};
 
     if (playerID == 2)
-        particleEffect = MC->cache_->GetResource<ParticleEffect>("Particles/PurpleMuzzle.xml");
+        particleEffect = CACHE->GetResource<ParticleEffect>("Particles/PurpleMuzzle.xml");
     else
-        particleEffect = MC->cache_->GetResource<ParticleEffect>("Particles/GreenMuzzle.xml");
+        particleEffect = CACHE->GetResource<ParticleEffect>("Particles/GreenMuzzle.xml");
 
     particleEmitter_->SetEffect(particleEffect);
 }

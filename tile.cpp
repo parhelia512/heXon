@@ -29,8 +29,8 @@ Tile::Tile(TileMaster* tileMaster, Vector3 position):
     rootNode_->SetPosition(position);
     rootNode_->SetScale(1.1f);
     model_ = rootNode_->CreateComponent<StaticModel>();
-    model_->SetModel(MC->cache_->GetResource<Model>("Models/Hexagon.mdl"));
-    model_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/BackgroundTile.xml"));
+    model_->SetModel(MC->GetModel("Hexagon"));
+    model_->SetMaterial(MC->GetMaterial("BackgroundTile")->Clone());
     model_->SetCastShadows(false);
 
     referencePosition_ = rootNode_->GetPosition();
@@ -38,7 +38,8 @@ Tile::Tile(TileMaster* tileMaster, Vector3 position):
 }
 
 void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
-{
+{ (void)eventType; (void)eventData;
+
     float elapsedTime{MC->world.scene->GetElapsedTime()};
     float offsetY{0.0f};
 

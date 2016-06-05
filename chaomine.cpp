@@ -36,14 +36,14 @@ ChaoMine::ChaoMine() : Enemy(),
     countDown_ = Random(1.0f, 5.0f);
     innerNode_ = rootNode_->CreateChild();
     innerModel_ = innerNode_->CreateComponent<StaticModel>();
-    innerModel_->SetModel(MC->cache_->GetResource<Model>("Models/MineInner.mdl"));
-    innerModel_->SetMaterial(0, MC->resources.materials.ship1Primary);
+    innerModel_->SetModel(MC->GetModel("MineInner"));
+    innerModel_->SetMaterial(0, MC->GetMaterial("GreenEnvmap"));
 
     outerNode_ = rootNode_->CreateChild();
     outerModel_ = outerNode_->CreateComponent<StaticModel>();
-    outerModel_->SetModel(MC->cache_->GetResource<Model>("Models/MineOuter.mdl"));
-    outerModel_->SetMaterial(0, MC->resources.materials.ship1Secondary);
-    outerModel_->SetMaterial(1, MC->resources.materials.ship1Primary);
+    outerModel_->SetModel(MC->GetModel("MineOuter"));
+    outerModel_->SetMaterial(0, MC->GetMaterial("GreenGlowEnvmap"));
+    outerModel_->SetMaterial(1, MC->GetMaterial("GreenEnvmap"));
 
 }
 
@@ -52,13 +52,13 @@ void ChaoMine::Set(const Vector3 position, int playerID)
     playerID_ = playerID;
 
     if (playerID_ == 1) {
-        innerModel_->SetMaterial(0, MC->resources.materials.ship1Primary);
-        outerModel_->SetMaterial(0, MC->resources.materials.ship1Secondary);
-        outerModel_->SetMaterial(1, MC->resources.materials.ship1Primary);
+        innerModel_->SetMaterial(0, MC->GetMaterial("GreenEnvmap"));
+        outerModel_->SetMaterial(0, MC->GetMaterial("GreenGlowEnvmap"));
+        outerModel_->SetMaterial(1, MC->GetMaterial("GreenEnvmap"));
     } else if (playerID_ == 2) {
-        innerModel_->SetMaterial(0, MC->resources.materials.ship2Primary);
-        outerModel_->SetMaterial(0, MC->resources.materials.ship2Secondary);
-        outerModel_->SetMaterial(1, MC->resources.materials.ship2Primary);
+        innerModel_->SetMaterial(0, MC->GetMaterial("PurpleEnvmap"));
+        outerModel_->SetMaterial(0, MC->GetMaterial("PurpleGlowEnvmap"));
+        outerModel_->SetMaterial(1, MC->GetMaterial("PurpleEnvmap"));
     }
 
 

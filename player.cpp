@@ -82,33 +82,33 @@ Player::Player(int playerID):
     //Setup shield
     shieldNode_ = rootNode_->CreateChild("Shield");
     shieldModel_ = shieldNode_->CreateComponent<StaticModel>();
-    shieldModel_->SetModel(MC->cache_->GetResource<Model>("Models/Shield.mdl"));
-    shieldMaterial_ = MC->cache_->GetTempResource<Material>("Materials/Shield.xml");
+    shieldModel_->SetModel(MC->GetModel("Shield"));
+    shieldMaterial_ = MC->GetMaterial("Shield")->Clone();
     shieldModel_->SetMaterial(shieldMaterial_);
     
     //Setup ChaoFlash
     chaoFlash_ = new ChaoFlash(playerID_);
 
     //Setup player audio
-    shot_s = MC->cache_->GetResource<Sound>("Samples/Shot.ogg");
+    shot_s = MC->GetSample("Shot");
     shot_s->SetLooped(false);
-    shieldHit_s = MC->cache_->GetResource<Sound>("Samples/ShieldHit.ogg");
+    shieldHit_s = MC->GetSample("ShieldHit");
     shieldHit_s->SetLooped(false);
-    death_s = MC->cache_->GetResource<Sound>("Samples/Death.ogg");
+    death_s = MC->GetSample("Death");
     death_s->SetLooped(false);
     for (int p{1}; p <= 4; ++p){
-        pickup_s.Push(SharedPtr<Sound>(MC->cache_->GetResource<Sound>("Samples/Pickup"+String{p}+".ogg")));
+        pickup_s.Push(SharedPtr<Sound>(MC->GetSample("Pickup"+String{p})));
         pickup_s[p-1]->SetLooped(false);
     }
 
-    powerup_s = MC->cache_->GetResource<Sound>("Samples/Powerup.ogg");
+    powerup_s = MC->GetSample("Powerup");
     powerup_s->SetLooped(false);
-    multix_s= MC->cache_->GetResource<Sound>("Samples/MultiX.ogg");
+    multix_s= MC->GetSample("MultiX");
     multix_s->SetLooped(false);
-    chaoball_s = MC->cache_->GetResource<Sound>("Samples/Chaos.ogg");
+    chaoball_s = MC->GetSample("Chaos");
     chaoball_s->SetLooped(false);
     for (int s{1}; s < 5; ++s){
-        seekerHits_s.Push(SharedPtr<Sound>(MC->cache_->GetResource<Sound>("Samples/SeekerHit"+String(s)+".ogg")));
+        seekerHits_s.Push(SharedPtr<Sound>(MC->GetSample("SeekerHit"+String(s))));
     }
     //Some extra sources for the players
     for (int i{0}; i < 5; ++i){
@@ -163,38 +163,38 @@ void Player::CreateGUI()
         scoreDigits_[d]->Translate(Vector3::RIGHT * (playerID_ == 2 ? -0.5f : 0.5f) * d);
         scoreDigits_[d]->Rotate(Quaternion(playerID_ == 2 ? 0.0f : 180.0f, Vector3::UP), TS_WORLD);
         StaticModel* digitModel = scoreDigits_[d]->CreateComponent<StaticModel>();
-        digitModel->SetModel(MC->cache_->GetResource<Model>("Models/0.mdl"));
+        digitModel->SetModel(MC->GetModel("0"));
         digitModel->SetMaterial(playerID_==2
-                                ? MC->resources.materials.ship2Secondary
-                                : MC->resources.materials.ship1Secondary);
+                                ? MC->GetMaterial("PurpleGlowEnvmap")
+                                : MC->GetMaterial("GreenGlowEnvmap"));
     }
     scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 5.94252f : -5.94252f, 0.9f, 0.82951f));
     scoreNode_->Rotate(Quaternion(-90.0f, Vector3::RIGHT));
     scoreNode_->Rotate(Quaternion(playerID_ == 2 ? 60.0f : -60.0f, Vector3::UP), TS_WORLD);
 
     Model* barModel = (playerID_ == 2)
-            ? MC->cache_->GetResource<Model>("Models/BarRight.mdl")
-            : MC->cache_->GetResource<Model>("Models/BarLeft.mdl");
+            ? MC->GetModel("BarRight")
+            : MC->GetModel("BarLeft");
 
     healthBarNode_ = guiNode_->CreateChild("HealthBar");
     healthBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
     healthBarNode_->SetScale(Vector3(health_, 1.0f, 1.0f));
     healthBarModel_ = healthBarNode_->CreateComponent<StaticModel>();
     healthBarModel_->SetModel(barModel);
-    healthBarModel_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/GreenGlowEnvmap.xml"));
+    healthBarModel_->SetMaterial(MC->GetMaterial("GreenGlowEnvmap")->Clone());
 
     shieldBarNode_ = guiNode_->CreateChild("HealthBar");
     shieldBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
     shieldBarNode_->SetScale(Vector3(health_, 0.9f, 0.9f));
     shieldBarModel_ = shieldBarNode_->CreateComponent<StaticModel>();
     shieldBarModel_->SetModel(barModel);
-    shieldBarModel_->SetMaterial(MC->cache_->GetResource<Material>("Materials/BlueGlowEnvmap.xml"));
+    shieldBarModel_->SetMaterial(MC->GetMaterial("BlueGlowEnvmap"));
 
     Node* healthBarHolderNode = guiNode_->CreateChild("HealthBarHolder");
     healthBarHolderNode->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
     StaticModel* healthBarHolderModel = healthBarHolderNode->CreateComponent<StaticModel>();
-    healthBarHolderModel->SetModel(MC->cache_->GetResource<Model>("Models/BarHolder.mdl"));
-    healthBarHolderModel->SetMaterial(MC->cache_->GetResource<Material>("Materials/BarHolder.xml"));
+    healthBarHolderModel->SetModel(MC->GetModel("BarHolder"));
+    healthBarHolderModel->SetMaterial(MC->GetMaterial("BarHolder"));
 
     appleCounterRoot_ = guiNode_->CreateChild("AppleCounter");
     for (int a{0}; a < 4; ++a){
@@ -203,8 +203,8 @@ void Player::CreateGUI()
         appleCounter_[a]->SetPosition(Vector3(playerID_ == 2 ? (a + 8.0f) : -(a + 8.0f), 1.0f, 21.0f));
         appleCounter_[a]->SetScale(0.333f);
         StaticModel* apple{appleCounter_[a]->CreateComponent<StaticModel>()};
-        apple->SetModel(MC->cache_->GetResource<Model>("Models/Apple.mdl"));
-        apple->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/GoldEnvmap.xml"));
+        apple->SetModel(MC->GetModel("Apple"));
+        apple->SetMaterial(MC->GetMaterial("GoldEnvmap"));
     }
 
     heartCounterRoot_ = guiNode_->CreateChild("HeartCounter");
@@ -214,8 +214,8 @@ void Player::CreateGUI()
         heartCounter_[h]->SetPosition(Vector3(playerID_ == 2 ? (h + 8.0f) : -(h + 8.0f), 1.0f, 21.0f));
         heartCounter_[h]->SetScale(0.333f);
         StaticModel* heart{heartCounter_[h]->CreateComponent<StaticModel>()};
-        heart->SetModel(MC->cache_->GetResource<Model>("Models/Heart.mdl"));
-        heart->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/RedEnvmap.xml"));
+        heart->SetModel(MC->GetModel("Heart"));
+        heart->SetMaterial(MC->GetMaterial("RedEnvmap"));
     }
 }
 
@@ -224,9 +224,10 @@ void Player::SetScore(int points)
     score_ = points;
     //Update score graphics
     for (int d{0}; d < 10; ++d){
-        StaticModel* digitModel = scoreDigits_[d]->GetComponent<StaticModel>();
-        digitModel->SetModel(MC->cache_->GetResource<Model>(
-                                 "Models/"+String( static_cast<int>(score_ / static_cast<unsigned>(pow(10, d)))%10 )+".mdl"));
+        StaticModel* digitModel{scoreDigits_[d]->GetComponent<StaticModel>()};
+        digitModel->SetModel(MC->GetModel(String(
+                             static_cast<int>(score_ / static_cast<unsigned>(pow(10, d)))%10 )));
+
         scoreDigits_[d]->SetEnabled( score_ >= static_cast<unsigned>(pow(10, d)) || d == 0 );
     }
 }
@@ -734,14 +735,14 @@ void Player::UpdatePilot()
 {
     //Set body model
     if (pilot_.male_){
-        pilot_.bodyModel_->SetModel(MC->resources.models.pilots.male);}
+        pilot_.bodyModel_->SetModel(MC->GetModel("Male"));}
     else{
-        pilot_.bodyModel_->SetModel(MC->resources.models.pilots.female);
+        pilot_.bodyModel_->SetModel(MC->GetModel("Female"));
     }
 
     //Set colors for body model
     for (unsigned m = 0; m < pilot_.bodyModel_->GetNumGeometries(); ++m){
-        pilot_.bodyModel_->SetMaterial(m, MC->cache_->GetTempResource<Material>("Materials/Basic.xml"));
+        pilot_.bodyModel_->SetMaterial(m, CACHE_->GetTempResource<Material>("Materials/Basic"));
         Color diffColor = pilot_.colors_[m];
         pilot_.bodyModel_->GetMaterial(m)->SetShaderParameter("MatDiffColor", diffColor);
         Color specColor = diffColor*(1.0f-0.1f*m);
@@ -755,7 +756,7 @@ void Player::UpdatePilot()
     else {
         pilot_.hairModel_->SetModel(MC->resources.models.pilots.hairStyles[pilot_.hairStyle_ - 1]);
         //Set color for hair model
-        pilot_.hairModel_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/Basic.xml"));
+        pilot_.hairModel_->SetMaterial(CACHE_->GetTempResource<Material>("Materials/Basic"));
         Color diffColor = pilot_.colors_[4];
         pilot_.hairModel_->GetMaterial()->SetShaderParameter("MatDiffColor", diffColor);
         Color specColor = diffColor*0.23f;
@@ -795,12 +796,12 @@ void Player::SetupShip()
 {
     ship_.node_ = rootNode_->CreateChild("Ship");
     ship_.model_ = ship_.node_->CreateComponent<StaticModel>();
-    ship_.model_->SetModel(MC->resources.models.ships.swift);
-    ship_.model_->SetMaterial(0, playerID_==2 ? MC->resources.materials.ship2Secondary : MC->resources.materials.ship1Secondary);
-    ship_.model_->SetMaterial(1, playerID_==2 ? MC->resources.materials.ship2Primary : MC->resources.materials.ship1Primary);
+    ship_.model_->SetModel(MC->GetModel("KlåMk10"));
+    ship_.model_->SetMaterial(0, playerID_==2 ? MC->GetMaterial("PurpleGlowEnvmap") : MC->GetMaterial("GreenGlowEnvmap"));
+    ship_.model_->SetMaterial(1, playerID_==2 ? MC->GetMaterial("PurpleEnvmap") : MC->GetMaterial("GreenEnvmap"));
 
     ParticleEmitter* particleEmitter{ship_.node_->CreateComponent<ParticleEmitter>()};
-    SharedPtr<ParticleEffect> particleEffect{MC->cache_->GetTempResource<ParticleEffect>("Particles/Shine.xml")};
+    SharedPtr<ParticleEffect> particleEffect{CACHE->GetTempResource<ParticleEffect>("Particles/Shine.xml")};
     Vector<ColorFrame> colorFrames{};
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
     colorFrames.Push(ColorFrame(playerID_==2 ? Color(0.42f, 0.0f, 0.88f, 0.05f) : Color(0.42f, 0.7f, 0.23f, 0.23f), 0.05f));

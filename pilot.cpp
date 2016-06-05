@@ -42,7 +42,7 @@ void Pilot::Initialize(Node* parent)
 {
     rootNode_ = parent->CreateChild("Pilot");
     bodyModel_ = rootNode_->CreateComponent<AnimatedModel>();
-    bodyModel_->SetModel(MC->resources.models.pilots.male);
+    bodyModel_->SetModel(MC->GetModel("Male"));
     bodyModel_->SetCastShadows(true);
     Node* hairNode{rootNode_->GetChild("Head", true)->CreateChild("Hair")};
     hairModel_ = hairNode->CreateComponent<StaticModel>();
@@ -118,13 +118,13 @@ void Pilot::UpdateModel()
 {
     //Set body model
     if (male_)
-        bodyModel_->SetModel(MC->resources.models.pilots.male);
+        bodyModel_->SetModel(MC->GetModel("Male"));
     else
-        bodyModel_->SetModel(MC->resources.models.pilots.female);
+        bodyModel_->SetModel(MC->GetModel("Female"));
 
     //Set colors for body model
     for (unsigned m{0}; m < bodyModel_->GetNumGeometries(); ++m){
-        bodyModel_->SetMaterial(m, MC->cache_->GetTempResource<Material>("Materials/Basic.xml"));
+        bodyModel_->SetMaterial(m, MC->GetMaterial("Basic")->Clone());
         Color diffColor{colors_[m]};
         bodyModel_->GetMaterial(m)->SetShaderParameter("MatDiffColor", diffColor);
         Color specColor{diffColor*(1.0f-0.1f*m)};
@@ -137,9 +137,9 @@ void Pilot::UpdateModel()
         hairModel_->SetModel(nullptr);
     else {
         hairModel_->GetNode()->SetScale(1.0f - (0.1f * !male_));
-        hairModel_->SetModel(MC->resources.models.pilots.hairStyles[hairStyle_ - 1]);
+        hairModel_->SetModel(MC->hairStyles_[hairStyle_ - 1]);
         //Set color for hair model
-        hairModel_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/Basic.xml"));
+        hairModel_->SetMaterial(MC->GetMaterial("Basic")->Clone());
         Color diffColor{colors_[4]};
         hairModel_->GetMaterial()->SetShaderParameter("MatDiffColor", diffColor);
         Color specColor{diffColor * 0.23f};
@@ -151,7 +151,7 @@ void Pilot::UpdateModel()
 void Pilot::Randomize(bool autoPilot)
 {
     male_ = Random(2);
-    hairStyle_ = Random(static_cast<int>(MC->resources.models.pilots.hairStyles.Size() + 1));
+    hairStyle_ = Random(static_cast<int>(MC->hairStyles_.Size() + 1));
 
     rootNode_->SetRotation(Quaternion(0.0f, 0.0f, 0.0f));
 

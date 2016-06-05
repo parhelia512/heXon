@@ -42,7 +42,7 @@ Seeker::Seeker():
     trigger->SetSphere(1.0f);
 
     ParticleEmitter* particleEmitter = rootNode_->CreateComponent<ParticleEmitter>();
-    particleEmitter->SetEffect(MC->cache_->GetResource<ParticleEffect>("Particles/Seeker.xml"));
+    particleEmitter->SetEffect(CACHE->GetResource<ParticleEffect>("Particles/Seeker.xml"));
 
     AddTail();
 
@@ -51,7 +51,7 @@ Seeker::Seeker():
     light->SetBrightness(2.3f);
     light->SetColor(Color(1.0f, 1.0f, 1.0f));
 
-    sample_ = MC->cache_->GetResource<Sound>("Samples/Seeker.ogg");
+    sample_ = CACHE->GetResource<Sound>("Samples/Seeker.ogg");
     sample_->SetLooped(false);
 }
 

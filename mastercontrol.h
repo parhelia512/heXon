@@ -57,43 +57,6 @@ typedef struct GameWorld
     } cursor;
 } GameWorld;
 
-//heXon's resource tree
-typedef struct Resources
-{
-    struct {
-        struct {
-            SharedPtr<Model> male;
-            SharedPtr<Model> female;
-            Vector< SharedPtr<Model> > hairStyles;
-        } pilots;
-        struct {
-            SharedPtr<Model> swift;
-        } ships;
-        struct {
-            SharedPtr<Model> center;
-            struct {
-                SharedPtr<Model> top;
-                SharedPtr<Model> bottom;
-            } razor;
-            struct {
-                SharedPtr<Model> top;
-                SharedPtr<Model> bottom;
-            } spire;
-        } enemies;
-        struct {
-            SharedPtr<Model> backgroundTile;
-            SharedPtr<Model> obstacle;
-        } arenaElements;
-    } models;
-    struct {
-        SharedPtr<Material> basic;
-        SharedPtr<Material> ship1Primary;
-        SharedPtr<Material> ship1Secondary;
-        SharedPtr<Material> ship2Primary;
-        SharedPtr<Material> ship2Secondary;
-    } materials;
-} Resources;
-
 typedef struct HitInfo
 {
     Vector3 position_;
@@ -136,10 +99,8 @@ public:
     static MasterControl* GetInstance();
 
     GameWorld world;
-    Resources resources;
+    Vector< SharedPtr<Model> > hairStyles_;
     SharedPtr<PhysicsWorld> physicsWorld_;
-    WeakPtr<ResourceCache> cache_;
-    WeakPtr<Graphics> graphics_;
     SharedPtr<SoundSource> musicSource_;
     SharedPtr<UI> ui_;
     SharedPtr<Renderer> renderer_;
@@ -175,6 +136,12 @@ public:
     virtual void Stop();
     void Exit();
 
+    Material* GetMaterial(String name) const { return CACHE->GetResource<Material>("Materials/"+name+".xml"); }
+    Model* GetModel(String name) const { return CACHE->GetResource<Model>("Models/"+name+".mdl"); }
+    Texture* GetTexture(String name) const { return CACHE->GetResource<Texture>("Textures/"+name+".png"); }
+    Sound* GetMusic(String name) const;
+    Sound* GetSample(String name) const;
+
     Player* GetPlayer(int playerID, bool other = false) const;
     float SinceLastReset() const { return world.scene->GetElapsedTime() - world.lastReset; }
     void SetGameState(GameState newState);
@@ -187,7 +154,6 @@ public:
     void Unpause() { SetPaused(false); }
     float GetSinceStateChange() const noexcept { return sinceStateChange_; }
 
-    bool editMode_;
     bool PhysicsRayCast(PODVector<PhysicsRaycastResult> &hitResults, Urho3D::Ray ray, const float distance, const unsigned collisionMask = M_MAX_UNSIGNED);
     bool PhysicsSphereCast(PODVector<RigidBody*> &hitResults, Vector3 center, const float radius, const unsigned collisionMask = M_MAX_UNSIGNED);
     void StartGame();
@@ -229,16 +195,16 @@ private:
     void SubscribeToEvents();
 
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-    void HandlePlayTrigger1(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY); }
-    void HandlePlayTrigger2(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY); }
-    void HandlePlayTrigger(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY); }
+    void HandlePlayTrigger1(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY); (void)otherNode; (void)eventData;}
+    void HandlePlayTrigger2(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY); (void)otherNode; (void)eventData;}
+    void HandlePlayTrigger(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY);  (void)otherNode; (void)eventData;}
 
     void UpdateCursor(const float timeStep);
     bool CursorRayCast(const float maxDistance, PODVector<RayQueryResult> &hitResults);
 
     void LeaveGameState();
     void EnterGameState();
-    void LoadResources();
+    void LoadHair();
 
     float secondsPerFrame_;
     float sinceFrameRateReport_;

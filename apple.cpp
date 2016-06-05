@@ -24,8 +24,8 @@ Apple::Apple() : Pickup()
     pickupType_ = PT_APPLE;
     initialPosition_ = Vector3::FORWARD*10.0f;
     rootNode_->SetPosition(initialPosition_);
-    model_->SetModel(MC->cache_->GetResource<Model>("Models/Apple.mdl"));
-    model_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/GoldEnvmap.xml"));
+    model_->SetModel(MC->GetModel("Apple"));
+    model_->SetMaterial(MC->GetMaterial("GoldEnvmap"));
 
     Vector<ColorFrame> colorFrames;
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));

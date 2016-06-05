@@ -38,28 +38,32 @@ SplatterPillar::SplatterPillar(bool right):
     pillarNode_ = rootNode_->CreateChild("Pillar");
     bloodNode_ = rootNode_->CreateChild("Blood");
     pillar_ = pillarNode_->CreateComponent<AnimatedModel>();
-    pillar_->SetModel(MC->cache_->GetResource<Model>("Models/SplatterPillar.mdl"));
+    pillar_->SetModel(MC->GetModel("SplatterPillar"));
     pillar_->SetMorphWeight(0, 0.0f);
     pillar_->SetCastShadows(true);
-    pillar_->SetMaterial(0, MC->resources.materials.basic);
-    if (!right_) pillar_->SetMaterial(1, MC->cache_->GetResource<Material>("Materials/GreenGlow.xml"));
-    else pillar_->SetMaterial(1, MC->cache_->GetResource<Material>("Materials/PurpleGlow.xml"));
-    pillar_->SetMaterial(2, MC->cache_->GetResource<Material>("Materials/Metal.xml"));
-    pillar_->SetMaterial(3, MC->cache_->GetResource<Material>("Materials/Drain.xml"));
+
+    pillar_->SetMaterial(0, MC->GetMaterial("Basic"));
+    if (!right_)
+            pillar_->SetMaterial(1, MC->GetMaterial("GreenGlow"));
+    else
+        pillar_->SetMaterial(1, MC->GetMaterial("PurpleGlow"));
+
+    pillar_->SetMaterial(2, MC->GetMaterial("Metal"));
+    pillar_->SetMaterial(3, MC->GetMaterial("Drain"));
 
     blood_ = bloodNode_->CreateComponent<AnimatedModel>();
     blood_->SetEnabled(false);
     blood_->SetCastShadows(true);
-    blood_->SetModel(MC->cache_->GetResource<Model>("Models/Blood.mdl"));
-    blood_->SetMaterial(0, MC->cache_->GetTempResource<Material>("Materials/Blood.xml"));
+    blood_->SetModel(MC->GetModel("Blood"));
+    blood_->SetMaterial(0, MC->GetMaterial("Blood")->Clone());
 
     particleNode_ = rootNode_->CreateChild("BloodParticles");
     particleNode_->Translate(Vector3::UP*2.3f);
     splatEmitter_ = particleNode_->CreateComponent<ParticleEmitter>();
-    splatEmitter_->SetEffect(MC->cache_->GetResource<ParticleEffect>("Particles/BloodSplat.xml"));
+    splatEmitter_->SetEffect(CACHE->GetResource<ParticleEffect>("Particles/BloodSplat.xml"));
     splatEmitter_->SetEmitting(false);
     dripEmitter_ = particleNode_->CreateComponent<ParticleEmitter>();
-    dripEmitter_->SetEffect(MC->cache_->GetTempResource<ParticleEffect>("Particles/BloodDrip.xml"));
+    dripEmitter_->SetEffect(CACHE->GetTempResource<ParticleEffect>("Particles/BloodDrip.xml"));
     dripEmitter_->SetEmitting(false);
 
     soundSource_ = rootNode_->CreateComponent<SoundSource>();
@@ -75,7 +79,7 @@ void SplatterPillar::Trigger()
     player_->KillPilot();
     bloodNode_->Rotate(Quaternion(Random(360.0f), Vector3::UP));
     blood_->SetEnabled(true);
-    soundSource_->Play(MC->cache_->GetResource<Sound>("Samples/Splatter" + String(Random(1,6)) + ".ogg"));
+    soundSource_->Play(CACHE->GetResource<Sound>("Samples/Splatter" + String(Random(1,6)) + ".ogg"));
 }
 
 void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)

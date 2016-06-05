@@ -36,23 +36,24 @@ Spire::Spire():
     rigidBody_->SetMass(3.0f);
     rigidBody_->SetLinearFactor(Vector3::ZERO);
 
-    SharedPtr<Material> black = MC->cache_->GetTempResource<Material>("Materials/Spire.xml");
+    SharedPtr<Material> black{MC->GetMaterial("Spire")};
 
     topNode_ = rootNode_->CreateChild();
     topModel_ = topNode_->CreateComponent<StaticModel>();
-    topModel_->SetModel(MC->cache_->GetResource<Model>("Models/SpireTop.mdl"));
+    topModel_->SetModel(MC->GetModel("SpireTop"));
     topModel_->SetMaterial(black);
 
     bottomNode_ = rootNode_->CreateChild();
     bottomModel_ = bottomNode_->CreateComponent<StaticModel>();
-    bottomModel_->SetModel(MC->cache_->GetResource<Model>("Models/SpireBottom.mdl"));
+    bottomModel_->SetModel(MC->GetModel("SpireBottom"));
     bottomModel_->SetMaterial(black);
 
     SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(Spire, HandleSpireUpdate));
 }
 
 void Spire::HandleSpireUpdate(StringHash eventType, VariantMap &eventData)
-{
+{ (void)eventType;
+
     if (!rootNode_->IsEnabled()) return;
 
     double timeStep = eventData[ScenePostUpdate::P_TIMESTEP].GetFloat();

@@ -28,10 +28,10 @@ Bullet::Bullet(int playerID):
     rootNode_->SetEnabled(false);
     rootNode_->SetScale(Vector3(1.0f+damage_, 1.0f+damage_, 0.1f));
     model_ = rootNode_->CreateComponent<StaticModel>();
-    model_->SetModel(MC->cache_->GetTempResource<Model>("Models/Bullet.mdl"));
+    model_->SetModel(MC->GetModel("Bullet"));
     model_->SetMaterial(playerID_ == 2
-                        ? MC->cache_->GetResource<Material>("Materials/PurpleBullet.xml")
-                        : MC->cache_->GetResource<Material>("Materials/GreenBullet.xml"));
+                        ? MC->GetMaterial("PurpleBullet")
+                        : MC->GetMaterial("GreenBullet"));
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
     rigidBody_->SetMass(0.5f);

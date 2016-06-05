@@ -44,7 +44,7 @@ Enemy::Enemy():
 
     centerNode_ = rootNode_->CreateChild("SmokeTrail");
     particleEmitter_ = centerNode_->CreateComponent<ParticleEmitter>();
-    particleEffect_ = MC->cache_->GetTempResource<ParticleEffect>("Particles/Enemy.xml");
+    particleEffect_ = CACHE->GetTempResource<ParticleEffect>("Particles/Enemy.xml");
     Vector<ColorFrame> colorFrames{};
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
     colorFrames.Push(ColorFrame(Color(color_.r_*0.666f, color_.g_*0.666f, color_.b_*0.666f, 0.5f), 0.1f));
@@ -53,8 +53,8 @@ Enemy::Enemy():
     particleEmitter_->SetEffect(particleEffect_);
 
     centerModel_ = centerNode_->CreateComponent<StaticModel>();
-    centerModel_->SetModel(MC->cache_->GetResource<Model>("Models/Core.mdl"));
-    centerModel_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/CoreGlow.xml"));
+    centerModel_->SetModel(MC->GetModel("Core"));
+    centerModel_->SetMaterial(MC->GetMaterial("CoreGlow")->Clone());
     centerModel_->GetMaterial(0)->SetShaderParameter("MatDiffColor", color_);
     centerModel_->GetMaterial(0)->SetShaderParameter("MatEmissiveColor", color_);
 
@@ -69,7 +69,7 @@ Enemy::Enemy():
     collider->SetPosition(Vector3::UP * 0.23f);
 
     for (int s{1}; s <= 5; ++s) {
-        samples_.Push(SharedPtr<Sound>(MC->cache_->GetResource<Sound>("Samples/Melee"+String(s)+".ogg")));
+        samples_.Push(SharedPtr<Sound>(CACHE->GetResource<Sound>("Samples/Melee"+String(s)+".ogg")));
     }
     for (SharedPtr<Sound> s : samples_) {
         s->SetLooped(false);

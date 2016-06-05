@@ -60,7 +60,7 @@ Pickup::Pickup() : SceneObject(),
 
     particleEmitter_ = graphicsNode_->CreateComponent<ParticleEmitter>();
 
-    particleEmitter_->SetEffect(MC->cache_->GetTempResource<ParticleEffect>("Particles/Shine.xml"));
+    particleEmitter_->SetEffect(CACHE->GetTempResource<ParticleEffect>("Particles/Shine.xml"));
 
     SubscribeToEvent(triggerNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Pickup, HandleTriggerStart));
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Pickup, HandleSceneUpdate));

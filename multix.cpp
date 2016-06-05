@@ -27,8 +27,8 @@ MultiX::MultiX():
     pickupType_ = PT_MULTIX;
     initialPosition_ = Vector3::DOWN*42.0f;
     rootNode_->SetPosition(initialPosition_);
-    model_->SetModel(MC->cache_->GetResource<Model>("Models/X.mdl"));
-    model_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/BlueGlowEnvmap.xml"));
+    model_->SetModel(MC->GetModel("X"));
+    model_->SetMaterial(MC->GetMaterial("BlueGlowEnvmap")->Clone());
 
     rigidBody_->SetMass(2.0f);
 
@@ -37,7 +37,7 @@ MultiX::MultiX():
     colorFrames.Push(ColorFrame(Color(0.05f, 0.23f, 0.75f, 0.42f), 0.1f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
     particleEmitter_->GetEffect()->SetColorFrames(colorFrames);
-    particleEmitter_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/Rift.xml"));
+    particleEmitter_->SetMaterial(MC->GetMaterial("Rift")->Clone());
 
     Disable();
 }

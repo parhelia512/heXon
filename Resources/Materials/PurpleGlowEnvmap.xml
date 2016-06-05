@@ -5,7 +5,7 @@
 	<parameter name="UOffset" value="1 0 0 0" />
 	<parameter name="VOffset" value="0 1 0 0" />
 	<parameter name="MatDiffColor" value="0.6 0.23 0.0 1" />
-	<parameter name="MatEmissiveColor" value="0.32 0.23 0" />
+	<parameter name="MatEmissiveColor" value="0.42 0.34 0" />
 	<parameter name="MatEnvMapColor" value="0.666 0.23 0.16" />
 	<parameter name="MatSpecColor" value="1 0.23 1 32" />
 	<cull value="ccw" />

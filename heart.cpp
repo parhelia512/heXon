@@ -25,8 +25,8 @@ Heart::Heart():
     pickupType_ = PT_HEART;
     initialPosition_ = Vector3::BACK*10.0f;
     rootNode_->SetPosition(initialPosition_);
-    model_->SetModel(MC->cache_->GetResource<Model>("Models/Heart.mdl"));
-    model_->SetMaterial(MC->cache_->GetTempResource<Material>("Materials/RedEnvmap.xml"));
+    model_->SetModel(MC->GetModel("Heart"));
+    model_->SetMaterial(MC->GetMaterial("RedEnvmap"));
 
     Vector<ColorFrame> colorFrames{};
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));

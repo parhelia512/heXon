@@ -29,8 +29,8 @@ Door::Door(bool right) :
     rootNode_ = MC->lobbyNode_->CreateChild("Door");
     rootNode_->SetPosition(Vector3(right_? 2.26494f : -2.26494f, 0.0f, 5.21843f));
     door_ = rootNode_->CreateComponent<AnimatedModel>();
-    door_->SetModel(MC->cache_->GetResource<Model>("Models/Door.mdl"));
-    door_->SetMaterial(0, MC->resources.materials.basic);
+    door_->SetModel(MC->GetModel("Door"));
+    door_->SetMaterial(0, MC->GetMaterial("Basic"));
     door_->SetCastShadows(true);
 
     Node* lightNode{rootNode_->CreateChild("DoorLight")};
@@ -41,7 +41,7 @@ Door::Door(bool right) :
     doorLight->SetCastShadows(true);
     doorLight->SetShadowBias(BiasParameters(0.000023, 0.042f));
 
-    doorSample_ = MC->cache_->GetResource<Sound>("Samples/Door.ogg");
+    doorSample_ = CACHE->GetResource<Sound>("Samples/Door.ogg");
     doorSample_->SetLooped(false);
 
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Door, HandleSceneUpdate));

@@ -30,15 +30,15 @@ ChaoZap::ChaoZap():
     rootNode_->SetEnabled(false);
 
     chaoModel_ = rootNode_->CreateComponent<StaticModel>();
-    chaoModel_->SetModel(MC->cache_->GetResource<Model>("Models/ChaoFlash.mdl"));
-    chaoMaterial_ = MC->cache_->GetTempResource<Material>("Materials/ChaoFlash.xml");
+    chaoModel_->SetModel(MC->GetModel("ChaoFlash"));
+    chaoMaterial_ = MC->GetMaterial("ChaoFlash")->Clone();
     chaoModel_->SetMaterial(chaoMaterial_);
 
-    samples_.Push(MC->cache_->GetResource<Sound>("Samples/Mine1.ogg"));
-    samples_.Push(MC->cache_->GetResource<Sound>("Samples/Mine2.ogg"));
-    samples_.Push(MC->cache_->GetResource<Sound>("Samples/Mine3.ogg"));
-    samples_.Push(MC->cache_->GetResource<Sound>("Samples/Mine4.ogg"));
-    samples_.Push(MC->cache_->GetResource<Sound>("Samples/Mine5.ogg"));
+    samples_.Push(MC->GetSample("Mine1"));
+    samples_.Push(MC->GetSample("Mine2"));
+    samples_.Push(MC->GetSample("Mine3"));
+    samples_.Push(MC->GetSample("Mine4"));
+    samples_.Push(MC->GetSample("Mine5"));
 
     rigidBody_ = rootNode_->CreateComponent<RigidBody>();
 }
