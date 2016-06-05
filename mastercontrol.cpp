@@ -65,11 +65,20 @@ MasterControl::MasterControl(Context *context):
 void MasterControl::Setup()
 {
     SetRandomSeed(GetSubsystem<Time>()->GetSystemTime());
+
+    FileSystem* fs{GetSubsystem<FileSystem>()};
+    String resourcePath{"/usr/local/share/hexon"};
+    if (!fs->DirExists(resourcePath)){
+        resourcePath = "Resources";
+    }
+
+    if (fs->DirExists(resourcePath))
+        engineParameters_["ResourcePaths"] = resourcePath;
+
     // Modify engine startup parameters.
     //Set custom window title and icon.
     engineParameters_["WindowTitle"] = "heXon";
     engineParameters_["LogName"] = GetSubsystem<FileSystem>()->GetAppPreferencesDir("urho3d", "logs")+"heXon.log";
-    engineParameters_["ResourcePaths"] = "Resources";
     engineParameters_["WindowIcon"] = "icon.png";
 
 //    engineParameters_["VSync"] = true;
