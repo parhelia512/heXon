@@ -108,7 +108,7 @@ unix {
     icon.path = $$DATADIR/icons/
 
     pixmap.files = Resources/*
-    pixmap.path = $$DATADIR/hexon/
+    pixmap.path = $$DATADIR/luckey/hexon/
 
     desktop.files = hexon.desktop
     desktop.path = $$DATADIR/applications/

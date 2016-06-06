@@ -67,7 +67,7 @@ void MasterControl::Setup()
     SetRandomSeed(GetSubsystem<Time>()->GetSystemTime());
 
     FileSystem* fs{GetSubsystem<FileSystem>()};
-    String resourcePath{"/usr/local/share/hexon"};
+    String resourcePath{fs->GetAppPreferencesDir("luckey", "hexon")};
     if (!fs->DirExists(resourcePath)){
         resourcePath = "Resources";
     }
