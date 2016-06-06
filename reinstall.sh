@@ -1,7 +1,7 @@
 sudo apt-get install libx11-dev libxrandr-dev libasound2-dev git cmake make
 
 cd `dirname $0`
-if [ ! Urho3D ]
+if [ ! -e Urho3D ]
 then
 	cd ..
 	if [ ! -d Urho3D ]
