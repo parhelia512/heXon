@@ -45,7 +45,8 @@ Razor::Razor():
 }
 
 void Razor::HandleRazorUpdate(StringHash eventType, VariantMap &eventData)
-{
+{ (void)eventType;
+
     float timeStep{eventData[ScenePostUpdate::P_TIMESTEP].GetFloat()};
 
     //Spin

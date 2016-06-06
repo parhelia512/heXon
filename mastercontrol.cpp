@@ -72,7 +72,7 @@ void MasterControl::Setup()
 
     //Add resource path
     Vector<String> resourcePaths{};
-    resourcePaths.Push(FILES->GetAppPreferencesDir("luckey", "hexon"));
+//    resourcePaths.Push(FILES->GetAppPreferencesDir("luckey", "hexon"));
     resourcePaths.Push(String("Resources"));
     resourcePaths.Push(String("../heXon/Resources"));
 
