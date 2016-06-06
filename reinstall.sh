@@ -16,7 +16,7 @@ cd Urho3D
 git pull
 ./cmake_generic.sh . -URHO3D_ANGELSCRIPT=0 -URHO3D_NAVIGATION=0 -URHO3D_URHO2D=0 -URHO3D_SAMPLES=0 -URHO3D_TOOLS=0
 make
-cd `dirname $0`
+cd ..
 
 git pull
 qmake heXon.pro
