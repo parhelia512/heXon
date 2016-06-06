@@ -64,28 +64,27 @@ MasterControl::MasterControl(Context *context):
 
 void MasterControl::Setup()
 {
-    SetRandomSeed(GetSubsystem<Time>()->GetSystemTime());
+    SetRandomSeed(TIME->GetSystemTime());
 
-    FileSystem* fs{GetSubsystem<FileSystem>()};
-    String resourcePath{fs->GetAppPreferencesDir("luckey", "hexon")};
-    if (!fs->DirExists(resourcePath)){
-        resourcePath = "Resources";
-    }
-
-    if (fs->DirExists(resourcePath))
-        engineParameters_["ResourcePaths"] = resourcePath;
-
-    // Modify engine startup parameters.
-    //Set custom window title and icon.
-    engineParameters_["WindowTitle"] = "heXon";
     engineParameters_["LogName"] = GetSubsystem<FileSystem>()->GetAppPreferencesDir("urho3d", "logs")+"heXon.log";
+    engineParameters_["WindowTitle"] = "heXon";
     engineParameters_["WindowIcon"] = "icon.png";
 
-//    engineParameters_["VSync"] = true;
-//    engineParameters_["FullScreen"] = false;
+    //Add resource path
+    Vector<String> resourcePaths{FILE->GetAppPreferencesDir("luckey", "hexon"),
+                                "Resources",
+                                "../heXon/Resources"};
+    for (String path : resourcePaths)
+        if (FILE->DirExists(path)){
+            engineParameters_["ResourcePaths"] = path;
+            break;
+        }
+    engineParameters_["VSync"] = true;
+    engineParameters_["FullScreen"] = false;
 //    engineParameters_["Headless"] = true;
-//    engineParameters_["WindowWidth"] = 1280;
-//    engineParameters_["WindowHeight"] = 1024;
+    engineParameters_["WindowWidth"] = 1280;
+    engineParameters_["WindowHeight"] = 1024;
+    engineParameters_["borderless"] = true;
 //    engineParameters_["RenderPath"] = "RenderPaths/ForwardOutline.xml";
 }
 void MasterControl::Start()

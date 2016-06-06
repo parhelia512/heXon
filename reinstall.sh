@@ -14,14 +14,13 @@ fi
 
 cd Urho3D
 git pull
-./cmake_clean.sh
 ./cmake_generic.sh . -URHO3D_ANGELSCRIPT=0 -URHO3D_NAVIGATION=0 -URHO3D_URHO2D=0 -URHO3D_SAMPLES=0 -URHO3D_TOOLS=0
 make
-cd ..
+cd `dirname $0`
 
 sudo make uninstall
 git pull
-rm -f *.o
 qmake heXon.pro
+make
 sudo make install
 sudo update-icon-caches ~/.local/share/icons/
