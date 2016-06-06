@@ -82,7 +82,7 @@
 #define GRAPHICS GetSubsystem<Graphics>()
 #define TIME GetSubsystem<Time>()
 #define CACHE GetSubsystem<ResourceCache>()
-#define FILE GetSubsystem<FileSystem>()
+#define FILES GetSubsystem<FileSystem>()
 
 using namespace Urho3D;
 

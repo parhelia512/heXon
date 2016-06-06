@@ -36,7 +36,7 @@ Spire::Spire():
     rigidBody_->SetMass(3.0f);
     rigidBody_->SetLinearFactor(Vector3::ZERO);
 
-    SharedPtr<Material> black{MC->GetMaterial("Spire")};
+    SharedPtr<Material> black{MC->GetMaterial("Spire")->Clone()};
 
     topNode_ = rootNode_->CreateChild();
     topModel_ = topNode_->CreateComponent<StaticModel>();

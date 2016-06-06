@@ -26,7 +26,7 @@ Razor::Razor():
     rootNode_->SetName("Razor");
     meleeDamage_ = 0.9f;
 
-    SharedPtr<Material> black{MC->GetMaterial("Razor")};
+    SharedPtr<Material> black{MC->GetMaterial("Razor")->Clone()};
 
     topNode_ = rootNode_->CreateChild();
     topModel_ = topNode_->CreateComponent<StaticModel>();
@@ -52,7 +52,7 @@ void Razor::HandleRazorUpdate(StringHash eventType, VariantMap &eventData)
     topNode_->Rotate(Quaternion(0.0f, timeStep*50.0f*aimSpeed_, 0.0f));
     bottomNode_->Rotate(Quaternion(0.0f, timeStep*-50.0f*aimSpeed_, 0.0f));
     //Pulse
-    topModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", GetGlowColor());
+    topModel_->GetMaterial(0)->SetShaderParameter("MatEmissiveColor", GetGlowColor());
     //Get moving
     if (rigidBody_->GetLinearVelocity().Length() < rigidBody_->GetLinearRestThreshold() && IsEmerged()) {
         rigidBody_->ApplyImpulse(0.23f*(Quaternion(Random(6)*60.0f, Vector3::UP)*Vector3::FORWARD));

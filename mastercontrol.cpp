@@ -71,20 +71,22 @@ void MasterControl::Setup()
     engineParameters_["WindowIcon"] = "icon.png";
 
     //Add resource path
-    Vector<String> resourcePaths{FILE->GetAppPreferencesDir("luckey", "hexon"),
-                                "Resources",
-                                "../heXon/Resources"};
+    Vector<String> resourcePaths{};
+    resourcePaths.Push(FILES->GetAppPreferencesDir("luckey", "hexon"));
+    resourcePaths.Push(String("Resources"));
+    resourcePaths.Push(String("../heXon/Resources"));
+
     for (String path : resourcePaths)
-        if (FILE->DirExists(path)){
+        if (FILES->DirExists(path)){
             engineParameters_["ResourcePaths"] = path;
             break;
         }
     engineParameters_["VSync"] = true;
-    engineParameters_["FullScreen"] = false;
+//    engineParameters_["FullScreen"] = false;
 //    engineParameters_["Headless"] = true;
-    engineParameters_["WindowWidth"] = 1280;
-    engineParameters_["WindowHeight"] = 1024;
-    engineParameters_["borderless"] = true;
+//    engineParameters_["WindowWidth"] = 1280;
+//    engineParameters_["WindowHeight"] = 1024;
+//    engineParameters_["borderless"] = true;
 //    engineParameters_["RenderPath"] = "RenderPaths/ForwardOutline.xml";
 }
 void MasterControl::Start()
@@ -122,6 +124,9 @@ void MasterControl::Start()
 
     SubscribeToEvents();
 
+    // Precache shaders if possible
+//    if (!ENGINE->IsHeadless() && CACHE->Exists("heXonShaders.xml"))
+//        GRAPHICS->PrecacheShaders(CACHE->GetFile("heXonShaders.xml").);
 }
 void MasterControl::Stop()
 {
