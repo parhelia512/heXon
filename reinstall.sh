@@ -18,9 +18,9 @@ git pull
 make
 cd `dirname $0`
 
-sudo make uninstall
 git pull
 qmake heXon.pro
 make
+sudo make uninstall
 sudo make install
 sudo update-icon-caches ~/.local/share/icons/
