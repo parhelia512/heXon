@@ -284,7 +284,8 @@ void Player::Eject()
 }
 
 void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
-{
+{ (void)eventType;
+
     //Count the score
     CountScore();
 
@@ -502,6 +503,12 @@ void Player::MoveMuzzle()
 }
 
 
+void Player::ChargeShield()
+{
+    SetHealth(15.0);
+    PlaySample(powerup_s, 0.42f);
+}
+
 void Player::Pickup(PickupType pickup)
 {
     if (health_ <= 0.0f) return;
@@ -516,7 +523,6 @@ void Player::Pickup(PickupType pickup)
         if (appleCount_ >= 5){
             UpgradeWeapons();
             appleCount_ = 0;
-            PlaySample(powerup_s, 0.42f);
         }
         else PlaySample(pickup_s[appleCount_-1], 0.42f);
     } break;
@@ -524,9 +530,8 @@ void Player::Pickup(PickupType pickup)
         ++heartCount_;
         appleCount_ = 0;
         if (heartCount_ >= 5){
-            SetHealth(15.0);
+            ChargeShield();
             heartCount_ = 0;
-            PlaySample(powerup_s, 0.42f);
         }
         else {
             SetHealth(Max(health_, Clamp(health_+5.0f, 0.0f, 10.0f)));
@@ -557,9 +562,18 @@ void Player::Pickup(PickupType pickup)
 
 void Player::PickupChaoBall()
 {
-    chaoFlash_->Set(GetPosition());
+    bool swap{chaoFlash_->Set(GetPosition()) > 1};
+    if (swap){
+        Vector3 tempPos{rootNode_->GetPosition()};
+        rootNode_->SetPosition(MC->GetPlayer(playerID_, true)->GetPosition());
+        MC->GetPlayer(playerID_, true)->SetPosition(tempPos);
+    } else
     rootNode_->Translate(Quaternion(Random(360.0f), Vector3::UP) * Vector3::FORWARD * Random(5.0f));
     PlaySample(chaoball_s, 0.8f);
+}
+void Player::SetPosition(Vector3 pos)
+{
+    rootNode_->SetPosition(pos);
 }
 
 void Player::Die()
@@ -682,6 +696,7 @@ void Player::UpgradeWeapons()
     ++weaponLevel_;
     bulletAmount_ = 1 + ((weaponLevel_+5) / 6);
     shotInterval_ = initialShotInterval_ - 0.0042f*weaponLevel_;
+    PlaySample(powerup_s, 0.42f);
 }
 /*
 void Player::LoadPilot()

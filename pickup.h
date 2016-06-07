@@ -23,6 +23,8 @@
 
 #include "sceneobject.h"
 
+#define CHAOINTERVAL Random(23.0f, 100.0f)
+
 class Pickup : public SceneObject
 {
     URHO3D_OBJECT(Pickup, SceneObject);

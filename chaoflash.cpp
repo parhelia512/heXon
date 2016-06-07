@@ -19,6 +19,8 @@
 #include "chaoflash.h"
 
 #include "player.h"
+#include "apple.h"
+#include "heart.h"
 #include "spawnmaster.h"
 
 ChaoFlash::ChaoFlash(int playerID):
@@ -76,8 +78,10 @@ void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         sunMaterial_->SetShaderParameter("MatDiffColor", Color(Random(1.0f), Random(1.0f), Random(1.0f), Max(0.23f - age_, 0.0f)));
 }
 
-void ChaoFlash::Set(const Vector3 position)
+int ChaoFlash::Set(const Vector3 position)
 {
+    int playerCount{0};
+
     SceneObject::Set(position);
     age_ = 0.0f;
     PlaySample(sample_, 0.69f);
@@ -86,8 +90,9 @@ void ChaoFlash::Set(const Vector3 position)
     rootNode_->SetEnabled(true);
     chaoMaterial_->SetShaderParameter("MatDiffColor", Color(0.1f, 0.5f, 0.2f, 0.5f));
     if (MC->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), radius, M_MAX_UNSIGNED)){
-        for (int i = 0; i < hitResults.Size(); i++){
-            unsigned hitID = hitResults[i]->GetNode()->GetID();
+        for (RigidBody* hitResult : hitResults){
+            String hitName = hitResult->GetNode()->GetName();
+            unsigned hitID = hitResult->GetNode()->GetID();
             if(MC->spawnMaster_->spires_.Contains(hitID)){
                 WeakPtr<Spire> spire = MC->spawnMaster_->spires_[hitID];
                 spire->Disable();
@@ -104,10 +109,21 @@ void ChaoFlash::Set(const Vector3 position)
                 WeakPtr<Seeker> seeker = MC->spawnMaster_->seekers_[hitID];
                 seeker->Disable();
                 MC->GetPlayer(playerID_)->AddScore(Random(5, 23));
+            } else if (hitName == "Apple"){
+                MC->GetPlayer(playerID_)->UpgradeWeapons();
+                MC->spawnMaster_->SpawnHitFX(MC->apple_->GetPosition(), playerID_, false);
+                MC->apple_->Respawn();
+            } else if (hitName == "Heart"){
+                MC->GetPlayer(playerID_)->ChargeShield();
+                MC->spawnMaster_->SpawnHitFX(MC->heart_->GetPosition(), playerID_, false);
+                MC->heart_->Respawn();
+            } else if (hitName == "Player"){
+                ++playerCount;
             }
         }
     }
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(ChaoFlash, HandleSceneUpdate));
+    return playerCount;
 }
 
 void ChaoFlash::Disable()

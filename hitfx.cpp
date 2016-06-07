@@ -24,7 +24,7 @@ HitFX::HitFX():
     rootNode_->SetName("HitFX");
     particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
 
-    sample_ = CACHE->GetResource<Sound>("Samples/Hit.ogg");
+    sample_ = MC->GetSample("Hit");
     sample_->SetLooped(false);
 }
 

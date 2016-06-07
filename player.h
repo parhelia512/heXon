@@ -51,6 +51,7 @@ public:
     unsigned GetRootNodeID() const { return rootNode_->GetID(); }
     int GetPlayerID() const { return playerID_; }
     Vector3 GetWorldPosition() const { return rootNode_->GetWorldPosition(); }
+    void SetPosition(Vector3 pos);
     double GetHealth() const noexcept { return health_; }
     bool IsAlive() const noexcept { return alive_; }
     bool IsActive() const noexcept { return alive_ && IsEnabled(); }
@@ -65,6 +66,8 @@ public:
     unsigned GetScore() const { return score_; }
     unsigned GetFlightScore() const { return flightScore_; }
     void Pickup(PickupType pickup);
+    void UpgradeWeapons();
+
     void EnterLobby();
     void EnterPlay();
     void CreateNewPilot();
@@ -73,6 +76,8 @@ public:
     void UpdatePilot();
     void KillPilot();
     void SavePilot();
+    void ChargeShield();
+
 private:
     int playerID_;
     bool pilotMode_;
@@ -137,7 +142,6 @@ private:
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void Shoot(Vector3 fire);
     void FireBullet(Vector3 direction);
-    void UpgradeWeapons();
     void SetHealth(float health);
     Color HealthToColor(float health);
     void SetScore(int points);

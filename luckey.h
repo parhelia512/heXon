@@ -62,6 +62,7 @@
 #include <Urho3D/Math/Vector2.h>
 #include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Physics/CollisionShape.h>
+#include <Urho3D/Physics/Constraint.h>
 #include <Urho3D/Physics/PhysicsEvents.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Physics/RigidBody.h>
@@ -74,41 +75,43 @@
 #include <Urho3D/UI/Font.h>
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
+#include <Urho3D/Urho2D/TileMap2D.h>
+#include <Urho3D/Urho2D/TmxFile2D.h>
+#include <Urho3D/Scene/ValueAnimation.h>
 
 #include <Urho3D/DebugNew.h>
 
-#define INPUT GetSubsystem<Input>()
+#define FILES GetSubsystem<FileSystem>()
 #define ENGINE GetSubsystem<Engine>()
-#define GRAPHICS GetSubsystem<Graphics>()
 #define TIME GetSubsystem<Time>()
 #define CACHE GetSubsystem<ResourceCache>()
-#define FILES GetSubsystem<FileSystem>()
+#define INPUT GetSubsystem<Input>()
+#define GRAPHICS GetSubsystem<Graphics>()
+#define AUDIO GetSubsystem<Audio>()
 
-using namespace Urho3D;
-
-namespace LucKey {
-
-enum class SixaxisButton {  SELECT, LEFTSTICK, RIGHTSTICK, START,
-                            DPAD_UP, DPAD_RIGHT, DPAD_DOWN, DPAD_LEFT,
-                            L2, R2, L1, R1, TRIANGLE, CIRCLE, CROSS, SQUARE,
-                            PS
-                         };
-
-template <class T>
-T Cycle(T x, T min, T max){
-    T range{max - min + 1};
-    T res{x};
-    if (x < min) {
-        res += (range) * abs(ceil((max - x) / (range)));
-    }
-    else if (x > max) {
-        res -= (range) * abs(floor((x - min) / (range)));
-    }
-    return res;
+namespace Urho3D {
+class Drawable;
+class Node;
+class Scene;
+class Sprite;
+class Viewport;
+class RenderPath;
+class Camera;
 }
 
-float Distance(const Vector3 from, const Vector3 to);
+using namespace Urho3D;
+namespace LucKey {
+
+enum SixaxisButton {  SB_SELECT, SB_LEFTSTICK, SB_RIGHTSTICK, SB_START,
+                      SB_DPAD_UP, SB_DPAD_RIGHT, SB_DPAD_DOWN, SB_DPAD_LEFT,
+                      SB_L2, SB_R2, SB_L1, SB_R1,
+                      SB_TRIANGLE, SB_CIRCLE, SB_CROSS, SB_SQUARE,
+                      SB_PS };
+
 unsigned IntVector2ToHash(IntVector2 vec);
+
+float Delta(float lhs, float rhs, bool angle = false);
+float Distance(const Vector3 from, const Vector3 to);
 Vector3 Scale(const Vector3 lhs, const Vector3 rhs);
 IntVector2 Scale(const IntVector2 lhs, const IntVector2 rhs);
 Vector2 Rotate(const Vector2 vec2, const float angle);
@@ -119,6 +122,9 @@ Color RandomHairColor(bool onlyNatural = false);
 
 float Sine(float x);
 float Cosine(float x);
+
+int Cycle(int x, int min, int max);
+float Cycle(float x, float min, float max);
 }
 
 #endif // LUCKEY_H

@@ -23,8 +23,8 @@
 #include "player.h"
 
 Pickup::Pickup() : SceneObject(),
-    sinceLastPickup_{0.0f},
-    chaoInterval_{Random(23.0f, 100.0f)}
+    chaoInterval_{CHAOINTERVAL},
+    sinceLastPickup_{0.0f}
 {
     rootNode_->SetName("Pickup");
     graphicsNode_ = rootNode_->CreateChild("Graphics");
@@ -157,7 +157,7 @@ void Pickup::Respawn(bool restart)
 }
 void Pickup::Deactivate()
 {
-    sinceLastPickup_ = 0.0f; chaoInterval_ = Random(23.0f, 100.0f);
+    sinceLastPickup_ = 0.0f; chaoInterval_ = CHAOINTERVAL;
 
     SceneObject::Disable();
 }

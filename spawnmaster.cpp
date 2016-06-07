@@ -32,8 +32,7 @@ SpawnMaster::SpawnMaster():
     bubbleInterval_{0.23f},
     sinceBubbleSpawn_{bubbleInterval_}
 {
-    Audio* audio{GetSubsystem<Audio>()};
-    audio->SetMasterGain(SOUND_EFFECT, 0.0f);
+    AUDIO->SetMasterGain(SOUND_EFFECT, 0.0f);
     for (int r{0}; r < 23; ++r) {
         Razor* newRazor{new Razor()};
         razors_[newRazor->rootNode_->GetID()] = SharedPtr<Razor>(newRazor);
@@ -76,7 +75,7 @@ SpawnMaster::SpawnMaster():
         chaoZaps_.Push(SharedPtr<ChaoZap>(newChaoZap));
     }
     Clear();
-    audio->SetMasterGain(SOUND_EFFECT, 1.0f);
+    AUDIO->SetMasterGain(SOUND_EFFECT, 1.0f);
 }
 
 void SpawnMaster::Activate()

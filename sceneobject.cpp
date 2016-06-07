@@ -79,7 +79,7 @@ bool SceneObject::IsPlayingSound()
 
 void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
 {
-    if (MC->GetPaused()) return;
+    if (MC->IsPaused()) return;
 
     Vector3 flatPosition{LucKey::Scale(rootNode_->GetPosition(), Vector3::ONE-Vector3::UP)};
     float radius{20.0f};

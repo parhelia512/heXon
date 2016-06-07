@@ -38,7 +38,7 @@ class ChaoFlash : public SceneObject
 public:
     ChaoFlash(int playerID = 1);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-    void Set(const Vector3 position);
+    int Set(const Vector3 position);
     void Disable();
 private:
     int playerID_;

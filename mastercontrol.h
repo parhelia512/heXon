@@ -148,7 +148,7 @@ public:
     GameState GetGameState(){ return currentState_; }
     GameState GetPreviousGameState(){ return previousState_; }
     float GetAspectRatio() const noexcept { return aspectRatio_; }
-    bool GetPaused() { return paused_; }
+    bool IsPaused() { return paused_; }
     void SetPaused(bool paused) { paused_ = paused; world.scene->SetUpdateEnabled(!paused);}
     void Pause() { SetPaused(true);}
     void Unpause() { SetPaused(false); }

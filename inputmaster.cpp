@@ -125,7 +125,7 @@ void InputMaster::PauseButtonPressed()
     switch (MC->GetGameState()) {
     case GS_INTRO: break;
     case GS_LOBBY: /*MC->SetGameState(GS_PLAY);*/ break;
-    case GS_PLAY: MC->SetPaused(!MC->GetPaused()); break;
+    case GS_PLAY: MC->SetPaused(!MC->IsPaused()); break;
     case GS_DEAD: MC->SetGameState(GS_LOBBY); break;
     case GS_EDIT: break;
         default: break;
@@ -140,7 +140,7 @@ void InputMaster::EjectButtonPressed(int playerId)
 {
     if (MC->GetGameState() == GS_DEAD)
         MC->SetGameState(GS_LOBBY);
-    if (MC->GetGameState() != GS_PLAY)
+    if (MC->GetGameState() != GS_PLAY || MC->IsPaused())
         return;
 
     Player* player1{MC->GetPlayer(1)};

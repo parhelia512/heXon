@@ -7,6 +7,10 @@
 - SpawnMaster should probably work with templates
 - Decently handle input to allow for more players and networking
 
+#### Rewrite
+
+Think in Components
+
 -----------------------
 
 ### Lobby
