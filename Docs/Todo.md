@@ -26,9 +26,8 @@ Think in Components
 
 ### Play
 
-- Immediate powerup when pickup is caught in chaoflash, without affecting pickup counter
-- Swap places with other player if both are caught in chaoflash
 - Remaining points to other player for dealing more than half the damage
+- Clearly split health bar
 
 #### Enemies
 
