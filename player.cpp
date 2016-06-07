@@ -567,8 +567,9 @@ void Player::PickupChaoBall()
         Vector3 tempPos{rootNode_->GetPosition()};
         rootNode_->SetPosition(MC->GetPlayer(playerID_, true)->GetPosition());
         MC->GetPlayer(playerID_, true)->SetPosition(tempPos);
-    } else
-    rootNode_->Translate(Quaternion(Random(360.0f), Vector3::UP) * Vector3::FORWARD * Random(5.0f));
+    } else{
+        rootNode_->Translate(Quaternion(Random(360.0f), Vector3::UP) * Vector3::FORWARD * Random(5.0f));
+    }
     PlaySample(chaoball_s, 0.8f);
 }
 void Player::SetPosition(Vector3 pos)
