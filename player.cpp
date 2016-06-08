@@ -31,6 +31,7 @@
 #include "explosion.h"
 #include "heart.h"
 #include "apple.h"
+#include "chaoball.h"
 #include "pilot.h"
 #include "splatterpillar.h"
 #include "door.h"
@@ -548,7 +549,7 @@ void Player::Pickup(PickupType pickup)
     } break;
     case PT_RESET: {
         appleCount_ = 0;
-        heartCount_= 0;
+        heartCount_ = 0;
     }
     }
 
@@ -563,13 +564,14 @@ void Player::Pickup(PickupType pickup)
 
 void Player::PickupChaoBall()
 {
-    bool swap{chaoFlash_->Set(GetPosition()) > 1};
+    bool swap{chaoFlash_->Set(MC->chaoBall_->GetPosition()) > 1};
     if (swap){
         Vector3 tempPos{rootNode_->GetPosition()};
         rootNode_->SetPosition(MC->GetPlayer(playerID_, true)->GetPosition());
         MC->GetPlayer(playerID_, true)->SetPosition(tempPos);
     } else{
-        rootNode_->Translate(Quaternion(Random(360.0f), Vector3::UP) * Vector3::FORWARD * Random(5.0f));
+        rootNode_->SetPosition(Quaternion(Random(360.0f), Vector3::UP) * (Vector3::FORWARD * Random(5.0f)) +
+                               MC->chaoBall_->GetPosition() * Vector3(1.0f, 0.0f, 1.0f));
     }
     PlaySample(chaoball_s, 0.8f);
 }

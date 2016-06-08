@@ -6,6 +6,8 @@
 
 - SpawnMaster should probably work with templates
 - Decently handle input to allow for more players and networking
+- Optimize background
+- Use collision layers to prevent player pickup collision. Move pickup trigger to player.
 
 #### Rewrite
 
@@ -28,6 +30,7 @@ Think in Components
 
 - Remaining points to other player for dealing more than half the damage
 - Clearly split health bar
+- When both players are caught in the chaoflash both should get the powerups
 
 #### Enemies
 
