@@ -35,7 +35,6 @@ SOURCES += \
     line.cpp \
     luckey.cpp \
     mastercontrol.cpp \
-    multix.cpp \
     muzzle.cpp \
     pickup.cpp \
     player.cpp \
@@ -71,7 +70,6 @@ HEADERS += \
     line.h \
     luckey.h \
     mastercontrol.h \
-    multix.h \
     muzzle.h \
     pickup.h \
     player.h \

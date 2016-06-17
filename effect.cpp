@@ -18,15 +18,22 @@
 
 #include "effect.h"
 
-Effect::Effect():
-    SceneObject(),
+Effect::Effect(Context* context):
+    SceneObject(context),
     age_{0.0f},
     emitTime_{0.1f}
 {
+}
+
+void Effect::OnNodeSet(Node *node)
+{
+    SceneObject::OnNodeSet(node);
+
     blink_ = false;
 
-    rootNode_->SetName("Effect");
-    particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
+    node_->SetName("Effect");
+    particleEmitter_ = node_->CreateComponent<ParticleEmitter>();
+
 }
 
 void Effect::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)

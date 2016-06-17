@@ -18,23 +18,35 @@
 
 #include "razor.h"
 
+void Razor::RegisterObject(Context *context)
+{
+    context->RegisterFactory<Razor>();
+}
+
 Razor::Razor():
     Enemy(),
     topSpeed_{10.0f},
     aimSpeed_{0.25f * topSpeed_}
 {
-    rootNode_->SetName("Razor");
+
+}
+
+void Razor::OnNodeSet(Node *node)
+{
+    Enemy::OnNodeSet(node);
+
+    node_->SetName("Razor");
     meleeDamage_ = 0.9f;
 
     SharedPtr<Material> black{MC->GetMaterial("Razor")->Clone()};
 
-    topNode_ = rootNode_->CreateChild();
+    topNode_ = node_->CreateChild();
     topModel_ = topNode_->CreateComponent<StaticModel>();
     topModel_->SetModel(MC->GetModel("RazorTop"));
     topModel_->SetMaterial(0, black);
     topModel_->SetMaterial(1, centerModel_->GetMaterial());
 
-    bottomNode_ = rootNode_->CreateChild();
+    bottomNode_ = node_->CreateChild();
     bottomModel_ = bottomNode_->CreateComponent<StaticModel>();
     bottomModel_->SetModel(MC->GetModel("RazorBottom"));
     bottomModel_->SetMaterial(0, black);

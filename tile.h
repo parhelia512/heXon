@@ -27,16 +27,19 @@ namespace Urho3D {
 class Node;
 }
 
-class Tile : public Object
+class Tile : public LogicComponent
 {
-    URHO3D_OBJECT(Tile, Object);
+    URHO3D_OBJECT(Tile, LogicComponent);
     friend class TileMaster;
     friend class InputMaster;
     friend class SpawnMaster;
 public:
+    Tile(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
+
     IntVector2 coords_;
     TileType tileType_;
-    Tile(TileMaster* tileMaster, Vector3 position);
 private:
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
     TileMaster* tileMaster_;

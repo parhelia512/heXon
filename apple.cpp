@@ -18,12 +18,24 @@
 
 #include "apple.h"
 
-Apple::Apple() : Pickup()
+void Apple::RegisterObject(Context *context)
 {
-    rootNode_->SetName("Apple");
+    context->RegisterFactory<Apple>();
+}
+
+Apple::Apple(Context* context) : Pickup(context)
+{
+
+}
+
+void Apple::OnNodeSet(Node *node)
+{
+    Pickup::OnNodeSet(node);
+
+    node_->SetName("Apple");
     pickupType_ = PT_APPLE;
     initialPosition_ = Vector3::FORWARD*10.0f;
-    rootNode_->SetPosition(initialPosition_);
+    node_->SetPosition(initialPosition_);
     model_->SetModel(MC->GetModel("Apple"));
     model_->SetMaterial(MC->GetMaterial("GoldEnvmap"));
 

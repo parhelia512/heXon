@@ -40,7 +40,9 @@ class Explosion : public Effect
     friend class Enemy;
     URHO3D_OBJECT(Explosion, Effect);
 public:
-    Explosion();
+    Explosion(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
 
     void UpdateExplosion(StringHash eventType, VariantMap &eventData);
     void Set(const Vector3 position, const Color color, const float size, int playerID);

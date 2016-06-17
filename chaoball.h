@@ -36,7 +36,9 @@ class ChaoBall : public Pickup
 {
     URHO3D_OBJECT(ChaoBall, Pickup);
 public:
-    ChaoBall();
+    ChaoBall(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
 };
 
 #endif // CHAOBALL_H

@@ -20,34 +20,44 @@
 
 #include "pilot.h"
 
-Pilot::Pilot(Node* parent) : SceneObject(),
+void Pilot::RegisterObject(Context *context)
+{
+    context->RegisterFactory<Pilot>();
+}
+
+Pilot::Pilot(Context* context) : SceneObject(),
     male_{false},
     hairStyle_{0},
     colors_{}
 {
+}
+
+void Pilot::OnNodeSet(Node *node)
+{
     Initialize(parent);
 
     Randomize();
+
 }
 
 
-Pilot::Pilot(Node* parent, const std::string file, unsigned& score) : SceneObject()
-{
-    Initialize(parent);
+//Pilot::Pilot(Node* parent, const std::string file, unsigned& score) : SceneObject()
+//{
+//    Initialize(parent);
 
-    Load(file, score);
-}
+//    Load(file, score);
+//}
 
 void Pilot::Initialize(Node* parent)
 {
-    rootNode_ = parent->CreateChild("Pilot");
-    bodyModel_ = rootNode_->CreateComponent<AnimatedModel>();
+    node_ = parent->CreateChild("Pilot");
+    bodyModel_ = node_->CreateComponent<AnimatedModel>();
     bodyModel_->SetModel(MC->GetModel("Male"));
     bodyModel_->SetCastShadows(true);
-    Node* hairNode{rootNode_->GetChild("Head", true)->CreateChild("Hair")};
+    Node* hairNode{node_->GetChild("Head", true)->CreateChild("Hair")};
     hairModel_ = hairNode->CreateComponent<StaticModel>();
     hairModel_->SetCastShadows(true);
-    animCtrl_ = rootNode_->CreateComponent<AnimationController>();
+    animCtrl_ = node_->CreateComponent<AnimationController>();
 
     //Animate highest pilot
     animCtrl_->PlayExclusive("Models/IdleAlert.ani", 0, true);
@@ -153,7 +163,7 @@ void Pilot::Randomize(bool autoPilot)
     male_ = Random(2);
     hairStyle_ = Random(static_cast<int>(MC->hairStyles_.Size() + 1));
 
-    rootNode_->SetRotation(Quaternion(0.0f, 0.0f, 0.0f));
+    node_->SetRotation(Quaternion(0.0f, 0.0f, 0.0f));
 
     colors_.Clear();
     for (int c{0}; c < 5; ++c) {

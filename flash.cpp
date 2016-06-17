@@ -18,18 +18,30 @@
 
 #include "flash.h"
 
-Flash::Flash():
-    Effect(),
+void Flash::RegisterObject(Context *context)
+{
+    context->RegisterFactory<Flash>();
+}
+
+Flash::Flash(Context* context):
+    Effect(context),
     bigFlash_{CACHE->GetResource<ParticleEffect>("Particles/Flash.xml")},
     smallFlash_{CACHE->GetResource<ParticleEffect>("Particles/FlashSmall.xml")},
     initialBrightness_{2.0f}
 {  
-    rootNode_->SetName("Flash");
 
-    particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
+}
+
+void Flash::OnNodeSet(Node *node)
+{
+    Effect::OnNodeSet(node);
+
+    node_->SetName("Flash");
+
+    particleEmitter_ = node_->CreateComponent<ParticleEmitter>();
     particleEmitter_->SetEffect(bigFlash_);
 
-    light_ = rootNode_->CreateComponent<Light>();
+    light_ = node_->CreateComponent<Light>();
     light_->SetRange(10.0f);
     light_->SetColor(Color::WHITE);
     light_->SetBrightness(initialBrightness_);

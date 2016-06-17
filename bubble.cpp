@@ -18,11 +18,20 @@
 
 #include "bubble.h"
 
-Bubble::Bubble():
-    Object(MC->GetContext()),
+void Bubble::RegisterObject(Context *context)
+{
+    context->RegisterFactory<Bubble>();
+}
+
+Bubble::Bubble(Context* context):
+    LogicComponent(context),
     spinAxis_{Vector3(Random(), Random(), Random()).Normalized()},
     spinVelocity_{LucKey::RandomSign() * Random(23.0f, 42.0f)},
     baseScale_{Random(0.25f, 0.95f)}
+{
+}
+
+void Bubble::OnNodeSet(Node *node)
 {
     baseScale_ *= baseScale_;
     rootNode_ = MC->world.scene->CreateChild("Bubble");
@@ -33,7 +42,7 @@ Bubble::Bubble():
 
 void Bubble::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
+    float timeStep{ eventData[Update::P_TIMESTEP].GetFloat() };
 
     if (!rootNode_->GetComponent<StaticModel>()->IsInView() && rootNode_->GetPosition().y_ > 5.0f)
         Disable();

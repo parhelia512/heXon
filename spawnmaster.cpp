@@ -35,20 +35,20 @@ SpawnMaster::SpawnMaster():
     AUDIO->SetMasterGain(SOUND_EFFECT, 0.0f);
     for (int r{0}; r < 23; ++r) {
         Razor* newRazor{new Razor()};
-        razors_[newRazor->rootNode_->GetID()] = SharedPtr<Razor>(newRazor);
+        razors_[newRazor->node_->GetID()] = SharedPtr<Razor>(newRazor);
     }
     for (int s{0}; s < 7; ++s) {
         Spire* newSpire{new Spire()};
-        spires_[newSpire->rootNode_->GetID()] = SharedPtr<Spire>(newSpire);
+        spires_[newSpire->node_->GetID()] = SharedPtr<Spire>(newSpire);
     }
     for (int m{0}; m < 8; ++m) {
         ChaoMine* newChaoMine{new ChaoMine()};
-        chaoMines_[newChaoMine->rootNode_->GetID()] = SharedPtr<ChaoMine>(newChaoMine);
+        chaoMines_[newChaoMine->node_->GetID()] = SharedPtr<ChaoMine>(newChaoMine);
     }
 
     for (int s{0}; s < 13; ++s) {
         Seeker* newSeeker{new Seeker()};
-        seekers_[newSeeker->rootNode_->GetID()] = SharedPtr<Seeker>(newSeeker);
+        seekers_[newSeeker->node_->GetID()] = SharedPtr<Seeker>(newSeeker);
     }
     for (int h{0}; h < 16; ++h) {
         HitFX* newHitFX{new HitFX()};
@@ -192,7 +192,7 @@ void SpawnMaster::SpawnRazor(const Vector3 &position)
     if (!RespawnRazor(position)) {
         Razor* newRazor{new Razor()};
         newRazor->Set(position);
-        razors_[newRazor->rootNode_->GetID()] = SharedPtr<Razor>(newRazor);
+        razors_[newRazor->node_->GetID()] = SharedPtr<Razor>(newRazor);
     }
     razorInterval_ = 7.0f * pow(0.95f, ((MC->SinceLastReset()) + 10.0f) / 10.0f);
 }
@@ -213,7 +213,7 @@ void SpawnMaster::SpawnSpire(const Vector3 &position)
     if (!RespawnSpire(position)) {
         Spire* newSpire{new Spire()};
         newSpire->Set(position);
-        spires_[newSpire->rootNode_->GetID()] = SharedPtr<Spire>(newSpire);
+        spires_[newSpire->node_->GetID()] = SharedPtr<Spire>(newSpire);
     }
     spireInterval_ = 23.0f * pow(0.95f, ((MC->world.scene->GetElapsedTime() - MC->world.lastReset) + 42.0f) / 42.0f);
 }
@@ -233,7 +233,7 @@ void SpawnMaster::SpawnSeeker(const Vector3& position)
     if (!RespawnSeeker(position)) {
         Seeker* newSeeker{new Seeker()};
         newSeeker->Set(position);
-        seekers_[newSeeker->rootNode_->GetID()] = SharedPtr<Seeker>(newSeeker);
+        seekers_[newSeeker->node_->GetID()] = SharedPtr<Seeker>(newSeeker);
     }
 }
 bool SpawnMaster::RespawnSeeker(const Vector3& position)
@@ -252,7 +252,7 @@ void SpawnMaster::SpawnChaoMine(const Vector3& position, int playerID)
     if (!RespawnChaoMine(position, playerID)) {
         ChaoMine* newChaoMine{new ChaoMine()};
         newChaoMine->Set(position, playerID);
-        chaoMines_[newChaoMine->rootNode_->GetID()] = SharedPtr<ChaoMine>(newChaoMine);
+        chaoMines_[newChaoMine->node_->GetID()] = SharedPtr<ChaoMine>(newChaoMine);
     }
 }
 bool SpawnMaster::RespawnChaoMine(const Vector3& position, int playerID)

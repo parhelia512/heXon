@@ -18,11 +18,20 @@
 
 #include "tile.h"
 
-Tile::Tile(TileMaster* tileMaster, Vector3 position):
-    Object(MC->GetContext()),
+void Tile::RegisterObject(Context *context)
+{
+    context->RegisterFactory<Tile>();
+}
+
+Tile::Tile(Context* context):
+    LogicComponent(context),
     tileMaster_{tileMaster},
     lastOffsetY_{0.666f},
     flipped_{static_cast<bool>(Random(2))}
+{
+}
+
+void Tile::OnNodeSet(Node *node)
 {
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Tile, HandleUpdate));
     rootNode_ = tileMaster_->rootNode_->CreateChild("Tile");
@@ -35,6 +44,7 @@ Tile::Tile(TileMaster* tileMaster, Vector3 position):
 
     referencePosition_ = rootNode_->GetPosition();
     centerDistExp_ = static_cast<float>(exp2(static_cast<double>(0.75f*LucKey::Distance(Vector3::ZERO, referencePosition_))));
+
 }
 
 void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)

@@ -21,8 +21,8 @@
 #include "spawnmaster.h"
 #include "player.h"
 
-Enemy::Enemy():
-    SceneObject(),
+Enemy::Enemy(Context* context):
+    SceneObject(context),
     panicTime_{0.0f},
     initialHealth_{1.0f},
     panic_{0.0f},
@@ -34,7 +34,14 @@ Enemy::Enemy():
     sinceLastWhack_{0.0f},
     meleeDamage_{0.44f}
 {
-    rootNode_->SetName("Enemy");
+
+}
+
+void Enemy::OnNodeSet(Node *node)
+{
+    SceneObject::OnNodeSet(node);
+
+    node_->SetName("Enemy");
 
     health_ = initialHealth_;
 
@@ -42,7 +49,7 @@ Enemy::Enemy():
     int randomizer{Random(6)};
     color_ = Color(0.5f + (randomizer * 0.075f), 0.9f - (randomizer * 0.075f), 0.5f+Max(randomizer-3.0f, 3.0f)/6.0f, 1.0f);
 
-    centerNode_ = rootNode_->CreateChild("SmokeTrail");
+    centerNode_ = node_->CreateChild("SmokeTrail");
     particleEmitter_ = centerNode_->CreateComponent<ParticleEmitter>();
     particleEffect_ = CACHE->GetTempResource<ParticleEffect>("Particles/Enemy.xml");
     Vector<ColorFrame> colorFrames{};
@@ -58,13 +65,13 @@ Enemy::Enemy():
     centerModel_->GetMaterial(0)->SetShaderParameter("MatDiffColor", color_);
     centerModel_->GetMaterial(0)->SetShaderParameter("MatEmissiveColor", color_);
 
-    rigidBody_ = rootNode_->CreateComponent<RigidBody>();
+    rigidBody_ = node_->CreateComponent<RigidBody>();
     rigidBody_->SetRestitution(0.666f);
     rigidBody_->SetLinearDamping(0.1f);
     rigidBody_->SetMass(2.0f);
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
     rigidBody_->SetAngularFactor(Vector3::ZERO);
-    CollisionShape* collider{rootNode_->CreateComponent<CollisionShape>()};
+    CollisionShape* collider{node_->CreateComponent<CollisionShape>()};
     collider->SetSphere(2.0f);
     collider->SetPosition(Vector3::UP * 0.23f);
 
@@ -93,10 +100,10 @@ void Enemy::Set(const Vector3 position)
 
     particleEmitter_->RemoveAllParticles();
     SceneObject::Set(position);
-    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
+    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Enemy, HandleSceneUpdate));
-    SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Enemy, HandleCollision));
-    SubscribeToEvent(rootNode_, E_NODECOLLISION, URHO3D_HANDLER(Enemy, HandleCollision));
+    SubscribeToEvent(node_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Enemy, HandleCollision));
+    SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Enemy, HandleCollision));
 
     soundSource_->Stop();
 }
@@ -124,11 +131,11 @@ void Enemy::SetHealth(const float health)
 void Enemy::CheckHealth()
 {
     //Die
-    if (rootNode_->IsEnabled() && health_ <= 0.0f) {
+    if (node_->IsEnabled() && health_ <= 0.0f) {
         if (lastHitBy_ != 0)
             MC->GetPlayer(lastHitBy_)->AddScore(bonus_ ? worth_ : 2 * worth_ / 3);
 
-        MC->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(),
+        MC->spawnMaster_->SpawnExplosion(node_->GetPosition(),
                                                      Color(color_.r_*color_.r_, color_.g_*color_.g_, color_.b_*color_.b_),
                                                      0.5f*rigidBody_->GetMass(),
                                                      lastHitBy_);
@@ -150,7 +157,7 @@ Color Enemy::GetGlowColor() const
 
 void Enemy::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    float time{MC->world.scene->GetElapsedTime() + rootNode_->GetID() * 0.023f};
+    float time{MC->world.scene->GetElapsedTime() + node_->GetID() * 0.023f};
     float timeStep{eventData[SceneUpdate::P_TIMESTEP].GetFloat()};
     panicTime_ += 3.0f * panic_ * timeStep;
     sinceLastWhack_ += timeStep;

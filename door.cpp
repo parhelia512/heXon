@@ -19,12 +19,22 @@
 #include "door.h"
 #include "player.h"
 
-Door::Door(bool right) :
-    Object(MC->GetContext()),
-    right_{right},
+void Door::RegisterObject(Context *context)
+{
+    context->RegisterFactory<Door>();
+}
+
+Door::Door(Context* context) :
+    LogicComponent(context),
+    right_{true},
     wasNear_{true},
     hiding_{0.0f}
 {
+}
+
+void Door::OnNodeSet(Node *node)
+{
+    bool right{right_};
     player_ = right ? MC->GetPlayer(2) : MC->GetPlayer(1);
     rootNode_ = MC->lobbyNode_->CreateChild("Door");
     rootNode_->SetPosition(Vector3(right_? 2.26494f : -2.26494f, 0.0f, 5.21843f));
@@ -45,6 +55,7 @@ Door::Door(bool right) :
     doorSample_->SetLooped(false);
 
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Door, HandleSceneUpdate));
+
 }
 
 float Door::HidesPlayer() const

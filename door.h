@@ -25,11 +25,13 @@
 
 class Player;
 
-class Door : public Object
+class Door : public LogicComponent
 {
-    URHO3D_OBJECT(Door, Object);
+    URHO3D_OBJECT(Door, LogicComponent);
 public:
-    Door(bool right);
+    Door(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
     float HidesPlayer() const;
     Vector3 GetPosition() const { return rootNode_->GetPosition(); }
 private:

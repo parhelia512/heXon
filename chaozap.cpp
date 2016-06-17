@@ -21,15 +21,26 @@
 #include "player.h"
 #include "spawnmaster.h"
 
-ChaoZap::ChaoZap():
-    SceneObject(),
+void ChaoZap::RegisterObject(Context *context)
+{
+    context->RegisterFactory<ChaoZap>();
+}
+
+ChaoZap::ChaoZap(Context* context):
+    SceneObject(context),
     playerID_{0},
     size_{5.0f}
 {
-    rootNode_->SetName("ChaoZap");
-    rootNode_->SetEnabled(false);
+}
 
-    chaoModel_ = rootNode_->CreateComponent<StaticModel>();
+void ChaoZap::OnNodeSet(Node *node)
+{
+    SceneObject::OnNodeSet(node);
+
+    node_->SetName("ChaoZap");
+    node_->SetEnabled(false);
+
+    chaoModel_ = node_->CreateComponent<StaticModel>();
     chaoModel_->SetModel(MC->GetModel("ChaoFlash"));
     chaoMaterial_ = MC->GetMaterial("ChaoFlash")->Clone();
     chaoModel_->SetMaterial(chaoMaterial_);
@@ -40,7 +51,8 @@ ChaoZap::ChaoZap():
     samples_.Push(MC->GetSample("Mine4"));
     samples_.Push(MC->GetSample("Mine5"));
 
-    rigidBody_ = rootNode_->CreateComponent<RigidBody>();
+    rigidBody_ = node_->CreateComponent<RigidBody>();
+
 }
 
 void ChaoZap::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
@@ -62,21 +74,21 @@ void ChaoZap::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
                        Random(0.4f, 1.4f),
                        Random(4.0f, 64.0f)};
     chaoMaterial_->SetShaderParameter("MatSpecColor", newSpecColor);
-    rootNode_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
+    node_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
 }
 
 void ChaoZap::Set(const Vector3 position, int playerID)
 {
     playerID_ = playerID;
     SceneObject::Set(position);
-    rootNode_->SetScale(size_);
+    node_->SetScale(size_);
     rigidBody_->SetMass(size_ * 0.5f);
     PlaySample(samples_[ Random(static_cast<int>(samples_.Size())) ], 0.75f);
     PODVector<RigidBody* > hitResults{};
-    rootNode_->SetEnabled(true);
+    node_->SetEnabled(true);
     chaoMaterial_->SetShaderParameter("MatDiffColor", Color(0.1f, 0.5f, 0.2f, 0.5f));
 
-    if (MC->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), size_, M_MAX_UNSIGNED)) {
+    if (MC->PhysicsSphereCast(hitResults,node_->GetPosition(), size_, M_MAX_UNSIGNED)) {
         for (RigidBody* r : hitResults) {
             unsigned hitID{r->GetNode()->GetID()};
 

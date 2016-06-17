@@ -23,14 +23,25 @@
 #include "heart.h"
 #include "spawnmaster.h"
 
-ChaoFlash::ChaoFlash(int playerID):
-    SceneObject(),
-    playerID_{playerID},
+void ChaoFlash::RegisterObject(Context *context)
+{
+    context->RegisterFactory<ChaoFlash>();
+}
+
+ChaoFlash::ChaoFlash(Context* context):
+    SceneObject(context),
+    playerID_{1/*playerID*/}, ///TODO
     age_{0.0f}
 {
-    rootNode_->SetName("ChaoFlash");
-    rootNode_->SetScale(7.0f);
-    chaoModel_ = rootNode_->CreateComponent<StaticModel>();
+}
+
+void ChaoFlash::OnNodeSet(Node *node)
+{
+    SceneObject::OnNodeSet(node);
+
+    node_->SetName("ChaoFlash");
+    node_->SetScale(7.0f);
+    chaoModel_ = node_->CreateComponent<StaticModel>();
     chaoModel_->SetModel(MC->GetModel("ChaoFlash"));
     chaoMaterial_ = MC->GetMaterial("ChaoFlash");
     chaoModel_->SetMaterial(chaoMaterial_);
@@ -42,13 +53,14 @@ ChaoFlash::ChaoFlash(int playerID):
     sunMaterial_ = MC->GetMaterial("SunDisc");
     sunPlane->SetMaterial(sunMaterial_);
 
-    rootNode_->SetEnabled(false);
+    node_->SetEnabled(false);
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(ChaoFlash, HandleSceneUpdate));
 
     sample_ = MC->GetSample("Chaos");
 
-    rigidBody_ = rootNode_->CreateComponent<RigidBody>();
+    rigidBody_ = node_->CreateComponent<RigidBody>();
     rigidBody_->SetMass(5.0f);
+
 }
 
 void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
@@ -72,7 +84,7 @@ void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
                        Random(0.4f, 1.4f),
                        Random(4.0f, 64.0f)};
     chaoMaterial_->SetShaderParameter("MatSpecColor", newSpecColor);
-    rootNode_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
+    node_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
 
     if (age_ > 0.16f)
         sunMaterial_->SetShaderParameter("MatDiffColor", Color(Random(1.0f), Random(1.0f), Random(1.0f), Max(0.23f - age_, 0.0f)));
@@ -87,9 +99,9 @@ int ChaoFlash::Set(const Vector3 position)
     PlaySample(sample_, 0.69f);
     PODVector<RigidBody* > hitResults{};
     float radius{7.666f};
-    rootNode_->SetEnabled(true);
+    node_->SetEnabled(true);
     chaoMaterial_->SetShaderParameter("MatDiffColor", Color(0.1f, 0.5f, 0.2f, 0.5f));
-    if (MC->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), radius, M_MAX_UNSIGNED)){
+    if (MC->PhysicsSphereCast(hitResults,node_->GetPosition(), radius, M_MAX_UNSIGNED)){
         for (RigidBody* hitResult : hitResults){
             String hitName = hitResult->GetNode()->GetName();
             unsigned hitID = hitResult->GetNode()->GetID();

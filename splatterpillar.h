@@ -26,11 +26,14 @@
 
 class Player;
 
-class SplatterPillar : public Object
+class SplatterPillar : public LogicComponent
 {
-    URHO3D_OBJECT(SplatterPillar, Object);
+    URHO3D_OBJECT(SplatterPillar, LogicComponent);
 public:
-    SplatterPillar(bool right);
+    SplatterPillar(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
+
     Vector3 GetPosition() const { return rootNode_->GetPosition(); }
     bool IsIdle() const;
 private:

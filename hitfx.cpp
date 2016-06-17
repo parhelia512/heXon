@@ -18,11 +18,22 @@
 
 #include "hitfx.h"
 
-HitFX::HitFX():
-    Effect()
+void HitFX::RegisterObject(Context *context)
 {
-    rootNode_->SetName("HitFX");
-    particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
+    context->RegisterFactory<HitFX>();
+}
+
+HitFX::HitFX(Context* context):
+    Effect(context)
+{
+}
+
+void HitFX::OnNodeSet(Node *node)
+{
+    Effect::OnNodeSet(node);
+
+    node_->SetName("HitFX");
+    particleEmitter_ = node_->CreateComponent<ParticleEmitter>();
 
     sample_ = MC->GetSample("Hit");
     sample_->SetLooped(false);

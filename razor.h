@@ -28,6 +28,9 @@ class Razor : public Enemy
     URHO3D_OBJECT(Razor, Enemy);
 public:
     Razor();
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
+
     void Hit(float damage, int ownerID);
     void Set(Vector3 position);
 protected:

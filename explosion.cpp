@@ -20,19 +20,30 @@
 
 #include "spawnmaster.h"
 
-Explosion::Explosion():
-    Effect(),
+void Explosion::RegisterObject(Context *context)
+{
+    context->RegisterFactory<Explosion>();
+}
+
+Explosion::Explosion(Context* context):
+    Effect(context),
     playerID_{0},
     initialMass_{3.0f},
     initialBrightness_{8.0f}
 {
-    rootNode_->SetName("Explosion");
+}
 
-    rigidBody_ = rootNode_->CreateComponent<RigidBody>();
+void Explosion::OnNodeSet(Node *node)
+{
+    Effect::OnNodeSet(node);
+
+    node_->SetName("Explosion");
+
+    rigidBody_ = node_->CreateComponent<RigidBody>();
     rigidBody_->SetMass(initialMass_);
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
 
-    light_ = rootNode_->CreateComponent<Light>();
+    light_ = node_->CreateComponent<Light>();
     light_->SetRange(13.0f);
     light_->SetBrightness(initialBrightness_);
 
@@ -41,7 +52,7 @@ Explosion::Explosion():
 
     sample_ = CACHE->GetResource<Sound>("Samples/Explode.ogg");
     sample_->SetLooped(false);
-    sampleSource_ = rootNode_->CreateComponent<SoundSource>();
+    sampleSource_ = node_->CreateComponent<SoundSource>();
     sampleSource_->SetSoundType(SOUND_EFFECT);
 }
 
@@ -52,15 +63,15 @@ void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
     rigidBody_->SetMass(Max(initialMass_*((0.1f - age_)/0.1f),0.01f));
     light_->SetBrightness(Max(initialBrightness_*(0.32f - age_)/0.32f,0.0f));
 
-    if (rootNode_->IsEnabled() && MC->world.scene->IsUpdateEnabled()) {
+    if (node_->IsEnabled() && MC->world.scene->IsUpdateEnabled()) {
         PODVector<RigidBody* > hitResults{};
         float radius{2.0f * initialMass_ + age_ * 7.0f};
-        if (MC->PhysicsSphereCast(hitResults,rootNode_->GetPosition(), radius, M_MAX_UNSIGNED)) {
+        if (MC->PhysicsSphereCast(hitResults,node_->GetPosition(), radius, M_MAX_UNSIGNED)) {
             for (int i = 0; i < hitResults.Size(); i++){
                 Vector3 hitNodeWorldPos{hitResults[i]->GetNode()->GetWorldPosition()};
                 if (!hitResults[i]->IsTrigger() && hitResults[i]->GetPosition().y_ > -0.1f) {
                     //positionDelta is used for force calculation
-                    Vector3 positionDelta{hitNodeWorldPos - rootNode_->GetWorldPosition()};
+                    Vector3 positionDelta{hitNodeWorldPos - node_->GetWorldPosition()};
                     float distance{positionDelta.Length()};
                     Vector3 force{positionDelta.Normalized() * Max(radius-distance, 0.0f)
                                 * timeStep * 2342.0f * rigidBody_->GetMass()};
@@ -83,7 +94,7 @@ void Explosion::Set(const Vector3 position, const Color color, const float size,
 {
     playerID_ = playerID;
     Effect::Set(position);
-    rootNode_->SetScale(size);
+    node_->SetScale(size);
     initialMass_ = 3.0f * size;
     rigidBody_->SetMass(initialMass_);
     light_->SetColor(color);
@@ -101,7 +112,7 @@ void Explosion::Set(const Vector3 position, const Color color, const float size,
     sampleSource_->SetGain(Min(0.5f*size, 1.0f));
     sampleSource_->Play(sample_);
 
-    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
+    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
 
     SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(Explosion, UpdateExplosion));
 }

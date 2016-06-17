@@ -18,14 +18,24 @@
 
 #include "line.h"
 
-Line::Line() :
-    Object(MC->GetContext()),
+void Line::RegisterObject(Context *context)
+{
+    context->RegisterFactory<Line>();
+}
+
+Line::Line(Context* context) :
+    LogicComponent(context),
     baseScale_{Random(1.0f, 2.3f)}
+{
+}
+
+void Line::OnNodeSet(Node *node)
 {
     rootNode_ = MC->world.scene->CreateChild("Line");
     rootNode_->SetScale(baseScale_);
     model_ = rootNode_->CreateComponent<StaticModel>();
     model_->SetModel(MC->GetModel("Line"));
+
 }
 
 void Line::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)

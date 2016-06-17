@@ -37,6 +37,8 @@ class Phaser : public Effect
 public:
     Phaser(Model *model, Vector3 pos, Vector3 vel);
 
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
 private:
     SharedPtr<Material> phaseMaterial_;
     Vector3 velocity_;

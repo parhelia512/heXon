@@ -20,10 +20,15 @@
 
 #include "player.h"
 
-SplatterPillar::SplatterPillar(bool right):
-    Object(MC->GetContext()),
+void SplatterPillar::RegisterObject(Context *context)
+{
+    context->RegisterFactory<SplatterPillar>();
+}
+
+SplatterPillar::SplatterPillar(Context* context):
+    LogicComponent(context),
     player_{},
-    right_{right},
+    right_{context},
     spun_{false},
     reset_{true},
     delayed_{0.0f},
@@ -31,6 +36,11 @@ SplatterPillar::SplatterPillar(bool right):
     sequenceLength_{5.0f},
     lastTriggered_{-5.0f},
     rotationSpeed_{}
+{
+
+}
+
+void SplatterPillar::OnNodeSet(Node *node)
 {
     rootNode_ = MC->lobbyNode_->CreateChild("SplatterPillar");
     rootNode_->SetPosition(Vector3(right_? 2.26494f : -2.26494f, 0.0f, -3.91992f));

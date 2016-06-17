@@ -46,11 +46,13 @@ class Player : public SceneObject
     friend class ChaoMine;
     URHO3D_OBJECT(Player, SceneObject);
 public:
-    Player(int playerID);
+    Player(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
 
-    unsigned GetRootNodeID() const { return rootNode_->GetID(); }
+    unsigned GetRootNodeID() const { return node_->GetID(); }
     int GetPlayerID() const { return playerID_; }
-    Vector3 GetWorldPosition() const { return rootNode_->GetWorldPosition(); }
+    Vector3 GetWorldPosition() const { return node_->GetWorldPosition(); }
     void SetPosition(Vector3 pos);
     double GetHealth() const noexcept { return health_; }
     bool IsAlive() const noexcept { return alive_; }

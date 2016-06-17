@@ -36,7 +36,9 @@ class Apple : public Pickup
 {
     URHO3D_OBJECT(Apple, Pickup);
 public:
-    Apple();
+    Apple(Context* context);
+    static void RegisterObject(Context* context);
+    void OnNodeSet(Node* node);
 };
 
 #endif // APPLE_H

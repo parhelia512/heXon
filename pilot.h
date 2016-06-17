@@ -29,12 +29,14 @@ class Pilot : public SceneObject
     friend class Player;
     friend class MasterControl;
 public:
-    Pilot(Node *parent);
-    Pilot(Node *parent, const std::string file, unsigned &score);
+    Pilot(Context* context);
+//    Pilot(Node *parent, const std::string file, unsigned &score);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
 
     void Randomize(bool autoPilot = false);
 private:
-    Node* rootNode_;
+    Node* node_;
     bool male_;
     int hairStyle_;
     Vector<Color> colors_;

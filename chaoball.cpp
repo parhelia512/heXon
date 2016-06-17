@@ -20,14 +20,25 @@
 
 #include "spawnmaster.h"
 
-ChaoBall::ChaoBall():
-    Pickup()
+void ChaoBall::RegisterObject(Context *context)
 {
-    rootNode_->SetName("ChaoBall");
+    context->RegisterFactory<ChaoBall>();
+}
+
+ChaoBall::ChaoBall(Context* context):
+    Pickup(context)
+{
+}
+
+void ChaoBall::OnNodeSet(Node *node)
+{
+    Pickup::OnNodeSet(node);
+
+    node_->SetName("ChaoBall");
     pickupType_ = PT_CHAOBALL;
-    rootNode_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
+    node_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
     initialPosition_ = Vector3::FORWARD*5.0f;
-    rootNode_->SetPosition(initialPosition_);
+    node_->SetPosition(initialPosition_);
     model_->SetModel(MC->GetModel("Chaosphere"));
     model_->SetMaterial(MC->GetMaterial("Chaosphere")->Clone());
 
@@ -44,4 +55,5 @@ ChaoBall::ChaoBall():
     particleEmitter_->GetEffect()->SetColorFrames(colorFrames);
 
     Disable();
+
 }

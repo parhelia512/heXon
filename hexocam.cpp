@@ -18,13 +18,22 @@
 
 #include "hexocam.h"
 
-heXoCam::heXoCam():
-    Object(MC->GetContext()),
+void heXoCam::RegisterObject(Context *context)
+{
+    context->RegisterFactory<heXoCam>();
+}
+
+heXoCam::heXoCam(Context* context):
+    LogicComponent(context),
     yaw_{0.0f},
     pitch_{0.0f},
     yawDelta_{0.0f},
     pitchDelta_{0.0f},
     forceMultiplier{1.0f}
+{
+}
+
+void heXoCam::OnNodeSet(Node *node)
 {
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(heXoCam, HandleSceneUpdate));
 
@@ -47,6 +56,7 @@ heXoCam::heXoCam():
     rigidBody_->SetMass(1.0f);
 
     SetupViewport();
+
 }
 
 void heXoCam::Start()

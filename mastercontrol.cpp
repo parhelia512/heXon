@@ -29,7 +29,6 @@
 #include "player.h"
 #include "apple.h"
 #include "heart.h"
-#include "multix.h"
 #include "chaoball.h"
 #include "bullet.h"
 #include "seeker.h"

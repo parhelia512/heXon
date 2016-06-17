@@ -18,13 +18,24 @@
 
 #include "heart.h"
 
-Heart::Heart():
-    Pickup()
+void Heart::RegisterObject(Context *context)
 {
-    rootNode_->SetName("Heart");
+    context->RegisterFactory<Heart>();
+}
+
+Heart::Heart(Context* context):
+    Pickup(context)
+{
+}
+
+void Heart::OnNodeSet(Node *node)
+{
+    Pickup::OnNodeSet(node);
+
+    node_->SetName("Heart");
     pickupType_ = PT_HEART;
     initialPosition_ = Vector3::BACK*10.0f;
-    rootNode_->SetPosition(initialPosition_);
+    node_->SetPosition(initialPosition_);
     model_->SetModel(MC->GetModel("Heart"));
     model_->SetMaterial(MC->GetMaterial("RedEnvmap"));
 

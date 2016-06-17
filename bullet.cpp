@@ -18,27 +18,38 @@
 
 #include "bullet.h"
 
-Bullet::Bullet(int playerID):
-    SceneObject(),
-    playerID_{playerID},
+void Bullet::RegisterObject(Context *context)
+{
+    context->RegisterFactory<Bullet>();
+}
+
+Bullet::Bullet(Context* context):
+    SceneObject(context),
+    playerID_{1},
     lifeTime_{1.0f},
     damage_{0.0f}
 {
-    rootNode_->SetName("Bullet");
-    rootNode_->SetEnabled(false);
-    rootNode_->SetScale(Vector3(1.0f+damage_, 1.0f+damage_, 0.1f));
-    model_ = rootNode_->CreateComponent<StaticModel>();
+}
+
+void Bullet::OnNodeSet(Node *node)
+{
+    SceneObject::OnNodeSet(node);
+
+    node_->SetName("Bullet");
+    node_->SetEnabled(false);
+    node_->SetScale(Vector3(1.0f+damage_, 1.0f+damage_, 0.1f));
+    model_ = node_->CreateComponent<StaticModel>();
     model_->SetModel(MC->GetModel("Bullet"));
     model_->SetMaterial(playerID_ == 2
                         ? MC->GetMaterial("PurpleBullet")
                         : MC->GetMaterial("GreenBullet"));
 
-    rigidBody_ = rootNode_->CreateComponent<RigidBody>();
+    rigidBody_ = node_->CreateComponent<RigidBody>();
     rigidBody_->SetMass(0.5f);
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
     rigidBody_->SetFriction(0.0f);
 
-    Light* light = rootNode_->CreateComponent<Light>();
+    Light* light = node_->CreateComponent<Light>();
     light->SetRange(6.66f);
     light->SetColor( playerID_ == 2 ? Color(1.0f + damage_, 0.6f, 0.2f) : Color(0.6f, 1.0f+damage_, 0.2f));
 }
@@ -48,7 +59,7 @@ void Bullet::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
 
     age_ += timeStep;
-    rootNode_->SetScale(Vector3(Max(1.75f - 10.0f*age_, 1.0f+damage_),
+    node_->SetScale(Vector3(Max(1.75f - 10.0f*age_, 1.0f+damage_),
                                 Max(1.75f - 10.0f*age_, 1.0f+damage_),
                                 Min(Min(35.0f*age_, 2.0f), Max(2.0f-timeSinceHit_*42.0f, 0.1f))
                                 ));
@@ -81,7 +92,7 @@ void Bullet::Disable()
 void Bullet::HitCheck(float timeStep) {
     if (!fading_) {
         PODVector<PhysicsRaycastResult> hitResults{};
-        Ray bulletRay(rootNode_->GetPosition() - rigidBody_->GetLinearVelocity()*timeStep, rootNode_->GetDirection());
+        Ray bulletRay(node_->GetPosition() - rigidBody_->GetLinearVelocity()*timeStep, node_->GetDirection());
         if (MC->PhysicsRayCast(hitResults, bulletRay, 2.3f * rigidBody_->GetLinearVelocity().Length() * timeStep, M_MAX_UNSIGNED)){
             for (PhysicsRaycastResult h : hitResults){
                 if (!h.body_->IsTrigger()){// && h.body_->GetNode()->GetNameHash() != N_PLAYER){

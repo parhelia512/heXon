@@ -41,7 +41,9 @@ class Enemy : public SceneObject
     friend class SpawnMaster;
     URHO3D_OBJECT(Enemy, SceneObject);
 public:
-    Enemy();
+    Enemy(Context* context);
+    virtual void OnNodeSet(Node* node);
+
     float GetHealth() const { return health_; }
     float GetPanic() const { return panic_; }
     Vector3 GetLinearVelocity() const { return rigidBody_->GetLinearVelocity(); }

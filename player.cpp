@@ -24,7 +24,6 @@
 #include "hexocam.h"
 #include "spawnmaster.h"
 #include "tilemaster.h"
-#include "multix.h"
 #include "bullet.h"
 #include "muzzle.h"
 #include "chaoflash.h"
@@ -37,10 +36,15 @@
 #include "door.h"
 #include "phaser.h"
 
-Player::Player(int playerID):
+void Player::RegisterObject(Context *context)
+{
+    context->RegisterFactory<Player>();
+}
+
+Player::Player(Context* context):
     SceneObject(),
     playerID_{playerID},
-    autoPilot_{playerID_==2 && !GetSubsystem<Input>()->GetJoystickByIndex(playerID-1)},
+    autoPilot_{playerID_ == 2 && !GetSubsystem<Input>()->GetJoystickByIndex(playerID-1)},
 //    autoPilot_{false},
 //    autoPilot_{true},
     autoMove_{Vector3::ZERO},
@@ -61,18 +65,25 @@ Player::Player(int playerID):
     shotInterval_{initialShotInterval_},
     sinceLastShot_{0.0f}
 {
-    rootNode_->SetName("Player");
+
+}
+
+void Player::OnNodeSet(Node *node)
+{
+    SceneObject::OnNodeSet(node);
+
+    node_->SetName("Player");
     CreateGUI();
 
     SetupShip();
 
     //Setup pilot
     if (!autoPilot_){
-        pilot_ = new Pilot(rootNode_.Get(),
+        pilot_ = new Pilot(node_.Get(),
                            "Resources/.Pilot"+std::to_string(playerID_)+".lkp",
                            score_);
     } else {
-        pilot_ = new Pilot(rootNode_.Get());
+        pilot_ = new Pilot(node_.Get());
     }
 
     if (score_ != 0) {
@@ -81,12 +92,12 @@ Player::Player(int playerID):
     }
 
     //Setup shield
-    shieldNode_ = rootNode_->CreateChild("Shield");
+    shieldNode_ = node_->CreateChild("Shield");
     shieldModel_ = shieldNode_->CreateComponent<StaticModel>();
     shieldModel_->SetModel(MC->GetModel("Shield"));
     shieldMaterial_ = MC->GetMaterial("Shield")->Clone();
     shieldModel_->SetMaterial(shieldMaterial_);
-    
+
     //Setup ChaoFlash
     chaoFlash_ = new ChaoFlash(playerID_);
 
@@ -113,7 +124,7 @@ Player::Player(int playerID):
     }
     //Some extra sources for the players
     for (int i{0}; i < 5; ++i){
-        SharedPtr<SoundSource> extraSampleSource = SharedPtr<SoundSource>(rootNode_->CreateComponent<SoundSource>());
+        SharedPtr<SoundSource> extraSampleSource = SharedPtr<SoundSource>(node_->CreateComponent<SoundSource>());
         extraSampleSource->SetSoundType(SOUND_EFFECT);
         sampleSources_.Push(extraSampleSource);
     }
@@ -123,7 +134,7 @@ Player::Player(int playerID):
     deathSource_->SetGain(2.3f);
 
     //Setup player physics
-    rigidBody_ = rootNode_->CreateComponent<RigidBody>();
+    rigidBody_ = node_->CreateComponent<RigidBody>();
     rigidBody_->SetRestitution(0.666f);
     rigidBody_->SetMass(1.0f);
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
@@ -132,10 +143,10 @@ Player::Player(int playerID):
     rigidBody_->SetLinearRestThreshold(0.01f);
     rigidBody_->SetAngularRestThreshold(0.1f);
 
-    collisionShape_ = rootNode_->CreateComponent<CollisionShape>();
+    collisionShape_ = node_->CreateComponent<CollisionShape>();
     collisionShape_->SetSphere(2.0f);
 
-    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
+    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
 
     //Subscribe to events
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Player, HandleSceneUpdate));
@@ -280,7 +291,7 @@ void Player::CountScore()
 void Player::Eject()
 {
     new Phaser(ship_.model_->GetModel(), GetPosition(),
-               rigidBody_->GetLinearVelocity() + rootNode_->GetDirection() * 10e-5);
+               rigidBody_->GetLinearVelocity() + node_->GetDirection() * 10e-5);
     Disable();
 }
 
@@ -296,7 +307,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     UpdateGUI(timeStep);
 
     //Only handle input when player is active
-    if (!rootNode_->IsEnabled()) return;
+    if (!node_->IsEnabled()) return;
 
     //Movement values
     Vector3 move{};
@@ -372,10 +383,10 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         //Update rotation according to direction of the player's movement.
         Vector3 velocity = rigidBody_->GetLinearVelocity();
         Vector3 lookDirection = velocity + 2.0f*fire;
-        Quaternion rotation = rootNode_->GetWorldRotation();
+        Quaternion rotation = node_->GetWorldRotation();
         Quaternion aimRotation = rotation;
         aimRotation.FromLookRotation(lookDirection);
-        rootNode_->SetRotation(rotation.Slerp(aimRotation, 7.0f * timeStep * velocity.Length()));
+        node_->SetRotation(rotation.Slerp(aimRotation, 7.0f * timeStep * velocity.Length()));
 
         //Update animation
         if (velocity.Length() > 0.1f){
@@ -409,7 +420,7 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
         //Update rotation according to direction of the ship's movement.
         if (rigidBody_->GetLinearVelocity().Length() > 0.1f)
-            rootNode_->LookAt(rootNode_->GetPosition()+rigidBody_->GetLinearVelocity());
+            node_->LookAt(node_->GetPosition()+rigidBody_->GetLinearVelocity());
 
         //Update tails
         for (int t = 0; t < 3; t++)
@@ -491,8 +502,8 @@ void Player::FireBullet(Vector3 direction){
         bullet = new Bullet(playerID_);
         bullets_.Push(bullet);
     }
-    bullet->Set(rootNode_->GetPosition() + direction + Vector3::DOWN*0.42f);
-    bullet->rootNode_->LookAt(bullet->rootNode_->GetPosition() + direction * 5.0f);
+    bullet->Set(node_->GetPosition() + direction + Vector3::DOWN*0.42f);
+    bullet->node_->LookAt(bullet->node_->GetPosition() + direction * 5.0f);
     bullet->rigidBody_->ApplyForce(direction * (1500.0f + 23.0f * weaponLevel_));
     bullet->damage_ = 0.15f + 0.00666f * weaponLevel_;
 }
@@ -500,7 +511,7 @@ void Player::MoveMuzzle()
 {
     if (muzzle_ == nullptr)
         muzzle_ = new Muzzle(playerID_);
-    muzzle_->Set(rootNode_->GetPosition() + Vector3::DOWN * 0.42f);
+    muzzle_->Set(node_->GetPosition() + Vector3::DOWN * 0.42f);
 }
 
 
@@ -566,18 +577,18 @@ void Player::PickupChaoBall()
 {
     bool swap{chaoFlash_->Set(MC->chaoBall_->GetPosition()) > 1};
     if (swap){
-        Vector3 tempPos{rootNode_->GetPosition()};
-        rootNode_->SetPosition(MC->GetPlayer(playerID_, true)->GetPosition());
+        Vector3 tempPos{node_->GetPosition()};
+        node_->SetPosition(MC->GetPlayer(playerID_, true)->GetPosition());
         MC->GetPlayer(playerID_, true)->SetPosition(tempPos);
     } else{
-        rootNode_->SetPosition(Quaternion(Random(360.0f), Vector3::UP) * (Vector3::FORWARD * Random(5.0f)) +
+        node_->SetPosition(Quaternion(Random(360.0f), Vector3::UP) * (Vector3::FORWARD * Random(5.0f)) +
                                MC->chaoBall_->GetPosition() * Vector3(1.0f, 0.0f, 1.0f));
     }
     PlaySample(chaoball_s, 0.8f);
 }
 void Player::SetPosition(Vector3 pos)
 {
-    rootNode_->SetPosition(pos);
+    node_->SetPosition(pos);
 }
 
 void Player::Die()
@@ -585,7 +596,7 @@ void Player::Die()
     alive_ = false;
 
     Disable();
-    MC->spawnMaster_->SpawnExplosion(rootNode_->GetPosition(), playerID_ == 2 ? Color(1.0f, 0.42f, 0.0f) : Color(0.23f, 1.0f, 0.0f), 2.0f, playerID_);
+    MC->spawnMaster_->SpawnExplosion(node_->GetPosition(), playerID_ == 2 ? Color(1.0f, 0.42f, 0.0f) : Color(0.23f, 1.0f, 0.0f), 2.0f, playerID_);
     deathSource_->Play(death_s);
 
     int otherplayer = playerID_ == 2 ? 1 : 2;
@@ -598,7 +609,7 @@ void Player::Die()
 
 void Player::EnterPlay()
 {
-    rootNode_->SetRotation(Quaternion(playerID_==2 ? -90.0f : 90.0f, Vector3::UP));
+    node_->SetRotation(Quaternion(playerID_==2 ? -90.0f : 90.0f, Vector3::UP));
     rigidBody_->ResetForces();
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     shieldMaterial_->SetShaderParameter("MatDiffColor", Color::BLACK);
@@ -638,11 +649,11 @@ void Player::EnterLobby()
     SetPilotMode(true);
 
     if (enterThroughDoor){
-        rootNode_->SetPosition(Vector3(playerID_==2 ? 2.23f : -2.23f, 0.0f, 5.5f));
+        node_->SetPosition(Vector3(playerID_==2 ? 2.23f : -2.23f, 0.0f, 5.5f));
         rigidBody_->SetLinearVelocity(Vector3::BACK * 2.3f);
     } else {
         rigidBody_->SetLinearVelocity(((playerID_ == 2) ? Vector3::LEFT : Vector3::RIGHT));
-        rootNode_->SetPosition(Vector3(playerID_==2 ? 2.23f + 0.5f : -2.23f - 0.5f, 0.0f, 0.0f));
+        node_->SetPosition(Vector3(playerID_==2 ? 2.23f + 0.5f : -2.23f - 0.5f, 0.0f, 0.0f));
     }
 
     rigidBody_->ResetForces();
@@ -653,8 +664,8 @@ void Player::EnterLobby()
 }
 void Player::SetPilotMode(bool pilotMode){
     pilotMode_ = pilotMode;
-    rootNode_->SetEnabled(true);
-    pilot_->rootNode_->SetEnabledRecursive(pilotMode_);
+    node_->SetEnabled(true);
+    pilot_->node_->SetEnabledRecursive(pilotMode_);
     ship_.node_->SetEnabledRecursive(!pilotMode_);
     shieldNode_->SetEnabled(!pilotMode_);
     collisionShape_->SetSphere(pilotMode_? 0.23f : 2.0f);
@@ -705,7 +716,7 @@ void Player::UpgradeWeapons()
 
 void Player::SetupShip()
 {
-    ship_.node_ = rootNode_->CreateChild("Ship");
+    ship_.node_ = node_->CreateChild("Ship");
     ship_.model_ = ship_.node_->CreateComponent<StaticModel>();
     ship_.model_->SetModel(MC->GetModel("KlåMk10"));
     ship_.model_->SetMaterial(0, playerID_==2 ? MC->GetMaterial("PurpleGlowEnvmap") : MC->GetMaterial("GreenGlowEnvmap"));
@@ -812,12 +823,12 @@ void Player::Think()
         //Calculate move vector
         if (pickupPos.y_ < -10.0f || LucKey::Distance(
                     GetPosition(), LucKey::Scale(pickupPos, Vector3(1.0f, 0.0f, 1.0f))) < playerFactor)
-            pickupPos = GetPosition() + rootNode_->GetDirection() * playerFactor;
+            pickupPos = GetPosition() + node_->GetDirection() * playerFactor;
 
         autoMove_ = 0.5f * (autoMove_ +
-                            LucKey::Scale(pickupPos - rootNode_->GetPosition()
+                            LucKey::Scale(pickupPos - node_->GetPosition()
                                           - 0.05f * playerFactor * rigidBody_->GetLinearVelocity()
-                                          - 0.1f * playerFactor * rootNode_->GetDirection()
+                                          - 0.1f * playerFactor * node_->GetDirection()
                                           , Vector3(1.0f, 0.0f, 1.0f)).Normalized());
         if (LucKey::Distance(pickupPos, GetPosition()) > playerFactor)
             autoMove_ += smell * 13.0f;
@@ -877,7 +888,7 @@ Vector3 Player::Sniff(float playerFactor, bool taste)
                                                : GetPosition() )};
         for (int w = 0; w < whiskers; ++w){
             PODVector<PhysicsRaycastResult> hitResults{};
-            Vector3 whiskerDirection = Quaternion((360.0f / whiskers) * w, Vector3::UP) * (2.0f * rootNode_->GetDirection() + 3.0f * autoMove_.Normalized());
+            Vector3 whiskerDirection = Quaternion((360.0f / whiskers) * w, Vector3::UP) * (2.0f * node_->GetDirection() + 3.0f * autoMove_.Normalized());
             Ray whiskerRay{projectedPlayerPos + Vector3::DOWN * Random(0.666f), whiskerDirection};
             if (MC->PhysicsRayCast(hitResults, whiskerRay, playerFactor * playerFactor, M_MAX_UNSIGNED)){
                 ++detected;

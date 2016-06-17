@@ -19,16 +19,27 @@
 #include "phaser.h"
 #include "player.h"
 
+void Phaser::RegisterObject(Context *context)
+{
+    context->RegisterFactory<Phaser>();
+}
+
 Phaser::Phaser(Model *model, Vector3 pos, Vector3 vel) : Effect(),
     phaseMaterial_{MC->GetMaterial("Phase")->Clone()},
     staticModels_{},
     velocity_{vel}
 {
-    rootNode_->SetName("Phaser");
-    Set(pos);
-    rootNode_->LookAt(pos+vel);
+}
 
-    staticModels_.Push(SharedPtr<StaticModel>(rootNode_->CreateComponent<StaticModel>()));
+void Phaser::OnNodeSet(Node *node)
+{
+    Effect::OnNodeSet(node);
+
+    node_->SetName("Phaser");
+    Set(pos);
+    node_->LookAt(pos+vel);
+
+    staticModels_.Push(SharedPtr<StaticModel>(node_->CreateComponent<StaticModel>()));
     staticModels_[0]->SetModel(model);
 
     SetMaterial();
@@ -45,7 +56,7 @@ void Phaser::SetMaterial()
 void Phaser::HandlePostUpdate(StringHash eventType, VariantMap& eventData)
 {
     float timeStep{eventData[PostUpdate::P_TIMESTEP].GetFloat()};
-    rootNode_->Translate(velocity_ * timeStep, TS_WORLD);
+    node_->Translate(velocity_ * timeStep, TS_WORLD);
     phaseMaterial_->SetShaderParameter("Dissolve", age_ * 2.3f);
     if (age_ > 2.0f){
         Disable();
@@ -55,7 +66,7 @@ void Phaser::HandlePostUpdate(StringHash eventType, VariantMap& eventData)
         {
             MC->SetGameState(GS_LOBBY);
         }
-        rootNode_->Remove();
+        node_->Remove();
         delete this;
     }
 }

@@ -22,18 +22,24 @@
 #include "spawnmaster.h"
 #include "player.h"
 
-Pickup::Pickup() : SceneObject(),
+Pickup::Pickup(Context* context) : SceneObject(context),
     chaoInterval_{CHAOINTERVAL},
     sinceLastPickup_{0.0f}
 {
-    rootNode_->SetName("Pickup");
-    graphicsNode_ = rootNode_->CreateChild("Graphics");
+}
+
+void Pickup::OnNodeSet(Node *node)
+{
+    SceneObject::OnNodeSet(node);
+
+    node_->SetName("Pickup");
+    graphicsNode_ = node_->CreateChild("Graphics");
 
     model_ = graphicsNode_->CreateComponent<StaticModel>();
-    rootNode_->SetScale(0.8f);
-    rootNode_->SetEnabledRecursive(false);
+    node_->SetScale(0.8f);
+    node_->SetEnabledRecursive(false);
 
-    rigidBody_ = rootNode_->CreateComponent<RigidBody>();
+    rigidBody_ = node_->CreateComponent<RigidBody>();
     rigidBody_->SetRestitution(0.666f);
     rigidBody_->SetMass(0.666f);
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
@@ -45,15 +51,15 @@ Pickup::Pickup() : SceneObject(),
     rigidBody_->SetLinearRestThreshold(0.0f);
     rigidBody_->SetAngularRestThreshold(0.0f);
 
-    CollisionShape* collisionShape = rootNode_->CreateComponent<CollisionShape>();
+    CollisionShape* collisionShape = node_->CreateComponent<CollisionShape>();
     collisionShape->SetSphere(2.3f);
 
-    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
+    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
 
     triggerNode_ = MC->world.scene->CreateChild("PickupTrigger");
     triggerBody_ = triggerNode_->CreateComponent<RigidBody>();
     triggerBody_->SetTrigger(true);
-    triggerBody_->SetMass(0.0f);
+    triggerBody_->SetKinematic(true);
     triggerBody_->SetLinearFactor(Vector3::ZERO);
     CollisionShape* triggerShape = triggerNode_->CreateComponent<CollisionShape>();
     triggerShape->SetSphere(2.5f);
@@ -95,7 +101,7 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     Player* player2 = MC->GetPlayer(2);
 
     //Move trigger along
-    triggerNode_->SetPosition(rootNode_->GetPosition());
+    triggerNode_->SetWorldPosition(node_->GetWorldPosition());
     //Emerge
     Emerge(timeStep);
     if (!IsEmerged()) {
@@ -120,7 +126,7 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
                                    rigidBody_->GetLinearVelocity()); break;
     case PT_CHAOBALL: {
         xSpin = 23.0f; zSpin = 42.0f; frequency = 5.0f; shift = 0.23f;
-        if (!rootNode_->IsEnabled() && MC->GetGameState() == GS_PLAY) {
+        if (!node_->IsEnabled() && MC->GetGameState() == GS_PLAY) {
             if (sinceLastPickup_ > chaoInterval_) Respawn();
             else sinceLastPickup_ += timeStep;
         }
@@ -134,9 +140,9 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     default: break;
     }
     //Spin
-    rootNode_->Rotate(Quaternion(xSpin * timeStep, ySpin * timeStep, zSpin * timeStep));
+    node_->Rotate(Quaternion(xSpin * timeStep, ySpin * timeStep, zSpin * timeStep));
     //Float like a float
-    float floatFactor = 0.5f - Min(0.5f, 0.5f * Abs(rootNode_->GetPosition().y_));
+    float floatFactor = 0.5f - Min(0.5f, 0.5f * Abs(node_->GetPosition().y_));
     graphicsNode_->SetPosition(Vector3::UP * MC->Sine(frequency, -floatFactor, floatFactor, shift));
 }
 
@@ -153,7 +159,7 @@ void Pickup::Respawn(bool restart)
 
     Set(restart ? initialPosition_
                 : MC->spawnMaster_->SpawnPoint());
-    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
+    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
 }
 void Pickup::Deactivate()
 {

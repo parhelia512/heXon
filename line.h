@@ -22,11 +22,14 @@
 #include <Urho3D/Urho3D.h>
 #include "mastercontrol.h"
 
-class Line : public Object
+class Line : public LogicComponent
 {
-    URHO3D_OBJECT(Line, Object);
+    URHO3D_OBJECT(Line, LogicComponent);
 public:
-    Line();
+    Line(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
+
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void Set(const Vector3 position, int playerID);
     void Disable();
