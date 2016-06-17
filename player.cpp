@@ -44,9 +44,9 @@ void Player::RegisterObject(Context *context)
 Player::Player(Context* context):
     SceneObject(),
     playerID_{playerID},
-    autoPilot_{playerID_ == 2 && !GetSubsystem<Input>()->GetJoystickByIndex(playerID-1)},
+//    autoPilot_{playerID_ == 2 && !GetSubsystem<Input>()->GetJoystickByIndex(playerID-1)},
 //    autoPilot_{false},
-//    autoPilot_{true},
+    autoPilot_{true},
     autoMove_{Vector3::ZERO},
     autoFire_{Vector3::ZERO},
     alive_{false},
