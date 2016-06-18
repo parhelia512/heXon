@@ -36,7 +36,6 @@ public:
 
     void Randomize(bool autoPilot = false);
 private:
-    Node* node_;
     bool male_;
     int hairStyle_;
     Vector<Color> colors_;
@@ -44,10 +43,9 @@ private:
     StaticModel* hairModel_;
     AnimationController* animCtrl_;
 
-    void Load(std::__cxx11::string file, unsigned &score);
+//    void Load(std::__cxx11::string file, unsigned &score);
     void UpdateModel();
     void Save(int playerID, unsigned score);
-    void Initialize(Node* parent);
 };
 
 #endif // PILOT_H

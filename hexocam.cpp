@@ -35,7 +35,7 @@ heXoCam::heXoCam(Context* context):
 
 void heXoCam::OnNodeSet(Node *node)
 {
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(heXoCam, HandleSceneUpdate));
+//    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(heXoCam, HandleSceneUpdate));
 
     rootNode_ = MC->scene_->CreateChild("Camera");
     Node* leftEye{rootNode_->CreateChild("Left Eye")};
@@ -100,14 +100,12 @@ Quaternion heXoCam::GetRotation()
     return rootNode_->GetRotation();
 }
 
-void heXoCam::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
+void heXoCam::Update(float timeStep)
 {
-    float timeStep{eventData[SceneUpdate::P_TIMESTEP].GetFloat()};
-
-    rootNode_->SetPosition(rootNode_->GetPosition().Lerp(closeUp_?
+    rootNode_->SetPosition(rootNode_->GetPosition().Lerp(closeUp_ ?
                                      Vector3(0.0f, 13.5f, -6.23f):
                                      Vector3(0.0f, 42.0f, -23.0f),
-                                                    Clamp(13.0f * timeStep, 0.0f, 1.0f)));
+                                                    Clamp(5.0f * timeStep, 0.0f, 1.0f)));
 }
 
 void heXoCam::SetGreyScale(const bool enabled)

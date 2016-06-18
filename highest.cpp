@@ -17,6 +17,7 @@
 */
 
 #include "highest.h"
+#include "pilot.h"
 
 
 void Highest::RegisterObject(Context *context)
@@ -24,7 +25,8 @@ void Highest::RegisterObject(Context *context)
     context->RegisterFactory<Highest>();
 }
 
-Highest::Highest(Context* context) : LogicComponent(context)
+Highest::Highest(Context* context) : LogicComponent(context),
+    highestScore_{0}
 {
 
 }
@@ -54,6 +56,32 @@ void Highest::OnNodeSet(Node *node)
     highestSpot->SetColor(Color(0.6f, 0.7f, 1.0f));
     highestSpot->SetBrightness(5.0f);
     highestSpot->SetSpecularIntensity(0.23f);
+
+    UI* ui{GetSubsystem<UI>()};
+    highestScoreText_ = ui->GetRoot()->CreateChild<Text>();
+    highestScoreText_->SetName("HighestScore");
+    highestScoreText_->SetText("0");
+    highestScoreText_->SetFont(CACHE->GetResource<Font>("Fonts/skirmishergrad.ttf"), 23);
+    highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f));
+    highestScoreText_->SetHorizontalAlignment(HA_CENTER);
+    highestScoreText_->SetVerticalAlignment(VA_CENTER);
+    highestScoreText_->SetPosition(0, ui->GetRoot()->GetHeight()/2.13f);
+
+    Node* pilotNode{ node_->CreateChild("Pilot") };
+    Pilot* highestPilot{ pilotNode->CreateComponent<Pilot>() };
+//    highestPilot->Load("Resources/.Pilot0.lkp", highestScore_);
+    if (highestScore_ == 0){
+        node_->SetEnabledRecursive(false);
+        highestScoreText_->SetColor(Color{0.0f, 0.0f, 0.0f, 0.0f});
+
+    } else {
+        podiumNode->SetRotation(Quaternion::IDENTITY);
+        podiumNode->Rotate(Quaternion(LucKey::RandomSign()*30.0f, Vector3::UP));
+        node_->SetEnabledRecursive(true);
+        highestScoreText_->SetText(String(highestScore_));
+        highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f));
+    }
+
 }
 
 

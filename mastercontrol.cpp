@@ -195,22 +195,6 @@ void MasterControl::LoadHair()
     hairStyles_.Push(SharedPtr<Model>(GetModel("Frotoad")));
 }
 
-void MasterControl::LoadHighest()
-{
-    highestPilot_->Load("Resources/.Pilot0.lkp", highestScore_);
-    if (highestScore_ == 0){
-        highestNode_->SetEnabledRecursive(false);
-        highestScoreText_->SetColor(Color{0.0f, 0.0f, 0.0f, 0.0f});
-
-    } else {
-        podiumNode_->SetRotation(Quaternion::IDENTITY);
-        podiumNode_->Rotate(Quaternion(LucKey::RandomSign()*30.0f, Vector3::UP));
-        highestNode_->SetEnabledRecursive(true);
-        highestScoreText_->SetText(String(highestScore_));
-        highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f));
-    }
-}
-
 void MasterControl::CreateScene()
 {
     scene_ = new Scene(context_);
@@ -259,21 +243,6 @@ void MasterControl::CreateScene()
     Node* lobbyNode{ scene_->CreateChild("Lobby") };
     lobbyNode->CreateComponent<Lobby>();
 
-
-    UI* ui{GetSubsystem<UI>()};
-    highestScoreText_ = ui->GetRoot()->CreateChild<Text>();
-    highestScoreText_->SetName("HighestScore");
-    highestScoreText_->SetText("0");
-    highestScoreText_->SetFont(CACHE->GetResource<Font>("Fonts/skirmishergrad.ttf"), 23);
-    highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f));
-    highestScoreText_->SetHorizontalAlignment(HA_CENTER);
-    highestScoreText_->SetVerticalAlignment(VA_CENTER);
-    highestScoreText_->SetPosition(0, ui->GetRoot()->GetHeight()/2.13f);
-
-//    highestPilot_ = new Pilot(highestPilotNode);
-//    LoadHighest();
-
-
     //Create game elements
     spawnMaster_ = new SpawnMaster();
 
@@ -307,8 +276,8 @@ void MasterControl::LeaveGameState()
     case GS_INTRO : break;
     case GS_LOBBY : {
 //        lobby_->SetEnabledRecursive(false);
-        if (highestScore_ != 0)
-            highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.23f));
+//        if (highestScore_ != 0)
+//            highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.23f));
     } break;
     case GS_PLAY : {
         spawnMaster_->Deactivate();

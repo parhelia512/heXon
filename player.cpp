@@ -269,10 +269,10 @@ void Player::AddScore(int points)
 
 void Player::KillPilot()
 {
-    if (MC->highestScore_ < score_ && IsHuman()){
-        pilot_->Save(0, score_);
-        MC->LoadHighest();
-    }
+//    if (MC->highestScore_ < score_ && IsHuman()){
+//        pilot_->Save(0, score_);
+//        MC->LoadHighest();
+//    }
     alive_ = false;
     EnterLobby();
 }

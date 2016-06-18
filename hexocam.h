@@ -43,6 +43,7 @@ public:
     virtual void OnNodeSet(Node* node);
 
     virtual void Start();
+    virtual void Update(float timeStep);
     virtual void Stop();
 
     SharedPtr<Camera> camera_;
@@ -54,7 +55,6 @@ public:
     Quaternion GetRotation();
     void SetGreyScale(const bool enabled);
 private:
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     SharedPtr<Node> rootNode_;
 
     SharedPtr<RigidBody> rigidBody_;

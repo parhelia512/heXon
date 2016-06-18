@@ -25,8 +25,8 @@ void Tile::RegisterObject(Context *context)
 
 Tile::Tile(Context* context):
     LogicComponent(context),
-    lastOffsetY_{0.666f},
-    flipped_{static_cast<bool>(Random(2))}
+    lastOffsetY_{ 0.666f },
+    flipped_{ static_cast<bool>(Random(2)) }
 {
 }
 
@@ -47,8 +47,9 @@ void Tile::OnNodeSet(Node *node)
 
 void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
 { (void)eventType; (void)eventData;
-    float elapsedTime{MC->scene_->GetElapsedTime()};
-    float offsetY{0.0f};
+
+    float elapsedTime{ MC->scene_->GetElapsedTime() };
+    float offsetY{ 0.0f };
 
     //Switch curcuit
     if (Random(23) == 5)
@@ -60,7 +61,7 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     Arena* arena{ node_->GetParentComponent<Arena>() };
     unsigned nHexAffectors{ arena->hexAffectors_.Size()};
     if (nHexAffectors) {
-        for (unsigned i = 0; i < nHexAffectors; i++) {
+        for (unsigned i{0}; i < nHexAffectors; ++i) {
             Node* hexAffector = arena->hexAffectors_.Keys()[i];
             float hexAffectorMass = arena->hexAffectors_[hexAffector]->GetMass();
             if (hexAffector->IsEnabled()) {
@@ -79,12 +80,12 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     offsetY = (offsetY + lastOffsetY_) * 0.5f;
     lastOffsetY_ = offsetY;
 
-    Vector3 lastPos{node_->GetPosition()};
-    Vector3 newPos{lastPos.x_, referencePosition_.y_ - Min(offsetY, 4.0f), lastPos.z_};
+    Vector3 lastPos{ node_->GetPosition() };
+    Vector3 newPos{ lastPos.x_, referencePosition_.y_ - Min(offsetY, 4.0f), lastPos.z_ };
     node_->SetPosition(newPos);
 
-    bool lobby{MC->GetGameState() == GS_LOBBY};
-    float brightness{Clamp((0.23f * offsetY) + 0.25f, 0.0f, 1.0f) + 0.42f*static_cast<float>(lobby)};
-    Color color{brightness +  offsetY * lobby, brightness + offsetY * 0.00042f * (MC->Sine(23.0f, -23.0f - 1000.0f * lobby, 23.0f + 1000.0f * lobby, 23.0f) * wave_), brightness - Random(0.23f) * lobby, brightness + (0.023f * wave_)};
+    bool lobby{ MC->GetGameState() == GS_LOBBY };
+    float brightness{ Clamp((0.23f * offsetY) + 0.25f, 0.0f, 1.0f) + 0.42f*static_cast<float>(lobby) };
+    Color color{ brightness +  offsetY * lobby, brightness + offsetY * 0.00042f * (MC->Sine(23.0f, -23.0f - 1000.0f * lobby, 23.0f + 1000.0f * lobby, 23.0f) * wave_), brightness - Random(0.23f) * lobby, brightness + (0.023f * wave_) };
     model_->GetMaterial(0)->SetShaderParameter("MatDiffColor", color);
 }

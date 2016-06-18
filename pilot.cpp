@@ -33,24 +33,8 @@ Pilot::Pilot(Context* context) : SceneObject(context),
 }
 
 void Pilot::OnNodeSet(Node *node)
-{
-//    Initialize(parent);
+{ (void)node;
 
-//    Randomize();
-
-}
-
-
-//Pilot::Pilot(Node* parent, const std::string file, unsigned& score) : SceneObject()
-//{
-//    Initialize(parent);
-
-//    Load(file, score);
-//}
-
-void Pilot::Initialize(Node* parent)
-{
-    node_ = parent->CreateChild("Pilot");
     bodyModel_ = node_->CreateComponent<AnimatedModel>();
     bodyModel_->SetModel(MC->GetModel("Male"));
     bodyModel_->SetCastShadows(true);
@@ -63,7 +47,17 @@ void Pilot::Initialize(Node* parent)
     animCtrl_->PlayExclusive("Models/IdleAlert.ani", 0, true);
     animCtrl_->SetSpeed("Models/IdleAlert.ani", 0.5f);
     animCtrl_->SetStartBone("Models/IdleAlert.ani", "MasterBone");
+
+//    Randomize();
+
 }
+
+
+//Pilot::Pilot(Node* parent, const std::string file, unsigned& score) : SceneObject()
+//{
+
+//    Load(file, score);
+//}
 
 void Pilot::Save(int playerID, unsigned score)
 {
@@ -81,7 +75,7 @@ void Pilot::Save(int playerID, unsigned score)
     fPilot << score;
 }
 
-void Pilot::Load(std::string file, unsigned &score)
+/*void Pilot::Load(std::string file, unsigned &score)
 {
     using namespace std;
     ifstream fPilot{file};
@@ -122,7 +116,7 @@ void Pilot::Load(std::string file, unsigned &score)
         Randomize();
 
     UpdateModel();
-}
+}*/
 
 void Pilot::UpdateModel()
 {

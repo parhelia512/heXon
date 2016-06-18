@@ -35,7 +35,6 @@ class SpawnMaster;
 class Razor;
 class Player;
 class Door;
-class Pilot;
 class SplatterPillar;
 class Apple;
 class ChaoBall;
@@ -110,11 +109,6 @@ public:
 
     SharedPtr<Player> player1_;
     SharedPtr<Player> player2_;
-    SharedPtr<Pilot> highestPilot_;
-    SharedPtr<Node> highestNode_;
-    unsigned highestScore_;
-    SharedPtr<Text> highestScoreText_;
-    SharedPtr<Node> podiumNode_;
 
     SharedPtr<Door> door1_;
     SharedPtr<Door> door2_;
