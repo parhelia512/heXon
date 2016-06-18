@@ -133,8 +133,8 @@ void Lobby::Update(float timeStep)
     node_->GetChildrenWithComponent<Light>(lightNodes, true);
     for (Node* lightNode : lightNodes)
         lightNode->GetComponent<Light>()->SetBrightness(
-                    MC->Sine(1.0f, 0.666f, 1.23f,
-                    M_PI * (lightNode->GetPosition().z_ < 0.0f)));
+                    MC->Sine(0.13f, 0.666f, 1.0f,
+                    0.5f * (lightNode->GetPosition().z_ < 0.0f)));
 }
 
 void Lobby::HandlePlayTrigger(StringHash otherNode, VariantMap& eventData)

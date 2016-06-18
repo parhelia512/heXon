@@ -121,15 +121,15 @@ void Arena::HandleUpdate(StringHash eventType, VariantMap& eventData)
     node_->SetScale(node_->GetScale().Lerp(targetScale_, pow(t, 0.88f) ));
 
     logoNode_->SetPosition(logoNode_->GetPosition().Lerp(MC->GetGameState() == GS_LOBBY
-                                                         ? Vector3::UP * 4.0f * MC->Sine(5.0f, 0.23f, 1.23f)
+                                                         ? Vector3::UP * 4.0f * MC->Sine(0.666f, 0.23f, 1.23f)
                                                          : Vector3::UP * -4.0f, t));
     logoMaterial_->SetShaderParameter("MatDiffColor", logoMaterial_->GetShaderParameter("MatDiffColor").GetColor().Lerp(
                                           MC->GetGameState() == GS_LOBBY
-                                          ? Color(0.42f, Random(0.666f), Random(0.666f), 2.0f) * MC->Sine(5.0f, 0.88f, 1.0f, 0.23f)
+                                          ? Color(0.42f, Random(0.666f), Random(0.666f), 2.0f) * MC->Sine(5.0f, 0.5f, 0.8f, 0.23f)
                                           : Color(0.0666f, 0.16f, 0.16f, 0.23f), t));
     logoMaterial_->SetShaderParameter("MatEmissiveColor", logoMaterial_->GetShaderParameter("MatEmissiveColor").GetColor().Lerp(
                                           MC->GetGameState() == GS_LOBBY
-                                          ? Color(Random(0.42f), Random(0.42f), Random(0.42f)) * MC->Sine(5.0f, 0.88f, 1.0f, 0.23f)
+                                          ? Color(Random(0.42f), Random(0.42f), Random(0.42f)) * MC->Sine(4.0f, 1.3f, 2.3f, 0.23f)
                                           : Color(0.005f, 0.05f, 0.02f), t));
     xMaterial_->SetShaderParameter("MatDiffColor", MC->GetGameState() == GS_LOBBY
                                           ? logoMaterial_->GetShaderParameter("MatDiffColor").GetColor()

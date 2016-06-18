@@ -430,16 +430,19 @@ void MasterControl::Exit()
 
 float MasterControl::Sine(const float freq, const float min, const float max, const float shift)
 {
-    float phase{freq * scene_->GetElapsedTime() + shift};
+    float phase{SinePhase(freq, shift)};
     float add{0.5f * (min + max)};
     return LucKey::Sine(phase) * 0.5f * (max - min) + add;
 }
 float MasterControl::Cosine(const float freq, const float min, const float max, const float shift)
 {
-    float phase{freq * scene_->GetElapsedTime() + shift};
-    float add{0.5f * (min + max)};
-    return LucKey::Cosine(phase) * 0.5f * (max - min) + add;
+    return Sine(freq, min, max, shift + 0.25f);
 }
+float MasterControl::SinePhase(float freq, float shift)
+{
+    return M_PI * 2.0f * (freq * scene_->GetElapsedTime() + shift);
+}
+
 
 Player* MasterControl::GetPlayer(int playerID, bool other) const
 {

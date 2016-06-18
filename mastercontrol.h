@@ -192,6 +192,7 @@ private:
 
     float secondsPerFrame_;
     float sinceFrameRateReport_;
+    float SinePhase(float freq, float shift);
 };
 
 #endif // MASTERCONTROL_H
