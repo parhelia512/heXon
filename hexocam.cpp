@@ -34,24 +34,24 @@ heXoCam::heXoCam(Context* context):
 }
 
 void heXoCam::OnNodeSet(Node *node)
-{
-//    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(heXoCam, HandleSceneUpdate));
+{ (void)node;
 
-    rootNode_ = MC->scene_->CreateChild("Camera");
-    Node* leftEye{rootNode_->CreateChild("Left Eye")};
+    /* Ready for VR :)
+    Node* leftEye{ node_->CreateChild("Left Eye") };
     leftEye->SetPosition(Vector3::LEFT);
     stereoCam_.first_ = leftEye->CreateComponent<Camera>();
-    Node* rightEye{rootNode_->CreateChild("Right Eye")};
+    Node* rightEye{ node_->CreateChild("Right Eye") };
     rightEye->SetPosition(Vector3::RIGHT);
     stereoCam_.second_ = rightEye->CreateComponent<Camera>();
+    */
 
-    camera_ = rootNode_->CreateComponent<Camera>();
+    camera_ = node_->CreateComponent<Camera>();
     camera_->SetFarClip(128.0f);
-    rootNode_->SetPosition(Vector3(0.0f, 42.0f, -23.0f));
-    rootNode_->SetRotation(Quaternion(65.0f, 0.0f, 0.0f));
-    rigidBody_ = rootNode_->CreateComponent<RigidBody>();
+    node_->SetPosition(Vector3(0.0f, 42.0f, -23.0f));
+    node_->SetRotation(Quaternion(65.0f, 0.0f, 0.0f));
+    rigidBody_ = node_->CreateComponent<RigidBody>();
     rigidBody_->SetAngularDamping(10.0f);
-    CollisionShape* collisionShape{rootNode_->CreateComponent<CollisionShape>()};
+    CollisionShape* collisionShape{node_->CreateComponent<CollisionShape>()};
     collisionShape->SetSphere(0.1f);
     rigidBody_->SetMass(1.0f);
 
@@ -92,17 +92,17 @@ void heXoCam::SetupViewport()
 
 Vector3 heXoCam::GetWorldPosition()
 {
-    return rootNode_->GetWorldPosition();
+    return node_->GetWorldPosition();
 }
 
 Quaternion heXoCam::GetRotation()
 {
-    return rootNode_->GetRotation();
+    return node_->GetRotation();
 }
 
 void heXoCam::Update(float timeStep)
 {
-    rootNode_->SetPosition(rootNode_->GetPosition().Lerp(closeUp_ ?
+    node_->SetPosition(node_->GetPosition().Lerp(closeUp_ ?
                                      Vector3(0.0f, 13.5f, -6.23f):
                                      Vector3(0.0f, 42.0f, -23.0f),
                                                     Clamp(5.0f * timeStep, 0.0f, 1.0f)));

@@ -41,8 +41,8 @@ public:
 protected:
     RigidBody* rigidBody_;
     SharedPtr<Sound> sample_;
-    SharedPtr<Node> target_;
-    SharedPtr<TailGenerator> tailGen_;
+    Node* target_;
+    RibbonTrail* tailGen_;
 
     float age_;
     float lifeTime_;

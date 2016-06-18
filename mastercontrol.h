@@ -189,7 +189,6 @@ private:
 
     void LeaveGameState();
     void EnterGameState();
-    void LoadHair();
 
     float secondsPerFrame_;
     float sinceFrameRateReport_;

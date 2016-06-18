@@ -38,6 +38,7 @@
 #include "muzzle.h"
 #include "chaomine.h"
 #include "pilot.h"
+#include "ship.h"
 #include "splatterpillar.h"
 #include "door.h"
 #include "arena.h"
@@ -106,11 +107,12 @@ void MasterControl::Start()
     Door::RegisterObject(context_);
     SplatterPillar::RegisterObject(context_);
     Highest::RegisterObject(context_);
+    Ship::RegisterObject(context_);
+//    Human::RegisterObject(context_);
+//    AutoPilot::RegisterObject(context_);
 
     new InputMaster();
     renderer_ = GetSubsystem<Renderer>();
-
-    LoadHair();
 
     // Get default style
     defaultStyle_ = CACHE->GetResource<XMLFile>("UI/DefaultStyle.xml");
@@ -121,6 +123,9 @@ void MasterControl::Start()
     //Create the UI content
     CreateUI();
     //Hook up to the frame update and render post-update events
+
+    Node* announcerNode{ scene_->CreateChild("Announcer") };
+    announcerNode->CreateComponent<SoundSource>()->Play(GetSample("Welcome"));
 
     menuMusic_ = GetMusic("Modanung - BulletProof MagiRex");
     menuMusic_->SetLooped(true);
@@ -184,15 +189,6 @@ Sound*MasterControl::GetSample(String name) const {
     Sound* sample{CACHE->GetResource<Sound>("Samples/"+name+".ogg")};
     sample->SetLooped(false);
     return sample;
-}
-
-void MasterControl::LoadHair()
-{
-    //Load hairmodels
-    hairStyles_.Push(SharedPtr<Model>(GetModel("Mohawk")));
-    hairStyles_.Push(SharedPtr<Model>(GetModel("Seagull")));
-    hairStyles_.Push(SharedPtr<Model>(GetModel("Mustain")));
-    hairStyles_.Push(SharedPtr<Model>(GetModel("Frotoad")));
 }
 
 void MasterControl::CreateScene()

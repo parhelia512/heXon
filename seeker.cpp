@@ -18,7 +18,6 @@
 
 #include "seeker.h"
 
-#include "TailGenerator.h"
 #include "hitfx.h"
 #include "arena.h"
 #include "player.h"
@@ -58,7 +57,7 @@ void Seeker::OnNodeSet(Node *node)
 
     AddTail();
 
-    Light* light = node_->CreateComponent<Light>();
+    Light* light{ node_->CreateComponent<Light>() };
     light->SetRange(6.66f);
     light->SetBrightness(2.3f);
     light->SetColor(Color(1.0f, 1.0f, 1.0f));
@@ -139,14 +138,14 @@ void Seeker::Disable()
 
 void Seeker::AddTail()
 {
-    tailGen_ = node_->CreateComponent<TailGenerator>();
-    tailGen_->SetDrawHorizontal(true);
-    tailGen_->SetDrawVertical(false);
-    tailGen_->SetTailLength(0.23f);
-    tailGen_->SetNumTails(9);
-    tailGen_->SetWidthScale(0.666f);
-    tailGen_->SetColorForHead(Color(0.5f, 0.23f, 0.666f));
-    tailGen_->SetColorForTip(Color(0.0f, 0.1f, 0.23f));
+    tailGen_ = node_->CreateComponent<RibbonTrail>();
+    tailGen_->SetStartScale(0.666f);
+    tailGen_->SetEndScale(0.0f);
+    tailGen_->SetLifetime(0.23f);
+    tailGen_->SetVertexDistance(0.5f);
+    tailGen_->SetTailColumn(3);
+    tailGen_->SetStartColor(Color(0.5f, 0.23f, 0.666f));
+    tailGen_->SetEndColor(Color(0.0f, 0.1f, 0.23f));
 }
 void Seeker::RemoveTail()
 {

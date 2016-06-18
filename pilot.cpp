@@ -28,7 +28,7 @@ void Pilot::RegisterObject(Context *context)
 Pilot::Pilot(Context* context) : SceneObject(context),
     male_{false},
     hairStyle_{0},
-    colors_{}
+    pilotColors_{}
 {
 }
 
@@ -66,7 +66,7 @@ void Pilot::Save(int playerID, unsigned score)
     fPilot.open("Resources/.Pilot" + to_string(playerID) + ".lkp");
     fPilot << male_ << '\n';
     fPilot << hairStyle_ << '\n';
-    for (Color c : colors_) {
+    for (Color c : pilotColors_.Values()) {
         fPilot << c.r_ << ' '
                << c.g_ << ' '
                << c.b_ << ' '
@@ -127,29 +127,37 @@ void Pilot::UpdateModel()
         bodyModel_->SetModel(MC->GetModel("Female"));
 
     //Set colors for body model
-    for (unsigned m{0}; m < bodyModel_->GetNumGeometries(); ++m){
-        bodyModel_->SetMaterial(m, MC->GetMaterial("Basic")->Clone());
-        Color diffColor{colors_[m]};
-        bodyModel_->GetMaterial(m)->SetShaderParameter("MatDiffColor", diffColor);
-        Color specColor{diffColor*(1.0f-0.1f*m)};
-        specColor.a_ = 23.0f - 2.0f * m;
-        bodyModel_->GetMaterial(m)->SetShaderParameter("MatSpecColor", specColor);
+    for (unsigned c{PC_SKIN}; c < PC_ALL; ++c){
+        bodyModel_->SetMaterial(c, MC->GetMaterial("Basic")->Clone()); ///Only once!
+        Color diffColor{pilotColors_[c]};
+        bodyModel_->GetMaterial(c)->SetShaderParameter("MatDiffColor", diffColor);
+        Color specColor{diffColor*(1.0f-0.1f*c)};
+        specColor.a_ = 23.0f - 2.0f * c;
+        bodyModel_->GetMaterial(c)->SetShaderParameter("MatSpecColor", specColor);
     }
 
     //Set hair model
-    if (!hairStyle_)
-        hairModel_->SetModel(nullptr);
-    else {
-        hairModel_->GetNode()->SetScale(1.0f - (0.1f * !male_));
-        hairModel_->SetModel(MC->hairStyles_[hairStyle_ - 1]);
-        //Set color for hair model
-        hairModel_->SetMaterial(MC->GetMaterial("Basic")->Clone());
-        Color diffColor{colors_[4]};
-        hairModel_->GetMaterial()->SetShaderParameter("MatDiffColor", diffColor);
-        Color specColor{diffColor * 0.23f};
-        specColor.a_ = 23.0f;
-        hairModel_->GetMaterial()->SetShaderParameter("MatSpecColor", specColor);
+    hairModel_->GetNode()->SetScale(1.0f - (0.1f * !male_));
+
+    switch (hairStyle_) {
+    default: case 0: hairModel_->SetModel(nullptr);
+        break;
+    case HAIR_MOHAWK: hairModel_->SetModel(MC->GetModel("Mohawk"));
+        break;
+    case HAIR_SEAGULL: hairModel_->SetModel(MC->GetModel("Seagull"));
+        break;
+    case HAIR_MUSTAIN: hairModel_->SetModel(MC->GetModel("Mustain"));
+        break;
+    case HAIR_FROTOAD: hairModel_->SetModel(MC->GetModel("Frotoad"));
+        break;
     }
+    //Set color for hair model
+    hairModel_->SetMaterial(MC->GetMaterial("Basic")->Clone());
+    Color diffColor{pilotColors_[4]};
+    hairModel_->GetMaterial()->SetShaderParameter("MatDiffColor", diffColor);
+    Color specColor{diffColor * 0.23f};
+    specColor.a_ = 23.0f;
+    hairModel_->GetMaterial()->SetShaderParameter("MatSpecColor", specColor);
 }
 
 void Pilot::Randomize(bool autoPilot)
@@ -159,18 +167,18 @@ void Pilot::Randomize(bool autoPilot)
 
     node_->SetRotation(Quaternion(0.0f, 0.0f, 0.0f));
 
-    colors_.Clear();
-    for (int c{0}; c < 5; ++c) {
+    for (int c{PC_SKIN}; c < PC_ALL; ++c) {
         switch (c){
-        case 0:{
-            colors_.Push(autoPilot
-                         ? Color::GRAY
-                         : LucKey::RandomSkinColor());
-        } break;
-        case 4:{
-            colors_.Push(LucKey::RandomHairColor());
-        } break;
-        default: colors_.Push(LucKey::RandomColor()); break;
+        case 0:
+            pilotColors_[c] = (autoPilot
+                               ? Color::GRAY
+                               : LucKey::RandomSkinColor());
+            break;
+        case 4:
+            pilotColors_[c] = LucKey::RandomHairColor();
+            break;
+        default: pilotColors_[c] = LucKey::RandomColor();
+            break;
         }
     }
     UpdateModel();

@@ -16,56 +16,27 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef HEXOCAM_H
-#define HEXOCAM_H
+#ifndef SHIP_H
+#define SHIP_H
 
 #include <Urho3D/Urho3D.h>
+#include "TailGenerator.h"
 
+#include "luckey.h"
 #include "mastercontrol.h"
 
-namespace Urho3D {
-class Node;
-class Viewport;
-class RenderPath;
-class Camera;
-}
-
-using namespace Urho3D;
-
-class heXoCam : public LogicComponent
+class Ship : public LogicComponent
 {
-    URHO3D_OBJECT(heXoCam, LogicComponent);
-    friend class MasterControl;
-    friend class InputMaster;
+    URHO3D_OBJECT(Ship, LogicComponent);
 public:
-    heXoCam(Context* context);
+    Ship(Context* context);
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
-
-    virtual void Start();
     virtual void Update(float timeStep);
-    virtual void Stop();
-
-    SharedPtr<Camera> camera_;
-    Pair<SharedPtr<Camera>, SharedPtr<Camera> > stereoCam_;
-    SharedPtr<Viewport> viewport_;
-    SharedPtr<RenderPath> effectRenderPath_;
-
-    Vector3 GetWorldPosition();
-    Quaternion GetRotation();
-    void SetGreyScale(const bool enabled);
 private:
-
-    SharedPtr<RigidBody> rigidBody_;
-    float yaw_;
-    float pitch_;
-    float yawDelta_;
-    float pitchDelta_;
-    float forceMultiplier;
-    bool closeUp_;
-    void SetupViewport();
-    void EnterLobby();
-    void EnterPlay();
+    int playerID_;
+    void CreateTails();
+    Vector<TailGenerator*> tailGens_;
 };
 
-#endif // HEXOCAM_H
+#endif // SHIP_H

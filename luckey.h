@@ -48,6 +48,7 @@
 #include <Urho3D/Graphics/ParticleEmitter.h>
 #include <Urho3D/Graphics/Renderer.h>
 #include <Urho3D/Graphics/RenderPath.h>
+#include <Urho3D/Graphics/RibbonTrail.h>
 #include <Urho3D/Graphics/Skybox.h>
 #include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/Graphics/Viewport.h>

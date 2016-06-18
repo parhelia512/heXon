@@ -35,12 +35,6 @@ class ChaoFlash;
 class TailGenerator;
 class Pilot;
 
-typedef struct Ship
-{
-    Node* node_;
-    StaticModel* model_;
-} Ship;
-
 class Player : public SceneObject
 {
     friend class ChaoMine;
@@ -104,7 +98,6 @@ private:
     float sinceLastShot_;
 
     SharedPtr<Pilot> pilot_;
-    Ship ship_;
     Node* shieldNode_;
     StaticModel* shieldModel_;
     SharedPtr<Material> shieldMaterial_;
@@ -147,9 +140,6 @@ private:
     void SetHealth(float health);
     Color HealthToColor(float health);
     void SetScore(int points);
-    void SetupShip();
-    void CreateTails();
-    void RemoveTails();
     void CreateGUI();
     void SetPilotMode(bool pilotMode);
     void MoveMuzzle();

@@ -50,7 +50,8 @@ SOURCES += \
     phaser.cpp \
     arena.cpp \
     lobby.cpp \
-    highest.cpp
+    highest.cpp \
+    ship.cpp
 
 HEADERS += \
     apple.h \
@@ -87,7 +88,9 @@ HEADERS += \
     phaser.h \
     arena.h \
     lobby.h \
-    highest.h
+    highest.h \
+    ship.h \
+    hexonevents.h
 
 OTHER_FILES += \
     Docs/Todo.md \

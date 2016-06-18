@@ -23,6 +23,9 @@
 
 #include "sceneobject.h"
 
+enum PilotColor { PC_SKIN, PC_SHIRT, PC_PANTS, PC_SHOES, PC_HAIR, PC_ALL };
+enum Hair{HAIR_BALD, HAIR_SHORT, HAIR_MOHAWK, HAIR_SEAGULL, HAIR_MUSTAIN, HAIR_FROTOAD, HAIR_FLATTOP, HAIR_ALL};
+
 class Pilot : public SceneObject
 {
     URHO3D_OBJECT(Pilot, SceneObject);
@@ -38,7 +41,7 @@ public:
 private:
     bool male_;
     int hairStyle_;
-    Vector<Color> colors_;
+    HashMap<int, Color> pilotColors_;
     AnimatedModel* bodyModel_;
     StaticModel* hairModel_;
     AnimationController* animCtrl_;
