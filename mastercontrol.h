@@ -189,9 +189,6 @@ private:
     void SubscribeToEvents();
 
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-    void HandlePlayTrigger1(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY); (void)otherNode; (void)eventData;}
-    void HandlePlayTrigger2(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY); (void)otherNode; (void)eventData;}
-    void HandlePlayTrigger(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY);  (void)otherNode; (void)eventData;}
 
     void UpdateCursor(const float timeStep);
     bool CursorRayCast(const float maxDistance, PODVector<RayQueryResult> &hitResults);

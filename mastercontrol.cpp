@@ -103,8 +103,9 @@ void MasterControl::Start()
     Arena::RegisterObject(context_);
     Tile::RegisterObject(context_);
     Lobby::RegisterObject(context_);
-    Highest::RegisterObject(context_);
     Door::RegisterObject(context_);
+    SplatterPillar::RegisterObject(context_);
+    Highest::RegisterObject(context_);
 
     new InputMaster();
     renderer_ = GetSubsystem<Renderer>();
@@ -284,9 +285,6 @@ void MasterControl::CreateScene()
 
 //    door1_ = new Door(false);
 //    door2_ = new Door(true);
-
-//    splatterPillar1_ = new SplatterPillar(false);
-//    splatterPillar2_ = new SplatterPillar(true);
 
 //    apple_ = new Apple();
 //    heart_ = new Heart();

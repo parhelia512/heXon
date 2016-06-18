@@ -31,8 +31,8 @@ Tile::Tile(Context* context):
 }
 
 void Tile::OnNodeSet(Node *node)
-{/*
-//    node_->SetPosition(position);
+{ (void)node;
+
     node_->SetScale(1.1f);
     model_ = node_->CreateComponent<StaticModel>();
     model_->SetModel(MC->GetModel("Hexagon"));
@@ -43,11 +43,10 @@ void Tile::OnNodeSet(Node *node)
     centerDistExp_ = static_cast<float>(exp2(static_cast<double>(0.75f*LucKey::Distance(Vector3::ZERO, referencePosition_))));
 
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Tile, HandleUpdate));
-*/}
+}
 
 void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
 { (void)eventType; (void)eventData;
-
     float elapsedTime{MC->scene_->GetElapsedTime()};
     float offsetY{0.0f};
 
@@ -58,10 +57,11 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     //Calculate periodic tile movement
     wave_ = 6.0f * pow(LucKey::Sine(Abs(centerDistExp_ - elapsedTime * 5.2625f)), 4.0f);
 
+    /*
     unsigned nHexAffectors{tileMaster_->hexAffectors_.Size()};
     if (nHexAffectors) {
         for (unsigned i = 0; i < nHexAffectors; i++) {
-            WeakPtr<Node> hexAffector = tileMaster_->hexAffectors_.Keys()[i];
+            Node* hexAffector = tileMaster_->hexAffectors_.Keys()[i];
             float hexAffectorMass = tileMaster_->hexAffectors_[hexAffector]->GetMass();
             if (hexAffector->IsEnabled()) {
                 float offsetYPart = sqrt(hexAffectorMass) - (0.1f * LucKey::Distance(referencePosition_, hexAffector->GetPosition()));
@@ -73,6 +73,8 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
         }
         offsetY = sqrt(offsetY*0.666f);
     }
+    */
+
     offsetY += 0.023f * wave_;
 
     offsetY = (offsetY + lastOffsetY_) * 0.5f;
@@ -83,7 +85,7 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     node_->SetPosition(newPos);
 
     bool lobby{MC->GetGameState() == GS_LOBBY};
-    float brightness{Clamp((0.23f * offsetY) + 0.25f, 0.0f, 1.0f) + 0.42f*(float)(lobby)};
+    float brightness{Clamp((0.23f * offsetY) + 0.25f, 0.0f, 1.0f) + 0.42f*static_cast<float>(lobby)};
     Color color{brightness +  offsetY * lobby, brightness + offsetY * 0.00042f * (MC->Sine(23.0f, -23.0f - 1000.0f * lobby, 23.0f + 1000.0f * lobby, 23.0f) * wave_), brightness - Random(0.23f) * lobby, brightness + (0.023f * wave_)};
     model_->GetMaterial(0)->SetShaderParameter("MatDiffColor", color);
 }

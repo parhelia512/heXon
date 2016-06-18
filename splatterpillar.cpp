@@ -31,10 +31,10 @@ SplatterPillar::SplatterPillar(Context* context):
     right_{context},
     spun_{false},
     reset_{true},
-    delayed_{0.0f},
-    delay_{0.5f},
-    sequenceLength_{5.0f},
     lastTriggered_{-5.0f},
+    delay_{0.5f},
+    delayed_{0.0f},
+    sequenceLength_{5.0f},
     rotationSpeed_{}
 {
 
@@ -43,8 +43,7 @@ SplatterPillar::SplatterPillar(Context* context):
 void SplatterPillar::OnNodeSet(Node *node)
 { (void)node;
 
-    node_->SetPosition(Vector3(right_? 2.26494f : -2.26494f, 0.0f, -3.91992f));
-    node_->Rotate(Quaternion(Random(6)*60.0f, Vector3::UP));
+    node_->Rotate(Quaternion(Random(6) * 60.0f, Vector3::UP));
     pillarNode_ = node_->CreateChild("Pillar");
     bloodNode_ = node_->CreateChild("Blood");
     pillar_ = pillarNode_->CreateComponent<AnimatedModel>();
@@ -68,7 +67,7 @@ void SplatterPillar::OnNodeSet(Node *node)
     blood_->SetMaterial(0, MC->GetMaterial("Blood")->Clone());
 
     particleNode_ = node_->CreateChild("BloodParticles");
-    particleNode_->Translate(Vector3::UP*2.3f);
+    particleNode_->Translate(Vector3::UP * 2.3f);
     splatEmitter_ = particleNode_->CreateComponent<ParticleEmitter>();
     splatEmitter_->SetEffect(CACHE->GetResource<ParticleEffect>("Particles/BloodSplat.xml"));
     splatEmitter_->SetEmitting(false);
@@ -79,7 +78,6 @@ void SplatterPillar::OnNodeSet(Node *node)
     soundSource_ = node_->CreateComponent<SoundSource>();
     soundSource_->SetGain(1.0f);
 
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(SplatterPillar, HandleSceneUpdate));
 }
 
 void SplatterPillar::Trigger()
@@ -89,17 +87,16 @@ void SplatterPillar::Trigger()
     player_->KillPilot();
     bloodNode_->Rotate(Quaternion(Random(360.0f), Vector3::UP));
     blood_->SetEnabled(true);
-    soundSource_->Play(CACHE->GetResource<Sound>("Samples/Splatter" + String(Random(1,6)) + ".ogg"));
+    soundSource_->Play(CACHE->GetResource<Sound>("Samples/Splatter" + String(Random(1, 6)) + ".ogg"));
 }
 
-void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
-{ (void)eventType;
+void SplatterPillar::Update(float timeStep)
+{ (void)timeStep;
 
     if (player_ == nullptr) player_ = MC->GetPlayer(right_+1);
 
     if (MC->GetGameState() != GS_LOBBY) return;
 
-    float timeStep_{eventData[SceneUpdate::P_TIMESTEP].GetFloat()};
     float elapsedTime{MC->scene_->GetElapsedTime()};
     float intoSequence{(elapsedTime - lastTriggered_)/sequenceLength_};
     unsigned numMorphs{blood_->GetNumMorphs()};
@@ -152,7 +149,7 @@ void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventDa
         if (pillar_->GetMorphWeight(0) != 0.0f) pillar_->SetMorphWeight(0, 0.0f);
         //Trigger
         if (player_ && LucKey::Distance(player_->GetPosition(), node_->GetWorldPosition()) < 0.23f) {
-            delayed_ += timeStep_;
+            delayed_ += timeStep;
             if (delayed_ > delay_){
                 Trigger();
                 delayed_ = 0.0f;

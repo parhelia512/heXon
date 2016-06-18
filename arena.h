@@ -45,9 +45,9 @@ public:
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
 
-    void AddToAffectors(WeakPtr<Node> affector, WeakPtr<RigidBody> rigidBody) { hexAffectors_[affector] = rigidBody; }
-    void RemoveFromAffectors(WeakPtr<Node> affector);
-    HashMap<WeakPtr<Node>, WeakPtr<RigidBody> >* GetAffectors() { return &hexAffectors_; }
+    void AddToAffectors(Node* affector, RigidBody* rigidBody) { hexAffectors_[affector] = rigidBody; }
+    void RemoveFromAffectors(Node* affector);
+    HashMap<Node*, RigidBody* >* GetAffectors() { return &hexAffectors_; }
 
     Tile* GetRandomTile();
     void FlashX(int playerID);
@@ -58,13 +58,14 @@ private:
     Material* logoMaterial_;
     Material* xMaterial_;
     Light* playLight_;
-    HashMap<WeakPtr<Node>, WeakPtr<RigidBody> > hexAffectors_;
-    HashMap<IntVector2, SharedPtr<Tile> > tileMap_;
+    HashMap<Node*, RigidBody*> hexAffectors_;
+    HashMap<IntVector2, Tile*> tileMap_;
 
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
 
     void EnterPlayState();
     void EnterLobbyState();
+
 };
 
 #endif // TILEMASTER_H

@@ -44,7 +44,6 @@ private:
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
     Arena* tileMaster_;
 
-    Node* node_;
     Vector3 referencePosition_;
     float centerDistExp_;
     float wave_;

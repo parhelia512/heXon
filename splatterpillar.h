@@ -38,7 +38,6 @@ public:
     bool IsIdle() const;
 private:
     Player* player_;
-    Node* node_;
     Node* pillarNode_;
     Node* bloodNode_;
     Node* particleNode_;
@@ -57,7 +56,7 @@ private:
     float sequenceLength_;
     float rotationSpeed_;
 
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
+    virtual void Update(float timeStep);
     void Trigger();
 };
 

@@ -18,6 +18,7 @@
 
 #include "lobby.h"
 #include "door.h"
+#include "splatterpillar.h"
 #include "highest.h"
 
 void Lobby::RegisterObject(Context *context)
@@ -56,7 +57,7 @@ void Lobby::OnNodeSet(Node *node)
     RigidBody* ship1Body{ship1Node->CreateComponent<RigidBody>()};
     ship1Body->SetTrigger(true);
     ship1Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
-//    SubscribeToEvent(ship1Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandlePlayTrigger1));
+    SubscribeToEvent(ship1Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(Lobby, HandlePlayTrigger));
 
     //Create player 2 lobby ship
     Node* ship2Node{node_->CreateChild("Ship")};
@@ -70,12 +71,13 @@ void Lobby::OnNodeSet(Node *node)
     RigidBody* ship2Body{ship2Node->CreateComponent<RigidBody>()};
     ship2Body->SetTrigger(true);
     ship2Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
-//    SubscribeToEvent(ship2Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandlePlayTrigger2));
+    SubscribeToEvent(ship2Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(Lobby, HandlePlayTrigger));
 
     //Create highest
     Node* highestNode{ node_->CreateChild("Highest") };
     highestNode->CreateComponent<Highest>();
 
+    //Create coliders
     node_->CreateComponent<RigidBody>();
     node_->CreateComponent<CollisionShape>()->SetConvexHull(MC->GetModel("CC_Center"));
     node_->CreateComponent<CollisionShape>()->SetConvexHull(MC->GetModel("CC_CentralBox"));
@@ -98,6 +100,7 @@ void Lobby::OnNodeSet(Node *node)
     side2Shape->SetConvexHull(MC->GetModel("CC_Side2"));
     side2Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
 
+    //Create lights
     for (int l{0}; l < 4; ++l){
         Node* pointLightNode{node_->CreateChild("PointLight")};
         pointLightNode->SetPosition(Vector3(l % 2 ? -2.3f : 2.3f, 2.3f, l < 2 ? 3.0f : -3.0f));
@@ -108,11 +111,18 @@ void Lobby::OnNodeSet(Node *node)
         pointLight->SetCastShadows(true);
         pointLight->SetShadowBias(BiasParameters(0.0001f, 0.1f));
     }
-
+    //Create doors
     for (bool right : {true, false}){
         Node* doorNode{ node_->CreateChild("Door") };
         doorNode->SetPosition(Vector3( right ? 2.26494f : -2.26494f, 0.0f, 5.21843f));
         doorNode->CreateComponent<Door>();
+    }
+
+    //Create splatterpillars
+    for (bool right : {true, false}){
+        Node* splatterPillarNode{ node_->CreateChild("SplatterPillar") };
+        splatterPillarNode->SetPosition(Vector3(right ? 2.26494f : -2.26494f, 0.0f, -3.91992f));
+        splatterPillarNode->CreateComponent<SplatterPillar>();
     }
 }
 
@@ -125,4 +135,10 @@ void Lobby::Update(float timeStep)
         lightNode->GetComponent<Light>()->SetBrightness(
                     MC->Sine(1.0f, 0.666f, 1.23f,
                     M_PI * (lightNode->GetPosition().z_ < 0.0f)));
+}
+
+void Lobby::HandlePlayTrigger(StringHash otherNode, VariantMap& eventData)
+{ (void)otherNode; (void)eventData;
+
+    MC->SetGameState(GS_PLAY);
 }

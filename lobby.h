@@ -32,6 +32,7 @@ public:
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
     virtual void Update(float timeStep);
+    void HandlePlayTrigger(StringHash otherNode, VariantMap& eventData);
 };
 
 #endif // LOBBY_H

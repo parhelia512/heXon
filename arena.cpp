@@ -90,7 +90,7 @@ void Arena::OnNodeSet(Node *node)
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Arena, HandleUpdate));
 }
 
-void Arena::RemoveFromAffectors(WeakPtr<Node> affector)
+void Arena::RemoveFromAffectors(Node* affector)
 {
     if (hexAffectors_.Contains(affector) )
         hexAffectors_.Erase(affector);
@@ -100,8 +100,8 @@ void Arena::EnterPlayState()
 {
     targetPosition_ = Vector3::DOWN * 0.23f;
     targetScale_ = Vector3::ONE;
-    Vector<SharedPtr<Tile> > tiles = tileMap_.Values();
-    for (SharedPtr<Tile> t : tiles){
+    Vector<Tile* > tiles = tileMap_.Values();
+    for (Tile* t : tiles){
         t->lastOffsetY_ = 2.3f;
     }
 }
@@ -112,10 +112,11 @@ void Arena::EnterLobbyState()
 }
 
 void Arena::HandleUpdate(StringHash eventType, VariantMap& eventData)
-{
-    float timestep = eventData[Update::P_TIMESTEP].GetFloat();
+{ (void)eventType;
+
+    float timestep{ eventData[Update::P_TIMESTEP].GetFloat() };
     float lerpFactor = MC->GetGameState() == GS_LOBBY ? 13.0f : 6.66f ;
-    float t = Min(1.0f, timestep * lerpFactor);
+    float t{ Min(1.0f, timestep * lerpFactor) };
     node_->SetPosition(node_->GetPosition().Lerp(targetPosition_, t));
     node_->SetScale(node_->GetScale().Lerp(targetScale_, pow(t, 0.88f) ));
 
@@ -141,18 +142,18 @@ void Arena::HandleUpdate(StringHash eventType, VariantMap& eventData)
 
 Tile* Arena::GetRandomTile()
 {
-    Vector<SharedPtr<Tile> > tiles = tileMap_.Values();
+    Vector<Tile* > tiles = tileMap_.Values();
     if (tiles.Size()){
-        SharedPtr<Tile> tile;
+        Tile* tile;
         while (!tile){
-            SharedPtr<Tile> tryTile = tiles[Random((int)tiles.Size())];
+            Tile* tryTile = tiles[Random((int)tiles.Size())];
             PODVector<PhysicsRaycastResult> hitResults;
             Ray spawnRay(tryTile->node_->GetPosition()-Vector3::UP, Vector3::UP*10.0f);
             if (!MC->PhysicsRayCast(hitResults, spawnRay, 23.0f, M_MAX_UNSIGNED)){
                 tile = tryTile;
             }
         }
-        return tile.Get();
+        return tile;
     }
 }
 
