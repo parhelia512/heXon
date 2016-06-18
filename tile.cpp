@@ -57,12 +57,12 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     //Calculate periodic tile movement
     wave_ = 6.0f * pow(LucKey::Sine(Abs(centerDistExp_ - elapsedTime * 5.2625f)), 4.0f);
 
-    /*
-    unsigned nHexAffectors{tileMaster_->hexAffectors_.Size()};
+    Arena* arena{ node_->GetParentComponent<Arena>() };
+    unsigned nHexAffectors{ arena->hexAffectors_.Size()};
     if (nHexAffectors) {
         for (unsigned i = 0; i < nHexAffectors; i++) {
-            Node* hexAffector = tileMaster_->hexAffectors_.Keys()[i];
-            float hexAffectorMass = tileMaster_->hexAffectors_[hexAffector]->GetMass();
+            Node* hexAffector = arena->hexAffectors_.Keys()[i];
+            float hexAffectorMass = arena->hexAffectors_[hexAffector]->GetMass();
             if (hexAffector->IsEnabled()) {
                 float offsetYPart = sqrt(hexAffectorMass) - (0.1f * LucKey::Distance(referencePosition_, hexAffector->GetPosition()));
                 if (offsetYPart > 0.0f) {
@@ -73,7 +73,6 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
         }
         offsetY = sqrt(offsetY*0.666f);
     }
-    */
 
     offsetY += 0.023f * wave_;
 

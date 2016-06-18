@@ -42,7 +42,6 @@ public:
     TileType tileType_;
 private:
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
-    Arena* tileMaster_;
 
     Vector3 referencePosition_;
     float centerDistExp_;
