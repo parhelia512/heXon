@@ -48,7 +48,9 @@ SOURCES += \
     tile.cpp \
     pilot.cpp \
     phaser.cpp \
-    arena.cpp
+    arena.cpp \
+    lobby.cpp \
+    highest.cpp
 
 HEADERS += \
     apple.h \
@@ -83,7 +85,9 @@ HEADERS += \
     tile.h \
     pilot.h \
     phaser.h \
-    arena.h
+    arena.h \
+    lobby.h \
+    highest.h
 
 OTHER_FILES += \
     Docs/Todo.md \
@@ -116,3 +120,6 @@ unix {
 
     INSTALLS += target icon desktop appdata
 }
+
+DISTFILES += \
+    LICENSE_TEMPLATE

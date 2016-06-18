@@ -16,34 +16,21 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef DOOR_H
-#define DOOR_H
-
-#include "mastercontrol.h"
+#ifndef HIGHEST_H
+#define HIGHEST_H
 
 #include <Urho3D/Urho3D.h>
 
-class Player;
+#include "luckey.h"
+#include "mastercontrol.h"
 
-class Door : public LogicComponent
+class Highest : public LogicComponent
 {
-    URHO3D_OBJECT(Door, LogicComponent);
+    URHO3D_OBJECT(Highest, LogicComponent);
 public:
-    Door(Context* context);
+    Highest(Context* context);
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
-    float HidesPlayer() const;
-    Vector3 GetPosition() const { return node_->GetPosition(); }
-private:
-    Player* player_;
-    AnimatedModel* door_;
-    SharedPtr<Sound> doorSample_;
-
-    bool right_;
-    bool wasNear_;
-    float hiding_;
-
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 };
 
-#endif // DOOR_H
+#endif // HIGHEST_H

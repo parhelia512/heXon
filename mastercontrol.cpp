@@ -42,6 +42,9 @@
 #include "door.h"
 #include "arena.h"
 #include "tile.h"
+#include "lobby.h"
+#include "door.h"
+#include "highest.h"
 
 URHO3D_DEFINE_APPLICATION_MAIN(MasterControl);
 
@@ -99,6 +102,9 @@ void MasterControl::Start()
     heXoCam::RegisterObject(context_);
     Arena::RegisterObject(context_);
     Tile::RegisterObject(context_);
+    Lobby::RegisterObject(context_);
+    Highest::RegisterObject(context_);
+    Door::RegisterObject(context_);
 
     new InputMaster();
     renderer_ = GetSubsystem<Renderer>();
@@ -249,72 +255,9 @@ void MasterControl::CreateScene()
     arena_ = arenaNode->CreateComponent<Arena>();
 
     //Construct lobby
-    lobbyNode_ = scene_->CreateChild("Lobby");
-    lobbyNode_->Rotate(Quaternion(0.0f, 0.0f, 0.0f));
-    Node* chamberNode{lobbyNode_->CreateChild("Chamber")};
-    StaticModel* chamberModel{chamberNode->CreateComponent<StaticModel>()};
-    chamberModel->SetModel(GetModel("Chamber"));
-    chamberModel->SetMaterial(0, GetMaterial("Basic"));
-    chamberModel->SetMaterial(1, GetMaterial("PitchBlack"));
-    chamberModel->SetMaterial(4, GetMaterial("Drain"));
-    lobbyGlowGreen_ = GetMaterial("GreenGlow");
-    chamberModel->SetMaterial(2, lobbyGlowGreen_);
-    lobbyGlowPurple_ = GetMaterial("PurpleGlow");
-    chamberModel->SetMaterial(3, lobbyGlowPurple_);
-    chamberModel->SetCastShadows(true);
+    Node* lobbyNode{ scene_->CreateChild("Lobby") };
+    lobbyNode->CreateComponent<Lobby>();
 
-    //Create player 1 lobby ship
-    Node* ship1Node{lobbyNode_->CreateChild("Ship")};
-    ship1Node->SetWorldPosition(Vector3(-4.2f, 0.6f, 0.0f));
-    ship1Node->Rotate(Quaternion(90.0f, Vector3::UP));
-    StaticModel* ship1{ship1Node->CreateComponent<StaticModel>()};
-    ship1->SetModel(GetModel("KlåMk10"));
-    ship1->SetMaterial(0, GetMaterial("GreenGlow"));
-    ship1->SetMaterial(1, GetMaterial("Green"));
-    ship1->SetCastShadows(true);
-    RigidBody* ship1Body{ship1Node->CreateComponent<RigidBody>()};
-    ship1Body->SetTrigger(true);
-    ship1Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
-    SubscribeToEvent(ship1Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandlePlayTrigger1));
-
-    //Create player 2 lobby ship
-    Node* ship2Node{lobbyNode_->CreateChild("Ship")};
-    ship2Node->SetWorldPosition(Vector3(4.2f, 0.6f, 0.0f));
-    ship2Node->Rotate(Quaternion(270.0f, Vector3::UP));
-    StaticModel* ship2{ship2Node->CreateComponent<StaticModel>()};
-    ship2->SetModel(GetModel("KlåMk10"));
-    ship2->SetMaterial(0, GetMaterial("PurpleGlow"));
-    ship2->SetMaterial(1, GetMaterial("Purple"));
-    ship2->SetCastShadows(true);
-    RigidBody* ship2Body{ship2Node->CreateComponent<RigidBody>()};
-    ship2Body->SetTrigger(true);
-    ship2Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
-    SubscribeToEvent(ship2Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandlePlayTrigger2));
-
-    //Create highest
-    highestNode_ = lobbyNode_->CreateChild("Highest");
-    highestNode_->Translate(Vector3(0.0f, 3.2f, -5.0f));
-    highestNode_->Rotate(Quaternion(45.0f, Vector3::RIGHT));
-    highestNode_->Rotate(Quaternion(180.0f, Vector3::UP));
-    podiumNode_ = highestNode_->CreateChild("Podium");
-    podiumNode_->SetScale(0.5f);
-    StaticModel* hexPodium{podiumNode_->CreateComponent<StaticModel>()};
-    hexPodium->SetModel(GetModel("Hexagon"));
-    hexPodium->SetMaterial(GetMaterial("BackgroundTile")->Clone());
-    Node* highestPilotNode{podiumNode_->CreateChild("HighestPilot")};
-    highestPilotNode->SetScale(2.0f);
-
-
-    Node* spotNode{highestNode_->CreateChild("HighestSpot")};
-    spotNode->Translate(Vector3(0.0f, -2.0f, 3.0f));
-    spotNode->LookAt(highestNode_->GetWorldPosition());
-    Light* highestSpot{spotNode->CreateComponent<Light>()};
-    highestSpot->SetLightType(LIGHT_SPOT);
-    highestSpot->SetRange(5.0f);
-    highestSpot->SetFov(23.5f);
-    highestSpot->SetColor(Color(0.6f, 0.7f, 1.0f));
-    highestSpot->SetBrightness(5.0f);
-    highestSpot->SetSpecularIntensity(0.23f);
 
     UI* ui{GetSubsystem<UI>()};
     highestScoreText_ = ui->GetRoot()->CreateChild<Text>();
@@ -329,68 +272,6 @@ void MasterControl::CreateScene()
 //    highestPilot_ = new Pilot(highestPilotNode);
 //    LoadHighest();
 
-    lobbyNode_->CreateComponent<RigidBody>();
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_Center"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_CentralBox"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_Edge1"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_Edge2"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_Side1"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_Side2"));
-
-    CollisionShape* edge1Shape{lobbyNode_->CreateComponent<CollisionShape>()};
-    edge1Shape->SetConvexHull(GetModel("CC_Edge1"));
-    edge1Shape->SetPosition(Vector3::FORWARD * 1.23f);
-    edge1Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
-    CollisionShape* edge2Shape{lobbyNode_->CreateComponent<CollisionShape>()};
-    edge2Shape->SetConvexHull(GetModel("CC_Edge2"));
-    edge2Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
-    CollisionShape* side1Shape{lobbyNode_->CreateComponent<CollisionShape>()};
-    side1Shape->SetConvexHull(GetModel("CC_Side1"));
-    side1Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
-    CollisionShape* side2Shape{lobbyNode_->CreateComponent<CollisionShape>()};
-    side2Shape->SetConvexHull(GetModel("CC_Side2"));
-    side2Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
-
-
-    Node* leftPointLightNode1{lobbyNode_->CreateChild("PointLight")};
-    leftPointLightNode1->SetPosition(Vector3(-2.3f, 2.3f, 3.0f));
-    leftPointLight1_ = leftPointLightNode1->CreateComponent<Light>();
-    leftPointLight1_->SetLightType(LIGHT_POINT);
-    leftPointLight1_->SetBrightness(0.83f);
-    leftPointLight1_->SetColor(Color(0.42f, 1.0f, 0.1f));
-    leftPointLight1_->SetRange(13.0f);
-    leftPointLight1_->SetCastShadows(true);
-    leftPointLight1_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
-
-    Node* leftPointLightNode2{lobbyNode_->CreateChild("PointLight")};
-    leftPointLightNode2->SetPosition(Vector3(-2.3f, 2.3f, -3.0f));
-    leftPointLight2_ = leftPointLightNode2->CreateComponent<Light>();
-    leftPointLight2_->SetLightType(LIGHT_POINT);
-    leftPointLight2_->SetBrightness(0.83f);
-    leftPointLight2_->SetColor(Color(0.42f, 1.0f, 0.1f));
-    leftPointLight2_->SetRange(13.0f);
-    leftPointLight2_->SetCastShadows(true);
-    leftPointLight2_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
-
-    Node* rightPointLightNode1{lobbyNode_->CreateChild("PointLight")};
-    rightPointLightNode1->SetPosition(Vector3(2.3f, 2.3f, 3.0f));
-    rightPointLight1_ = rightPointLightNode1->CreateComponent<Light>();
-    rightPointLight1_->SetLightType(LIGHT_POINT);
-    rightPointLight1_->SetBrightness(1.0f);
-    rightPointLight1_->SetColor(Color(0.42f, 0.1f, 1.0f));
-    rightPointLight1_->SetRange(13.0f);
-    rightPointLight1_->SetCastShadows(true);
-    rightPointLight1_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
-
-    Node* rightPointLightNode2{lobbyNode_->CreateChild("PointLight")};
-    rightPointLightNode2->SetPosition(Vector3(2.3f, 2.3f, -3.0f));
-    rightPointLight2_ = rightPointLightNode2->CreateComponent<Light>();
-    rightPointLight2_->SetLightType(LIGHT_POINT);
-    rightPointLight2_->SetBrightness(1.0f);
-    rightPointLight2_->SetColor(Color(0.42f, 0.1f, 1.0f));
-    rightPointLight2_->SetRange(13.0f);
-    rightPointLight2_->SetCastShadows(true);
-    rightPointLight2_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
 
     //Create game elements
     spawnMaster_ = new SpawnMaster();
@@ -427,7 +308,7 @@ void MasterControl::LeaveGameState()
     switch (currentState_) {
     case GS_INTRO : break;
     case GS_LOBBY : {
-        lobbyNode_->SetEnabledRecursive(false);
+//        lobby_->SetEnabledRecursive(false);
         if (highestScore_ != 0)
             highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.23f));
     } break;
@@ -449,13 +330,15 @@ void MasterControl::EnterGameState()
         GetPlayer(1)->EnterLobby();
         GetPlayer(2)->EnterLobby();
         musicSource_->Play(menuMusic_);
-        lobbyNode_->SetEnabledRecursive(true);
+//        lobby_->SetEnabledRecursive(true);
+//        lobby_->SetPosition((Vector3::DOWN * 23.0f) / (128.0f * sinceStateChange_+23.0f));
+
         world.camera->EnterLobby();
         spawnMaster_->Clear();
 
         arena_->EnterLobbyState();
-        highestNode_->SetEnabledRecursive(highestScore_ != 0);
-        highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f) * static_cast<float>(highestScore_ != 0));
+//        highestNode_->SetEnabledRecursive(highestScore_ != 0);
+//        highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f) * static_cast<float>(highestScore_ != 0));
 
 //        apple_->Disable();
 //        heart_->Disable();
@@ -507,28 +390,24 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
     sinceStateChange_ += t;
     UpdateCursor(t);
 
-//    switch (currentState_) {
-//    case GS_LOBBY: {
-//        lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) / (128.0f * sinceStateChange_+23.0f));
+    switch (currentState_) {
+    case GS_LOBBY: {
 
-//        leftPointLight1_->SetBrightness(Sine(1.0f, 0.666f, 0.95f));
-//        leftPointLight2_->SetBrightness(Sine(1.0f, 0.666f, 0.95f, M_PI));
-//        rightPointLight1_->SetBrightness(Sine(1.0f, 0.95f, 1.23f));
-//        rightPointLight2_->SetBrightness(Sine(1.0f, 0.95f, 1.23f, M_PI));
+
 
 //        if (door1_->HidesPlayer() > 0.5f && door2_->HidesPlayer() > 0.5f){
 //                Exit();
 //        }
-//    } break;
-//    case GS_PLAY: {
-//        lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) * Min(1.0f, sinceStateChange_));
-//    } break;
-//    case GS_DEAD: {
-//        if (sinceStateChange_ > 5.0f && NoHumans())
-//            SetGameState(GS_LOBBY);
-//    }
-//    default: break;
-//    }
+    } break;
+    case GS_PLAY: {
+//        lobby_->SetPosition((Vector3::DOWN * 23.0f) * Min(1.0f, sinceStateChange_));
+    } break;
+    case GS_DEAD: {
+        if (sinceStateChange_ > 5.0f && NoHumans())
+            SetGameState(GS_LOBBY);
+    }
+    default: break;
+    }
 }
 
 void MasterControl::UpdateCursor(const float timeStep)

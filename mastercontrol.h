@@ -40,6 +40,7 @@ class SplatterPillar;
 class Apple;
 class ChaoBall;
 class Heart;
+class Lobby;
 
 typedef struct GameWorld
 {
@@ -123,7 +124,7 @@ public:
     SharedPtr<Apple> apple_;
     SharedPtr<Heart> heart_;
     SharedPtr<ChaoBall> chaoBall_;
-    SharedPtr<Node> lobbyNode_;
+    Lobby* lobby_;
 
     // Setup before engine initialization. Modifies the engine paramaters.
     virtual void Setup();
@@ -176,10 +177,6 @@ private:
     SharedPtr<Sound> gameMusic_;
 
     Light* lobbySpotLight_;
-    Light* leftPointLight1_;
-    Light* leftPointLight2_;
-    Light* rightPointLight1_;
-    Light* rightPointLight2_;
 
     Material* lobbyGlowGreen_;
     Material* lobbyGlowPurple_;

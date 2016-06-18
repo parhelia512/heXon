@@ -33,17 +33,15 @@ Door::Door(Context* context) :
 }
 
 void Door::OnNodeSet(Node *node)
-{
-    bool right{right_};
-    player_ = right ? MC->GetPlayer(2) : MC->GetPlayer(1);
-    rootNode_ = MC->lobbyNode_->CreateChild("Door");
-    rootNode_->SetPosition(Vector3(right_? 2.26494f : -2.26494f, 0.0f, 5.21843f));
-    door_ = rootNode_->CreateComponent<AnimatedModel>();
+{ (void)node;
+
+    node_->GetPosition().x_ > 0.0f ? MC->GetPlayer(2) : MC->GetPlayer(1);
+    door_ = node_->CreateComponent<AnimatedModel>();
     door_->SetModel(MC->GetModel("Door"));
     door_->SetMaterial(0, MC->GetMaterial("Basic"));
     door_->SetCastShadows(true);
 
-    Node* lightNode{rootNode_->CreateChild("DoorLight")};
+    Node* lightNode{node_->CreateChild("DoorLight")};
     lightNode->SetPosition(Vector3(0.0f, 0.666f, 2.3f));
     Light* doorLight{lightNode->CreateComponent<Light>()};
     doorLight->SetRange(10.0f);
@@ -64,8 +62,9 @@ float Door::HidesPlayer() const
 }
 
 void Door::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
-{
-    bool playerNear{LucKey::Distance(rootNode_->GetWorldPosition(), player_->GetPosition()) < 0.666f};
+{ (void)eventType;
+
+    bool playerNear{LucKey::Distance(node_->GetWorldPosition(), player_->GetPosition()) < 0.666f};
     if (playerNear != wasNear_) {
         player_->PlaySample(doorSample_);
     }

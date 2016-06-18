@@ -34,11 +34,11 @@ public:
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
 
-    Vector3 GetPosition() const { return rootNode_->GetPosition(); }
+    Vector3 GetPosition() const { return node_->GetPosition(); }
     bool IsIdle() const;
 private:
     Player* player_;
-    Node* rootNode_;
+    Node* node_;
     Node* pillarNode_;
     Node* bloodNode_;
     Node* particleNode_;
