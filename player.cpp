@@ -23,7 +23,7 @@
 #include "mastercontrol.h"
 #include "hexocam.h"
 #include "spawnmaster.h"
-#include "tilemaster.h"
+#include "arena.h"
 #include "bullet.h"
 #include "muzzle.h"
 #include "chaoflash.h"
@@ -42,8 +42,8 @@ void Player::RegisterObject(Context *context)
 }
 
 Player::Player(Context* context):
-    SceneObject(),
-    playerID_{playerID},
+    SceneObject(context),
+    playerID_{1},
 //    autoPilot_{playerID_ == 2 && !GetSubsystem<Input>()->GetJoystickByIndex(playerID-1)},
 //    autoPilot_{false},
     autoPilot_{true},
@@ -78,18 +78,18 @@ void Player::OnNodeSet(Node *node)
     SetupShip();
 
     //Setup pilot
-    if (!autoPilot_){
-        pilot_ = new Pilot(node_.Get(),
-                           "Resources/.Pilot"+std::to_string(playerID_)+".lkp",
-                           score_);
-    } else {
-        pilot_ = new Pilot(node_.Get());
-    }
+//    if (!autoPilot_){
+//        pilot_ = new Pilot(node_.Get(),
+//                           "Resources/.Pilot"+std::to_string(playerID_)+".lkp",
+//                           score_);
+//    } else {
+//        pilot_ = new Pilot(node_.Get());
+//    }
 
-    if (score_ != 0) {
-        alive_ = true;
-        SetScore(score_);
-    }
+//    if (score_ != 0) {
+//        alive_ = true;
+//        SetScore(score_);
+//    }
 
     //Setup shield
     shieldNode_ = node_->CreateChild("Shield");
@@ -99,7 +99,7 @@ void Player::OnNodeSet(Node *node)
     shieldModel_->SetMaterial(shieldMaterial_);
 
     //Setup ChaoFlash
-    chaoFlash_ = new ChaoFlash(playerID_);
+//    chaoFlash_ = new ChaoFlash(playerID_);
 
     //Setup player audio
     shot_s = MC->GetSample("Shot");
@@ -128,7 +128,7 @@ void Player::OnNodeSet(Node *node)
         extraSampleSource->SetSoundType(SOUND_EFFECT);
         sampleSources_.Push(extraSampleSource);
     }
-    Node* deathSourceNode = MC->world.scene->CreateChild("DeathSound");
+    Node* deathSourceNode = MC->scene_->CreateChild("DeathSound");
     deathSource_ = deathSourceNode->CreateComponent<SoundSource>();
     deathSource_->SetSoundType(SOUND_EFFECT);
     deathSource_->SetGain(2.3f);
@@ -146,15 +146,15 @@ void Player::OnNodeSet(Node *node)
     collisionShape_ = node_->CreateComponent<CollisionShape>();
     collisionShape_->SetSphere(2.0f);
 
-    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
+    MC->arena_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
 
     //Subscribe to events
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Player, HandleSceneUpdate));
 
-    for (int b{0}; b < 64; ++b){
-        Bullet* bullet{new Bullet(playerID_)};
-        bullets_.Push(SharedPtr<Bullet>(bullet));
-    }
+//    for (int b{0}; b < 64; ++b){
+//        Bullet* bullet{new Bullet(playerID_)};
+//        bullets_.Push(SharedPtr<Bullet>(bullet));
+//    }
 }
 
 void Player::SavePilot()
@@ -166,7 +166,7 @@ void Player::SavePilot()
 void Player::CreateGUI()
 {
     //Setup 3D GUI elements
-    guiNode_ = MC->world.scene->CreateChild("GUI3D");
+    guiNode_ = MC->scene_->CreateChild("GUI3D");
 
     scoreNode_ = guiNode_->CreateChild("Score");
     for (int d{0}; d < 10; ++d){
@@ -259,7 +259,7 @@ void Player::AddScore(int points)
         if (flightScore_ < tenPow && (flightScore_ + points) > tenPow){
             ++multiplier_;
             PlaySample(multix_s, 0.42f);
-            MC->tileMaster_->FlashX(playerID_);
+            MC->arena_->FlashX(playerID_);
             break;
         }
     }
@@ -290,8 +290,8 @@ void Player::CountScore()
 
 void Player::Eject()
 {
-    new Phaser(ship_.model_->GetModel(), GetPosition(),
-               rigidBody_->GetLinearVelocity() + node_->GetDirection() * 10e-5);
+//    new Phaser(ship_.model_->GetModel(), GetPosition(),
+//               rigidBody_->GetLinearVelocity() + node_->GetDirection() * 10e-5);
     Disable();
 }
 
@@ -498,10 +498,10 @@ void Player::FireBullet(Vector3 direction){
             }
         }
     }
-    if (bullet == nullptr){
-        bullet = new Bullet(playerID_);
-        bullets_.Push(bullet);
-    }
+//    if (bullet == nullptr){
+//        bullet = new Bullet(playerID_);
+//        bullets_.Push(bullet);
+//    }
     bullet->Set(node_->GetPosition() + direction + Vector3::DOWN*0.42f);
     bullet->node_->LookAt(bullet->node_->GetPosition() + direction * 5.0f);
     bullet->rigidBody_->ApplyForce(direction * (1500.0f + 23.0f * weaponLevel_));
@@ -509,9 +509,9 @@ void Player::FireBullet(Vector3 direction){
 }
 void Player::MoveMuzzle()
 {
-    if (muzzle_ == nullptr)
-        muzzle_ = new Muzzle(playerID_);
-    muzzle_->Set(node_->GetPosition() + Vector3::DOWN * 0.42f);
+//    if (muzzle_ == nullptr)
+//        muzzle_ = new Muzzle(playerID_);
+//    muzzle_->Set(node_->GetPosition() + Vector3::DOWN * 0.42f);
 }
 
 
@@ -550,10 +550,6 @@ void Player::Pickup(PickupType pickup)
             SetHealth(Max(health_, Clamp(health_+5.0f, 0.0f, 10.0f)));
             PlaySample(pickup_s[heartCount_-1], 0.42f);
         }
-    } break;
-    case PT_MULTIX: {
-        ++multiplier_;
-        PlaySample(multix_s, 0.42f);
     } break;
     case PT_CHAOBALL: {
        PickupChaoBall();
@@ -635,8 +631,8 @@ void Player::EnterPlay()
     }
 }
 void Player::EnterLobby()
-{
-    bool enterThroughDoor{!alive_ || MC->GetPreviousGameState() == GS_INTRO};
+{/*
+    bool enterThroughDoor{true};// !alive_ || MC->GetPreviousGameState() == GS_INTRO};
 
     StopAllSound();
     chaoFlash_->Disable();
@@ -661,7 +657,7 @@ void Player::EnterLobby()
     scoreNode_->SetWorldScale(1.0f);
     scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 5.94252f : -5.94252f, 0.9f, 0.82951f));
 
-}
+*/}
 void Player::SetPilotMode(bool pilotMode){
     pilotMode_ = pilotMode;
     node_->SetEnabled(true);

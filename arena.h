@@ -34,20 +34,19 @@ enum TileElement {TE_CENTER = 0, TE_NORTH, TE_EAST, TE_SOUTH, TE_WEST, TE_NORTHW
 enum CornerType {CT_NONE, CT_IN, CT_OUT, CT_TWEEN, CT_DOUBLE, CT_FILL};
 enum TileType {B_SPACE, B_EMPTY, B_ENGINE};
 
-class TileMaster : public Object
+class Arena : public LogicComponent
 {
-    URHO3D_OBJECT(TileMaster, Object);
+    URHO3D_OBJECT(Arena, LogicComponent);
     friend class InputMaster;
     friend class MasterControl;
     friend class Tile;
 public:
-    TileMaster();
-
-    Node* rootNode_;
-    RigidBody* rigidBody_;
+    Arena(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
 
     void AddToAffectors(WeakPtr<Node> affector, WeakPtr<RigidBody> rigidBody) { hexAffectors_[affector] = rigidBody; }
-    void RemoveFromAffectors(WeakPtr<Node> affector) { if (hexAffectors_.Contains(affector) ) hexAffectors_.Erase(affector); }
+    void RemoveFromAffectors(WeakPtr<Node> affector);
     HashMap<WeakPtr<Node>, WeakPtr<RigidBody> >* GetAffectors() { return &hexAffectors_; }
 
     Tile* GetRandomTile();

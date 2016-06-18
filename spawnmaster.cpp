@@ -18,7 +18,7 @@
 
 #include "spawnmaster.h"
 
-#include "tilemaster.h"
+#include "arena.h"
 #include "tile.h"
 #include "player.h"
 
@@ -31,7 +31,7 @@ SpawnMaster::SpawnMaster():
     sinceSpireSpawn_{0.0f},
     bubbleInterval_{0.23f},
     sinceBubbleSpawn_{bubbleInterval_}
-{
+{/*
     AUDIO->SetMasterGain(SOUND_EFFECT, 0.0f);
     for (int r{0}; r < 23; ++r) {
         Razor* newRazor{new Razor()};
@@ -76,7 +76,7 @@ SpawnMaster::SpawnMaster():
     }
     Clear();
     AUDIO->SetMasterGain(SOUND_EFFECT, 1.0f);
-}
+*/}
 
 void SpawnMaster::Activate()
 {
@@ -132,9 +132,9 @@ void SpawnMaster::Restart()
 
 Vector3 SpawnMaster::SpawnPoint()
 {
-    Tile* randomTile{MC->tileMaster_->GetRandomTile()};
+    Tile* randomTile{MC->arena_->GetRandomTile()};
     if (randomTile) {
-        Vector3 tilePosition = randomTile->rootNode_->GetPosition();
+        Vector3 tilePosition = randomTile->node_->GetPosition();
         return Vector3(tilePosition.x_, -23.0f, tilePosition.z_);
     }
     else return Vector3(Random(-5.0f, 5.0f), -42.0f, Random(-5.0f, 5.0f));
@@ -187,7 +187,7 @@ int SpawnMaster::CountActiveLines()
 }
 
 void SpawnMaster::SpawnRazor(const Vector3 &position)
-{
+{/*
     sinceRazorSpawn_ = 0.0f;
     if (!RespawnRazor(position)) {
         Razor* newRazor{new Razor()};
@@ -195,7 +195,7 @@ void SpawnMaster::SpawnRazor(const Vector3 &position)
         razors_[newRazor->node_->GetID()] = SharedPtr<Razor>(newRazor);
     }
     razorInterval_ = 7.0f * pow(0.95f, ((MC->SinceLastReset()) + 10.0f) / 10.0f);
-}
+*/}
 bool SpawnMaster::RespawnRazor(const Vector3 &position)
 {
     for (SharedPtr<Razor> r : razors_.Values()){
@@ -208,15 +208,15 @@ bool SpawnMaster::RespawnRazor(const Vector3 &position)
 }
 
 void SpawnMaster::SpawnSpire(const Vector3 &position)
-{
+{/*
     sinceSpireSpawn_ = 0.0f;
     if (!RespawnSpire(position)) {
         Spire* newSpire{new Spire()};
         newSpire->Set(position);
         spires_[newSpire->node_->GetID()] = SharedPtr<Spire>(newSpire);
     }
-    spireInterval_ = 23.0f * pow(0.95f, ((MC->world.scene->GetElapsedTime() - MC->world.lastReset) + 42.0f) / 42.0f);
-}
+    spireInterval_ = 23.0f * pow(0.95f, ((MC->scene_->GetElapsedTime() - MC->world.lastReset) + 42.0f) / 42.0f);
+*/}
 bool SpawnMaster::RespawnSpire(const Vector3 &position)
 {
     for (SharedPtr<Spire> s : spires_.Values()) {
@@ -229,13 +229,13 @@ bool SpawnMaster::RespawnSpire(const Vector3 &position)
 }
 
 void SpawnMaster::SpawnSeeker(const Vector3& position)
-{
+{/*
     if (!RespawnSeeker(position)) {
         Seeker* newSeeker{new Seeker()};
         newSeeker->Set(position);
         seekers_[newSeeker->node_->GetID()] = SharedPtr<Seeker>(newSeeker);
     }
-}
+*/}
 bool SpawnMaster::RespawnSeeker(const Vector3& position)
 {
     for (SharedPtr<Seeker> s : seekers_.Values()) {
@@ -248,13 +248,13 @@ bool SpawnMaster::RespawnSeeker(const Vector3& position)
 }
 
 void SpawnMaster::SpawnChaoMine(const Vector3& position, int playerID)
-{
+{/*
     if (!RespawnChaoMine(position, playerID)) {
         ChaoMine* newChaoMine{new ChaoMine()};
         newChaoMine->Set(position, playerID);
         chaoMines_[newChaoMine->node_->GetID()] = SharedPtr<ChaoMine>(newChaoMine);
     }
-}
+*/}
 bool SpawnMaster::RespawnChaoMine(const Vector3& position, int playerID)
 {
     for (SharedPtr<ChaoMine> c : chaoMines_.Values()) {
@@ -266,13 +266,13 @@ bool SpawnMaster::RespawnChaoMine(const Vector3& position, int playerID)
     return false;
 }
 void SpawnMaster::SpawnChaoZap(const Vector3& position, int playerID)
-{
+{/*
     if (!RespawnChaoZap(position, playerID)) {
         ChaoZap* newZap{new ChaoZap()};
         newZap->Set(position, playerID);
         chaoZaps_.Push(SharedPtr<ChaoZap>(newZap));
     }
-}
+*/}
 bool SpawnMaster::RespawnChaoZap(const Vector3& position, int playerID)
 {
     for (SharedPtr<ChaoZap> c : chaoZaps_) {
@@ -285,13 +285,13 @@ bool SpawnMaster::RespawnChaoZap(const Vector3& position, int playerID)
 }
 
 void SpawnMaster::SpawnHitFX(const Vector3 &position, int playerID, bool sound)
-{
+{/*
     if (!RespawnHitFX(position, playerID, sound)) {
         HitFX* newHitFX{new HitFX()};
         newHitFX->Set(position, playerID, sound);
         hitFXs_.Push(SharedPtr<HitFX>(newHitFX));
     }
-}
+*/}
 bool SpawnMaster::RespawnHitFX(const Vector3& position, int playerID, bool sound)
 {
     for (SharedPtr<HitFX> h : hitFXs_) {
@@ -304,13 +304,13 @@ bool SpawnMaster::RespawnHitFX(const Vector3& position, int playerID, bool sound
 }
 
 void SpawnMaster::SpawnFlash(const Vector3& position, bool big)
-{
+{/*
     if (!RespawnFlash(position, big)) {
         Flash* newFlash{new Flash()};
         newFlash->Set(position, big);
         flashes_.Push(SharedPtr<Flash>(newFlash));
     }
-}
+*/}
 bool SpawnMaster::RespawnFlash(const Vector3& position, bool big)
 {
     for (SharedPtr<Flash> f : flashes_) {
@@ -323,14 +323,14 @@ bool SpawnMaster::RespawnFlash(const Vector3& position, bool big)
 }
 
 bool SpawnMaster::SpawnExplosion(const Vector3& position, const Color& color, float size, int playerID)
-{
+{/*
     if (!RespawnExplosion(position, color, size, playerID)) {
         Explosion* explosion{new Explosion()};
         explosion->Set(position, color, size, playerID);
         explosions_.Push(SharedPtr<Explosion>(explosion));
     }
     return false;
-}
+*/}
 bool SpawnMaster::RespawnExplosion(const Vector3& position, const Color& color, float size, int playerID)
 {
     for (WeakPtr<Explosion> e : explosions_) {
@@ -343,7 +343,7 @@ bool SpawnMaster::RespawnExplosion(const Vector3& position, const Color& color, 
 }
 
 void SpawnMaster::SpawnBubble(const Vector3& position)
-{
+{/*
     sinceBubbleSpawn_ = 0.0f;
     bubbleInterval_ = Random(23.0f, 42.0f) / (MC->SinceLastReset() + 88);
     if (!RespawnBubble(position)) {
@@ -351,7 +351,7 @@ void SpawnMaster::SpawnBubble(const Vector3& position)
         newBubble->Set(position);
         bubbles_.Push(SharedPtr<Bubble>(newBubble));
     }
-}
+*/}
 bool SpawnMaster::RespawnBubble(const Vector3& position)
 {
     for (SharedPtr<Bubble> b : bubbles_) {
@@ -370,13 +370,13 @@ Vector3 SpawnMaster::BubbleSpawnPoint()
 }
 
 void SpawnMaster::SpawnLine(int playerID_)
-{
+{/*
     if (!RespawnLine(playerID_)) {
         Line* newLine{new Line()};
         newLine->Set(LineSpawnPoint(playerID_), playerID_);
         lines_.Push(SharedPtr<Line>(newLine));
     }
-}
+*/}
 bool SpawnMaster::RespawnLine(int playerID)
 {
     for (SharedPtr<Line> l : lines_) {

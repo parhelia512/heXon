@@ -40,6 +40,8 @@
 #include "pilot.h"
 #include "splatterpillar.h"
 #include "door.h"
+#include "arena.h"
+#include "tile.h"
 
 URHO3D_DEFINE_APPLICATION_MAIN(MasterControl);
 
@@ -94,6 +96,9 @@ void MasterControl::Start()
     aspectRatio_ = static_cast<float>(GRAPHICS->GetWidth()) / GRAPHICS->GetHeight();
 
     TailGenerator::RegisterObject(context_);
+    heXoCam::RegisterObject(context_);
+    Arena::RegisterObject(context_);
+    Tile::RegisterObject(context_);
 
     new InputMaster();
     renderer_ = GetSubsystem<Renderer>();
@@ -114,7 +119,7 @@ void MasterControl::Start()
     menuMusic_->SetLooped(true);
     gameMusic_ = GetMusic("Alien Chaos - Disorder");
     gameMusic_->SetLooped(true);
-    Node* musicNode{world.scene->CreateChild("Music")};
+    Node* musicNode{scene_->CreateChild("Music")};
     musicSource_ = musicNode->CreateComponent<SoundSource>();
     musicSource_->SetGain(0.32f);
     musicSource_->SetSoundType(SOUND_MUSIC);
@@ -201,16 +206,16 @@ void MasterControl::LoadHighest()
 
 void MasterControl::CreateScene()
 {
-    world.scene = new Scene(context_);
-    world.scene->SetTimeScale(1.23f);
+    scene_ = new Scene(context_);
+    scene_->SetTimeScale(1.23f);
 
-    world.octree = world.scene->CreateComponent<Octree>();
-    physicsWorld_ = world.scene->CreateComponent<PhysicsWorld>();
+    world.octree = scene_->CreateComponent<Octree>();
+    physicsWorld_ = scene_->CreateComponent<PhysicsWorld>();
     physicsWorld_->SetGravity(Vector3::ZERO);
-    world.scene->CreateComponent<DebugRenderer>();
+    scene_->CreateComponent<DebugRenderer>();
 
     //Create a Zone component for fog control
-    Node* zoneNode{world.scene->CreateChild("Zone")};
+    Node* zoneNode{scene_->CreateChild("Zone")};
     Zone* zone{zoneNode->CreateComponent<Zone>()};
     zone->SetBoundingBox(BoundingBox(Vector3(-100.0f, -100.0f, -100.0f),Vector3(100.0f, 5.0f, 100.0f)));
     zone->SetFogColor(Color(0.0f, 0.0f, 0.0f));
@@ -221,14 +226,14 @@ void MasterControl::CreateScene()
     zone->SetFogHeightScale(0.23f);
 
     //Create cursor
-    world.cursor.sceneCursor = world.scene->CreateChild("Cursor");
+    world.cursor.sceneCursor = scene_->CreateChild("Cursor");
     StaticModel* cursorObject{world.cursor.sceneCursor->CreateComponent<StaticModel>()};
     cursorObject->SetModel(GetModel("Hexagon"));
     cursorObject->SetMaterial(GetMaterial("Glow"));
     world.cursor.sceneCursor->SetEnabled(false);
 
     //Create an solid black plane to hide everything beyond full fog
-    world.voidNode = world.scene->CreateChild("Void");
+    world.voidNode = scene_->CreateChild("Void");
     world.voidNode->SetPosition(Vector3::DOWN * 10.0f);
     world.voidNode->SetScale(Vector3(1000.0f, 1.0f, 1000.0f));
     StaticModel* planeObject{world.voidNode->CreateComponent<StaticModel>()};
@@ -236,13 +241,15 @@ void MasterControl::CreateScene()
     planeObject->SetMaterial(GetMaterial("PitchBlack"));
 
     //Create camera
-    world.camera = new heXoCam();
+    Node* cameraNode{ scene_->CreateChild("Camera") };
+    world.camera = cameraNode->CreateComponent<heXoCam>();
 
     //Create arena
-    tileMaster_ = new TileMaster();
+    Node* arenaNode{ scene_->CreateChild("Arena") };
+    arena_ = arenaNode->CreateComponent<Arena>();
 
     //Construct lobby
-    lobbyNode_ = world.scene->CreateChild("Lobby");
+    lobbyNode_ = scene_->CreateChild("Lobby");
     lobbyNode_->Rotate(Quaternion(0.0f, 0.0f, 0.0f));
     Node* chamberNode{lobbyNode_->CreateChild("Chamber")};
     StaticModel* chamberModel{chamberNode->CreateComponent<StaticModel>()};
@@ -319,8 +326,8 @@ void MasterControl::CreateScene()
     highestScoreText_->SetVerticalAlignment(VA_CENTER);
     highestScoreText_->SetPosition(0, ui->GetRoot()->GetHeight()/2.13f);
 
-    highestPilot_ = new Pilot(highestPilotNode);
-    LoadHighest();
+//    highestPilot_ = new Pilot(highestPilotNode);
+//    LoadHighest();
 
     lobbyNode_->CreateComponent<RigidBody>();
     lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_Center"));
@@ -388,22 +395,21 @@ void MasterControl::CreateScene()
     //Create game elements
     spawnMaster_ = new SpawnMaster();
 
-    player1_ = new Player(1);
-    player2_ = new Player(2);
-    players_[player1_->GetRootNodeID()] = player1_;
-    players_[player2_->GetRootNodeID()] = player2_;
+//    player1_ = new Player(1);
+//    player2_ = new Player(2);
+//    players_[player1_->GetRootNodeID()] = player1_;
+//    players_[player2_->GetRootNodeID()] = player2_;
 
 
-    door1_ = new Door(false);
-    door2_ = new Door(true);
+//    door1_ = new Door(false);
+//    door2_ = new Door(true);
 
-    splatterPillar1_ = new SplatterPillar(false);
-    splatterPillar2_ = new SplatterPillar(true);
+//    splatterPillar1_ = new SplatterPillar(false);
+//    splatterPillar2_ = new SplatterPillar(true);
 
-    apple_ = new Apple();
-    heart_ = new Heart();
-    multiX_ = new MultiX();
-    chaoBall_ = new ChaoBall();
+//    apple_ = new Apple();
+//    heart_ = new Heart();
+//    chaoBall_ = new ChaoBall();
 }
 
 void MasterControl::SetGameState(const GameState newState)
@@ -446,14 +452,14 @@ void MasterControl::EnterGameState()
         lobbyNode_->SetEnabledRecursive(true);
         world.camera->EnterLobby();
         spawnMaster_->Clear();
-        tileMaster_->EnterLobbyState();
+
+        arena_->EnterLobbyState();
         highestNode_->SetEnabledRecursive(highestScore_ != 0);
         highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f) * static_cast<float>(highestScore_ != 0));
 
-        apple_->Disable();
-        heart_->Disable();
-        multiX_->Disable();
-        chaoBall_->Disable();
+//        apple_->Disable();
+//        heart_->Disable();
+//        chaoBall_->Disable();
     } break;
     case GS_PLAY : {
         musicSource_->Play(gameMusic_);
@@ -463,12 +469,11 @@ void MasterControl::EnterGameState()
 
         apple_->Respawn(true);
         heart_->Respawn(true);
-        multiX_->Deactivate();
         chaoBall_->Deactivate();
 
-        world.lastReset = world.scene->GetElapsedTime();
+        world.lastReset = scene_->GetElapsedTime();
         spawnMaster_->Restart();
-        tileMaster_->EnterPlayState();
+        arena_->EnterPlayState();
     } break;
     case GS_DEAD : {
         spawnMaster_->Deactivate();
@@ -502,28 +507,28 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
     sinceStateChange_ += t;
     UpdateCursor(t);
 
-    switch (currentState_) {
-    case GS_LOBBY: {
-        lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) / (128.0f * sinceStateChange_+23.0f));
+//    switch (currentState_) {
+//    case GS_LOBBY: {
+//        lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) / (128.0f * sinceStateChange_+23.0f));
 
-        leftPointLight1_->SetBrightness(Sine(1.0f, 0.666f, 0.95f));
-        leftPointLight2_->SetBrightness(Sine(1.0f, 0.666f, 0.95f, M_PI));
-        rightPointLight1_->SetBrightness(Sine(1.0f, 0.95f, 1.23f));
-        rightPointLight2_->SetBrightness(Sine(1.0f, 0.95f, 1.23f, M_PI));
+//        leftPointLight1_->SetBrightness(Sine(1.0f, 0.666f, 0.95f));
+//        leftPointLight2_->SetBrightness(Sine(1.0f, 0.666f, 0.95f, M_PI));
+//        rightPointLight1_->SetBrightness(Sine(1.0f, 0.95f, 1.23f));
+//        rightPointLight2_->SetBrightness(Sine(1.0f, 0.95f, 1.23f, M_PI));
 
-        if (door1_->HidesPlayer() > 0.5f && door2_->HidesPlayer() > 0.5f){
-                Exit();
-        }
-    } break;
-    case GS_PLAY: {
-        lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) * Min(1.0f, sinceStateChange_));
-    } break;
-    case GS_DEAD: {
-        if (sinceStateChange_ > 5.0f && NoHumans())
-            SetGameState(GS_LOBBY);
-    }
-    default: break;
-    }
+//        if (door1_->HidesPlayer() > 0.5f && door2_->HidesPlayer() > 0.5f){
+//                Exit();
+//        }
+//    } break;
+//    case GS_PLAY: {
+//        lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) * Min(1.0f, sinceStateChange_));
+//    } break;
+//    case GS_DEAD: {
+//        if (sinceStateChange_ > 5.0f && NoHumans())
+//            SetGameState(GS_LOBBY);
+//    }
+//    default: break;
+//    }
 }
 
 void MasterControl::UpdateCursor(const float timeStep)
@@ -546,7 +551,7 @@ bool MasterControl::CursorRayCast(const float maxDistance, PODVector<RayQueryRes
     Ray cameraRay{world.camera->camera_->GetScreenRay((float)mousePos.x_/GRAPHICS->GetWidth(),
                                                         (float)mousePos.y_/GRAPHICS->GetHeight())};
     RayOctreeQuery query{hitResults, cameraRay, RAY_TRIANGLE, maxDistance, DRAWABLE_GEOMETRY};
-    world.scene->GetComponent<Octree>()->Raycast(query);
+    scene_->GetComponent<Octree>()->Raycast(query);
 
     if (hitResults.Size())
         return true;
@@ -583,13 +588,13 @@ void MasterControl::Exit()
 
 float MasterControl::Sine(const float freq, const float min, const float max, const float shift)
 {
-    float phase{freq * world.scene->GetElapsedTime() + shift};
+    float phase{freq * scene_->GetElapsedTime() + shift};
     float add{0.5f * (min + max)};
     return LucKey::Sine(phase) * 0.5f * (max - min) + add;
 }
 float MasterControl::Cosine(const float freq, const float min, const float max, const float shift)
 {
-    float phase{freq * world.scene->GetElapsedTime() + shift};
+    float phase{freq * scene_->GetElapsedTime() + shift};
     float add{0.5f * (min + max)};
     return LucKey::Cosine(phase) * 0.5f * (max - min) + add;
 }

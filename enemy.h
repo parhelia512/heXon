@@ -22,7 +22,7 @@
 #include <Urho3D/Urho3D.h>
 
 #include "explosion.h"
-#include "tilemaster.h"
+#include "arena.h"
 
 #include "sceneobject.h"
 

@@ -24,7 +24,7 @@
 #include "spawnmaster.h"
 #include "razor.h"
 #include "spire.h"
-#include "tilemaster.h"
+#include "arena.h"
 #include "hitfx.h"
 
 #include <Urho3D/Urho3D.h>

@@ -24,15 +24,15 @@ void Phaser::RegisterObject(Context *context)
     context->RegisterFactory<Phaser>();
 }
 
-Phaser::Phaser(Model *model, Vector3 pos, Vector3 vel) : Effect(),
+Phaser::Phaser(Context* context) : Effect(context),
     phaseMaterial_{MC->GetMaterial("Phase")->Clone()},
-    staticModels_{},
-    velocity_{vel}
+    staticModels_{}
+//    velocity_{vel}
 {
 }
 
 void Phaser::OnNodeSet(Node *node)
-{
+{/*
     Effect::OnNodeSet(node);
 
     node_->SetName("Phaser");
@@ -45,7 +45,7 @@ void Phaser::OnNodeSet(Node *node)
     SetMaterial();
 
     SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(Phaser, HandlePostUpdate));
-}
+*/}
 
 void Phaser::SetMaterial()
 {

@@ -16,7 +16,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "tilemaster.h"
+#include "arena.h"
 
 #include "mastercontrol.h"
 #include "tile.h"
@@ -29,14 +29,23 @@ template <> unsigned MakeHash(const IntVector2& value)
   }
 }
 
-TileMaster::TileMaster():
-    Object(MC->GetContext()),
+void Arena::RegisterObject(Context *context)
+{
+    context->RegisterFactory<Arena>();
+}
+
+Arena::Arena(Context* context):
+    LogicComponent(context),
     targetPosition_{Vector3::UP * 0.666f},
     targetScale_{Vector3::ONE * 0.05f}
 {
-    rootNode_ = MC->world.scene->CreateChild("TileMaster");
-    rootNode_->SetPosition(targetPosition_);
-    rootNode_->SetScale(targetScale_);
+
+}
+
+void Arena::OnNodeSet(Node *node)
+{
+    node_->SetPosition(targetPosition_);
+    node_->SetScale(targetScale_);
 
     //Create hexagonal field
     //Lays a field of hexagons at the origin
@@ -48,12 +57,15 @@ TileMaster::TileMaster():
                     i + 1 < (bigHexSize - bigHexSize / 4) + ((bigHexSize - j + 1)) / 2 &&   //Exclude top right
                     i - 1 > (bigHexSize / 4) - ((bigHexSize - j + 2) / 2)) {                //Exclude top left
                 Vector3 tilePos = Vector3((-bigHexSize / 2.0f + i) * 2.0f + j % 2, -0.1f, (-bigHexSize / 2.0f + j + 0.5f) * 1.8f);
-                tileMap_[IntVector2(i, j)] = new Tile(this, tilePos);
+
+                Node* tileNode{ node_->CreateChild("Tile") };
+                tileNode->SetPosition(tilePos);
+                tileMap_[IntVector2(i, j)] = tileNode->CreateComponent<Tile>();
             }
         }
     }
     //Add a directional light to the arena.
-    Node* lightNode = rootNode_->CreateChild("Sun");
+    Node* lightNode = node_->CreateChild("Sun");
     lightNode->SetPosition(Vector3::UP*5.0f);
     lightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
     playLight_ = lightNode->CreateComponent<Light>();
@@ -64,7 +76,7 @@ TileMaster::TileMaster():
     playLight_->SetCastShadows(false);
 
     //Create heXon logo
-    logoNode_ = rootNode_->CreateChild("heXon");
+    logoNode_ = node_->CreateChild("heXon");
     logoNode_->SetPosition(Vector3(0.0f, -4.0f, 0.0f));
     logoNode_->SetRotation(Quaternion(0.0f, 180.0f, 0.0f));
     logoNode_->SetScale(16.0f);
@@ -75,10 +87,16 @@ TileMaster::TileMaster():
     logoModel->SetMaterial(0, logoMaterial_);
     logoModel->SetMaterial(1, xMaterial_);
 
-    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(TileMaster, HandleUpdate));
+    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Arena, HandleUpdate));
 }
 
-void TileMaster::EnterPlayState()
+void Arena::RemoveFromAffectors(WeakPtr<Node> affector)
+{
+    if (hexAffectors_.Contains(affector) )
+        hexAffectors_.Erase(affector);
+}
+
+void Arena::EnterPlayState()
 {
     targetPosition_ = Vector3::DOWN * 0.23f;
     targetScale_ = Vector3::ONE;
@@ -87,19 +105,19 @@ void TileMaster::EnterPlayState()
         t->lastOffsetY_ = 2.3f;
     }
 }
-void TileMaster::EnterLobbyState()
+void Arena::EnterLobbyState()
 {
     targetPosition_ = Vector3::UP * 0.35f;
     targetScale_ = Vector3::ONE * 0.05f;
 }
 
-void TileMaster::HandleUpdate(StringHash eventType, VariantMap& eventData)
+void Arena::HandleUpdate(StringHash eventType, VariantMap& eventData)
 {
     float timestep = eventData[Update::P_TIMESTEP].GetFloat();
     float lerpFactor = MC->GetGameState() == GS_LOBBY ? 13.0f : 6.66f ;
     float t = Min(1.0f, timestep * lerpFactor);
-    rootNode_->SetPosition(rootNode_->GetPosition().Lerp(targetPosition_, t));
-    rootNode_->SetScale(rootNode_->GetScale().Lerp(targetScale_, pow(t, 0.88f) ));
+    node_->SetPosition(node_->GetPosition().Lerp(targetPosition_, t));
+    node_->SetScale(node_->GetScale().Lerp(targetScale_, pow(t, 0.88f) ));
 
     logoNode_->SetPosition(logoNode_->GetPosition().Lerp(MC->GetGameState() == GS_LOBBY
                                                          ? Vector3::UP * 4.0f * MC->Sine(5.0f, 0.23f, 1.23f)
@@ -121,7 +139,7 @@ void TileMaster::HandleUpdate(StringHash eventType, VariantMap& eventData)
     playLight_->SetBrightness(MC->GetGameState() == GS_PLAY? 0.8f : 0.0f);
 }
 
-Tile* TileMaster::GetRandomTile()
+Tile* Arena::GetRandomTile()
 {
     Vector<SharedPtr<Tile> > tiles = tileMap_.Values();
     if (tiles.Size()){
@@ -129,7 +147,7 @@ Tile* TileMaster::GetRandomTile()
         while (!tile){
             SharedPtr<Tile> tryTile = tiles[Random((int)tiles.Size())];
             PODVector<PhysicsRaycastResult> hitResults;
-            Ray spawnRay(tryTile->rootNode_->GetPosition()-Vector3::UP, Vector3::UP*10.0f);
+            Ray spawnRay(tryTile->node_->GetPosition()-Vector3::UP, Vector3::UP*10.0f);
             if (!MC->PhysicsRayCast(hitResults, spawnRay, 23.0f, M_MAX_UNSIGNED)){
                 tile = tryTile;
             }
@@ -138,7 +156,7 @@ Tile* TileMaster::GetRandomTile()
     }
 }
 
-void TileMaster::FlashX(int playerID)
+void Arena::FlashX(int playerID)
 {
     xMaterial_->SetShaderParameter("MatEmissiveColor", playerID == 2 ? Color(2.3f, 1.0f, 0.0f, 1.0f) : Color(1.0f, 2.3f, 0.0f, 1.0f));
 }

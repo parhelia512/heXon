@@ -27,7 +27,7 @@ class Razor : public Enemy
 {
     URHO3D_OBJECT(Razor, Enemy);
 public:
-    Razor();
+    Razor(Context* context);
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
 

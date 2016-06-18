@@ -34,7 +34,7 @@ Bubble::Bubble(Context* context):
 void Bubble::OnNodeSet(Node *node)
 {
     baseScale_ *= baseScale_;
-    rootNode_ = MC->world.scene->CreateChild("Bubble");
+    rootNode_ = MC->scene_->CreateChild("Bubble");
     StaticModel* model = rootNode_->CreateComponent<StaticModel>();
     model->SetModel(MC->GetModel("Box"));
     model->SetMaterial(MC->GetMaterial("Bubble"));

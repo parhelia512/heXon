@@ -82,7 +82,7 @@ void Enemy::OnNodeSet(Node *node)
         s->SetLooped(false);
     }
 
-    Node* soundNode{MC->world.scene->CreateChild("SoundSource")};
+    Node* soundNode{MC->scene_->CreateChild("SoundSource")};
     soundSource_ = soundNode->CreateComponent<SoundSource>();
     soundSource_->SetGain(0.1f);
     soundSource_->SetSoundType(SOUND_EFFECT);
@@ -100,7 +100,7 @@ void Enemy::Set(const Vector3 position)
 
     particleEmitter_->RemoveAllParticles();
     SceneObject::Set(position);
-    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
+    MC->arena_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Enemy, HandleSceneUpdate));
     SubscribeToEvent(node_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Enemy, HandleCollision));
     SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Enemy, HandleCollision));
@@ -150,14 +150,14 @@ void Enemy::Disable()
 
 Color Enemy::GetGlowColor() const
 {
-    float factor{(Sin(200.0f*(MC->world.scene->GetElapsedTime()+panicTime_))*(0.25f+panic_*0.25f)+(panic_*0.5f))};
+    float factor{(Sin(200.0f*(MC->scene_->GetElapsedTime()+panicTime_))*(0.25f+panic_*0.25f)+(panic_*0.5f))};
     factor *= factor * 2.0f;
     return color_ * factor;
 }
 
 void Enemy::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    float time{MC->world.scene->GetElapsedTime() + node_->GetID() * 0.023f};
+    float time{MC->scene_->GetElapsedTime() + node_->GetID() * 0.023f};
     float timeStep{eventData[SceneUpdate::P_TIMESTEP].GetFloat()};
     panicTime_ += 3.0f * panic_ * timeStep;
     sinceLastWhack_ += timeStep;

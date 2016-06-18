@@ -35,7 +35,7 @@ using namespace Urho3D;
 class Phaser : public Effect
 {
 public:
-    Phaser(Model *model, Vector3 pos, Vector3 vel);
+    Phaser(Context* context);
 
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);

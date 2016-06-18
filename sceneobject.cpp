@@ -18,7 +18,7 @@
 
 #include "sceneobject.h"
 
-#include "tilemaster.h"
+#include "arena.h"
 #include "spawnmaster.h"
 #include "bullet.h"
 
@@ -51,7 +51,7 @@ void SceneObject::Set(const Vector3 position)
 
 void SceneObject::Disable()
 {
-    MC->tileMaster_->RemoveFromAffectors(node_);
+//    MC->tileMaster_->RemoveFromAffectors(node_);
     node_->SetEnabledRecursive(false);
     if (blink_)
         UnsubscribeFromEvent(E_POSTRENDERUPDATE);
@@ -69,8 +69,8 @@ void SceneObject::PlaySample(Sound* sample, const float gain)
 }
 void SceneObject::StopAllSound()
 {
-    for (SharedPtr<SoundSource> s : sampleSources_)
-        s->Stop();
+//    for (SharedPtr<SoundSource> s : sampleSources_)
+//        s->Stop();
 }
 bool SceneObject::IsPlayingSound()
 {

@@ -23,8 +23,8 @@ void Razor::RegisterObject(Context *context)
     context->RegisterFactory<Razor>();
 }
 
-Razor::Razor():
-    Enemy(),
+Razor::Razor(Context* context):
+    Enemy(context),
     topSpeed_{10.0f},
     aimSpeed_{0.25f * topSpeed_}
 {

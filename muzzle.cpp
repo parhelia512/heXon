@@ -24,7 +24,7 @@ void Muzzle::RegisterObject(Context *context)
 }
 
 Muzzle::Muzzle(Context* context):
-    Effect()
+    Effect(context)
 {
 }
 
@@ -35,9 +35,9 @@ void Muzzle::OnNodeSet(Node *node)
     particleEmitter_ = node_->CreateComponent<ParticleEmitter>();
     ParticleEffect* particleEffect{};
 
-    if (context == 2)
-        particleEffect = CACHE->GetResource<ParticleEffect>("Particles/PurpleMuzzle.xml");
-    else
+//    if (context == 2)
+//        particleEffect = CACHE->GetResource<ParticleEffect>("Particles/PurpleMuzzle.xml");
+//    else
         particleEffect = CACHE->GetResource<ParticleEffect>("Particles/GreenMuzzle.xml");
 
     particleEmitter_->SetEffect(particleEffect);

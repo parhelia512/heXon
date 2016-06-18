@@ -31,7 +31,7 @@ Line::Line(Context* context) :
 
 void Line::OnNodeSet(Node *node)
 {
-    rootNode_ = MC->world.scene->CreateChild("Line");
+    rootNode_ = MC->scene_->CreateChild("Line");
     rootNode_->SetScale(baseScale_);
     model_ = rootNode_->CreateComponent<StaticModel>();
     model_->SetModel(MC->GetModel("Line"));

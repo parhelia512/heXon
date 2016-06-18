@@ -25,37 +25,35 @@ void Tile::RegisterObject(Context *context)
 
 Tile::Tile(Context* context):
     LogicComponent(context),
-    tileMaster_{tileMaster},
     lastOffsetY_{0.666f},
     flipped_{static_cast<bool>(Random(2))}
 {
 }
 
 void Tile::OnNodeSet(Node *node)
-{
-    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Tile, HandleUpdate));
-    rootNode_ = tileMaster_->rootNode_->CreateChild("Tile");
-    rootNode_->SetPosition(position);
-    rootNode_->SetScale(1.1f);
-    model_ = rootNode_->CreateComponent<StaticModel>();
+{/*
+//    node_->SetPosition(position);
+    node_->SetScale(1.1f);
+    model_ = node_->CreateComponent<StaticModel>();
     model_->SetModel(MC->GetModel("Hexagon"));
     model_->SetMaterial(MC->GetMaterial("BackgroundTile")->Clone());
     model_->SetCastShadows(false);
 
-    referencePosition_ = rootNode_->GetPosition();
+    referencePosition_ = node_->GetPosition();
     centerDistExp_ = static_cast<float>(exp2(static_cast<double>(0.75f*LucKey::Distance(Vector3::ZERO, referencePosition_))));
 
-}
+    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Tile, HandleUpdate));
+*/}
 
 void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
 { (void)eventType; (void)eventData;
 
-    float elapsedTime{MC->world.scene->GetElapsedTime()};
+    float elapsedTime{MC->scene_->GetElapsedTime()};
     float offsetY{0.0f};
 
     //Switch curcuit
     if (Random(23) == 5)
-        rootNode_->SetRotation(Quaternion(Random(3)*120.0f + 60.0f*flipped_, Vector3::UP));
+        node_->SetRotation(Quaternion(Random(3)*120.0f + 60.0f*flipped_, Vector3::UP));
 
     //Calculate periodic tile movement
     wave_ = 6.0f * pow(LucKey::Sine(Abs(centerDistExp_ - elapsedTime * 5.2625f)), 4.0f);
@@ -80,9 +78,9 @@ void Tile::HandleUpdate(StringHash eventType, VariantMap &eventData)
     offsetY = (offsetY + lastOffsetY_) * 0.5f;
     lastOffsetY_ = offsetY;
 
-    Vector3 lastPos{rootNode_->GetPosition()};
+    Vector3 lastPos{node_->GetPosition()};
     Vector3 newPos{lastPos.x_, referencePosition_.y_ - Min(offsetY, 4.0f), lastPos.z_};
-    rootNode_->SetPosition(newPos);
+    node_->SetPosition(newPos);
 
     bool lobby{MC->GetGameState() == GS_LOBBY};
     float brightness{Clamp((0.23f * offsetY) + 0.25f, 0.0f, 1.0f) + 0.42f*(float)(lobby)};

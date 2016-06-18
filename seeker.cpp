@@ -20,7 +20,7 @@
 
 #include "TailGenerator.h"
 #include "hitfx.h"
-#include "tilemaster.h"
+#include "arena.h"
 #include "player.h"
 #include "spawnmaster.h"
 
@@ -124,7 +124,7 @@ void Seeker::Set(Vector3 position)
     SceneObject::Set(position);
     rigidBody_->ResetForces();
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
-    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
+    MC->arena_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
     AddTail();
     PlaySample(sample_, 0.666f);
 

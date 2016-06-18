@@ -21,7 +21,7 @@
 
 #include <Urho3D/Urho3D.h>
 
-#include "tilemaster.h"
+#include "arena.h"
 
 namespace Urho3D {
 class Node;
@@ -30,7 +30,7 @@ class Node;
 class Tile : public LogicComponent
 {
     URHO3D_OBJECT(Tile, LogicComponent);
-    friend class TileMaster;
+    friend class Arena;
     friend class InputMaster;
     friend class SpawnMaster;
 public:
@@ -42,9 +42,9 @@ public:
     TileType tileType_;
 private:
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
-    TileMaster* tileMaster_;
+    Arena* tileMaster_;
 
-    Node* rootNode_;
+    Node* node_;
     Vector3 referencePosition_;
     float centerDistExp_;
     float wave_;

@@ -18,7 +18,7 @@
 
 #include "pickup.h"
 
-#include "tilemaster.h"
+#include "arena.h"
 #include "spawnmaster.h"
 #include "player.h"
 
@@ -54,9 +54,9 @@ void Pickup::OnNodeSet(Node *node)
     CollisionShape* collisionShape = node_->CreateComponent<CollisionShape>();
     collisionShape->SetSphere(2.3f);
 
-    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
+    MC->arena_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
 
-    triggerNode_ = MC->world.scene->CreateChild("PickupTrigger");
+    triggerNode_ = MC->scene_->CreateChild("PickupTrigger");
     triggerBody_ = triggerNode_->CreateComponent<RigidBody>();
     triggerBody_->SetTrigger(true);
     triggerBody_->SetKinematic(true);
@@ -85,7 +85,7 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
             hitPlayer->Pickup(pickupType_);
             MC->spawnMaster_->SpawnHitFX(GetPosition(), hitPlayer->GetPlayerID(), false);
             switch (pickupType_){
-            case PT_MULTIX: case PT_CHAOBALL: Deactivate(); break;
+            case PT_CHAOBALL: Deactivate(); break;
             case PT_APPLE: case PT_HEART: Respawn(); break;
             default: break;
             }
@@ -118,12 +118,6 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     switch (pickupType_){
     case PT_APPLE: shift = 0.23f; break;
     case PT_HEART: break;
-    case PT_MULTIX:
-        xSpin = 64.0f; zSpin = 10.0f; frequency = 5.0f;
-        if (IsEmerged() && MC->GetGameState() == GS_PLAY)
-            rigidBody_->ApplyForce(player1->IsAlive() * player1->GetPosition() +
-                                   player1->IsAlive() * player2->GetPosition() -
-                                   rigidBody_->GetLinearVelocity()); break;
     case PT_CHAOBALL: {
         xSpin = 23.0f; zSpin = 42.0f; frequency = 5.0f; shift = 0.23f;
         if (!node_->IsEnabled() && MC->GetGameState() == GS_PLAY) {
@@ -159,7 +153,7 @@ void Pickup::Respawn(bool restart)
 
     Set(restart ? initialPosition_
                 : MC->spawnMaster_->SpawnPoint());
-    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
+    MC->arena_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
 }
 void Pickup::Deactivate()
 {

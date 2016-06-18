@@ -37,7 +37,7 @@ void heXoCam::OnNodeSet(Node *node)
 {
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(heXoCam, HandleSceneUpdate));
 
-    rootNode_ = MC->world.scene->CreateChild("Camera");
+    rootNode_ = MC->scene_->CreateChild("Camera");
     Node* leftEye{rootNode_->CreateChild("Left Eye")};
     leftEye->SetPosition(Vector3::LEFT);
     stereoCam_.first_ = leftEye->CreateComponent<Camera>();
@@ -72,7 +72,7 @@ void heXoCam::SetupViewport()
     ResourceCache* cache{GetSubsystem<ResourceCache>()};
     Renderer* renderer{GetSubsystem<Renderer>()};
 
-    SharedPtr<Viewport> viewport{new Viewport(MC->GetContext(), MC->world.scene, camera_)};
+    SharedPtr<Viewport> viewport{new Viewport(MC->GetContext(), MC->scene_, camera_)};
     viewport_ = viewport;
 
     //Add anti-asliasing, bloom and a greyscale effects

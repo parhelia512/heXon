@@ -85,7 +85,7 @@ void SplatterPillar::OnNodeSet(Node *node)
 void SplatterPillar::Trigger()
 {
     rotationSpeed_ = Random(-1.0f, 1.0f);
-    lastTriggered_ = MC->world.scene->GetElapsedTime();
+    lastTriggered_ = MC->scene_->GetElapsedTime();
     player_->KillPilot();
     bloodNode_->Rotate(Quaternion(Random(360.0f), Vector3::UP));
     blood_->SetEnabled(true);
@@ -99,7 +99,7 @@ void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventDa
     if (MC->GetGameState() != GS_LOBBY) return;
 
     float timeStep_{eventData[SceneUpdate::P_TIMESTEP].GetFloat()};
-    float elapsedTime{MC->world.scene->GetElapsedTime()};
+    float elapsedTime{MC->scene_->GetElapsedTime()};
     float intoSequence{(elapsedTime - lastTriggered_)/sequenceLength_};
     unsigned numMorphs{blood_->GetNumMorphs()};
 

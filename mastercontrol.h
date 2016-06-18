@@ -30,7 +30,7 @@ class Scene;
 
 class heXoCam;
 class InputMaster;
-class TileMaster;
+class Arena;
 class SpawnMaster;
 class Razor;
 class Player;
@@ -38,14 +38,12 @@ class Door;
 class Pilot;
 class SplatterPillar;
 class Apple;
-class MultiX;
 class ChaoBall;
 class Heart;
 
 typedef struct GameWorld
 {
     SharedPtr<heXoCam> camera;
-    SharedPtr<Scene> scene;
     float lastReset;
     SharedPtr<Octree> octree;
     SharedPtr<Node> backdropNode;
@@ -74,7 +72,6 @@ StringHash const N_PLAYER = StringHash("Player");
 StringHash const N_BULLET = StringHash("Bullet");
 StringHash const N_APPLE = StringHash("Apple");
 StringHash const N_HEART = StringHash("Heart");
-StringHash const N_MULTIX = StringHash("MultiX");
 StringHash const N_CHAOBALL = StringHash("ChaoBall");
 StringHash const N_CHAOMINE = StringHash("ChaoMine");
 StringHash const N_RESET = StringHash("Reset");
@@ -87,7 +84,7 @@ enum GameState {GS_INTRO, GS_LOBBY, GS_PLAY, GS_DEAD, GS_EDIT};
 enum JoyStickButton {JB_SELECT, JB_LEFTSTICK, JB_RIGHTSTICK, JB_START,
                      JB_DPAD_UP, JB_DPAD_RIGHT, JB_DPAD_DOWN, JB_DPAD_LEFT,
                      JB_L2, JB_R2, JB_L1, JB_R1, JB_TRIANGLE, JB_CIRCLE, JB_CROSS, JB_SQUARE};
-enum PickupType {PT_RESET, PT_APPLE, PT_HEART, PT_MULTIX, PT_CHAOBALL};
+enum PickupType {PT_RESET, PT_APPLE, PT_HEART, PT_CHAOBALL};
 
 #define MC MasterControl::GetInstance()
 
@@ -99,13 +96,14 @@ public:
     static MasterControl* GetInstance();
 
     GameWorld world;
+    Scene* scene_;
     Vector< SharedPtr<Model> > hairStyles_;
     SharedPtr<PhysicsWorld> physicsWorld_;
     SharedPtr<SoundSource> musicSource_;
     SharedPtr<UI> ui_;
     SharedPtr<Renderer> renderer_;
     SharedPtr<XMLFile> defaultStyle_;
-    SharedPtr<TileMaster> tileMaster_;
+    SharedPtr<Arena> arena_;
     SharedPtr<InputMaster> inputMaster_;
     SharedPtr<SpawnMaster> spawnMaster_;
 
@@ -124,7 +122,6 @@ public:
     HashMap<unsigned, SharedPtr<Player> > players_;
     SharedPtr<Apple> apple_;
     SharedPtr<Heart> heart_;
-    SharedPtr<MultiX> multiX_;
     SharedPtr<ChaoBall> chaoBall_;
     SharedPtr<Node> lobbyNode_;
 
@@ -143,13 +140,13 @@ public:
     Sound* GetSample(String name) const;
 
     Player* GetPlayer(int playerID, bool other = false) const;
-    float SinceLastReset() const { return world.scene->GetElapsedTime() - world.lastReset; }
+    float SinceLastReset() const { return scene_->GetElapsedTime() - world.lastReset; }
     void SetGameState(GameState newState);
     GameState GetGameState(){ return currentState_; }
     GameState GetPreviousGameState(){ return previousState_; }
     float GetAspectRatio() const noexcept { return aspectRatio_; }
     bool IsPaused() { return paused_; }
-    void SetPaused(bool paused) { paused_ = paused; world.scene->SetUpdateEnabled(!paused);}
+    void SetPaused(bool paused) { paused_ = paused; scene_->SetUpdateEnabled(!paused);}
     void Pause() { SetPaused(true);}
     void Unpause() { SetPaused(false); }
     float GetSinceStateChange() const noexcept { return sinceStateChange_; }

@@ -63,7 +63,7 @@ void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
     rigidBody_->SetMass(Max(initialMass_*((0.1f - age_)/0.1f),0.01f));
     light_->SetBrightness(Max(initialBrightness_*(0.32f - age_)/0.32f,0.0f));
 
-    if (node_->IsEnabled() && MC->world.scene->IsUpdateEnabled()) {
+    if (node_->IsEnabled() && MC->scene_->IsUpdateEnabled()) {
         PODVector<RigidBody* > hitResults{};
         float radius{2.0f * initialMass_ + age_ * 7.0f};
         if (MC->PhysicsSphereCast(hitResults,node_->GetPosition(), radius, M_MAX_UNSIGNED)) {
@@ -112,7 +112,7 @@ void Explosion::Set(const Vector3 position, const Color color, const float size,
     sampleSource_->SetGain(Min(0.5f*size, 1.0f));
     sampleSource_->Play(sample_);
 
-    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
+    MC->arena_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
 
     SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(Explosion, UpdateExplosion));
 }

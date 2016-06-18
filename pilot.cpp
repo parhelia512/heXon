@@ -25,7 +25,7 @@ void Pilot::RegisterObject(Context *context)
     context->RegisterFactory<Pilot>();
 }
 
-Pilot::Pilot(Context* context) : SceneObject(),
+Pilot::Pilot(Context* context) : SceneObject(context),
     male_{false},
     hairStyle_{0},
     colors_{}
@@ -34,9 +34,9 @@ Pilot::Pilot(Context* context) : SceneObject(),
 
 void Pilot::OnNodeSet(Node *node)
 {
-    Initialize(parent);
+//    Initialize(parent);
 
-    Randomize();
+//    Randomize();
 
 }
 
