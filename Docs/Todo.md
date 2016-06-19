@@ -24,7 +24,11 @@ Think in Components
 
 - Instructions
 - Options
-- Ship upgrades
+- Ship upgrades (cost points)
+   * Repeller
+   * Armor
+   * Engine
+   * Shield capacity
 
 -----------------------
 
@@ -38,4 +42,10 @@ Think in Components
 #### Enemies
 
 - Add Kernel (Enemy)
-- B'phomech boss (trophy: coin)
+
+##### B'phomech boss
+
+Inspiration:
+
+- Baphometh
+- Nihilanth

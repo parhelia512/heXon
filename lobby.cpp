@@ -130,7 +130,7 @@ void Lobby::Update(float timeStep)
 { (void)timeStep;
 
     PODVector<Node*> lightNodes{};
-    node_->GetChildrenWithComponent<Light>(lightNodes, true);
+    node_->GetChildrenWithComponent<Light>(lightNodes);
     for (Node* lightNode : lightNodes)
         lightNode->GetComponent<Light>()->SetBrightness(
                     MC->Sine(0.13f, 0.666f, 1.0f,

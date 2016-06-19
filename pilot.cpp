@@ -47,7 +47,7 @@ void Pilot::OnNodeSet(Node *node)
     rigidBody_->SetRestitution(0.0f);
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
     rigidBody_->SetLinearDamping(0.88f);
-    rigidBody_->SetLinearRestThreshold(0.01f);
+    rigidBody_->SetLinearRestThreshold(0.0f);
     rigidBody_->SetAngularFactor(Vector3::ZERO);
     rigidBody_->SetAngularRestThreshold(0.1f);
     collider_->SetCapsule(0.23f, 1.0f);
@@ -85,12 +85,12 @@ void Pilot::Update(float timeStep)
 
     //Update animation
     if (velocity.Length() > 0.1f){
-        animCtrl_->PlayExclusive("Models/WalkRelax.ani", 0, true, 0.15f);
-        animCtrl_->SetSpeed("Models/WalkRelax.ani", velocity.Length()*2.3f);
+        animCtrl_->PlayExclusive("Models/WalkRelax.ani", 1, true, 0.15f);
+        animCtrl_->SetSpeed("Models/WalkRelax.ani", velocity.Length() * 2.3f);
         animCtrl_->SetStartBone("Models/WalkRelax.ani", "MasterBone");
     }
     else {
-        animCtrl_->PlayExclusive("Models/IdleRelax.ani", 0, true, 0.15f);
+        animCtrl_->PlayExclusive("Models/IdleRelax.ani", 1, true, 0.15f);
         animCtrl_->SetStartBone("Models/IdleRelax.ani", "MasterBone");
     }
 }

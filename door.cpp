@@ -17,7 +17,7 @@
 */
 
 #include "door.h"
-#include "player.h"
+#include "pilot.h"
 
 void Door::RegisterObject(Context *context)
 {
@@ -26,8 +26,7 @@ void Door::RegisterObject(Context *context)
 
 Door::Door(Context* context) :
     LogicComponent(context),
-    right_{true},
-    wasNear_{true},
+    open_{false},
     hiding_{0.0f}
 {
 }
@@ -36,14 +35,14 @@ void Door::OnNodeSet(Node *node)
 { (void)node;
 
     node_->GetPosition().x_ > 0.0f ? MC->GetPlayer(2) : MC->GetPlayer(1);
-    door_ = node_->CreateComponent<AnimatedModel>();
-    door_->SetModel(MC->GetModel("Door"));
-    door_->SetMaterial(0, MC->GetMaterial("Basic"));
-    door_->SetCastShadows(true);
+    model_ = node_->CreateComponent<AnimatedModel>();
+    model_->SetModel(MC->GetModel("Door"));
+    model_->SetMaterial(0, MC->GetMaterial("Basic"));
+    model_->SetCastShadows(true);
 
-    Node* lightNode{node_->CreateChild("DoorLight")};
+    Node* lightNode{ node_->CreateChild("DoorLight") };
     lightNode->SetPosition(Vector3(0.0f, 0.666f, 2.3f));
-    Light* doorLight{lightNode->CreateComponent<Light>()};
+    Light* doorLight{ lightNode->CreateComponent<Light>() };
     doorLight->SetRange(10.0f);
     doorLight->SetBrightness(5.0f);
     doorLight->SetCastShadows(true);
@@ -51,30 +50,48 @@ void Door::OnNodeSet(Node *node)
 
     doorSample_ = CACHE->GetResource<Sound>("Samples/Door.ogg");
     doorSample_->SetLooped(false);
+    node_->CreateComponent<SoundSource>();
 
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Door, HandleSceneUpdate));
+    Node* triggerNode{ node_->CreateChild("Trigger") };
+    RigidBody* triggerBody{ triggerNode->CreateComponent<RigidBody>() };
+    triggerBody->SetTrigger(true);
+    CollisionShape* trigger{ triggerNode->CreateComponent<CollisionShape>() };
+    trigger->SetBox(Vector3(2.0f, 3.0f, 1.0f), Vector3::BACK * 0.34f);
+
+    node_->CreateComponent<RigidBody>();
+    for (float x : { -0.5f, 0.5f }){
+
+        CollisionShape* collider{ node_->CreateComponent<CollisionShape>() };
+        collider->SetCapsule(0.2f, 3.0f, Vector3( x, 0.0f, -0.23f));
+    }
+
+    SubscribeToEvent(triggerNode, E_NODECOLLISIONSTART, URHO3D_HANDLER(Door, Open));
+    SubscribeToEvent(triggerNode, E_NODECOLLISIONEND, URHO3D_HANDLER(Door, Close));
 
 }
 
-float Door::HidesPlayer() const
+void Door::Open(StringHash eventType, VariantMap& eventData)
+{ (void)eventType; (void)eventData;
+
+    node_->GetComponent<SoundSource>()->Play(doorSample_);
+    open_ = true;
+}
+void Door::Close(StringHash eventType, VariantMap& eventData)
+{ (void)eventType; (void)eventData;
+
+    node_->GetComponent<SoundSource>()->Play(doorSample_);
+    open_ = false;
+}
+
+float Door::HidesPilot() const
 {
     return hiding_;
 }
 
-void Door::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
-{ (void)eventType;
+void Door::Update(float timeStep)
+{
 
-    bool playerNear{LucKey::Distance(node_->GetWorldPosition(), player_->GetPosition()) < 0.666f};
-    if (playerNear != wasNear_) {
-        player_->PlaySample(doorSample_);
-    }
-    wasNear_ = playerNear;
-
-    if (door_->GetMorphWeight(0) < 0.023f && player_->GetPosition().z_ > GetPosition().z_)
-        hiding_ += eventData[SceneUpdate::P_TIMESTEP].GetFloat();
-    else hiding_ = 0.0f;
-
-    door_->SetMorphWeight(0, Lerp(door_->GetMorphWeight(0),
-                                  static_cast<float>(playerNear),
-                                  eventData[SceneUpdate::P_TIMESTEP].GetFloat() *23.0f));
+    model_->SetMorphWeight(0, Lerp( model_->GetMorphWeight(0),
+                                  static_cast<float>(open_),
+                                  timeStep * 23.0f) );
 }

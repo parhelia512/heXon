@@ -23,7 +23,7 @@
 
 #include <Urho3D/Urho3D.h>
 
-class Player;
+class Pilot;
 
 class Door : public LogicComponent
 {
@@ -32,18 +32,18 @@ public:
     Door(Context* context);
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
-    float HidesPlayer() const;
-    Vector3 GetPosition() const { return node_->GetPosition(); }
+    virtual void Update(float timeStep);
+
+    float HidesPilot() const;
 private:
-    Player* player_;
-    AnimatedModel* door_;
+    AnimatedModel* model_;
     SharedPtr<Sound> doorSample_;
 
-    bool right_;
-    bool wasNear_;
+    bool open_;
     float hiding_;
 
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
+    void Close(StringHash eventType, VariantMap& eventData);
+    void Open(StringHash eventType, VariantMap& eventData);
 };
 
 #endif // DOOR_H
