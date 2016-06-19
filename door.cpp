@@ -34,7 +34,6 @@ Door::Door(Context* context) :
 void Door::OnNodeSet(Node *node)
 { (void)node;
 
-    node_->GetPosition().x_ > 0.0f ? MC->GetPlayer(2) : MC->GetPlayer(1);
     model_ = node_->CreateComponent<AnimatedModel>();
     model_->SetModel(MC->GetModel("Door"));
     model_->SetMaterial(0, MC->GetMaterial("Basic"));
