@@ -21,32 +21,36 @@
 
 #include <Urho3D/Urho3D.h>
 
-#include "sceneobject.h"
+#include "controllable.h"
 
 enum PilotColor { PC_SKIN, PC_SHIRT, PC_PANTS, PC_SHOES, PC_HAIR, PC_ALL };
 enum Hair{HAIR_BALD, HAIR_SHORT, HAIR_MOHAWK, HAIR_SEAGULL, HAIR_MUSTAIN, HAIR_FROTOAD, HAIR_FLATTOP, HAIR_ALL};
 
-class Pilot : public SceneObject
+class Pilot : public Controllable
 {
-    URHO3D_OBJECT(Pilot, SceneObject);
+    URHO3D_OBJECT(Pilot, Controllable);
     friend class Player;
     friend class MasterControl;
 public:
     Pilot(Context* context);
-//    Pilot(Node *parent, const std::string file, unsigned &score);
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
+    virtual void Update(float timeStep);
 
-    void Randomize(bool autoPilot = false);
+    void Randomize();
+    void Initialize(int player);
+    unsigned GetScore() const { return score_; }
 private:
+    unsigned score_;
+
+    int player_;
     bool male_;
+    bool autoPilot_;
     int hairStyle_;
     HashMap<int, Color> pilotColors_;
-    AnimatedModel* bodyModel_;
-    StaticModel* hairModel_;
-    AnimationController* animCtrl_;
+    AnimatedModel* hairModel_;
 
-//    void Load(std::__cxx11::string file, unsigned &score);
+    void Load();
     void UpdateModel();
     void Save(int playerID, unsigned score);
 };

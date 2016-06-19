@@ -96,16 +96,16 @@ void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
         float boundsCheck{flatPosition.Length() * LucKey::Cosine(M_DEGTORAD * flatPosition.Angle(hexantNormal))};
         if (boundsCheck > radius){
             if (node_->GetNameHash() == N_BULLET){
-                MC->spawnMaster_->SpawnHitFX(GetPosition(), 0, false);
+                GetSubsystem<SpawnMaster>()->SpawnHitFX(GetPosition(), 0, false);
                 Disable();
 
             } else if (blink_){
-                MC->spawnMaster_->SpawnFlash(node_->GetPosition(), big_);
+                GetSubsystem<SpawnMaster>()->SpawnFlash(node_->GetPosition(), big_);
 
                 Vector3 newPosition{node_->GetPosition()-(1.995f*radius)*hexantNormal};
                 node_->SetPosition(newPosition);
 
-                MC->spawnMaster_->SpawnFlash(newPosition, big_);
+                GetSubsystem<SpawnMaster>()->SpawnFlash(newPosition, big_);
 
                 PlaySample(flashSample_, 0.16f);
             }

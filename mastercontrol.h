@@ -81,9 +81,6 @@ StringHash const N_RAZOR = StringHash("Razor");
 }
 
 enum GameState {GS_INTRO, GS_LOBBY, GS_PLAY, GS_DEAD, GS_EDIT};
-enum JoyStickButton {JB_SELECT, JB_LEFTSTICK, JB_RIGHTSTICK, JB_START,
-                     JB_DPAD_UP, JB_DPAD_RIGHT, JB_DPAD_DOWN, JB_DPAD_LEFT,
-                     JB_L2, JB_R2, JB_L1, JB_R1, JB_TRIANGLE, JB_CIRCLE, JB_CROSS, JB_SQUARE};
 enum PickupType {PT_RESET, PT_APPLE, PT_HEART, PT_CHAOBALL};
 
 #define MC MasterControl::GetInstance()
@@ -97,28 +94,19 @@ public:
 
     GameWorld world;
     Scene* scene_;
-    Vector< SharedPtr<Model> > hairStyles_;
-    SharedPtr<PhysicsWorld> physicsWorld_;
-    SharedPtr<SoundSource> musicSource_;
-    SharedPtr<UI> ui_;
-    SharedPtr<Renderer> renderer_;
+    PhysicsWorld* physicsWorld_;
+    SoundSource* musicSource_;
     SharedPtr<XMLFile> defaultStyle_;
-    SharedPtr<Arena> arena_;
-    SharedPtr<InputMaster> inputMaster_;
-    SharedPtr<SpawnMaster> spawnMaster_;
-
-    SharedPtr<Player> player1_;
-    SharedPtr<Player> player2_;
-
-    SharedPtr<Door> door1_;
-    SharedPtr<Door> door2_;
-    SharedPtr<SplatterPillar> splatterPillar1_;
-    SharedPtr<SplatterPillar> splatterPillar2_;
-    HashMap<unsigned, SharedPtr<Player> > players_;
-    SharedPtr<Apple> apple_;
-    SharedPtr<Heart> heart_;
-    SharedPtr<ChaoBall> chaoBall_;
     Lobby* lobby_;
+    Arena* arena_;
+
+    Player* player1_;
+    Player* player2_;
+    HashMap<unsigned, SharedPtr<Player> > players_;
+
+    Apple* apple_;
+    Heart* heart_;
+    ChaoBall* chaoBall_;
 
     // Setup before engine initialization. Modifies the engine paramaters.
     virtual void Setup();
@@ -135,6 +123,7 @@ public:
     Sound* GetSample(String name) const;
 
     Player* GetPlayer(int playerID, bool other = false) const;
+    Vector<int> GetPlayers() { Vector<int> players{}; players.Push(1); players.Push(2); return players; }
     float SinceLastReset() const { return scene_->GetElapsedTime() - world.lastReset; }
     void SetGameState(GameState newState);
     GameState GetGameState(){ return currentState_; }

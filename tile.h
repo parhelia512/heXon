@@ -37,9 +37,6 @@ public:
     Tile(Context* context);
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
-
-    IntVector2 coords_;
-    TileType tileType_;
 private:
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
 
@@ -49,10 +46,6 @@ private:
     float lastOffsetY_;
     StaticModel* model_;
     bool flipped_;
-
-    Node* cursor_;
-    void FixFringe();
-    void SetTileType(TileType type);
 };
 
 #endif // TILE_H

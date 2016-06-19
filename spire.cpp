@@ -81,7 +81,7 @@ void Spire::HandleSpireUpdate(StringHash eventType, VariantMap &eventData)
         sinceLastShot_ += timeStep;
         if (sinceLastShot_ > shotInterval_){
             sinceLastShot_ = 0.0f;
-            MC->spawnMaster_->SpawnSeeker(node_->GetPosition());
+            GetSubsystem<SpawnMaster>()->SpawnSeeker(node_->GetPosition());
         }
     }
 }

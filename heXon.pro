@@ -23,6 +23,7 @@ SOURCES += \
     chaoflash.cpp \
     chaomine.cpp \
     chaozap.cpp \
+    controllable.cpp \
     door.cpp \
     effect.cpp \
     enemy.cpp \
@@ -61,6 +62,7 @@ HEADERS += \
     chaoflash.h \
     chaomine.h \
     chaozap.h \
+    controllable.h \
     door.h \
     effect.h \
     enemy.h \

@@ -67,9 +67,10 @@ void Highest::OnNodeSet(Node *node)
     highestScoreText_->SetVerticalAlignment(VA_CENTER);
     highestScoreText_->SetPosition(0, ui->GetRoot()->GetHeight()/2.13f);
 
-    Node* pilotNode{ node_->CreateChild("Pilot") };
+    Node* pilotNode{ node_->CreateChild("HighestPilot") };
     Pilot* highestPilot{ pilotNode->CreateComponent<Pilot>() };
-//    highestPilot->Load("Resources/.Pilot0.lkp", highestScore_);
+    highestPilot->Initialize(0);
+    highestScore_ = highestPilot->GetScore();
     if (highestScore_ == 0){
         node_->SetEnabledRecursive(false);
         highestScoreText_->SetColor(Color{0.0f, 0.0f, 0.0f, 0.0f});

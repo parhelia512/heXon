@@ -25,39 +25,81 @@ void Pilot::RegisterObject(Context *context)
     context->RegisterFactory<Pilot>();
 }
 
-Pilot::Pilot(Context* context) : SceneObject(context),
-    male_{false},
-    hairStyle_{0},
+Pilot::Pilot(Context* context) : Controllable(context),
+    male_{ false },
+    autoPilot_{ false },
+    hairStyle_{ 0 },
     pilotColors_{}
 {
 }
 
 void Pilot::OnNodeSet(Node *node)
-{ (void)node;
+{
+    Controllable::OnNodeSet(node);
 
-    bodyModel_ = node_->CreateComponent<AnimatedModel>();
-    bodyModel_->SetModel(MC->GetModel("Male"));
-    bodyModel_->SetCastShadows(true);
-    Node* hairNode{node_->GetChild("Head", true)->CreateChild("Hair")};
-    hairModel_ = hairNode->CreateComponent<StaticModel>();
+    model_->SetModel(MC->GetModel("Male"));
+    model_->SetCastShadows(true);
+    Node* head{ node_->GetChild("Head", true) };
+    Node* hairNode{ head->CreateChild("Hair") };
+    hairModel_ = hairNode->CreateComponent<AnimatedModel>();
     hairModel_->SetCastShadows(true);
-    animCtrl_ = node_->CreateComponent<AnimationController>();
+    rigidBody_->SetMass(1.0f);
+    rigidBody_->SetRestitution(0.0f);
+    rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
+    rigidBody_->SetLinearDamping(0.88f);
+    rigidBody_->SetLinearRestThreshold(0.01f);
+    rigidBody_->SetAngularFactor(Vector3::ZERO);
+    rigidBody_->SetAngularRestThreshold(0.1f);
+    collider_->SetCapsule(0.23f, 1.0f);
 
-    //Animate highest pilot
+    //Also animates highest
     animCtrl_->PlayExclusive("Models/IdleAlert.ani", 0, true);
     animCtrl_->SetSpeed("Models/IdleAlert.ani", 0.5f);
     animCtrl_->SetStartBone("Models/IdleAlert.ani", "MasterBone");
 
-//    Randomize();
-
 }
 
+void Pilot::Update(float timeStep)
+{
+    if (node_->GetName() == "HighestPilot")
+        return;
 
-//Pilot::Pilot(Node* parent, const std::string file, unsigned& score) : SceneObject()
-//{
+    float thrust{ 256.0f };
+    float maxSpeed{ 1.23f + 0.5f * pilotColors_[static_cast<int>(PC_SHOES)].r_ };
 
-//    Load(file, score);
-//}
+    //Apply movement
+    Vector3 force = move_ * thrust * timeStep;
+    if ( rigidBody_->GetLinearVelocity().Length() < maxSpeed
+     || (rigidBody_->GetLinearVelocity().Normalized() + force.Normalized()).Length() < 1.4142f )
+    {
+        rigidBody_->ApplyForce(force);
+    }
+
+    //Update rotation according to direction of the player's movement.
+    Vector3 velocity = rigidBody_->GetLinearVelocity();
+    Vector3 lookDirection = velocity + 2.0f * aim_;
+    Quaternion rotation = node_->GetWorldRotation();
+    Quaternion aimRotation = rotation;
+    aimRotation.FromLookRotation(lookDirection);
+    node_->SetRotation(rotation.Slerp(aimRotation, 7.0f * timeStep * velocity.Length()));
+
+    //Update animation
+    if (velocity.Length() > 0.1f){
+        animCtrl_->PlayExclusive("Models/WalkRelax.ani", 0, true, 0.15f);
+        animCtrl_->SetSpeed("Models/WalkRelax.ani", velocity.Length()*2.3f);
+        animCtrl_->SetStartBone("Models/WalkRelax.ani", "MasterBone");
+    }
+    else {
+        animCtrl_->PlayExclusive("Models/IdleRelax.ani", 0, true, 0.15f);
+        animCtrl_->SetStartBone("Models/IdleRelax.ani", "MasterBone");
+    }
+}
+
+void Pilot::Initialize(int player)
+{
+    player_ = player;
+    Load();
+}
 
 void Pilot::Save(int playerID, unsigned score)
 {
@@ -75,10 +117,10 @@ void Pilot::Save(int playerID, unsigned score)
     fPilot << score;
 }
 
-/*void Pilot::Load(std::string file, unsigned &score)
+void Pilot::Load()
 {
     using namespace std;
-    ifstream fPilot{file};
+    ifstream fPilot{"Resources/.Pilot" + to_string(player_) + ".lkp"};
     while (!fPilot.eof()){
         string gender_str;
         string hairStyle_str;
@@ -102,45 +144,48 @@ void Pilot::Save(int playerID, unsigned score)
 
         male_ = static_cast<bool>(stoi(gender_str));
         hairStyle_ = stoi(hairStyle_str);
-        colors_.Clear();
-        colors_.Push(Color(stof(color1_r_str),stof(color1_g_str),stof(color1_b_str)));
-        colors_.Push(Color(stof(color2_r_str),stof(color2_g_str),stof(color2_b_str)));
-        colors_.Push(Color(stof(color3_r_str),stof(color3_g_str),stof(color3_b_str)));
-        colors_.Push(Color(stof(color4_r_str),stof(color4_g_str),stof(color4_b_str)));
-        colors_.Push(Color(stof(color5_r_str),stof(color5_g_str),stof(color5_b_str)));
+        pilotColors_.Clear();
+        pilotColors_[PC_SKIN]   = Color(stof(color1_r_str),stof(color1_g_str),stof(color1_b_str));
+        pilotColors_[PC_SHIRT]  = Color(stof(color2_r_str),stof(color2_g_str),stof(color2_b_str));
+        pilotColors_[PC_PANTS]  = Color(stof(color3_r_str),stof(color3_g_str),stof(color3_b_str));
+        pilotColors_[PC_SHOES]  = Color(stof(color4_r_str),stof(color4_g_str),stof(color4_b_str));
+        pilotColors_[PC_HAIR]   = Color(stof(color5_r_str),stof(color5_g_str),stof(color5_b_str));
 
-        score = static_cast<unsigned>(stoul(score_str, 0, 10));
+        score_ = static_cast<unsigned>(stoul(score_str, 0, 10));
     }
 
-    if (!colors_.Size() || score == 0)
+    if (!pilotColors_.Size() || score_ == 0)
         Randomize();
 
     UpdateModel();
-}*/
+}
 
 void Pilot::UpdateModel()
 {
     //Set body model
-    if (male_)
-        bodyModel_->SetModel(MC->GetModel("Male"));
-    else
-        bodyModel_->SetModel(MC->GetModel("Female"));
+    if (male_)  model_->SetModel(MC->GetModel("Male"));
+    else        model_->SetModel(MC->GetModel("Female"));
 
     //Set colors for body model
     for (unsigned c{PC_SKIN}; c < PC_ALL; ++c){
-        bodyModel_->SetMaterial(c, MC->GetMaterial("Basic")->Clone()); ///Only once!
+        model_->SetMaterial(c, MC->GetMaterial("Basic")->Clone());
         Color diffColor{pilotColors_[c]};
-        bodyModel_->GetMaterial(c)->SetShaderParameter("MatDiffColor", diffColor);
-        Color specColor{diffColor*(1.0f-0.1f*c)};
-        specColor.a_ = 23.0f - 2.0f * c;
-        bodyModel_->GetMaterial(c)->SetShaderParameter("MatSpecColor", specColor);
+        if (c == 4){
+            if (hairStyle_ == HAIR_BALD)
+                diffColor = pilotColors_[0];
+            else if (hairStyle_ == HAIR_MOHAWK)
+                diffColor = LucKey::RandomHairColor(true);
+        }
+        model_->GetMaterial(c)->SetShaderParameter("MatDiffColor", diffColor);
+        Color specColor{diffColor * (1.0f-0.1f*c)};
+        specColor.a_ = 23.0f - 4.0f * c;
+        model_->GetMaterial(c)->SetShaderParameter("MatSpecColor", specColor);
     }
-
     //Set hair model
     hairModel_->GetNode()->SetScale(1.0f - (0.1f * !male_));
 
-    switch (hairStyle_) {
-    default: case 0: hairModel_->SetModel(nullptr);
+    switch (hairStyle_){
+    default: case HAIR_BALD: case HAIR_SHORT: hairModel_->SetModel(nullptr);
         break;
     case HAIR_MOHAWK: hairModel_->SetModel(MC->GetModel("Mohawk"));
         break;
@@ -150,28 +195,33 @@ void Pilot::UpdateModel()
         break;
     case HAIR_FROTOAD: hairModel_->SetModel(MC->GetModel("Frotoad"));
         break;
+    case HAIR_FLATTOP: hairModel_->SetModel(MC->GetModel("Flattop"));
+        break;
     }
-    //Set color for hair model
-    hairModel_->SetMaterial(MC->GetMaterial("Basic")->Clone());
-    Color diffColor{pilotColors_[4]};
-    hairModel_->GetMaterial()->SetShaderParameter("MatDiffColor", diffColor);
-    Color specColor{diffColor * 0.23f};
-    specColor.a_ = 23.0f;
-    hairModel_->GetMaterial()->SetShaderParameter("MatSpecColor", specColor);
+    if (hairStyle_ != HAIR_BALD && hairStyle_ != HAIR_SHORT)
+    {
+        hairModel_->SetMorphWeight(0, Random());
+
+        //Set color for hair model
+        hairModel_->SetMaterial(MC->GetMaterial("Basic")->Clone());
+        Color diffColor{ pilotColors_[4] };
+        hairModel_->GetMaterial()->SetShaderParameter("MatDiffColor", diffColor);
+        Color specColor{ diffColor * 0.23f };
+        specColor.a_ = 23.0f;
+        hairModel_->GetMaterial()->SetShaderParameter("MatSpecColor", specColor);
+    }
 }
 
-void Pilot::Randomize(bool autoPilot)
+void Pilot::Randomize()
 {
     male_ = Random(2);
-    hairStyle_ = Random(static_cast<int>(MC->hairStyles_.Size() + 1));
-
-    node_->SetRotation(Quaternion(0.0f, 0.0f, 0.0f));
+    hairStyle_ = Random(static_cast<int>(HAIR_ALL));
 
     for (int c{PC_SKIN}; c < PC_ALL; ++c) {
         switch (c){
         case 0:
-            pilotColors_[c] = (autoPilot
-                               ? Color::GRAY
+            pilotColors_[c] = (autoPilot_
+                               ? Color::GRAY * 0.666f
                                : LucKey::RandomSkinColor());
             break;
         case 4:

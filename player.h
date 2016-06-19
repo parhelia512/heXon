@@ -23,10 +23,6 @@
 
 #include "sceneobject.h"
 
-#define DOOR        (playerID_==2 ? MC->door2_ : MC->door1_)
-#define OTHERDOOR   (playerID_==1 ? MC->door2_ : MC->door1_)
-#define SPLATTERPILLAR      (playerID_==2 ? MC->splatterPillar2_ : MC->splatterPillar1_)
-#define OTHERSPLATTERPILLAR (playerID_==1 ? MC->splatterPillar2_ : MC->splatterPillar1_)
 #define JOY INPUT->GetJoystickByIndex(playerID_ - 1)
 
 class Bullet;

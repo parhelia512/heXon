@@ -101,18 +101,22 @@ void MasterControl::Start()
 
     TailGenerator::RegisterObject(context_);
     heXoCam::RegisterObject(context_);
-    Arena::RegisterObject(context_);
-    Tile::RegisterObject(context_);
     Lobby::RegisterObject(context_);
+    Arena::RegisterObject(context_);
+    Apple::RegisterObject(context_);
+    Heart::RegisterObject(context_);
+    ChaoBall::RegisterObject(context_);
+    Tile::RegisterObject(context_);
     Door::RegisterObject(context_);
     SplatterPillar::RegisterObject(context_);
     Highest::RegisterObject(context_);
     Ship::RegisterObject(context_);
+    Pilot::RegisterObject(context_);
 //    Human::RegisterObject(context_);
 //    AutoPilot::RegisterObject(context_);
 
-    new InputMaster();
-    renderer_ = GetSubsystem<Renderer>();
+    context_->RegisterSubsystem(new InputMaster(context_));
+    context_->RegisterSubsystem(new SpawnMaster(context_));
 
     // Get default style
     defaultStyle_ = CACHE->GetResource<XMLFile>("UI/DefaultStyle.xml");
@@ -169,12 +173,10 @@ void MasterControl::CreateConsoleAndDebugHud()
 
 void MasterControl::CreateUI()
 {
-    ui_ = GetSubsystem<UI>();
-
     //Create a Cursor UI element because we want to be able to hide and show it at will. When hidden, the mouse cursor will control the camera
     world.cursor.uiCursor = new Cursor(context_);
     world.cursor.uiCursor->SetVisible(true);
-    ui_->SetCursor(world.cursor.uiCursor);
+    GetSubsystem<UI>()->SetCursor(world.cursor.uiCursor);
 
     //Set starting position of the cursor at the rendering window center
     world.cursor.uiCursor->SetPosition(GRAPHICS->GetWidth()/2, GRAPHICS->GetHeight()/2);
@@ -214,7 +216,7 @@ void MasterControl::CreateScene()
 
     //Create cursor
     world.cursor.sceneCursor = scene_->CreateChild("Cursor");
-    StaticModel* cursorObject{world.cursor.sceneCursor->CreateComponent<StaticModel>()};
+    StaticModel* cursorObject{ world.cursor.sceneCursor->CreateComponent<StaticModel>() };
     cursorObject->SetModel(GetModel("Hexagon"));
     cursorObject->SetMaterial(GetMaterial("Glow"));
     world.cursor.sceneCursor->SetEnabled(false);
@@ -239,21 +241,28 @@ void MasterControl::CreateScene()
     Node* lobbyNode{ scene_->CreateChild("Lobby") };
     lobbyNode->CreateComponent<Lobby>();
 
-    //Create game elements
-    spawnMaster_ = new SpawnMaster();
+    //Create pilots
+    for (float x : { -2.3f, 2.3f }){
+
+        int playerId{ x < 0.0f ? 1 : 2 };
+        Node* pilotNode{ scene_->CreateChild("Pilot") };
+        pilotNode->SetPosition( Vector3(x, 0.0f, 2.5f) ); ///z = 5.5f
+        pilotNode->Rotate(Quaternion(180.0f, Vector3::UP));
+        Pilot* pilot{ pilotNode->CreateComponent<Pilot>() };
+        pilot->Initialize( playerId );
+        GetSubsystem<InputMaster>()->SetPlayerControl(playerId, pilot);
+    }
 
 //    player1_ = new Player(1);
 //    player2_ = new Player(2);
-//    players_[player1_->GetRootNodeID()] = player1_;
-//    players_[player2_->GetRootNodeID()] = player2_;
 
 
-//    door1_ = new Door(false);
-//    door2_ = new Door(true);
-
-//    apple_ = new Apple();
-//    heart_ = new Heart();
-//    chaoBall_ = new ChaoBall();
+    Node* appleNode{ scene_->CreateChild("Apple") };
+    apple_ = appleNode->CreateComponent<Apple>();
+    Node* heartNode{ scene_->CreateChild("Heart") };
+    heart_ = heartNode->CreateComponent<Heart>();
+    Node* chaoBallNode{ scene_->CreateChild("ChaoBall") };
+    chaoBall_ = chaoBallNode->CreateComponent<ChaoBall>();
 }
 
 void MasterControl::SetGameState(const GameState newState)
@@ -276,7 +285,7 @@ void MasterControl::LeaveGameState()
 //            highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.23f));
     } break;
     case GS_PLAY : {
-        spawnMaster_->Deactivate();
+        GetSubsystem<SpawnMaster>()->Deactivate();
     } break; //Eject when alive
     case GS_DEAD : {
         world.camera->SetGreyScale(false);
@@ -290,14 +299,14 @@ void MasterControl::EnterGameState()
     switch (currentState_) {
     case GS_INTRO : break;
     case GS_LOBBY : {
-        GetPlayer(1)->EnterLobby();
-        GetPlayer(2)->EnterLobby();
+//        GetPlayer(1)->EnterLobby();
+//        GetPlayer(2)->EnterLobby();
         musicSource_->Play(menuMusic_);
 //        lobby_->SetEnabledRecursive(true);
 //        lobby_->SetPosition((Vector3::DOWN * 23.0f) / (128.0f * sinceStateChange_+23.0f));
 
         world.camera->EnterLobby();
-        spawnMaster_->Clear();
+        GetSubsystem<SpawnMaster>()->Clear();
 
         arena_->EnterLobbyState();
 //        highestNode_->SetEnabledRecursive(highestScore_ != 0);
@@ -309,8 +318,8 @@ void MasterControl::EnterGameState()
     } break;
     case GS_PLAY : {
         musicSource_->Play(gameMusic_);
-        player1_->EnterPlay();
-        player2_->EnterPlay();
+//        player1_->EnterPlay();
+//        player2_->EnterPlay();
         world.camera->EnterPlay();
 
         apple_->Respawn(true);
@@ -318,11 +327,11 @@ void MasterControl::EnterGameState()
         chaoBall_->Deactivate();
 
         world.lastReset = scene_->GetElapsedTime();
-        spawnMaster_->Restart();
+        GetSubsystem<SpawnMaster>()->Restart();
         arena_->EnterPlayState();
     } break;
     case GS_DEAD : {
-        spawnMaster_->Deactivate();
+        GetSubsystem<SpawnMaster>()->Deactivate();
         world.camera->SetGreyScale(true);
         musicSource_->SetGain(musicSource_->GetGain() * 0.666f);
     } break;
@@ -447,9 +456,9 @@ float MasterControl::SinePhase(float freq, float shift)
 Player* MasterControl::GetPlayer(int playerID, bool other) const
 {
     if (!other)
-        return playerID == 1 ? player1_.Get() : player2_.Get();
+        return playerID == 1 ? player1_ : player2_;
     else
-        return playerID != 1 ? player1_.Get() : player2_.Get();
+        return playerID != 1 ? player1_ : player2_;
 }
 
 bool MasterControl::NoHumans()

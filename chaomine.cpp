@@ -88,7 +88,7 @@ void ChaoMine::HandleMineUpdate(StringHash eventType, VariantMap &eventData)
 void ChaoMine::CheckHealth()
 {
     if (node_->IsEnabled() && health_ <= 0 || panicTime_ > 23.0f) {
-        MC->spawnMaster_->SpawnChaoZap(GetPosition(), playerID_);
+        GetSubsystem<SpawnMaster>()->SpawnChaoZap(GetPosition(), playerID_);
         Disable();
     }
 }

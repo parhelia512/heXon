@@ -83,7 +83,7 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
         if (collider->GetNode()->GetNameHash() == N_PLAYER) {
             Player* hitPlayer = MC->players_[collider->GetNode()->GetID()];
             hitPlayer->Pickup(pickupType_);
-            MC->spawnMaster_->SpawnHitFX(GetPosition(), hitPlayer->GetPlayerID(), false);
+            GetSubsystem<SpawnMaster>()->SpawnHitFX(GetPosition(), hitPlayer->GetPlayerID(), false);
             switch (pickupType_){
             case PT_CHAOBALL: Deactivate(); break;
             case PT_APPLE: case PT_HEART: Respawn(); break;
@@ -152,7 +152,7 @@ void Pickup::Respawn(bool restart)
     rigidBody_->ResetForces();
 
     Set(restart ? initialPosition_
-                : MC->spawnMaster_->SpawnPoint());
+                : GetSubsystem<SpawnMaster>()->SpawnPoint());
     MC->arena_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
 }
 void Pickup::Deactivate()

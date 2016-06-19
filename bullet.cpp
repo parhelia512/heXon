@@ -97,17 +97,17 @@ void Bullet::HitCheck(float timeStep) {
             for (PhysicsRaycastResult h : hitResults){
                 if (!h.body_->IsTrigger()){// && h.body_->GetNode()->GetNameHash() != N_PLAYER){
                     h.body_->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.05f);
-                    MC->spawnMaster_->SpawnHitFX(h.position_, playerID_);
+                    GetSubsystem<SpawnMaster>()->SpawnHitFX(h.position_, playerID_);
                     //Deal damage
                     unsigned hitID = h.body_->GetNode()->GetID();
-                    if(MC->spawnMaster_->spires_.Keys().Contains(hitID)){
-                        MC->spawnMaster_->spires_[hitID]->Hit(damage_, playerID_);
+                    if(GetSubsystem<SpawnMaster>()->spires_.Keys().Contains(hitID)){
+                        GetSubsystem<SpawnMaster>()->spires_[hitID]->Hit(damage_, playerID_);
                     }
-                    else if(MC->spawnMaster_->razors_.Keys().Contains(hitID)){
-                        MC->spawnMaster_->razors_[hitID]->Hit(damage_, playerID_);
+                    else if(GetSubsystem<SpawnMaster>()->razors_.Keys().Contains(hitID)){
+                        GetSubsystem<SpawnMaster>()->razors_[hitID]->Hit(damage_, playerID_);
                     }
-                    else if(MC->spawnMaster_->chaoMines_.Keys().Contains(hitID)){
-                        MC->spawnMaster_->chaoMines_[hitID]->Hit(damage_, playerID_);
+                    else if(GetSubsystem<SpawnMaster>()->chaoMines_.Keys().Contains(hitID)){
+                        GetSubsystem<SpawnMaster>()->chaoMines_[hitID]->Hit(damage_, playerID_);
                     }
                     Disable();
                 }

@@ -105,29 +105,29 @@ int ChaoFlash::Set(const Vector3 position)
         for (RigidBody* hitResult : hitResults){
             String hitName = hitResult->GetNode()->GetName();
             unsigned hitID = hitResult->GetNode()->GetID();
-            if(MC->spawnMaster_->spires_.Contains(hitID)){
-                WeakPtr<Spire> spire = MC->spawnMaster_->spires_[hitID];
+            if(GetSubsystem<SpawnMaster>()->spires_.Contains(hitID)){
+                WeakPtr<Spire> spire = GetSubsystem<SpawnMaster>()->spires_[hitID];
                 spire->Disable();
-                MC->spawnMaster_->SpawnChaoMine(spire->GetPosition(), playerID_);
+                GetSubsystem<SpawnMaster>()->SpawnChaoMine(spire->GetPosition(), playerID_);
                 MC->GetPlayer(playerID_)->AddScore(Random(42, 100));
             }
-            else if(MC->spawnMaster_->razors_.Contains(hitID)){
-                WeakPtr<Razor> razor = MC->spawnMaster_->razors_[hitID];
+            else if(GetSubsystem<SpawnMaster>()->razors_.Contains(hitID)){
+                WeakPtr<Razor> razor = GetSubsystem<SpawnMaster>()->razors_[hitID];
                 razor->Disable();
-                MC->spawnMaster_->SpawnChaoMine(razor->GetPosition(), playerID_);
+                GetSubsystem<SpawnMaster>()->SpawnChaoMine(razor->GetPosition(), playerID_);
                 MC->GetPlayer(playerID_)->AddScore(Random(23, 42));
             }
-            else if(MC->spawnMaster_->seekers_.Contains(hitID)){
-                WeakPtr<Seeker> seeker = MC->spawnMaster_->seekers_[hitID];
+            else if(GetSubsystem<SpawnMaster>()->seekers_.Contains(hitID)){
+                WeakPtr<Seeker> seeker = GetSubsystem<SpawnMaster>()->seekers_[hitID];
                 seeker->Disable();
                 MC->GetPlayer(playerID_)->AddScore(Random(5, 23));
             } else if (hitName == "Apple"){
                 MC->GetPlayer(playerID_)->UpgradeWeapons();
-                MC->spawnMaster_->SpawnHitFX(MC->apple_->GetPosition(), playerID_, false);
+                GetSubsystem<SpawnMaster>()->SpawnHitFX(MC->apple_->GetPosition(), playerID_, false);
                 MC->apple_->Respawn();
             } else if (hitName == "Heart"){
                 MC->GetPlayer(playerID_)->ChargeShield();
-                MC->spawnMaster_->SpawnHitFX(MC->heart_->GetPosition(), playerID_, false);
+                GetSubsystem<SpawnMaster>()->SpawnHitFX(MC->heart_->GetPosition(), playerID_, false);
                 MC->heart_->Respawn();
             } else if (hitName == "Player"){
                 ++playerCount;

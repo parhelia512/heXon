@@ -135,7 +135,7 @@ void Enemy::CheckHealth()
         if (lastHitBy_ != 0)
             MC->GetPlayer(lastHitBy_)->AddScore(bonus_ ? worth_ : 2 * worth_ / 3);
 
-        MC->spawnMaster_->SpawnExplosion(node_->GetPosition(),
+        GetSubsystem<SpawnMaster>()->SpawnExplosion(node_->GetPosition(),
                                                      Color(color_.r_*color_.r_, color_.g_*color_.g_, color_.b_*color_.b_),
                                                      0.5f*rigidBody_->GetMass(),
                                                      lastHitBy_);
@@ -175,7 +175,7 @@ void Enemy::HandleCollision(StringHash eventType, VariantMap &eventData)
     PODVector<RigidBody*> collidingBodies{};
     rigidBody_->GetCollidingBodies(collidingBodies);
 
-    if (sinceLastWhack_ > whackInterval_) {
+/*    if (sinceLastWhack_ > whackInterval_) {
         for (RigidBody* r : collidingBodies) {
             StringHash otherNameHash = r->GetNode()->GetNameHash();
             if (otherNameHash == N_PLAYER) {
@@ -185,11 +185,11 @@ void Enemy::HandleCollision(StringHash eventType, VariantMap &eventData)
 
                 hitPlayer->Hit(meleeDamage_ + meleeDamage_*panic_);
                 //Spawn hitFX in the middle since collision radii differ for gameplay purposes
-                MC->spawnMaster_->SpawnHitFX(
+                GetSubsystem<SpawnMaster>()->SpawnHitFX(
                             (hitPlayer->GetPosition() + GetPosition()) * 0.5f, 0, false);
             }
             sinceLastWhack_ = 0.0f;
         }
-    }
+    }*/
 }
 

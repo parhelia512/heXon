@@ -21,14 +21,6 @@
 #include "mastercontrol.h"
 #include "tile.h"
 
-//Makes IntVector2 available as HashMap key
-namespace Urho3D {
-template <> unsigned MakeHash(const IntVector2& value)
-  {
-    return LucKey::IntVector2ToHash(value);
-  }
-}
-
 void Arena::RegisterObject(Context *context)
 {
     context->RegisterFactory<Arena>();
@@ -43,7 +35,8 @@ Arena::Arena(Context* context):
 }
 
 void Arena::OnNodeSet(Node *node)
-{
+{ (void)node;
+
     node_->SetPosition(targetPosition_);
     node_->SetScale(targetScale_);
 
@@ -60,7 +53,7 @@ void Arena::OnNodeSet(Node *node)
 
                 Node* tileNode{ node_->CreateChild("Tile") };
                 tileNode->SetPosition(tilePos);
-                tileMap_[IntVector2(i, j)] = tileNode->CreateComponent<Tile>();
+                tiles_.Push(tileNode->CreateComponent<Tile>());
             }
         }
     }
@@ -100,8 +93,7 @@ void Arena::EnterPlayState()
 {
     targetPosition_ = Vector3::DOWN * 0.23f;
     targetScale_ = Vector3::ONE;
-    Vector<Tile* > tiles = tileMap_.Values();
-    for (Tile* t : tiles){
+    for (Tile* t : tiles_){
         t->lastOffsetY_ = 2.3f;
     }
 }
@@ -142,11 +134,10 @@ void Arena::HandleUpdate(StringHash eventType, VariantMap& eventData)
 
 Tile* Arena::GetRandomTile()
 {
-    Vector<Tile* > tiles = tileMap_.Values();
-    if (tiles.Size()){
+    if (tiles_.Size()){
         Tile* tile;
         while (!tile){
-            Tile* tryTile = tiles[Random((int)tiles.Size())];
+            Tile* tryTile = tiles_[Random((int)tiles_.Size())];
             PODVector<PhysicsRaycastResult> hitResults;
             Ray spawnRay(tryTile->node_->GetPosition()-Vector3::UP, Vector3::UP*10.0f);
             if (!MC->PhysicsRayCast(hitResults, spawnRay, 23.0f, M_MAX_UNSIGNED)){

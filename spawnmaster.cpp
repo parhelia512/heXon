@@ -22,8 +22,8 @@
 #include "tile.h"
 #include "player.h"
 
-SpawnMaster::SpawnMaster():
-    Object(MC->GetContext()),
+SpawnMaster::SpawnMaster(Context* context):
+    Object(context),
     spawning_{false},
     razorInterval_{2.0f},
     sinceRazorSpawn_{0.0f},
@@ -88,36 +88,36 @@ void SpawnMaster::Deactivate()
 }
 void SpawnMaster::Clear()
 {
-    for (SharedPtr<Razor> r : razors_.Values()) {
-        if (r->IsEnabled()) r->Disable();
-    }
-    for (SharedPtr<Spire> s : spires_.Values()) {
-        if (s->IsEnabled()) s->Disable();
-    }
-    for (SharedPtr<ChaoMine> c : chaoMines_.Values()) {
-        if (c->IsEnabled()) c->Disable();
-    }
-    for (SharedPtr<Seeker> s : seekers_.Values()) {
-        if (s->IsEnabled()) s->Disable();
-    }
-    for (SharedPtr<HitFX> h : hitFXs_) {
-        if (h->IsEnabled()) h->Disable();
-    }
-    for (SharedPtr<Explosion> e : explosions_) {
-        if (e->IsEnabled()) e->Disable();
-    }
-    for (SharedPtr<Flash> f : flashes_) {
-        if (f->IsEnabled()) f->Disable();
-    }
-    for (SharedPtr<Bubble> b : bubbles_) {
-        if (b->IsEnabled()) b->Disable();
-    }
-    for (SharedPtr<Line> l : lines_) {
-        if (l->IsEnabled()) l->Disable();
-    }
-    for (SharedPtr<ChaoZap> c : chaoZaps_) {
-        if (c->IsEnabled()) c->Disable();
-    }
+//    for (SharedPtr<Razor> r : razors_.Values()) {
+//        if (r->IsEnabled()) r->Disable();
+//    }
+//    for (SharedPtr<Spire> s : spires_.Values()) {
+//        if (s->IsEnabled()) s->Disable();
+//    }
+//    for (SharedPtr<ChaoMine> c : chaoMines_.Values()) {
+//        if (c->IsEnabled()) c->Disable();
+//    }
+//    for (SharedPtr<Seeker> s : seekers_.Values()) {
+//        if (s->IsEnabled()) s->Disable();
+//    }
+//    for (SharedPtr<HitFX> h : hitFXs_) {
+//        if (h->IsEnabled()) h->Disable();
+//    }
+//    for (SharedPtr<Explosion> e : explosions_) {
+//        if (e->IsEnabled()) e->Disable();
+//    }
+//    for (SharedPtr<Flash> f : flashes_) {
+//        if (f->IsEnabled()) f->Disable();
+//    }
+//    for (SharedPtr<Bubble> b : bubbles_) {
+//        if (b->IsEnabled()) b->Disable();
+//    }
+//    for (SharedPtr<Line> l : lines_) {
+//        if (l->IsEnabled()) l->Disable();
+//    }
+//    for (SharedPtr<ChaoZap> c : chaoZaps_) {
+//        if (c->IsEnabled()) c->Disable();
+//    }
 }
 
 void SpawnMaster::Restart()
@@ -147,12 +147,12 @@ void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     sinceRazorSpawn_ += timeStep;
     sinceSpireSpawn_ += timeStep;
 
-    if (MC->GetPlayer(1)->IsEnabled() || MC->GetPlayer(2)->IsEnabled()) {
-        if (sinceRazorSpawn_ > razorInterval_ && CountActiveRazors() < 23)
-            SpawnRazor(SpawnPoint());
-        if (sinceSpireSpawn_ > spireInterval_ && CountActiveSpires() < 7)
-            SpawnSpire(SpawnPoint());
-    }
+//    if (MC->GetPlayer(1)->IsEnabled() || MC->GetPlayer(2)->IsEnabled()) {
+//        if (sinceRazorSpawn_ > razorInterval_ && CountActiveRazors() < 23)
+//            SpawnRazor(SpawnPoint());
+//        if (sinceSpireSpawn_ > spireInterval_ && CountActiveSpires() < 7)
+//            SpawnSpire(SpawnPoint());
+//    }
 
     sinceBubbleSpawn_ += timeStep;
 

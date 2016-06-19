@@ -31,7 +31,6 @@ class Tile;
 class Slot;
 
 enum TileElement {TE_CENTER = 0, TE_NORTH, TE_EAST, TE_SOUTH, TE_WEST, TE_NORTHWEST, TE_NORTHEAST, TE_SOUTHEAST, TE_SOUTHWEST, TE_LENGTH};
-enum CornerType {CT_NONE, CT_IN, CT_OUT, CT_TWEEN, CT_DOUBLE, CT_FILL};
 enum TileType {B_SPACE, B_EMPTY, B_ENGINE};
 
 class Arena : public LogicComponent
@@ -59,7 +58,7 @@ private:
     Material* xMaterial_;
     Light* playLight_;
     HashMap<Node*, RigidBody*> hexAffectors_;
-    HashMap<IntVector2, Tile*> tileMap_;
+    Vector<Tile*> tiles_;
 
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
 

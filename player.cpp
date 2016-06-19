@@ -278,9 +278,9 @@ void Player::KillPilot()
 void Player::CountScore()
 {
     int threshold{1024};
-    int lines{MC->spawnMaster_->CountActiveLines()};
+    int lines{GetSubsystem<SpawnMaster>()->CountActiveLines()};
     while (toCount_ > 0 && lines < threshold){
-        MC->spawnMaster_->SpawnLine(playerID_);
+        GetSubsystem<SpawnMaster>()->SpawnLine(playerID_);
         --toCount_;
         ++lines;
     }
@@ -373,8 +373,9 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     if (pilotMode_){
         //Apply movement
         Vector3 force = move * thrust * timeStep;
-        if (rigidBody_->GetLinearVelocity().Length() < maxSpeed ||
-                (rigidBody_->GetLinearVelocity().Normalized() + force.Normalized()).Length() < 1.4142f) {
+        if ( rigidBody_->GetLinearVelocity().Length() < maxSpeed
+         || (rigidBody_->GetLinearVelocity().Normalized() + force.Normalized()).Length() < 1.4142f )
+        {
             rigidBody_->ApplyForce(force);
         }
 
@@ -550,7 +551,7 @@ void Player::Die()
     alive_ = false;
 
     Disable();
-    MC->spawnMaster_->SpawnExplosion(node_->GetPosition(), playerID_ == 2 ? Color(1.0f, 0.42f, 0.0f) : Color(0.23f, 1.0f, 0.0f), 2.0f, playerID_);
+    GetSubsystem<SpawnMaster>()->SpawnExplosion(node_->GetPosition(), playerID_ == 2 ? Color(1.0f, 0.42f, 0.0f) : Color(0.23f, 1.0f, 0.0f), 2.0f, playerID_);
     deathSource_->Play(death_s);
 
     int otherplayer = playerID_ == 2 ? 1 : 2;
@@ -587,7 +588,7 @@ void Player::EnterPlay()
     }
 }
 void Player::EnterLobby()
-{/*
+{
     bool enterThroughDoor{true};// !alive_ || MC->GetPreviousGameState() == GS_INTRO};
 
     StopAllSound();
@@ -595,7 +596,7 @@ void Player::EnterLobby()
 
     if (!IsAlive()){
         alive_ = true;
-        pilot_->Randomize(autoPilot_);
+//        pilot_->Randomize(autoPilot_);
         ResetScore();
     }
     SetPilotMode(true);
@@ -613,7 +614,7 @@ void Player::EnterLobby()
     scoreNode_->SetWorldScale(1.0f);
     scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 5.94252f : -5.94252f, 0.9f, 0.82951f));
 
-*/}
+}
 void Player::SetPilotMode(bool pilotMode){
     pilotMode_ = pilotMode;
     node_->SetEnabled(true);
@@ -684,28 +685,28 @@ void Player::Think()
     
     switch (MC->GetGameState()) {
     case GS_LOBBY: {
-        bool splatterPillarsIdle{SPLATTERPILLAR->IsIdle() && OTHERSPLATTERPILLAR->IsIdle()};
-        Vector3 toPillar{SPLATTERPILLAR->GetPosition() - GetPosition() * static_cast<float>(SPLATTERPILLAR->IsIdle())};
+//        bool splatterPillarsIdle{SPLATTERPILLAR->IsIdle() && OTHERSPLATTERPILLAR->IsIdle()};
+//        Vector3 toPillar{SPLATTERPILLAR->GetPosition() - GetPosition() * static_cast<float>(SPLATTERPILLAR->IsIdle())};
 
-        if (MC->NoHumans()){
-            //Enter play
-            if (GetScore() == 0 && MC->GetPlayer(playerID_, true)->GetScore() == 0 && splatterPillarsIdle)
-                autoMove_ = 4.2f * (playerID_==2 ? Vector3::RIGHT : Vector3::LEFT) - GetPosition();
-            //Reset Score
-            else if (GetScore() != 0)
-                autoMove_ = toPillar;
-            //Stay put
-            else
-                autoMove_ = Vector3::ZERO;
-        }
-        //Reset Score
-        else if (otherPlayer->GetScore() == 0 && GetScore() != 0)
-            autoMove_ = toPillar;
-        //Exit
-        else if (DOOR->HidesPlayer() == 0.0f && OTHERDOOR->HidesPlayer() > 0.1f * playerFactor)
-            autoMove_ = Vector3::FORWARD;
-        else autoMove_ = Vector3::ZERO;
-        autoFire_ = Vector3::ZERO;
+//        if (MC->NoHumans()){
+//            //Enter play
+//            if (GetScore() == 0 && MC->GetPlayer(playerID_, true)->GetScore() == 0 && splatterPillarsIdle)
+//                autoMove_ = 4.2f * (playerID_==2 ? Vector3::RIGHT : Vector3::LEFT) - GetPosition();
+//            //Reset Score
+//            else if (GetScore() != 0)
+//                autoMove_ = toPillar;
+//            //Stay put
+//            else
+//                autoMove_ = Vector3::ZERO;
+//        }
+//        //Reset Score
+//        else if (otherPlayer->GetScore() == 0 && GetScore() != 0)
+//            autoMove_ = toPillar;
+//        //Exit
+//        else if (DOOR->HidesPlayer() == 0.0f && OTHERDOOR->HidesPlayer() > 0.1f * playerFactor)
+//            autoMove_ = Vector3::FORWARD;
+//        else autoMove_ = Vector3::ZERO;
+//        autoFire_ = Vector3::ZERO;
     } break;
     case GS_PLAY: {
         //Decide which pickup to pick up
@@ -747,7 +748,7 @@ void Player::Think()
         //Pick firing target
         bool fire{false};
         Pair<float, Vector3> target{};
-        for (SharedPtr<Razor> r : MC->spawnMaster_->razors_.Values()){
+        for (SharedPtr<Razor> r : GetSubsystem<SpawnMaster>()->razors_.Values()){
             if (r->IsEnabled() && r->GetPosition().y_ > (-playerFactor * 0.1f)){
                 float distance = LucKey::Distance(this->GetPosition(), r->GetPosition());
                 float panic = r->GetPanic();
@@ -759,7 +760,7 @@ void Player::Think()
                 }
             }
         }
-        for (SharedPtr<Spire> s : MC->spawnMaster_->spires_.Values()){
+        for (SharedPtr<Spire> s : GetSubsystem<SpawnMaster>()->spires_.Values()){
             if (s->IsEnabled() && s->GetPosition().y_ > (-playerFactor * 0.23f) && flightScore_ != 0){
                 float distance = LucKey::Distance(this->GetPosition(), s->GetPosition());
                 float panic = s->GetPanic();

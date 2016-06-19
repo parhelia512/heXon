@@ -79,10 +79,10 @@ void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
                     //Deal damage
                     unsigned hitID{hitResults[i]->GetNode()->GetID()};
                     float damage{rigidBody_->GetMass()*timeStep};
-                    if (MC->spawnMaster_->spires_.Keys().Contains(hitID)) {
-                        MC->spawnMaster_->spires_[hitID]->Hit(damage, playerID_);
-                    } else if (MC->spawnMaster_->razors_.Keys().Contains(hitID)) {
-                        MC->spawnMaster_->razors_[hitID]->Hit(damage, playerID_);
+                    if (GetSubsystem<SpawnMaster>()->spires_.Keys().Contains(hitID)) {
+                        GetSubsystem<SpawnMaster>()->spires_[hitID]->Hit(damage, playerID_);
+                    } else if (GetSubsystem<SpawnMaster>()->razors_.Keys().Contains(hitID)) {
+                        GetSubsystem<SpawnMaster>()->razors_[hitID]->Hit(damage, playerID_);
                     }
                 }
             }

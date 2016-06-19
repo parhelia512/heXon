@@ -132,5 +132,6 @@ float Cosine(float x);
 int Cycle(int x, int min, int max);
 float Cycle(float x, float min, float max);
 }
+using namespace LucKey;
 
 #endif // LUCKEY_H

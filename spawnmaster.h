@@ -40,7 +40,7 @@ class SpawnMaster : public Object
     friend class MasterControl;
     URHO3D_OBJECT(SpawnMaster, Object);
 public:
-    SpawnMaster();
+    SpawnMaster(Context* context);
 
     HashMap<unsigned, SharedPtr<Razor> > razors_;
     HashMap<unsigned, SharedPtr<Spire> > spires_;

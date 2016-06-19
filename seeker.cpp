@@ -74,7 +74,7 @@ void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
     age_ += timeStep;
     if (age_ > lifeTime_ && node_->IsEnabled()) {
-        MC->spawnMaster_->SpawnHitFX(GetPosition(), 0, false);
+        GetSubsystem<SpawnMaster>()->SpawnHitFX(GetPosition(), 0, false);
         Disable();
     }
 
@@ -103,15 +103,15 @@ void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
             Player* hitPlayer = MC->players_[collider->GetNode()->GetID()];
 
             hitPlayer->Hit(2.3f, false);
-            MC->spawnMaster_->SpawnHitFX(node_->GetPosition(), 0, false);
+            GetSubsystem<SpawnMaster>()->SpawnHitFX(node_->GetPosition(), 0, false);
             collider->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.5f);
             Disable();
         }
         else if (collider->GetNode()->GetNameHash() == N_CHAOMINE){
-            MC->spawnMaster_->chaoMines_[collider->GetNode()->GetID()]->Hit(damage_, 0);
+            GetSubsystem<SpawnMaster>()->chaoMines_[collider->GetNode()->GetID()]->Hit(damage_, 0);
         }
         else if (collider->GetNode()->GetNameHash() == N_SEEKER){
-            MC->spawnMaster_->SpawnHitFX(node_->GetPosition(), false);
+            GetSubsystem<SpawnMaster>()->SpawnHitFX(node_->GetPosition(), false);
             Disable();
         }
     }

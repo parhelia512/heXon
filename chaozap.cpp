@@ -92,18 +92,18 @@ void ChaoZap::Set(const Vector3 position, int playerID)
         for (RigidBody* r : hitResults) {
             unsigned hitID{r->GetNode()->GetID()};
 
-            if(MC->spawnMaster_->spires_.Contains(hitID)) {
-                WeakPtr<Spire> spire{MC->spawnMaster_->spires_[hitID]};
+            if(GetSubsystem<SpawnMaster>()->spires_.Contains(hitID)) {
+                WeakPtr<Spire> spire{GetSubsystem<SpawnMaster>()->spires_[hitID]};
                 spire->Hit(spire->GetHealth(), 1);
                 MC->GetPlayer(playerID)->AddScore(Random(23, 42));
             }
-            else if(MC->spawnMaster_->razors_.Contains(hitID)) {
-                WeakPtr<Razor> razor{MC->spawnMaster_->razors_[hitID]};
+            else if(GetSubsystem<SpawnMaster>()->razors_.Contains(hitID)) {
+                WeakPtr<Razor> razor{GetSubsystem<SpawnMaster>()->razors_[hitID]};
                 razor->Hit(razor->GetHealth(), 1);
                 MC->GetPlayer(playerID)->AddScore(Random(5, 23));
             }
-            else if(MC->spawnMaster_->seekers_.Contains(hitID)) {
-                WeakPtr<Seeker> seeker{MC->spawnMaster_->seekers_[hitID]};
+            else if(GetSubsystem<SpawnMaster>()->seekers_.Contains(hitID)) {
+                WeakPtr<Seeker> seeker{GetSubsystem<SpawnMaster>()->seekers_[hitID]};
                 seeker->Disable();
                 MC->GetPlayer(playerID)->AddScore(Random(2, 3));
             }

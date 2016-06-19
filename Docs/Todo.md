@@ -22,8 +22,9 @@ Think in Components
 
 #### Panel
 
-- Top panel: Instructions
-- Bottom panel: Options
+- Instructions
+- Options
+- Ship upgrades
 
 -----------------------
 
