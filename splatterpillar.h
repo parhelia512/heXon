@@ -47,7 +47,6 @@ private:
     ParticleEmitter* splatEmitter_;
     ParticleEmitter* dripEmitter_;
 
-    bool right_;
     bool spun_;
     bool reset_;
     float lastTriggered_;
@@ -57,7 +56,7 @@ private:
     float rotationSpeed_;
 
     virtual void Update(float timeStep);
-    void Trigger();
+    void Trigger(StringHash eventType, VariantMap& eventData);
 };
 
 #endif // SPLATTERPILLAR_H

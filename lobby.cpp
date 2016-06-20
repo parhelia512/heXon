@@ -20,6 +20,7 @@
 #include "door.h"
 #include "splatterpillar.h"
 #include "highest.h"
+#include "effectmaster.h"
 
 void Lobby::RegisterObject(Context *context)
 {
@@ -45,25 +46,29 @@ void Lobby::OnNodeSet(Node *node)
     chamberModel->SetMaterial(3, MC->GetMaterial("PurpleGlow"));
     chamberModel->SetCastShadows(true);
 
+    ///Should be same ships as in-game
     //Create player 1 lobby ship
-    Node* ship1Node{node_->CreateChild("Ship")};
+    Node* ship1Node{ node_->CreateChild("Ship") };
     ship1Node->SetWorldPosition(Vector3(-4.2f, 0.6f, 0.0f));
     ship1Node->Rotate(Quaternion(90.0f, Vector3::UP));
-    StaticModel* ship1{ship1Node->CreateComponent<StaticModel>()};
+    AnimatedModel* ship1{ ship1Node->CreateComponent<AnimatedModel>() };
     ship1->SetModel(MC->GetModel("KlåMk10"));
     ship1->SetMaterial(0, MC->GetMaterial("GreenGlow"));
     ship1->SetMaterial(1, MC->GetMaterial("Green"));
     ship1->SetCastShadows(true);
-    RigidBody* ship1Body{ship1Node->CreateComponent<RigidBody>()};
+    RigidBody* ship1Body{ ship1Node->CreateComponent<RigidBody>() };
     ship1Body->SetTrigger(true);
     ship1Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
     SubscribeToEvent(ship1Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(Lobby, HandlePlayTrigger));
+
+//    Node* hatch1{ ship1Node->GetChild("Hatch", true) };
+//    GetSubsystem<EffectMaster>()->RotateTo(hatch1, Quaternion(-30.0f, Vector3::RIGHT), 5.0f);
 
     //Create player 2 lobby ship
     Node* ship2Node{node_->CreateChild("Ship")};
     ship2Node->SetWorldPosition(Vector3(4.2f, 0.6f, 0.0f));
     ship2Node->Rotate(Quaternion(270.0f, Vector3::UP));
-    StaticModel* ship2{ship2Node->CreateComponent<StaticModel>()};
+    AnimatedModel* ship2{ship2Node->CreateComponent<AnimatedModel>()};
     ship2->SetModel(MC->GetModel("KlåMk10"));
     ship2->SetMaterial(0, MC->GetMaterial("PurpleGlow"));
     ship2->SetMaterial(1, MC->GetMaterial("Purple"));
@@ -73,12 +78,18 @@ void Lobby::OnNodeSet(Node *node)
     ship2Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
     SubscribeToEvent(ship2Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(Lobby, HandlePlayTrigger));
 
+//    Node* hatch2{ ship2Node->GetChild("Hatch", true) };
+//    GetSubsystem<EffectMaster>()->RotateTo(hatch2, Quaternion(-30.0f, Vector3::RIGHT), 5.0f);
+
+
     //Create highest
     Node* highestNode{ node_->CreateChild("Highest") };
     highestNode->CreateComponent<Highest>();
 
     //Create coliders
     node_->CreateComponent<RigidBody>();
+//    node_->CreateComponent<CollisionShape>()->SetTriangleMesh(MC->GetModel("Chamber_COLLISION"));
+
     node_->CreateComponent<CollisionShape>()->SetConvexHull(MC->GetModel("CC_Center"));
     node_->CreateComponent<CollisionShape>()->SetConvexHull(MC->GetModel("CC_CentralBox"));
     node_->CreateComponent<CollisionShape>()->SetConvexHull(MC->GetModel("CC_Edge1"));
@@ -88,7 +99,7 @@ void Lobby::OnNodeSet(Node *node)
 
     CollisionShape* edge1Shape{node_->CreateComponent<CollisionShape>()};
     edge1Shape->SetConvexHull(MC->GetModel("CC_Edge1"));
-    edge1Shape->SetPosition(Vector3::FORWARD * 1.23f);
+    edge1Shape->SetPosition(Vector3::FORWARD * 1.7f);
     edge1Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
     CollisionShape* edge2Shape{node_->CreateComponent<CollisionShape>()};
     edge2Shape->SetConvexHull(MC->GetModel("CC_Edge2"));
@@ -111,17 +122,14 @@ void Lobby::OnNodeSet(Node *node)
         pointLight->SetCastShadows(true);
         pointLight->SetShadowBias(BiasParameters(0.0001f, 0.1f));
     }
-    //Create doors
-    for (bool right : {true, false}){
+    //Create doors and splatterpillars
+    for (float x : { -2.26494f, 2.26494f }){
         Node* doorNode{ node_->CreateChild("Door") };
-        doorNode->SetPosition(Vector3( right ? 2.26494f : -2.26494f, 0.0f, 5.21843f));
+        doorNode->SetPosition(Vector3( x , 0.0f, 5.21843f));
         doorNode->CreateComponent<Door>();
-    }
 
-    //Create splatterpillars
-    for (bool right : {true, false}){
         Node* splatterPillarNode{ node_->CreateChild("SplatterPillar") };
-        splatterPillarNode->SetPosition(Vector3(right ? 2.26494f : -2.26494f, 0.0f, -3.91992f));
+        splatterPillarNode->SetPosition(Vector3( x , 0.0f, -3.91992f));
         splatterPillarNode->CreateComponent<SplatterPillar>();
     }
 }
@@ -140,5 +148,6 @@ void Lobby::Update(float timeStep)
 void Lobby::HandlePlayTrigger(StringHash otherNode, VariantMap& eventData)
 { (void)otherNode; (void)eventData;
 
+    ///Both players should be ready
     MC->SetGameState(GS_PLAY);
 }

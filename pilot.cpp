@@ -18,6 +18,7 @@
 
 #include <fstream>
 
+#include "effectmaster.h"
 #include "pilot.h"
 
 void Pilot::RegisterObject(Context *context)
@@ -27,6 +28,8 @@ void Pilot::RegisterObject(Context *context)
 
 Pilot::Pilot(Context* context) : Controllable(context),
     male_{ false },
+    alive_{ true },
+    deceased_{ 0.0f },
     autoPilot_{ false },
     hairStyle_{ 0 },
     pilotColors_{}
@@ -50,7 +53,7 @@ void Pilot::OnNodeSet(Node *node)
     rigidBody_->SetLinearRestThreshold(0.0f);
     rigidBody_->SetAngularFactor(Vector3::ZERO);
     rigidBody_->SetAngularRestThreshold(0.1f);
-    collider_->SetCapsule(0.23f, 1.0f);
+    collider_->SetCapsule(0.23f, 0.5f);
 
     //Also animates highest
     animCtrl_->PlayExclusive("Models/IdleAlert.ani", 0, true);
@@ -63,6 +66,14 @@ void Pilot::Update(float timeStep)
 {
     if (node_->GetName() == "HighestPilot")
         return;
+
+    if (!alive_){
+        deceased_ += timeStep;
+        if (deceased_ > 0.125f)
+            Revive();
+
+        return;
+    }
 
     float thrust{ 256.0f };
     float maxSpeed{ 1.23f + 0.5f * pilotColors_[static_cast<int>(PC_SHOES)].r_ };
@@ -232,4 +243,46 @@ void Pilot::Randomize()
         }
     }
     UpdateModel();
+}
+
+void Pilot::Upload()
+{
+    GetSubsystem<EffectMaster>()->TranslateTo(node_, node_->GetPosition() + 2.0f * Vector3::UP, 0.1f);
+    GetSubsystem<EffectMaster>()->ScaleTo(node_, Vector3::ONE - Vector3::UP * 0.9f, 0.125f);
+    alive_ = false;
+    animCtrl_->SetSpeed("Models/WalkRelax.ani", 0.0f);
+    animCtrl_->SetSpeed("Models/IdleRelax.ani", 0.0f);
+    rigidBody_->SetKinematic(true);
+}
+
+void Pilot::Die()
+{
+    alive_ = false;
+}
+
+void Pilot::Revive()
+{
+    alive_ = true;
+
+    node_->SetAttributeAnimation("Position", nullptr);
+    node_->SetAttributeAnimation("Scale", nullptr);
+    rigidBody_->SetKinematic(false);
+    rigidBody_->SetLinearVelocity(Vector3::ZERO);
+    rigidBody_->ResetForces();
+
+    node_->SetPosition( Vector3( node_->GetPosition().x_ < 0.0f ? -2.3f : 2.3f, 0.0f, 6.0f));
+    node_->SetScale(Vector3::ONE);
+    animCtrl_->SetSpeed("Models/IdleRelax.ani", 1.0f);
+
+    Randomize();
+}
+
+//Will make pilot fall over when colliding with door edge or occasionally on the grate
+void Pilot::Trip(bool rightFoot)
+{
+    if (rightFoot) {
+        //trip at right foot
+    } else {
+        //trip at left foot
+    }
 }

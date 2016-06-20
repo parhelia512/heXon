@@ -47,7 +47,7 @@ void Door::OnNodeSet(Node *node)
     doorLight->SetCastShadows(true);
     doorLight->SetShadowBias(BiasParameters(0.000023, 0.042f));
 
-    doorSample_ = CACHE->GetResource<Sound>("Samples/Door.ogg");
+    doorSample_ = MC->GetSample("Door");
     doorSample_->SetLooped(false);
     node_->CreateComponent<SoundSource>();
 

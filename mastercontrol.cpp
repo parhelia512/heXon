@@ -24,6 +24,7 @@
 #include "TailGenerator.h"
 
 #include "hexocam.h"
+#include "effectmaster.h"
 #include "inputmaster.h"
 #include "spawnmaster.h"
 #include "player.h"
@@ -115,6 +116,7 @@ void MasterControl::Start()
 //    Human::RegisterObject(context_);
 //    AutoPilot::RegisterObject(context_);
 
+    context_->RegisterSubsystem(new EffectMaster(context_));
     context_->RegisterSubsystem(new InputMaster(context_));
     context_->RegisterSubsystem(new SpawnMaster(context_));
 
@@ -124,6 +126,7 @@ void MasterControl::Start()
     CreateConsoleAndDebugHud();
     //Create the scene content
     CreateScene();
+
     //Create the UI content
     CreateUI();
     //Hook up to the frame update and render post-update events
@@ -246,7 +249,7 @@ void MasterControl::CreateScene()
 
         int playerId{ x < 0.0f ? 1 : 2 };
         Node* pilotNode{ scene_->CreateChild("Pilot") };
-        pilotNode->SetPosition( Vector3(x, 0.0f, 2.5f) ); ///z = 5.5f
+        pilotNode->SetPosition( Vector3(x, 0.0f, 5.5f) );
         pilotNode->Rotate(Quaternion(180.0f, Vector3::UP));
         Pilot* pilot{ pilotNode->CreateComponent<Pilot>() };
         pilot->Initialize( playerId );

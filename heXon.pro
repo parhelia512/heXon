@@ -26,6 +26,7 @@ SOURCES += \
     controllable.cpp \
     door.cpp \
     effect.cpp \
+    effectmaster.cpp \
     enemy.cpp \
     explosion.cpp \
     flash.cpp \
@@ -65,6 +66,7 @@ HEADERS += \
     controllable.h \
     door.h \
     effect.h \
+    effectmaster.h \
     enemy.h \
     explosion.h \
     flash.h \

@@ -40,11 +40,15 @@ public:
     void Randomize();
     void Initialize(int player);
     unsigned GetScore() const { return score_; }
+    void Upload();
+    void Trip(bool rightFoot);
 private:
     unsigned score_;
 
     int player_;
     bool male_;
+    bool alive_;
+    float deceased_;
     bool autoPilot_;
     int hairStyle_;
     HashMap<int, Color> pilotColors_;
@@ -53,6 +57,8 @@ private:
     void Load();
     void UpdateModel();
     void Save(int playerID, unsigned score);
+    void Die();
+    void Revive();
 };
 
 #endif // PILOT_H
