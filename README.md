@@ -1,6 +1,6 @@
 [:four_leaf_clover:] (http://www.luckeyproductions.nl/) ![hēXōn logo](https://raw.githubusercontent.com/LucKeyProductions/heXon/master/Docs/Guide/images/heXonBanner.png)
 ### Summary
-hēXōn is a free and open source twin-stick-shooter created using the [Urho3D](http://urho3d.github.io) game engine.
+hēXōn is a free and open source twin-stick-shooter created using the [Urho3D](http://urho3d.github.io) game engine.  
 To score high you must fly well, avoiding the Notyous and destroying them with your Whack-o-Slack blast battery. Your firepower can be increased by collecting five apples. Picking up five hearts in a row will charge your shield.  
 All edges of the hexagonal arena are connected to its opposite like portals, making for a puzzlingly dangerous playing field that might take some experience to wrap your head around.
 
