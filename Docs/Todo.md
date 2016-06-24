@@ -29,6 +29,7 @@ Think in Components
    * Armor
    * Engine
    * Shield capacity
+   * Dive (below surface for a second)
 
 -----------------------
 
@@ -38,6 +39,7 @@ Think in Components
 - Remaining points to other player for dealing more than half the damage
 - Clearly split health bar
 - When both players are caught in the chaoflash both should get the powerups
+- Restore increased spawnrate on low numbers
 
 #### Enemies
 

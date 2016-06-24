@@ -59,6 +59,7 @@ private:
     void Save(int playerID, unsigned score);
     void Die();
     void Revive();
+    void EnterLobbyThroughDoor();
 };
 
 #endif // PILOT_H

@@ -169,6 +169,7 @@ void Pilot::Load()
         Randomize();
 
     UpdateModel();
+    EnterLobbyThroughDoor();
 }
 
 void Pilot::UpdateModel()
@@ -260,8 +261,16 @@ void Pilot::Die()
     alive_ = false;
 }
 
+void Pilot::EnterLobbyThroughDoor()
+{
+    node_->SetPosition( Vector3( node_->GetPosition().x_ < 0.0f ? -2.3f : 2.3f, 0.0f, 6.0f));
+    node_->SetRotation(Quaternion::IDENTITY);
+    rigidBody_->ApplyImpulse(Vector3::BACK * 2.3f);
+}
+
 void Pilot::Revive()
 {
+    Randomize();
     alive_ = true;
 
     node_->SetAttributeAnimation("Position", nullptr);
@@ -270,11 +279,10 @@ void Pilot::Revive()
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();
 
-    node_->SetPosition( Vector3( node_->GetPosition().x_ < 0.0f ? -2.3f : 2.3f, 0.0f, 6.0f));
     node_->SetScale(Vector3::ONE);
     animCtrl_->SetSpeed("Models/IdleRelax.ani", 1.0f);
 
-    Randomize();
+    EnterLobbyThroughDoor();
 }
 
 //Will make pilot fall over when colliding with door edge or occasionally on the grate

@@ -138,7 +138,7 @@ void MasterControl::Start()
     menuMusic_->SetLooped(true);
     gameMusic_ = GetMusic("Alien Chaos - Disorder");
     gameMusic_->SetLooped(true);
-    Node* musicNode{scene_->CreateChild("Music")};
+    Node* musicNode{ scene_->CreateChild("Music") };
     musicSource_ = musicNode->CreateComponent<SoundSource>();
     musicSource_->SetGain(0.32f);
     musicSource_->SetSoundType(SOUND_MUSIC);
@@ -165,7 +165,7 @@ void MasterControl::SubscribeToEvents()
 void MasterControl::CreateConsoleAndDebugHud()
 {
     // Create console
-    Console* console{engine_->CreateConsole()};
+    Console* console{ engine_->CreateConsole() };
     console->SetDefaultStyle(defaultStyle_);
     console->GetBackground()->SetOpacity(0.8f);
 
@@ -186,12 +186,12 @@ void MasterControl::CreateUI()
 }
 
 Sound* MasterControl::GetMusic(String name) const {
-    Sound* song{CACHE->GetResource<Sound>("Music/"+name+".ogg")};
+    Sound* song{ CACHE->GetResource<Sound>("Music/"+name+".ogg") };
     song->SetLooped(true);
     return song;
 }
 Sound*MasterControl::GetSample(String name) const {
-    Sound* sample{CACHE->GetResource<Sound>("Samples/"+name+".ogg")};
+    Sound* sample{ CACHE->GetResource<Sound>("Samples/"+name+".ogg") };
     sample->SetLooped(false);
     return sample;
 }
@@ -207,9 +207,9 @@ void MasterControl::CreateScene()
     scene_->CreateComponent<DebugRenderer>();
 
     //Create a Zone component for fog control
-    Node* zoneNode{scene_->CreateChild("Zone")};
-    Zone* zone{zoneNode->CreateComponent<Zone>()};
-    zone->SetBoundingBox(BoundingBox(Vector3(-100.0f, -100.0f, -100.0f),Vector3(100.0f, 5.0f, 100.0f)));
+    Node* zoneNode{ scene_->CreateChild("Zone") };
+    Zone* zone{ zoneNode->CreateComponent<Zone>() };
+    zone->SetBoundingBox(BoundingBox( Vector3(-100.0f, -100.0f, -100.0f), Vector3(100.0f, 5.0f, 100.0f) ));
     zone->SetFogColor(Color(0.0f, 0.0f, 0.0f));
     zone->SetFogStart(56.8f);
     zone->SetFogEnd(61.8f);
@@ -228,7 +228,7 @@ void MasterControl::CreateScene()
     world.voidNode = scene_->CreateChild("Void");
     world.voidNode->SetPosition(Vector3::DOWN * 10.0f);
     world.voidNode->SetScale(Vector3(1000.0f, 1.0f, 1000.0f));
-    StaticModel* planeObject{world.voidNode->CreateComponent<StaticModel>()};
+    StaticModel* planeObject{ world.voidNode->CreateComponent<StaticModel>() };
     planeObject->SetModel(GetModel("Plane"));
     planeObject->SetMaterial(GetMaterial("PitchBlack"));
 
