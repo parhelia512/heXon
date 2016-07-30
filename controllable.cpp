@@ -31,7 +31,7 @@ Controllable::Controllable(Context* context) : SceneObject(context),
 
     model_{},
     rigidBody_{},
-    collider_{},
+    collisionShape_{},
     animCtrl_{}
 {
     for (int a{0}; a < 4; ++a)
@@ -42,7 +42,7 @@ void Controllable::OnNodeSet(Node *node)
 
     model_ = node_->CreateComponent<AnimatedModel>();
     rigidBody_ = node_->CreateComponent<RigidBody>();
-    collider_ = node_->CreateComponent<CollisionShape>();
+    collisionShape_ = node_->CreateComponent<CollisionShape>();
     animCtrl_ = node_->CreateComponent<AnimationController>();
 
     model_->SetCastShadows(true);

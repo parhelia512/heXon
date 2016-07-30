@@ -34,6 +34,8 @@ Pilot::Pilot(Context* context) : Controllable(context),
     hairStyle_{ 0 },
     pilotColors_{}
 {
+    thrust_ = 256.0f;
+    maxSpeed_ = 1.23f;
 }
 
 void Pilot::OnNodeSet(Node *node)
@@ -53,7 +55,7 @@ void Pilot::OnNodeSet(Node *node)
     rigidBody_->SetLinearRestThreshold(0.0f);
     rigidBody_->SetAngularFactor(Vector3::ZERO);
     rigidBody_->SetAngularRestThreshold(0.1f);
-    collider_->SetCapsule(0.23f, 0.5f);
+    collisionShape_->SetCapsule(0.23f, 0.5f);
 
     //Also animates highest
     animCtrl_->PlayExclusive("Models/IdleAlert.ani", 0, true);
@@ -75,22 +77,19 @@ void Pilot::Update(float timeStep)
         return;
     }
 
-    float thrust{ 256.0f };
-    float maxSpeed{ 1.23f + 0.5f * pilotColors_[static_cast<int>(PC_SHOES)].r_ };
-
     //Apply movement
-    Vector3 force = move_ * thrust * timeStep;
-    if ( rigidBody_->GetLinearVelocity().Length() < maxSpeed
+    Vector3 force{ move_ * thrust_ * timeStep };
+    if ( rigidBody_->GetLinearVelocity().Length() < maxSpeed_
      || (rigidBody_->GetLinearVelocity().Normalized() + force.Normalized()).Length() < 1.4142f )
     {
         rigidBody_->ApplyForce(force);
     }
 
     //Update rotation according to direction of the player's movement.
-    Vector3 velocity = rigidBody_->GetLinearVelocity();
-    Vector3 lookDirection = velocity + 2.0f * aim_;
-    Quaternion rotation = node_->GetWorldRotation();
-    Quaternion aimRotation = rotation;
+    Vector3 velocity{ rigidBody_->GetLinearVelocity() };
+    Vector3 lookDirection{ velocity + 2.0f * aim_ };
+    Quaternion rotation{ node_->GetWorldRotation() };
+    Quaternion aimRotation{ rotation };
     aimRotation.FromLookRotation(lookDirection);
     node_->SetRotation(rotation.Slerp(aimRotation, 7.0f * timeStep * velocity.Length()));
 
@@ -169,11 +168,15 @@ void Pilot::Load()
         Randomize();
 
     UpdateModel();
-    EnterLobbyThroughDoor();
+
+    if (!(node_->GetName() == "HighestPilot"))
+        EnterLobbyThroughDoor();
 }
 
 void Pilot::UpdateModel()
 {
+    maxSpeed_ = 1.23f + 0.5f * pilotColors_[static_cast<int>(PC_SHOES)].r_;
+
     //Set body model
     if (male_)  model_->SetModel(MC->GetModel("Male"));
     else        model_->SetModel(MC->GetModel("Female"));

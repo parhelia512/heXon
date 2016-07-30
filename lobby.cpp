@@ -18,6 +18,7 @@
 
 #include "lobby.h"
 #include "door.h"
+#include "ship.h"
 #include "splatterpillar.h"
 #include "highest.h"
 #include "effectmaster.h"
@@ -45,42 +46,6 @@ void Lobby::OnNodeSet(Node *node)
     chamberModel->SetMaterial(2, MC->GetMaterial("GreenGlow"));
     chamberModel->SetMaterial(3, MC->GetMaterial("PurpleGlow"));
     chamberModel->SetCastShadows(true);
-
-    ///Should be same ships as in-game
-    //Create player 1 lobby ship
-    Node* ship1Node{ node_->CreateChild("Ship") };
-    ship1Node->SetWorldPosition(Vector3(-4.2f, 0.6f, 0.0f));
-    ship1Node->Rotate(Quaternion(90.0f, Vector3::UP));
-    AnimatedModel* ship1{ ship1Node->CreateComponent<AnimatedModel>() };
-    ship1->SetModel(MC->GetModel("KlåMk10"));
-    ship1->SetMaterial(0, MC->GetMaterial("GreenGlow"));
-    ship1->SetMaterial(1, MC->GetMaterial("Green"));
-    ship1->SetCastShadows(true);
-    RigidBody* ship1Body{ ship1Node->CreateComponent<RigidBody>() };
-    ship1Body->SetTrigger(true);
-    ship1Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
-    SubscribeToEvent(ship1Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(Lobby, HandlePlayTrigger));
-
-//    Node* hatch1{ ship1Node->GetChild("Hatch", true) };
-//    GetSubsystem<EffectMaster>()->RotateTo(hatch1, Quaternion(-30.0f, Vector3::RIGHT), 5.0f);
-
-    //Create player 2 lobby ship
-    Node* ship2Node{node_->CreateChild("Ship")};
-    ship2Node->SetWorldPosition(Vector3(4.2f, 0.6f, 0.0f));
-    ship2Node->Rotate(Quaternion(270.0f, Vector3::UP));
-    AnimatedModel* ship2{ship2Node->CreateComponent<AnimatedModel>()};
-    ship2->SetModel(MC->GetModel("KlåMk10"));
-    ship2->SetMaterial(0, MC->GetMaterial("PurpleGlow"));
-    ship2->SetMaterial(1, MC->GetMaterial("Purple"));
-    ship2->SetCastShadows(true);
-    RigidBody* ship2Body{ship2Node->CreateComponent<RigidBody>()};
-    ship2Body->SetTrigger(true);
-    ship2Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
-    SubscribeToEvent(ship2Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(Lobby, HandlePlayTrigger));
-
-//    Node* hatch2{ ship2Node->GetChild("Hatch", true) };
-//    GetSubsystem<EffectMaster>()->RotateTo(hatch2, Quaternion(-30.0f, Vector3::RIGHT), 5.0f);
-
 
     //Create highest
     Node* highestNode{ node_->CreateChild("Highest") };

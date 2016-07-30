@@ -40,6 +40,11 @@ Think in Components
 - Clearly split health bar
 - When both players are caught in the chaoflash both should get the powerups
 - Restore increased spawnrate on low numbers
+- Bullets bounce on players?
+- 5 Chaoballs (ChaoFlash bigger with each)
+   + All enemies to ChaoMines
+   + Randomize player position
+   + Insane random score rewarded
 
 #### Enemies
 

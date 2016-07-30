@@ -22,10 +22,9 @@
 #include <Urho3D/Urho3D.h>
 #include "TailGenerator.h"
 
-#include "luckey.h"
-#include "mastercontrol.h"
+#include "controllable.h"
 
-class Ship : public LogicComponent
+class Ship : public Controllable
 {
     URHO3D_OBJECT(Ship, LogicComponent);
 public:
@@ -33,8 +32,12 @@ public:
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
     virtual void Update(float timeStep);
+    void EnterPlay();
+    void HandleNodeCollisionStart(StringHash eventType, VariantMap& eventData);
 private:
-    int playerID_;
+    int playerId_;
+//    StaticModel* model_;
+    ParticleEmitter* particleEmitter_;
     void CreateTails();
     Vector<TailGenerator*> tailGens_;
 };

@@ -131,21 +131,6 @@ void Player::OnNodeSet(Node *node)
     deathSource_->SetSoundType(SOUND_EFFECT);
     deathSource_->SetGain(2.3f);
 
-    //Setup player physics
-    rigidBody_ = node_->CreateComponent<RigidBody>();
-    rigidBody_->SetRestitution(0.666f);
-    rigidBody_->SetMass(1.0f);
-    rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
-    rigidBody_->SetLinearDamping(0.5f);
-    rigidBody_->SetAngularFactor(Vector3::ZERO);
-    rigidBody_->SetLinearRestThreshold(0.01f);
-    rigidBody_->SetAngularRestThreshold(0.1f);
-
-    collisionShape_ = node_->CreateComponent<CollisionShape>();
-    collisionShape_->SetSphere(2.0f);
-
-    MC->arena_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
-
     //Subscribe to events
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Player, HandleSceneUpdate));
 

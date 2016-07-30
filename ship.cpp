@@ -17,36 +17,73 @@
 */
 
 #include "ship.h"
+#include "arena.h"
+#include "inputmaster.h"
 
 void Ship::RegisterObject(Context *context)
 {
     context->RegisterFactory<Ship>();
 }
 
-Ship::Ship(Context* context) : LogicComponent(context),
-    playerID_{1}
+Ship::Ship(Context* context) : Controllable(context),
+    playerId_{1}
 {
-
+    thrust_ = 2342.0f;
+    maxSpeed_ = 23.0f;
 }
 
 void Ship::OnNodeSet(Node *node)
-{ (void)node;
+{
+    Controllable::OnNodeSet(node);
 
-    StaticModel* model{ node_->CreateComponent<StaticModel>() };
-    model->SetModel(MC->GetModel("KlåMk10"));
-    model->SetMaterial(0, playerID_==2 ? MC->GetMaterial("PurpleGlowEnvmap") : MC->GetMaterial("GreenGlowEnvmap"));
-    model->SetMaterial(1, playerID_==2 ? MC->GetMaterial("PurpleEnvmap") : MC->GetMaterial("GreenEnvmap"));
+    //Set player ID
+    if (node_->GetPosition().x_ > 0) playerId_ = 2;
 
-    ParticleEmitter* particleEmitter{node_->CreateComponent<ParticleEmitter>()};
-    SharedPtr<ParticleEffect> particleEffect{CACHE->GetTempResource<ParticleEffect>("Particles/Shine.xml")};
+    model_->SetModel(MC->GetModel("KlåMk10"));
+    model_->SetMaterial(0, playerId_==2 ? MC->GetMaterial("PurpleGlow") : MC->GetMaterial("GreenGlow"));
+    model_->SetMaterial(1, playerId_==2 ? MC->GetMaterial("Purple") : MC->GetMaterial("Green"));
+
+    particleEmitter_ = node_->CreateComponent<ParticleEmitter>();
+    SharedPtr<ParticleEffect> particleEffect{ CACHE->GetTempResource<ParticleEffect>("Particles/Shine.xml") };
     Vector<ColorFrame> colorFrames{};
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
-    colorFrames.Push(ColorFrame(playerID_==2 ? Color(0.42f, 0.0f, 0.88f, 0.05f) : Color(0.42f, 0.7f, 0.23f, 0.23f), 0.05f));
+    colorFrames.Push(ColorFrame(playerId_==2 ? Color(0.42f, 0.0f, 0.88f, 0.05f) : Color(0.42f, 0.7f, 0.23f, 0.23f), 0.05f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
     particleEffect->SetColorFrames(colorFrames);
-    particleEmitter->SetEffect(particleEffect);
+    particleEmitter_->SetEffect(particleEffect);
+    particleEmitter_->SetEmitting(false);
 
     CreateTails();
+
+    //Setup player physics
+    rigidBody_ = node_->CreateComponent<RigidBody>();
+    rigidBody_->SetRestitution(0.666f);
+    rigidBody_->SetMass(1.0f);
+    rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
+    rigidBody_->SetLinearDamping(0.5f);
+    rigidBody_->SetAngularFactor(Vector3::ZERO);
+    rigidBody_->SetLinearRestThreshold(0.01f);
+    rigidBody_->SetAngularRestThreshold(0.1f);
+
+    collisionShape_ = node_->CreateComponent<CollisionShape>();
+    collisionShape_->SetSphere(2.0f);
+
+    MC->arena_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
+
+    SubscribeToEvent(node_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Ship, HandleNodeCollisionStart));
+}
+
+void Ship::HandleNodeCollisionStart(StringHash eventType, VariantMap& eventData)
+{ (void)eventType;
+
+    GetSubsystem<InputMaster>()->SetPlayerControl(playerId_, this);
+}
+
+void Ship::EnterPlay()
+{
+    particleEmitter_->SetEmitting(true);
+    model_->SetMaterial(0, playerId_==2 ? MC->GetMaterial("PurpleGlowEnvmap") : MC->GetMaterial("GreenGlowEnvmap"));
+    model_->SetMaterial(1, playerId_==2 ? MC->GetMaterial("PurpleEnvmap") : MC->GetMaterial("GreenEnvmap"));
 }
 
 void Ship::CreateTails()
@@ -60,28 +97,32 @@ void Ship::CreateTails()
         tailGen->SetTailLength(t==1? 0.05f : 0.025f);
         tailGen->SetNumTails(t==1? 13 : 7);
         tailGen->SetWidthScale(t==1? 0.5f : 0.13f);
-        tailGen->SetColorForHead(playerID_==2 ? Color(1.0f, 0.666f, 0.23f) : Color(0.8f, 0.8f, 0.2f));
-        tailGen->SetColorForTip(playerID_==2 ? Color(1.0f, 0.23f, 0.0f) : Color(0.23f, 0.6f, 0.0f));
+        tailGen->SetColorForHead(playerId_==2 ? Color(1.0f, 0.666f, 0.23f) : Color(0.8f, 0.8f, 0.2f));
+        tailGen->SetColorForTip(playerId_==2 ? Color(1.0f, 0.23f, 0.0f) : Color(0.23f, 0.6f, 0.0f));
         tailGens_.Push(tailGen);
     }
 }
 
 void Ship::Update(float timeStep)
-{/*
+{
+
+    if (MC->GetGameState() != GS_PLAY || !node_->IsEnabled())
+        return;
+
     //Update shield
-    Quaternion randomRotation = Quaternion(Random(360.0f),Random(360.0f),Random(360.0f));
-    shieldNode_->SetRotation(shieldNode_->GetRotation().Slerp(randomRotation, Random(1.0f)));
-    Color shieldColor = shieldMaterial_->GetShaderParameter("MatDiffColor").GetColor();
-    Color newColor = Color(shieldColor.r_ * Random(0.6f, 0.9f),
-                           shieldColor.g_ * Random(0.7f, 0.95f),
-                           shieldColor.b_ * Random(0.8f, 0.9f));
-    shieldMaterial_->SetShaderParameter("MatDiffColor", shieldColor.Lerp(newColor, Min(timeStep * 23.5f, 1.0f)));
+//    Quaternion randomRotation = Quaternion(Random(360.0f),Random(360.0f),Random(360.0f));
+//    shieldNode_->SetRotation(shieldNode_->GetRotation().Slerp(randomRotation, Random(1.0f)));
+//    Color shieldColor = shieldMaterial_->GetShaderParameter("MatDiffColor").GetColor();
+//    Color newColor = Color(shieldColor.r_ * Random(0.6f, 0.9f),
+//                           shieldColor.g_ * Random(0.7f, 0.95f),
+//                           shieldColor.b_ * Random(0.8f, 0.9f));
+//    shieldMaterial_->SetShaderParameter("MatDiffColor", shieldColor.Lerp(newColor, Min(timeStep * 23.5f, 1.0f)));
 
     //Float
 //        ship_.node_->SetPosition(Vector3::UP *MC->Sine(2.3f, -0.1f, 0.1f));
     //Apply movement
-    Vector3 force = move * thrust * timeStep;
-    if (rigidBody_->GetLinearVelocity().Length() < maxSpeed ||
+    Vector3 force = move_ * thrust_ * timeStep;
+    if (rigidBody_->GetLinearVelocity().Length() < maxSpeed_ ||
             (rigidBody_->GetLinearVelocity().Normalized() + force.Normalized()).Length() < 1.0f) {
         rigidBody_->ApplyForce(force);
     }
@@ -103,11 +144,11 @@ void Ship::Update(float timeStep)
     }
 
     //Shooting
-    sinceLastShot_ += timeStep;
-    if (fire.Length()) {
-        if (sinceLastShot_ > shotInterval_)
-        {
-            Shoot(fire);
-        }
-    }*/
+//    sinceLastShot_ += timeStep;
+//    if (fire.Length()) {
+//        if (sinceLastShot_ > shotInterval_)
+//        {
+//            Shoot(fire);
+//        }
+//    }
 }

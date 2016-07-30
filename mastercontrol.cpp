@@ -31,13 +31,15 @@
 #include "apple.h"
 #include "heart.h"
 #include "chaoball.h"
+#include "chaoflash.h"
+#include "chaomine.h"
+#include "chaozap.h"
 #include "bullet.h"
 #include "seeker.h"
 #include "flash.h"
 #include "hitfx.h"
 #include "explosion.h"
 #include "muzzle.h"
-#include "chaomine.h"
 #include "pilot.h"
 #include "ship.h"
 #include "splatterpillar.h"
@@ -47,6 +49,7 @@
 #include "lobby.h"
 #include "door.h"
 #include "highest.h"
+#include "phaser.h"
 
 URHO3D_DEFINE_APPLICATION_MAIN(MasterControl);
 
@@ -101,20 +104,38 @@ void MasterControl::Start()
     aspectRatio_ = static_cast<float>(GRAPHICS->GetWidth()) / GRAPHICS->GetHeight();
 
     TailGenerator::RegisterObject(context_);
+
     heXoCam::RegisterObject(context_);
     Lobby::RegisterObject(context_);
+    Door::RegisterObject(context_);
+    SplatterPillar::RegisterObject(context_);
     Arena::RegisterObject(context_);
     Apple::RegisterObject(context_);
     Heart::RegisterObject(context_);
     ChaoBall::RegisterObject(context_);
     Tile::RegisterObject(context_);
-    Door::RegisterObject(context_);
-    SplatterPillar::RegisterObject(context_);
     Highest::RegisterObject(context_);
     Ship::RegisterObject(context_);
     Pilot::RegisterObject(context_);
 //    Human::RegisterObject(context_);
 //    AutoPilot::RegisterObject(context_);
+    Bullet::RegisterObject(context_);
+    Muzzle::RegisterObject(context_);
+    Phaser::RegisterObject(context_);
+
+    ChaoFlash::RegisterObject(context_);
+    ChaoMine::RegisterObject(context_);
+    ChaoZap::RegisterObject(context_);
+
+    Razor::RegisterObject(context_);
+    Spire::RegisterObject(context_);
+    Seeker::RegisterObject(context_);
+
+    HitFX::RegisterObject(context_);
+    Bubble::RegisterObject(context_);
+    Flash::RegisterObject(context_);
+    Explosion::RegisterObject(context_);
+    Line::RegisterObject(context_);
 
     context_->RegisterSubsystem(new EffectMaster(context_));
     context_->RegisterSubsystem(new InputMaster(context_));
@@ -190,7 +211,7 @@ Sound* MasterControl::GetMusic(String name) const {
     song->SetLooped(true);
     return song;
 }
-Sound*MasterControl::GetSample(String name) const {
+Sound* MasterControl::GetSample(String name) const {
     Sound* sample{ CACHE->GetResource<Sound>("Samples/"+name+".ogg") };
     sample->SetLooped(false);
     return sample;
@@ -245,17 +266,23 @@ void MasterControl::CreateScene()
     lobbyNode->CreateComponent<Lobby>();
 
     //Create pilots
-    for (float x : { -2.3f, 2.3f }){
+    for (float x : { -2.3f, 2.3f }) {
 
-        int playerId{ x < 0.0f ? 1 : 2 };
         Node* pilotNode{ scene_->CreateChild("Pilot") };
         pilotNode->SetPosition( Vector3(x, 0.0f, 5.5f) );
         pilotNode->Rotate(Quaternion(180.0f, Vector3::UP));
         Pilot* pilot{ pilotNode->CreateComponent<Pilot>() };
+        int playerId{ x < 0.0f ? 1 : 2 };
         pilot->Initialize( playerId );
         GetSubsystem<InputMaster>()->SetPlayerControl(playerId, pilot);
     }
-
+    //Create ships
+    for (float x : { -4.2f, 4.2f }) {
+        Node* shipNode{ scene_->CreateChild("Ship") };
+        shipNode->SetWorldPosition(Vector3(x, 0.6f, 0.0f));
+        shipNode->Rotate(Quaternion(x < 0 ? 90.0f : -90.0f, Vector3::UP));
+        shipNode->CreateComponent<Ship>();
+    }
 //    player1_ = new Player(1);
 //    player2_ = new Player(2);
 
@@ -271,6 +298,7 @@ void MasterControl::CreateScene()
 void MasterControl::SetGameState(const GameState newState)
 {
     if (newState != currentState_) {
+
         LeaveGameState();
         previousState_ = currentState_;
         currentState_ = newState;

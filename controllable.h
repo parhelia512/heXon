@@ -39,6 +39,8 @@ protected:
     bool controlled_;
     Vector3 move_;
     Vector3 aim_;
+    float thrust_;
+    float maxSpeed_;
     float maxPitch_;
     float minPitch_;
 
@@ -47,7 +49,7 @@ protected:
 
     AnimatedModel* model_;
     RigidBody* rigidBody_;
-    CollisionShape* collider_;
+    CollisionShape* collisionShape_;
     AnimationController* animCtrl_;
 
     void ResetInput() { move_ = aim_ = Vector3::ZERO; actions_.reset(); }
