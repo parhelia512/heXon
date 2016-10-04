@@ -32,10 +32,15 @@ InputMaster::InputMaster(Context* context):
     keyBindingsMaster_[KEY_P]      = buttonBindingsMaster_[static_cast<int>(SB_START)]      = MasterInputAction::PAUSE;
     keyBindingsMaster_[KEY_ESCAPE] = MasterInputAction::MENU;
 
-    keyBindingsPlayer_[1][KEY_W] = keyBindingsPlayer_[1][KEY_UP]     = PlayerInputAction::MOVE_UP;
-    keyBindingsPlayer_[1][KEY_S] = keyBindingsPlayer_[1][KEY_DOWN]   = PlayerInputAction::MOVE_DOWN;
-    keyBindingsPlayer_[1][KEY_A] = keyBindingsPlayer_[1][KEY_LEFT]   = PlayerInputAction::MOVE_LEFT;
-    keyBindingsPlayer_[1][KEY_D] = keyBindingsPlayer_[1][KEY_RIGHT]  = PlayerInputAction::MOVE_RIGHT;
+    keyBindingsPlayer_[1][KEY_W] = PlayerInputAction::MOVE_UP;
+    keyBindingsPlayer_[1][KEY_S] = PlayerInputAction::MOVE_DOWN;
+    keyBindingsPlayer_[1][KEY_A] = PlayerInputAction::MOVE_LEFT;
+    keyBindingsPlayer_[1][KEY_D] = PlayerInputAction::MOVE_RIGHT;
+
+    keyBindingsPlayer_[2][KEY_UP]     = PlayerInputAction::MOVE_UP;
+    keyBindingsPlayer_[2][KEY_DOWN]   = PlayerInputAction::MOVE_DOWN;
+    keyBindingsPlayer_[2][KEY_LEFT]   = PlayerInputAction::MOVE_LEFT;
+    keyBindingsPlayer_[2][KEY_RIGHT]  = PlayerInputAction::MOVE_RIGHT;
 
     keyBindingsPlayer_[1][KEY_KP_8]   = PlayerInputAction::FIRE_N;
     keyBindingsPlayer_[1][KEY_KP_5]   = PlayerInputAction::FIRE_S;
@@ -105,8 +110,12 @@ void InputMaster::HandleUpdate(StringHash eventType, VariantMap &eventData)
 void InputMaster::SetPlayerControl(int player, Controllable* controllable)
 {
     if (controlledByPlayer_.Contains(player))
-        controlledByPlayer_[player]->ResetInput();
+        controlledByPlayer_[player]->ClearControl();
     controlledByPlayer_[player] = controllable;
+}
+
+int InputMaster::GetPlayerByControllable(Controllable* controllable)
+{
 }
 
 void InputMaster::HandleActions(const InputActions& actions)
@@ -121,7 +130,7 @@ void InputMaster::HandleActions(const InputActions& actions)
         case MasterInputAction::CONFIRM:            break;
         case MasterInputAction::CANCEL:             break;
         case MasterInputAction::PAUSE:              break;
-        case MasterInputAction::MENU: MC->Exit();   break;
+        case MasterInputAction::MENU:               break;
         default: break;
         }
     }
@@ -134,8 +143,10 @@ void InputMaster::HandleActions(const InputActions& actions)
         if (controlled){
 
             Vector3 stickMove{ Vector3(leftStickPosition_[p-1].x_, 0.0f, leftStickPosition_[p-1].y_) };
+            Vector3 stickAim{  Vector3(rightStickPosition_[p-1].x_, 0.0f, rightStickPosition_[p-1].y_) };
 
             controlled->SetMove(GetMoveFromActions(playerInputActions) + stickMove);
+            controlled->SetAim(GetAimFromActions(playerInputActions) + stickAim);
 
             std::bitset<4>restActions{};
             restActions[0] = playerInputActions->Contains(PlayerInputAction::RUN);
@@ -247,7 +258,7 @@ void InputMaster::PauseButtonPressed()
 }
 
 void InputMaster::EjectButtonPressed(int playerId)
-{
+{/*
     if (MC->GetGameState() == GS_DEAD)
         MC->SetGameState(GS_LOBBY);
     if (MC->GetGameState() != GS_PLAY || MC->IsPaused())
@@ -277,7 +288,7 @@ void InputMaster::EjectButtonPressed(int playerId)
             player1->Eject();
         }
     }
-}
+*/}
 
 Vector3 InputMaster::GetMoveFromActions(Vector<PlayerInputAction>* actions)
 {
@@ -288,6 +299,16 @@ Vector3 InputMaster::GetMoveFromActions(Vector<PlayerInputAction>* actions)
                 + Vector3::FORWARD *
                 (actions->Contains(PlayerInputAction::MOVE_UP) -
                  actions->Contains(PlayerInputAction::MOVE_DOWN))};
+}
+Vector3 InputMaster::GetAimFromActions(Vector<PlayerInputAction>* actions)
+{
+    return Vector3{Vector3::RIGHT *
+                (actions->Contains(PlayerInputAction::FIRE_E) -
+                 actions->Contains(PlayerInputAction::FIRE_W))
+
+                + Vector3::FORWARD *
+                (actions->Contains(PlayerInputAction::FIRE_N) -
+                 actions->Contains(PlayerInputAction::FIRE_S))};
 }
 
 void InputMaster::Screenshot()

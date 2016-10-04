@@ -85,7 +85,7 @@ void Lobby::OnNodeSet(Node *node)
         pointLight->SetColor( l % 2 ? Color(0.34f, 0.9f, 0.1f) : Color(0.42f, 0.1f, 1.0f));
         pointLight->SetRange(13.0f);
         pointLight->SetCastShadows(true);
-        pointLight->SetShadowBias(BiasParameters(0.0001f, 0.1f));
+        pointLight->SetShadowBias(BiasParameters(0.0001f, 0.001f));
     }
     //Create doors and splatterpillars
     for (float x : { -2.26494f, 2.26494f }){
@@ -110,9 +110,11 @@ void Lobby::Update(float timeStep)
                     0.5f * (lightNode->GetPosition().z_ < 0.0f)));
 }
 
-void Lobby::HandlePlayTrigger(StringHash otherNode, VariantMap& eventData)
-{ (void)otherNode; (void)eventData;
-
-    ///Both players should be ready
-    MC->SetGameState(GS_PLAY);
+void Lobby::EnterLobbyState()
+{
+    node_->SetEnabledRecursive(true);
+}
+void Lobby::EnterPlayState()
+{
+    node_->SetEnabledRecursive(false);
 }

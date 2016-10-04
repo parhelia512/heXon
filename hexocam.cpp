@@ -24,12 +24,7 @@ void heXoCam::RegisterObject(Context *context)
 }
 
 heXoCam::heXoCam(Context* context):
-    LogicComponent(context),
-    yaw_{0.0f},
-    pitch_{0.0f},
-    yawDelta_{0.0f},
-    pitchDelta_{0.0f},
-    forceMultiplier{1.0f}
+    LogicComponent(context)
 {
 }
 
@@ -49,11 +44,6 @@ void heXoCam::OnNodeSet(Node *node)
     camera_->SetFarClip(128.0f);
     node_->SetPosition(Vector3(0.0f, 42.0f, -23.0f));
     node_->SetRotation(Quaternion(65.0f, 0.0f, 0.0f));
-    rigidBody_ = node_->CreateComponent<RigidBody>();
-    rigidBody_->SetAngularDamping(10.0f);
-    CollisionShape* collisionShape{node_->CreateComponent<CollisionShape>()};
-    collisionShape->SetSphere(0.1f);
-    rigidBody_->SetMass(1.0f);
 
     SetupViewport();
 
@@ -88,16 +78,6 @@ void heXoCam::SetupViewport()
     viewport_->SetRenderPath(effectRenderPath_);
     renderer->SetViewport(0, viewport_);
 
-}
-
-Vector3 heXoCam::GetWorldPosition()
-{
-    return node_->GetWorldPosition();
-}
-
-Quaternion heXoCam::GetRotation()
-{
-    return node_->GetRotation();
 }
 
 void heXoCam::Update(float timeStep)

@@ -133,7 +133,7 @@ void Enemy::CheckHealth()
     //Die
     if (node_->IsEnabled() && health_ <= 0.0f) {
         if (lastHitBy_ != 0)
-            MC->GetPlayer(lastHitBy_)->AddScore(bonus_ ? worth_ : 2 * worth_ / 3);
+//            MC->GetPlayer(lastHitBy_)->AddScore(bonus_ ? worth_ : 2 * worth_ / 3);
 
         GetSubsystem<SpawnMaster>()->SpawnExplosion(node_->GetPosition(),
                                                      Color(color_.r_*color_.r_, color_.g_*color_.g_, color_.b_*color_.b_),

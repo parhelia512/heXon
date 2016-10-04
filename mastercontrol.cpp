@@ -164,6 +164,8 @@ void MasterControl::Start()
     musicSource_->SetGain(0.32f);
     musicSource_->SetSoundType(SOUND_MUSIC);
 
+    GetSubsystem<Audio>()->Stop(); ///////////////////////////////////////////////////////////////////////
+
     SetGameState(GS_LOBBY);
 
     SubscribeToEvents();
@@ -263,7 +265,7 @@ void MasterControl::CreateScene()
 
     //Construct lobby
     Node* lobbyNode{ scene_->CreateChild("Lobby") };
-    lobbyNode->CreateComponent<Lobby>();
+    lobby_ = lobbyNode->CreateComponent<Lobby>();
 
     //Create pilots
     for (float x : { -2.3f, 2.3f }) {
@@ -283,9 +285,10 @@ void MasterControl::CreateScene()
         shipNode->Rotate(Quaternion(x < 0 ? 90.0f : -90.0f, Vector3::UP));
         shipNode->CreateComponent<Ship>();
     }
-//    player1_ = new Player(1);
-//    player2_ = new Player(2);
 
+    for (int p : {1, 2}){
+        players_.Push(SharedPtr<Player>(new Player(p, context_)));
+    }
 
     Node* appleNode{ scene_->CreateChild("Apple") };
     apple_ = appleNode->CreateComponent<Apple>();
@@ -330,6 +333,7 @@ void MasterControl::EnterGameState()
     switch (currentState_) {
     case GS_INTRO : break;
     case GS_LOBBY : {
+        lobby_->EnterLobbyState();
 //        GetPlayer(1)->EnterLobby();
 //        GetPlayer(2)->EnterLobby();
         musicSource_->Play(menuMusic_);
@@ -348,9 +352,8 @@ void MasterControl::EnterGameState()
 //        chaoBall_->Disable();
     } break;
     case GS_PLAY : {
+        lobby_->EnterPlayState();
         musicSource_->Play(gameMusic_);
-//        player1_->EnterPlay();
-//        player2_->EnterPlay();
         world.camera->EnterPlay();
 
         apple_->Respawn(true);
@@ -401,6 +404,18 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
 //        if (door1_->HidesPlayer() > 0.5f && door2_->HidesPlayer() > 0.5f){
 //                Exit();
 //        }
+        bool allReady{ true };
+        for (Controllable* c : GetSubsystem<InputMaster>()->GetControllables()) {
+
+            if (c){
+                if ( c->IsInstanceOf<Pilot>() )
+                    allReady = false;
+            }
+
+        }
+        if (allReady)
+            SetGameState(GS_PLAY);
+
     } break;
     case GS_PLAY: {
 //        lobby_->SetPosition((Vector3::DOWN * 23.0f) * Min(1.0f, sinceStateChange_));
@@ -430,8 +445,9 @@ void MasterControl::UpdateCursor(const float timeStep)
 bool MasterControl::CursorRayCast(const float maxDistance, PODVector<RayQueryResult> &hitResults)
 {
     IntVector2 mousePos{world.cursor.uiCursor->GetPosition()};
-    Ray cameraRay{world.camera->camera_->GetScreenRay((float)mousePos.x_/GRAPHICS->GetWidth(),
-                                                        (float)mousePos.y_/GRAPHICS->GetHeight())};
+    Ray cameraRay{ world.camera->camera_->GetScreenRay((float)mousePos.x_/GRAPHICS->GetWidth(),
+                                                       (float)mousePos.y_/GRAPHICS->GetHeight())
+                 };
     RayOctreeQuery query{hitResults, cameraRay, RAY_TRIANGLE, maxDistance, DRAWABLE_GEOMETRY};
     scene_->GetComponent<Octree>()->Raycast(query);
 
@@ -461,8 +477,8 @@ bool MasterControl::PhysicsSphereCast(PODVector<RigidBody*> &hitResults, const V
 void MasterControl::Exit()
 {
     //Save pilots and their scores
-    player1_->SavePilot();
-    player2_->SavePilot();
+//    player1_->SavePilot();
+//    player2_->SavePilot();
 
     //...and exit to the left
     engine_->Exit();
@@ -494,5 +510,5 @@ Player* MasterControl::GetPlayer(int playerID, bool other) const
 
 bool MasterControl::NoHumans()
 {
-    return !GetPlayer(1)->IsHuman() && !GetPlayer(2)->IsHuman();
+//    return !GetPlayer(1)->IsHuman() && !GetPlayer(2)->IsHuman();
 }

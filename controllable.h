@@ -24,6 +24,8 @@
 #include "sceneobject.h"
 #include <bitset>
 
+#define INPUTMASTER GetSubsystem<InputMaster>()
+
 class Controllable : public SceneObject
 {
     friend class InputMaster;
@@ -34,6 +36,8 @@ public:
     virtual void Update(float timeStep);
 
     void SetMove(Vector3 move);
+    void SetAim(Vector3 aim);
+    virtual void ClearControl();
 protected:
 //    float randomizer_;
     bool controlled_;

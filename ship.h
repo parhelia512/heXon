@@ -24,6 +24,8 @@
 
 #include "controllable.h"
 
+class Bullet;
+
 class Ship : public Controllable
 {
     URHO3D_OBJECT(Ship, LogicComponent);
@@ -33,13 +35,27 @@ public:
     virtual void OnNodeSet(Node* node);
     virtual void Update(float timeStep);
     void EnterPlay();
-    void HandleNodeCollisionStart(StringHash eventType, VariantMap& eventData);
 private:
     int playerId_;
-//    StaticModel* model_;
+
+    const float initialHealth_;
+    float health_;
+    int weaponLevel_;
+    int bulletAmount_;
+    float bulletDamage_;
+
+    const float initialShotInterval_;
+    float shotInterval_;
+    float sinceLastShot_;
+
     ParticleEmitter* particleEmitter_;
-    void CreateTails();
     Vector<TailGenerator*> tailGens_;
+
+    Vector<SharedPtr<Bullet> > bullets_;
+
+    void CreateTails();
+    void Shoot(Vector3 aim);
+    void FireBullet(Vector3 direction);
 };
 
 #endif // SHIP_H

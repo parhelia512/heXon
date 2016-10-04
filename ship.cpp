@@ -16,9 +16,12 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "ship.h"
-#include "arena.h"
 #include "inputmaster.h"
+#include "arena.h"
+#include "pilot.h"
+#include "bullet.h"
+
+#include "ship.h"
 
 void Ship::RegisterObject(Context *context)
 {
@@ -26,7 +29,15 @@ void Ship::RegisterObject(Context *context)
 }
 
 Ship::Ship(Context* context) : Controllable(context),
-    playerId_{1}
+    playerId_{1},
+    initialHealth_{1.0f},
+    health_{initialHealth_},
+    weaponLevel_{0},
+    bulletAmount_{1},
+    bulletDamage_{0.15f},
+    initialShotInterval_{0.30f},
+    shotInterval_{initialShotInterval_},
+    sinceLastShot_{0.0f}
 {
     thrust_ = 2342.0f;
     maxSpeed_ = 23.0f;
@@ -55,7 +66,7 @@ void Ship::OnNodeSet(Node *node)
 
     CreateTails();
 
-    //Setup player physics
+    //Setup ship physics
     rigidBody_ = node_->CreateComponent<RigidBody>();
     rigidBody_->SetRestitution(0.666f);
     rigidBody_->SetMass(1.0f);
@@ -69,14 +80,7 @@ void Ship::OnNodeSet(Node *node)
     collisionShape_->SetSphere(2.0f);
 
     MC->arena_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
-
-    SubscribeToEvent(node_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Ship, HandleNodeCollisionStart));
-}
-
-void Ship::HandleNodeCollisionStart(StringHash eventType, VariantMap& eventData)
-{ (void)eventType;
-
-    GetSubsystem<InputMaster>()->SetPlayerControl(playerId_, this);
+    SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(Ship, BlinkCheck));
 }
 
 void Ship::EnterPlay()
@@ -144,11 +148,68 @@ void Ship::Update(float timeStep)
     }
 
     //Shooting
-//    sinceLastShot_ += timeStep;
-//    if (fire.Length()) {
-//        if (sinceLastShot_ > shotInterval_)
-//        {
-//            Shoot(fire);
-//        }
-//    }
+    sinceLastShot_ += timeStep;
+    if (aim_.Length()) {
+        if (sinceLastShot_ > shotInterval_)
+        {
+            Shoot(aim_);
+        }
+    }
 }
+
+void Ship::Shoot(Vector3 aim)
+{
+    for (int i = 0; i < bulletAmount_; i++) {
+        float angle = 0.0f;
+        switch (i) {
+        case 0: angle = (bulletAmount_ == 2 || bulletAmount_ == 3) ?
+                        -5.0f : 0.0f;
+            break;
+        case 1: angle = bulletAmount_ < 4 ?
+                        5.0f : 7.5f;
+            break;
+        case 2: angle = bulletAmount_ < 5 ?
+                        180.0f : 175.0f;
+            break;
+        case 3: angle = -7.5f;
+            break;
+        case 4: angle = 185.0f;
+            break;
+        default: break;
+        }
+        Vector3 direction = Quaternion(angle, Vector3::UP) * aim;
+        FireBullet(direction);
+    }
+    sinceLastShot_ = 0.0f;
+    //Create a single muzzle flash
+    if (bulletAmount_ > 0){
+//        MoveMuzzle();
+        PlaySample(MC->GetSample("Shot"), 0.17f);
+    }
+}
+
+
+void Ship::FireBullet(Vector3 direction){
+    SharedPtr<Bullet> bullet{};
+    if (bullets_.Size() > 0){
+        for (SharedPtr<Bullet> b : bullets_){
+            if (!b->IsEnabled()){
+                bullet = b;
+            }
+        }
+    }
+    if (bullet == nullptr){
+        bullet = MC->scene_->CreateChild("Bullet")->CreateComponent<Bullet>();
+        bullets_.Push(bullet);
+    }
+    bullet->Set(node_->GetPosition() + direction + Vector3::DOWN*0.42f);
+    bullet->node_->LookAt(bullet->node_->GetPosition() + direction * 5.0f);
+    bullet->rigidBody_->ApplyForce(direction * (1500.0f + 23.0f * weaponLevel_));
+    bullet->damage_ = 0.15f + 0.00666f * weaponLevel_;
+}
+//void Player::MoveMuzzle()
+//{
+//    if (muzzle_ == nullptr)
+//        muzzle_ = new Muzzle(playerID_);
+//    muzzle_->Set(node_->GetPosition() + Vector3::DOWN * 0.42f);
+//}

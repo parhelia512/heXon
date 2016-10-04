@@ -67,7 +67,7 @@ void Seeker::OnNodeSet(Node *node)
 }
 
 void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
-{
+{/*
     if (!IsEnabled()) return;
 
     float timeStep{ eventData[SceneUpdate::P_TIMESTEP].GetFloat() };
@@ -90,7 +90,7 @@ void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     else if (player1->IsActive()) targetPosition = player1->GetPosition();
     else if (player2->IsActive()) targetPosition = player2->GetPosition();
     rigidBody_->ApplyForce((targetPosition - node_->GetPosition()).Normalized() * timeStep * 666.0f);
-}
+*/}
 
 void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
 {
@@ -102,7 +102,7 @@ void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
         if (collider->GetNode()->GetNameHash() == N_PLAYER) {
             Player* hitPlayer = MC->players_[collider->GetNode()->GetID()];
 
-            hitPlayer->Hit(2.3f, false);
+//            hitPlayer->Hit(2.3f, false);
             GetSubsystem<SpawnMaster>()->SpawnHitFX(node_->GetPosition(), 0, false);
             collider->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.5f);
             Disable();

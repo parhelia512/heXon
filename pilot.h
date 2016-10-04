@@ -38,14 +38,19 @@ public:
     virtual void Update(float timeStep);
 
     void Randomize();
-    void Initialize(int player);
+    void Initialize(int playerId);
+    int GetPlayerId() { return playerId_; }
     unsigned GetScore() const { return score_; }
     void Upload();
     void Trip(bool rightFoot);
+    virtual void ClearControl();
+    void HandleNodeCollisionStart(StringHash eventType, VariantMap& eventData);
 private:
     unsigned score_;
+    unsigned flightScore_;
+    int multiplier_;
 
-    int player_;
+    int playerId_;
     bool male_;
     bool alive_;
     float deceased_;

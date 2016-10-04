@@ -102,7 +102,7 @@ public:
 
     Player* player1_;
     Player* player2_;
-    HashMap<unsigned, SharedPtr<Player> > players_;
+    Vector< SharedPtr<Player> > players_;
 
     Apple* apple_;
     Heart* heart_;

@@ -63,6 +63,11 @@ void Controllable::SetMove(Vector3 move)
     move_ = move;
 }
 
+void Controllable::SetAim(Vector3 aim)
+{
+    aim_ = aim;
+}
+
 void Controllable::SetActions(std::bitset<4> actions)
 {
     if (actions == actions_)
@@ -113,5 +118,8 @@ void Controllable::ClampPitch(Quaternion& rot)
         rot = Quaternion(-minCorrection, node_->GetRight()) * rot;
 }
 
-
+void Controllable::ClearControl()
+{
+    ResetInput();
+}
 

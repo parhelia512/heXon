@@ -19,6 +19,9 @@
 #include <fstream>
 
 #include "effectmaster.h"
+#include "inputmaster.h"
+#include "ship.h"
+
 #include "pilot.h"
 
 void Pilot::RegisterObject(Context *context)
@@ -61,6 +64,8 @@ void Pilot::OnNodeSet(Node *node)
     animCtrl_->PlayExclusive("Models/IdleAlert.ani", 0, true);
     animCtrl_->SetSpeed("Models/IdleAlert.ani", 0.5f);
     animCtrl_->SetStartBone("Models/IdleAlert.ani", "MasterBone");
+
+    SubscribeToEvent(node_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Pilot, HandleNodeCollisionStart));
 
 }
 
@@ -105,9 +110,9 @@ void Pilot::Update(float timeStep)
     }
 }
 
-void Pilot::Initialize(int player)
+void Pilot::Initialize(int playerId)
 {
-    player_ = player;
+    playerId_ = playerId;
     Load();
 }
 
@@ -130,15 +135,16 @@ void Pilot::Save(int playerID, unsigned score)
 void Pilot::Load()
 {
     using namespace std;
-    ifstream fPilot{"Resources/.Pilot" + to_string(player_) + ".lkp"};
+
+    ifstream fPilot{ "Resources/.Pilot" + to_string(playerId_) + ".lkp" };
     while (!fPilot.eof()){
-        string gender_str;
-        string hairStyle_str;
-        string color1_r_str, color1_g_str, color1_b_str;
-        string color2_r_str, color2_g_str, color2_b_str;
-        string color3_r_str, color3_g_str, color3_b_str;
-        string color4_r_str, color4_g_str, color4_b_str;
-        string color5_r_str, color5_g_str, color5_b_str;
+        string gender_str{};
+        string hairStyle_str{};
+        string color1_r_str{}, color1_g_str{}, color1_b_str{};
+        string color2_r_str{}, color2_g_str{}, color2_b_str{};
+        string color3_r_str{}, color3_g_str{}, color3_b_str{};
+        string color4_r_str{}, color4_g_str{}, color4_b_str{};
+        string color5_r_str{}, color5_g_str{}, color5_b_str{};
         string score_str;
 
         fPilot >> gender_str;
@@ -155,11 +161,11 @@ void Pilot::Load()
         male_ = static_cast<bool>(stoi(gender_str));
         hairStyle_ = stoi(hairStyle_str);
         pilotColors_.Clear();
-        pilotColors_[PC_SKIN]   = Color(stof(color1_r_str),stof(color1_g_str),stof(color1_b_str));
-        pilotColors_[PC_SHIRT]  = Color(stof(color2_r_str),stof(color2_g_str),stof(color2_b_str));
-        pilotColors_[PC_PANTS]  = Color(stof(color3_r_str),stof(color3_g_str),stof(color3_b_str));
-        pilotColors_[PC_SHOES]  = Color(stof(color4_r_str),stof(color4_g_str),stof(color4_b_str));
-        pilotColors_[PC_HAIR]   = Color(stof(color5_r_str),stof(color5_g_str),stof(color5_b_str));
+        pilotColors_[PC_SKIN]   = Color(stof(color1_r_str), stof(color1_g_str), stof(color1_b_str));
+        pilotColors_[PC_SHIRT]  = Color(stof(color2_r_str), stof(color2_g_str), stof(color2_b_str));
+        pilotColors_[PC_PANTS]  = Color(stof(color3_r_str), stof(color3_g_str), stof(color3_b_str));
+        pilotColors_[PC_SHOES]  = Color(stof(color4_r_str), stof(color4_g_str), stof(color4_b_str));
+        pilotColors_[PC_HAIR]   = Color(stof(color5_r_str), stof(color5_g_str), stof(color5_b_str));
 
         score_ = static_cast<unsigned>(stoul(score_str, 0, 10));
     }
@@ -183,19 +189,22 @@ void Pilot::UpdateModel()
 
     //Set colors for body model
     for (unsigned c{PC_SKIN}; c < PC_ALL; ++c){
+
         model_->SetMaterial(c, MC->GetMaterial("Basic")->Clone());
-        Color diffColor{pilotColors_[c]};
+        Color diffColor{ pilotColors_[c] };
         if (c == 4){
+
             if (hairStyle_ == HAIR_BALD)
                 diffColor = pilotColors_[0];
             else if (hairStyle_ == HAIR_MOHAWK)
                 diffColor = LucKey::RandomHairColor(true);
         }
         model_->GetMaterial(c)->SetShaderParameter("MatDiffColor", diffColor);
-        Color specColor{diffColor * (1.0f-0.1f*c)};
+        Color specColor{ diffColor * (1.0f-0.1f*c) };
         specColor.a_ = 23.0f - 4.0f * c;
         model_->GetMaterial(c)->SetShaderParameter("MatSpecColor", specColor);
     }
+
     //Set hair model
     hairModel_->GetNode()->SetScale(1.0f - (0.1f * !male_));
 
@@ -213,6 +222,7 @@ void Pilot::UpdateModel()
     case HAIR_FLATTOP: hairModel_->SetModel(MC->GetModel("Flattop"));
         break;
     }
+    //Set hair color
     if (hairStyle_ != HAIR_BALD && hairStyle_ != HAIR_SHORT)
     {
         hairModel_->SetMorphWeight(0, Random());
@@ -295,5 +305,24 @@ void Pilot::Trip(bool rightFoot)
         //trip at right foot
     } else {
         //trip at left foot
+    }
+}
+
+void Pilot::ClearControl()
+{
+    Controllable::ClearControl();
+
+    node_->SetEnabledRecursive(false);
+}
+
+void Pilot::HandleNodeCollisionStart(StringHash eventType, VariantMap& eventData)
+{ (void)eventType;
+
+    Node* otherNode{ static_cast<Node*>(eventData[NodeCollisionStart::P_OTHERNODE].GetPtr()) };
+
+    Ship* ship{ otherNode->GetComponent<Ship>() };
+    if (ship)
+    {
+        GetSubsystem<InputMaster>()->SetPlayerControl(playerId_, ship);
     }
 }

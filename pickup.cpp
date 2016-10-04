@@ -82,7 +82,7 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
         RigidBody* collider = collidingBodies[i];
         if (collider->GetNode()->GetNameHash() == N_PLAYER) {
             Player* hitPlayer = MC->players_[collider->GetNode()->GetID()];
-            hitPlayer->Pickup(pickupType_);
+//            hitPlayer->Pickup(pickupType_);
             GetSubsystem<SpawnMaster>()->SpawnHitFX(GetPosition(), hitPlayer->GetPlayerID(), false);
             switch (pickupType_){
             case PT_CHAOBALL: Deactivate(); break;
@@ -126,8 +126,8 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
         }
         else if (IsEmerged() && MC->GetGameState() == GS_PLAY){
             Vector3 force{};
-            force += player1->IsAlive() * -3.0f*player1->GetPosition() - rigidBody_->GetLinearVelocity();
-            force += player2->IsAlive() * -3.0f*player2->GetPosition() - rigidBody_->GetLinearVelocity();
+//            force += player1->IsAlive() * -3.0f*player1->GetPosition() - rigidBody_->GetLinearVelocity();
+//            force += player2->IsAlive() * -3.0f*player2->GetPosition() - rigidBody_->GetLinearVelocity();
             rigidBody_->ApplyForce(force);
         } break;
     } break;

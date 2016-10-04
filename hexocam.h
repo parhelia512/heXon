@@ -51,21 +51,14 @@ public:
     SharedPtr<Viewport> viewport_;
     SharedPtr<RenderPath> effectRenderPath_;
 
-    Vector3 GetWorldPosition();
-    Quaternion GetRotation();
     void SetGreyScale(const bool enabled);
-private:
 
-    SharedPtr<RigidBody> rigidBody_;
-    float yaw_;
-    float pitch_;
-    float yawDelta_;
-    float pitchDelta_;
-    float forceMultiplier;
+private:
     bool closeUp_;
     void SetupViewport();
     void EnterLobby();
     void EnterPlay();
+
 };
 
 #endif // HEXOCAM_H

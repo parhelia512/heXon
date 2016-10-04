@@ -16,24 +16,27 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef LOBBY_H
-#define LOBBY_H
+#include "gui3d.h"
 
-#include <Urho3D/Urho3D.h>
 
-#include "luckey.h"
-#include "mastercontrol.h"
-
-class Lobby : public LogicComponent
+GUI3D::GUI3D(Context* context) : LogicComponent(context)
 {
-    URHO3D_OBJECT(Lobby, LogicComponent);
-public:
-    Lobby(Context* context);
-    static void RegisterObject(Context* context);
-    virtual void OnNodeSet(Node* node);
-    virtual void Update(float timeStep);
-    void EnterLobbyState();
-    void EnterPlayState();
-};
+}
 
-#endif // LOBBY_H
+void GUI3D::RegisterObject(Context* context)
+{
+    context->RegisterFactory<GUI3D>();
+}
+
+void GUI3D::OnNodeSet(Node* node)
+{ (void)node;
+}
+
+void GUI3D::Update(float timeStep)
+{
+}
+
+
+
+
+

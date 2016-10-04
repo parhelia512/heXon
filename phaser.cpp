@@ -54,7 +54,7 @@ void Phaser::SetMaterial()
 }
 
 void Phaser::HandlePostUpdate(StringHash eventType, VariantMap& eventData)
-{
+{/*
     float timeStep{eventData[PostUpdate::P_TIMESTEP].GetFloat()};
     node_->Translate(velocity_ * timeStep, TS_WORLD);
     phaseMaterial_->SetShaderParameter("Dissolve", age_ * 2.3f);
@@ -69,4 +69,4 @@ void Phaser::HandlePostUpdate(StringHash eventType, VariantMap& eventData)
         node_->Remove();
         delete this;
     }
-}
+*/}

@@ -16,52 +16,24 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef BULLET_H
-#define BULLET_H
+#ifndef GUI3D_H
+#define GUI3D_H
 
-#include "sceneobject.h"
+#include <luckey.h>
 
-#include "spawnmaster.h"
-#include "razor.h"
-#include "spire.h"
-#include "arena.h"
-#include "hitfx.h"
 
-#include <Urho3D/Urho3D.h>
-
-namespace Urho3D {
-class Node;
-class Scene;
-class Sprite;
-}
-
-using namespace Urho3D;
-
-class Bullet : public SceneObject
+class GUI3D : public LogicComponent
 {
-    friend class Ship;
-    friend class SpawnMaster;
-    URHO3D_OBJECT(Bullet, SceneObject);
+    URHO3D_OBJECT(GUI3D, LogicComponent);
 public:
-    Bullet(Context* context);
+    GUI3D(Context* context);
     static void RegisterObject(Context* context);
+    virtual void Update(float timeStep);
     virtual void OnNodeSet(Node* node);
-    void Set(const Vector3 position);
-    int GetPlayerID() const noexcept { return playerID_; }
-protected:
-    SharedPtr<RigidBody> rigidBody_;
-    SharedPtr<StaticModel> model_;
 
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 private:
-    int playerID_;
-    float age_ = 0.0f;
-    float timeSinceHit_ = 0.0f;
-    float lifeTime_;
-    bool fading_ = false;
-    float damage_;
-    void HitCheck(const float timeStep);
-    void Disable();
+    unsigned toCount_;
+
 };
 
-#endif // BULLET_H
+#endif // GUI3D_H

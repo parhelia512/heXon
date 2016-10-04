@@ -20,28 +20,22 @@
 #define PLAYER_H
 
 #include <Urho3D/Urho3D.h>
+#include "luckey.h"
 
-#include "sceneobject.h"
-
-#define JOY INPUT->GetJoystickByIndex(playerID_ - 1)
-
-class Bullet;
-class Muzzle;
-class ChaoFlash;
-class TailGenerator;
-class Pilot;
-
-class Player : public SceneObject
+class Player : public Object
 {
-    friend class ChaoMine;
-    URHO3D_OBJECT(Player, SceneObject);
+    URHO3D_OBJECT(Player, Object);
 public:
-    Player(Context* context);
-    static void RegisterObject(Context* context);
-    virtual void OnNodeSet(Node* node);
+    Player(int playerId, Context* context);
+//    static void RegisterObject(Context* context);
+//    virtual void OnNodeSet(Node* node);
 
-    unsigned GetRootNodeID() const { return node_->GetID(); }
     int GetPlayerID() const { return playerID_; }
+    void AddScore(int points);
+    void ResetScore();
+
+    /*
+    unsigned GetRootNodeID() const { return node_->GetID(); }
     Vector3 GetWorldPosition() const { return node_->GetWorldPosition(); }
     void SetPosition(Vector3 pos);
     double GetHealth() const noexcept { return health_; }
@@ -51,14 +45,13 @@ public:
     bool IsMoving() const { return rigidBody_->GetLinearVelocity().Length() > 0.01f; }
     void Hit(float damage, bool melee = true);
 
-    void AddScore(int points);
     void Eject();
     void Die();
-    void ResetScore();
     unsigned GetScore() const { return score_; }
     unsigned GetFlightScore() const { return flightScore_; }
     void Pickup(PickupType pickup);
     void UpgradeWeapons();
+    void ChargeShield();
 
     void EnterLobby();
     void EnterPlay();
@@ -67,31 +60,20 @@ public:
     void PickupChaoBall();
     void UpdatePilot();
     void KillPilot();
-    void SavePilot();
-    void ChargeShield();
+    void SavePilot();*/
 
 private:
     int playerID_;
-    bool pilotMode_;
     bool autoPilot_;
+
+    /*
+    bool pilotMode_;
     Vector3 autoMove_;
     Vector3 autoFire_;
     bool alive_;
     int appleCount_;
     int heartCount_;
-    const float initialHealth_;
-    float health_;
-    unsigned score_;
-    unsigned flightScore_;
-    unsigned toCount_;
-    int multiplier_;
-    int weaponLevel_;
-    int bulletAmount_;
-    float bulletDamage_;
 
-    const float initialShotInterval_;
-    float shotInterval_;
-    float sinceLastShot_;
 
     SharedPtr<Pilot> pilot_;
     Node* shieldNode_;
@@ -117,7 +99,7 @@ private:
     Node* scoreDigits_[10];
 
     Vector<SharedPtr<TailGenerator> > tailGens_;
-    Vector<SharedPtr<Bullet> > bullets_;
+
     SharedPtr<Muzzle> muzzle_;
 
     SharedPtr<SoundSource> deathSource_;
@@ -142,7 +124,7 @@ private:
     void LoadPilot();
     void Think();
     Vector3 Sniff(float playerFactor, bool taste = false);
-    void CountScore();
+    void CountScore();*/
 };
 
 #endif // PLAYER_H

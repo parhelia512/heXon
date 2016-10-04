@@ -45,7 +45,7 @@ void Door::OnNodeSet(Node *node)
     doorLight->SetRange(10.0f);
     doorLight->SetBrightness(5.0f);
     doorLight->SetCastShadows(true);
-    doorLight->SetShadowBias(BiasParameters(0.000023, 0.042f));
+    doorLight->SetShadowBias(BiasParameters(0.00008f, 0.042f));
 
     doorSample_ = MC->GetSample("Door");
     doorSample_->SetLooped(false);

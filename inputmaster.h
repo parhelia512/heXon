@@ -63,6 +63,9 @@ class InputMaster : public Object
 public:
     InputMaster(Context* context);
     void SetPlayerControl(int player, Controllable* controllable);
+    int  GetPlayerByControllable(Controllable* controllable);
+    Controllable*  GetControllableByPlayer(int playerId);
+    Vector<Controllable*>  GetControllables() { return controlledByPlayer_.Values(); }
 private:
     HashMap<int, MasterInputAction> keyBindingsMaster_;
     HashMap<int, MasterInputAction> buttonBindingsMaster_;
@@ -86,6 +89,7 @@ private:
     void HandleActions(const InputActions &actions);
     void HandlePlayerAction(PlayerInputAction action, int playerId);
     Vector3 GetMoveFromActions(Vector<PlayerInputAction>* actions);
+    Vector3 GetAimFromActions(Vector<PlayerInputAction>* actions);
     void Screenshot();
 
     void PauseButtonPressed();

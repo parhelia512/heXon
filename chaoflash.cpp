@@ -91,7 +91,7 @@ void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 }
 
 int ChaoFlash::Set(const Vector3 position)
-{
+{/*
     int playerCount{0};
 
     SceneObject::Set(position);
@@ -136,7 +136,7 @@ int ChaoFlash::Set(const Vector3 position)
     }
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(ChaoFlash, HandleSceneUpdate));
     return playerCount;
-}
+*/}
 
 void ChaoFlash::Disable()
 {

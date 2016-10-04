@@ -55,11 +55,12 @@ protected:
     void PlaySample(Sound *sample, const float gain = 0.5f);
     bool IsPlayingSound();
     void StopAllSound();
+
+    void BlinkCheck(StringHash eventType, VariantMap &eventData);
 private:
     SharedPtr<Sound> flashSample_;
     SharedPtr<SoundSource> flashSource_;
 
-    void BlinkCheck(StringHash eventType, VariantMap &eventData);
 };
 
 #endif // SCENEOBJECT_H
