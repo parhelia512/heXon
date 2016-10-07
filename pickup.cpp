@@ -121,8 +121,9 @@ void Pickup::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
     case PT_CHAOBALL: {
         xSpin = 23.0f; zSpin = 42.0f; frequency = 5.0f; shift = 0.23f;
         if (!node_->IsEnabled() && MC->GetGameState() == GS_PLAY) {
-            if (sinceLastPickup_ > chaoInterval_) Respawn();
-            else sinceLastPickup_ += timeStep;
+            /*if (sinceLastPickup_ > chaoInterval_)
+                Respawn();
+            else*/ sinceLastPickup_ += timeStep;
         }
         else if (IsEmerged() && MC->GetGameState() == GS_PLAY){
             Vector3 force{};
@@ -151,8 +152,7 @@ void Pickup::Respawn(bool restart)
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();
 
-    Set(restart ? initialPosition_
-                : GetSubsystem<SpawnMaster>()->SpawnPoint());
+    Set(GetSubsystem<SpawnMaster>()->SpawnPoint());
     MC->arena_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
 }
 void Pickup::Deactivate()

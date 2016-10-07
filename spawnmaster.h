@@ -69,6 +69,7 @@ public:
     bool SpawnExplosion(const Vector3& position, const Color &color, float size, int playerID);
     void SpawnLine(int playerID_);
 
+    template <class T> T* Spawn(Vector3 pos);
 private:
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 

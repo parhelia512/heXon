@@ -142,7 +142,7 @@ Vector3 SpawnMaster::SpawnPoint()
 
 void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 {
-    const float timeStep{eventData[SceneUpdate::P_TIMESTEP].GetFloat()};
+    const float timeStep{ eventData[SceneUpdate::P_TIMESTEP].GetFloat() };
 
     sinceRazorSpawn_ += timeStep;
     sinceSpireSpawn_ += timeStep;
@@ -157,7 +157,7 @@ void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     sinceBubbleSpawn_ += timeStep;
 
     if (sinceBubbleSpawn_ > bubbleInterval_) {
-        SpawnBubble(BubbleSpawnPoint());
+//        Spawn<Bubble>(BubbleSpawnPoint());
     }
 }
 
@@ -165,6 +165,7 @@ int SpawnMaster::CountActiveRazors()
 {
     int razorCount{0};
     for (SharedPtr<Razor> r : razors_.Values()) {
+
         if (r->IsEnabled()) ++razorCount;
     }
     return razorCount;
@@ -173,6 +174,7 @@ int SpawnMaster::CountActiveSpires()
 {
     int spireCount{0};
     for (SharedPtr<Spire> s : spires_.Values()) {
+
         if (s->IsEnabled()) ++spireCount;
     }
     return spireCount;
@@ -181,9 +183,33 @@ int SpawnMaster::CountActiveLines()
 {
     int lineCount{0};
     for (SharedPtr<Line> l : lines_) {
+
         if (l->IsEnabled()) ++lineCount;
     }
     return lineCount;
+}
+
+template <class T> T* SpawnMaster::Spawn(Vector3 pos)
+{
+    T* spawned{};
+
+    PODVector<Node*> correctType{};
+    MC->scene_->GetChildrenWithComponent<T>(correctType);
+    for (Node* n : correctType) {
+
+        if (!n->IsEnabled()) {
+            spawned = n->GetComponent<T>();
+            break;
+        }
+    }
+    if(!spawned) {
+
+        Node* spawnedNode{ MC->scene_->CreateChild(T::GetTypeStatic().ToString()) };
+        spawned = spawnedNode->CreateComponent<T>();
+    }
+
+    spawned->Set(pos);
+    return spawned;
 }
 
 void SpawnMaster::SpawnRazor(const Vector3 &position)

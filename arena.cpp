@@ -107,7 +107,7 @@ void Arena::HandleUpdate(StringHash eventType, VariantMap& eventData)
 { (void)eventType;
 
     float timestep{ eventData[Update::P_TIMESTEP].GetFloat() };
-    float lerpFactor = MC->GetGameState() == GS_LOBBY ? 13.0f : 6.66f ;
+    float lerpFactor{ MC->GetGameState() == GS_LOBBY ? 13.0f : 6.66f };
     float t{ Min(1.0f, timestep * lerpFactor) };
     node_->SetPosition(node_->GetPosition().Lerp(targetPosition_, t));
     node_->SetScale(node_->GetScale().Lerp(targetScale_, pow(t, 0.88f) ));
@@ -136,10 +136,10 @@ Tile* Arena::GetRandomTile()
 {
     if (tiles_.Size()){
         Tile* tile;
-        while (!tile){
-            Tile* tryTile = tiles_[Random((int)tiles_.Size())];
+        while (!tile) {
+            Tile* tryTile{ tiles_[Random((int)tiles_.Size())] };
             PODVector<PhysicsRaycastResult> hitResults;
-            Ray spawnRay(tryTile->node_->GetPosition()-Vector3::UP, Vector3::UP*10.0f);
+            Ray spawnRay(tryTile->node_->GetPosition()-Vector3::UP, Vector3::UP * 10.0f);
             if (!MC->PhysicsRayCast(hitResults, spawnRay, 23.0f, M_MAX_UNSIGNED)){
                 tile = tryTile;
             }
