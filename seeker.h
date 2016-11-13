@@ -34,7 +34,7 @@ public:
     Seeker(Context* context);
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
+    virtual void Update(float timeStep);
     void HandleTriggerStart(StringHash eventType, VariantMap &eventData);
     void Set(Vector3 position);
     void Disable();

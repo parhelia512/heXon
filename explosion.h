@@ -43,8 +43,8 @@ public:
     Explosion(Context* context);
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
+    virtual void Update(float timeStep);
 
-    void UpdateExplosion(StringHash eventType, VariantMap &eventData);
     void Set(const Vector3 position, const Color color, const float size, int playerID);
     void Disable();
 protected:

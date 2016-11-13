@@ -44,6 +44,7 @@ void Spire::OnNodeSet(Node *node)
 
     health_ = initialHealth_ = 5.0f;
     worth_ = 10;
+
     rigidBody_->SetMass(3.0f);
     rigidBody_->SetLinearFactor(Vector3::ZERO);
 
@@ -59,17 +60,13 @@ void Spire::OnNodeSet(Node *node)
     bottomModel_->SetModel(MC->GetModel("SpireBottom"));
     bottomModel_->SetMaterial(black);
 
-    SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(Spire, HandleSpireUpdate));
-
 }
 
-void Spire::HandleSpireUpdate(StringHash eventType, VariantMap &eventData)
-{ (void)eventType;
-
+void Spire::Update(float timeStep)
+{
     if (!node_->IsEnabled()) return;
 
-    double timeStep = eventData[ScenePostUpdate::P_TIMESTEP].GetFloat();
-
+    Enemy::Update(timeStep);
     //Pulse
     topModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", GetGlowColor());
     //Spin
@@ -81,7 +78,8 @@ void Spire::HandleSpireUpdate(StringHash eventType, VariantMap &eventData)
         sinceLastShot_ += timeStep;
         if (sinceLastShot_ > shotInterval_){
             sinceLastShot_ = 0.0f;
-            GetSubsystem<SpawnMaster>()->SpawnSeeker(node_->GetPosition());
+            Seeker* seeker{ GetSubsystem<SpawnMaster>()->Create<Seeker>() };
+            seeker->Set(node_->GetPosition());
         }
     }
 }
@@ -94,7 +92,6 @@ void Spire::Hit(float damage, int ownerID)
 
 void Spire::Set(Vector3 position)
 {
-    shotInterval_ = initialShotInterval_;
     Enemy::Set(position);
-    SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(Spire, HandleSpireUpdate));
+    shotInterval_ = initialShotInterval_;
 }

@@ -276,15 +276,16 @@ void Pilot::Die()
 
 void Pilot::EnterLobbyThroughDoor()
 {
-    node_->SetPosition( Vector3( node_->GetPosition().x_ < 0.0f ? -2.3f : 2.3f, 0.0f, 6.0f));
+    node_->SetPosition( Vector3( node_->GetPosition().x_ < 0.0f ? -2.3f : 2.3f, 0.0f, 5.666f));
     node_->SetRotation(Quaternion::IDENTITY);
-    rigidBody_->ApplyImpulse(Vector3::BACK * 2.3f);
+    rigidBody_->ApplyImpulse(Vector3::BACK * 3.666f);
 }
 
 void Pilot::Revive()
 {
     Randomize();
     alive_ = true;
+    PLAYER->Respawn();
 
     node_->SetAttributeAnimation("Position", nullptr);
     node_->SetAttributeAnimation("Scale", nullptr);
@@ -295,6 +296,10 @@ void Pilot::Revive()
     node_->SetScale(Vector3::ONE);
     animCtrl_->SetSpeed("Models/IdleRelax.ani", 1.0f);
 
+    if (GetSubsystem<InputMaster>()->GetControllableByPlayer(playerId_) != this)
+        GetSubsystem<InputMaster>()->SetPlayerControl(playerId_, this);
+
+    node_->SetEnabledRecursive(true);
     EnterLobbyThroughDoor();
 }
 

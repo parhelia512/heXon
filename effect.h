@@ -30,7 +30,7 @@ class Effect : public SceneObject
     URHO3D_OBJECT(Effect, SceneObject);
 public:
     Effect(Context* context);
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
+    virtual void Update(float timeStep);
     void Set(const Vector3 position);
     void Disable();
     virtual void OnNodeSet(Node* node);

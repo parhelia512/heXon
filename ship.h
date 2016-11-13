@@ -25,6 +25,7 @@
 #include "controllable.h"
 
 class Bullet;
+class Muzzle;
 
 class Ship : public Controllable
 {
@@ -35,8 +36,16 @@ public:
     virtual void OnNodeSet(Node* node);
     virtual void Update(float timeStep);
     void EnterPlay();
+    void EnterLobby();
+
+    void Pickup(PickupType pickup);
+    void UpgradeWeapons();
+    void ChargeShield();
+    void Hit(float damage, bool melee);
 private:
-    int playerId_;
+    Vector3 initialPosition_;
+    Quaternion initialRotation_;
+    int colorSet_;
 
     const float initialHealth_;
     float health_;
@@ -48,14 +57,26 @@ private:
     float shotInterval_;
     float sinceLastShot_;
 
+    int appleCount_;
+    int heartCount_;
+
+    Muzzle* muzzle_;
     ParticleEmitter* particleEmitter_;
     Vector<TailGenerator*> tailGens_;
 
     Vector<SharedPtr<Bullet> > bullets_;
 
+    Sound* shot_s;
+
+    void SetHealth(float health);
     void CreateTails();
     void Shoot(Vector3 aim);
     void FireBullet(Vector3 direction);
+    void MoveMuzzle();
+    void PlayPickupSample(int pickupCount);
+    void Explode();
+    void SetTailsEnabled(bool enabled);
+    void PickupChaoBall();
 };
 
 #endif // SHIP_H

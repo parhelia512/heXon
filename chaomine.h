@@ -40,6 +40,7 @@ public:
     static void RegisterObject(Context* context);
     void Set(const Vector3 position, int playerID);
     virtual void OnNodeSet(Node* node);
+    virtual void Update(float timeStep);
 protected:
     Node* innerNode_;
     Node* outerNode_;
@@ -48,10 +49,9 @@ protected:
     float countDown_;
 
     void CheckHealth();
-    void HandleCollision(StringHash eventType, VariantMap &eventData);
+    void HandleNodeCollision(StringHash eventType, VariantMap &eventData);
 private:
     int playerID_;
-    void HandleMineUpdate(StringHash eventType, VariantMap &eventData);
 };
 
 #endif // MINE_H

@@ -20,22 +20,21 @@
 #define LINE_H
 
 #include <Urho3D/Urho3D.h>
-#include "mastercontrol.h"
+#include "effect.h"
 
-class Line : public LogicComponent
+class Line : public Effect
 {
-    URHO3D_OBJECT(Line, LogicComponent);
+    URHO3D_OBJECT(Line, Effect);
 public:
     Line(Context* context);
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
 
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
+    virtual void Update(float timeStep);
     void Set(const Vector3 position, int playerID);
     void Disable();
-    bool IsEnabled() { return rootNode_->IsEnabled(); }
+    bool IsEnabled() { return node_->IsEnabled(); }
 private:
-    Node* rootNode_;
     float baseScale_;
     StaticModel* model_;
 };

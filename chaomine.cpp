@@ -71,14 +71,12 @@ void ChaoMine::Set(const Vector3 position, int playerID)
         outerModel_->SetMaterial(1, MC->GetMaterial("PurpleEnvmap"));
     }
 
-
     Enemy::Set(position);
-    SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(ChaoMine, HandleMineUpdate));
 }
 
-void ChaoMine::HandleMineUpdate(StringHash eventType, VariantMap &eventData)
+void ChaoMine::Update(float timeStep)
 {
-    float timeStep{eventData[ScenePostUpdate::P_TIMESTEP].GetFloat()};
+    Enemy::Update(timeStep);
 
     //Spin
     innerNode_->Rotate(Quaternion(50.0f*timeStep, 80.0f*timeStep, 92.0f*timeStep));
@@ -87,22 +85,21 @@ void ChaoMine::HandleMineUpdate(StringHash eventType, VariantMap &eventData)
 
 void ChaoMine::CheckHealth()
 {
-    if (node_->IsEnabled() && health_ <= 0 || panicTime_ > 23.0f) {
-        GetSubsystem<SpawnMaster>()->SpawnChaoZap(GetPosition(), playerID_);
-        Disable();
+    if (node_->IsEnabled() &&
+       (health_ <= 0 || panicTime_ > 23.0f)) {
+        ChaoZap* chaoZap{ GetSubsystem<SpawnMaster>()->Create<ChaoZap>() };
+        Enemy::CheckHealth();
+        chaoZap->Set(GetPosition(), playerID_);
     }
 }
 
-void ChaoMine::HandleCollision(StringHash eventType, VariantMap &eventData)
-{
-    PODVector<RigidBody*> collidingBodies{};
-    rigidBody_->GetCollidingBodies(collidingBodies);
+void ChaoMine::HandleNodeCollision(StringHash eventType, VariantMap &eventData)
+{ (void)eventType;
 
-    for (RigidBody* b : collidingBodies) {
-        StringHash colliderNodeNameHash = b->GetNode()->GetNameHash();
-        if (    colliderNodeNameHash == N_RAZOR ||
-                colliderNodeNameHash == N_SPIRE   ) {
+    Node* otherNode{ static_cast<Node*>(eventData[NodeCollision::P_OTHERNODE].GetPtr()) };
+
+    for (Component* c : otherNode->GetComponents())
+        if (c->IsInstanceOf<Enemy>() && !c->IsInstanceOf<ChaoMine>()){
             SetHealth(0.0f);
         }
-    }
 }

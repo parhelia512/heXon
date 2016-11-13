@@ -19,8 +19,7 @@
 #ifndef GUI3D_H
 #define GUI3D_H
 
-#include <luckey.h>
-
+#include "mastercontrol.h"
 
 class GUI3D : public LogicComponent
 {
@@ -31,9 +30,32 @@ public:
     virtual void Update(float timeStep);
     virtual void OnNodeSet(Node* node);
 
+    void Initialize(int playerId);
+    void EnterLobby();
+    void EnterPlay();
+    void SetHealth(float health);
+    void SetHeartsAndApples(int hearts, int apples);
+    void SetScore(unsigned score);
 private:
+    int playerId_;
+    unsigned score_;
     unsigned toCount_;
 
+    float health_;
+    int appleCount_;
+    int heartCount_;
+
+    Node* scoreNode_;
+    HashMap< int, Node* > scoreDigits_;
+    Node* healthBarNode_;
+    StaticModel* healthBarModel_;
+    Node* shieldBarNode_;
+    StaticModel* shieldBarModel_;
+    Node* appleCounterRoot_;
+    HashMap< int, Node* > appleCounter_;
+    Node* heartCounterRoot_;
+    HashMap< int, Node* > heartCounter_;
+    Color HealthToColor(float health);
 };
 
 #endif // GUI3D_H

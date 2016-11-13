@@ -63,7 +63,7 @@ private:
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
 
     void EnterPlayState();
-    void EnterLobbyState();
+    void EnterLobby();
 
 };
 

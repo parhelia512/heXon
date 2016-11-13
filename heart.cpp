@@ -45,3 +45,14 @@ void Heart::OnNodeSet(Node *node)
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
     particleEmitter_->GetEffect()->SetColorFrames(colorFrames);
 }
+
+void Heart::Update(float timeStep)
+{
+    Pickup::Update(timeStep);
+
+    //Spin
+    node_->Rotate(Quaternion(0.0f, 100.0f * timeStep, 0.0f));
+    //Float like a float
+    float floatFactor = 0.5f - Min(0.5f, 0.5f * Abs(node_->GetPosition().y_));
+    graphicsNode_->SetPosition(Vector3::UP * MC->Sine(0.23f, -floatFactor, floatFactor));
+}

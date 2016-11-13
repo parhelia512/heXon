@@ -65,7 +65,7 @@ void Controllable::SetMove(Vector3 move)
 
 void Controllable::SetAim(Vector3 aim)
 {
-    aim_ = aim;
+    aim_ = aim.Normalized();
 }
 
 void Controllable::SetActions(std::bitset<4> actions)

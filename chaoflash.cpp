@@ -21,6 +21,7 @@
 #include "player.h"
 #include "apple.h"
 #include "heart.h"
+#include "ship.h"
 #include "spawnmaster.h"
 
 void ChaoFlash::RegisterObject(Context *context)
@@ -30,7 +31,6 @@ void ChaoFlash::RegisterObject(Context *context)
 
 ChaoFlash::ChaoFlash(Context* context):
     SceneObject(context),
-    playerID_{1/*playerID*/}, ///TODO
     age_{0.0f}
 {
 }
@@ -54,22 +54,16 @@ void ChaoFlash::OnNodeSet(Node *node)
     sunPlane->SetMaterial(sunMaterial_);
 
     node_->SetEnabled(false);
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(ChaoFlash, HandleSceneUpdate));
-
-    sample_ = MC->GetSample("Chaos");
 
     rigidBody_ = node_->CreateComponent<RigidBody>();
     rigidBody_->SetMass(5.0f);
 
 }
 
-void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
+void ChaoFlash::Update(float timeStep)
 {
-    if (!IsPlayingSound()) Disable();
-
     if (!IsEnabled()) return;
 
-    float timeStep{eventData[Update::P_TIMESTEP].GetFloat()};
     age_ += timeStep;
 
     Color chaoColor{chaoMaterial_->GetShaderParameter("MatDiffColor").GetColor()};
@@ -78,7 +72,7 @@ void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
                        chaoColor.g_ * Random(0.23f, 0.9f),
                        chaoColor.b_ * Random(0.16f, 0.5f),
                        chaoColor.a_ * Random(0.42f, 0.9f)};
-    chaoMaterial_->SetShaderParameter("MatDiffColor", chaoColor.Lerp(newDiffColor, Clamp(23.0f*timeStep, 0.0f, 1.0f)));
+    chaoMaterial_->SetShaderParameter("MatDiffColor", chaoColor.Lerp(newDiffColor, Clamp(23.0f * timeStep, 0.0f, 1.0f)));
     Color newSpecColor{Random(0.3f, 1.5f),
                        Random(0.5f, 1.8f),
                        Random(0.4f, 1.4f),
@@ -88,58 +82,88 @@ void ChaoFlash::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
     if (age_ > 0.16f)
         sunMaterial_->SetShaderParameter("MatDiffColor", Color(Random(1.0f), Random(1.0f), Random(1.0f), Max(0.23f - age_, 0.0f)));
+
+    if (age_ > 0.42f)
+        Disable();
 }
 
-int ChaoFlash::Set(const Vector3 position)
-{/*
-    int playerCount{0};
+void ChaoFlash::Set(const Vector3 position, int playerId)
+{
+    Player* owner{ MC->GetPlayer(playerId) };
+    Vector<Ship*> ships{};
+    bool caughtApple{ false };
+    bool caughtHeart{ false };
 
-    SceneObject::Set(position);
     age_ = 0.0f;
-    PlaySample(sample_, 0.69f);
+    SceneObject::Set(position);
+
     PODVector<RigidBody* > hitResults{};
     float radius{7.666f};
     node_->SetEnabled(true);
     chaoMaterial_->SetShaderParameter("MatDiffColor", Color(0.1f, 0.5f, 0.2f, 0.5f));
-    if (MC->PhysicsSphereCast(hitResults,node_->GetPosition(), radius, M_MAX_UNSIGNED)){
+    if (MC->PhysicsSphereCast(hitResults, node_->GetPosition(), radius, M_MAX_UNSIGNED)){
         for (RigidBody* hitResult : hitResults){
-            String hitName = hitResult->GetNode()->GetName();
-            unsigned hitID = hitResult->GetNode()->GetID();
-            if(GetSubsystem<SpawnMaster>()->spires_.Contains(hitID)){
-                WeakPtr<Spire> spire = GetSubsystem<SpawnMaster>()->spires_[hitID];
-                spire->Disable();
-                GetSubsystem<SpawnMaster>()->SpawnChaoMine(spire->GetPosition(), playerID_);
-                MC->GetPlayer(playerID_)->AddScore(Random(42, 100));
-            }
-            else if(GetSubsystem<SpawnMaster>()->razors_.Contains(hitID)){
-                WeakPtr<Razor> razor = GetSubsystem<SpawnMaster>()->razors_[hitID];
-                razor->Disable();
-                GetSubsystem<SpawnMaster>()->SpawnChaoMine(razor->GetPosition(), playerID_);
-                MC->GetPlayer(playerID_)->AddScore(Random(23, 42));
-            }
-            else if(GetSubsystem<SpawnMaster>()->seekers_.Contains(hitID)){
-                WeakPtr<Seeker> seeker = GetSubsystem<SpawnMaster>()->seekers_[hitID];
-                seeker->Disable();
-                MC->GetPlayer(playerID_)->AddScore(Random(5, 23));
-            } else if (hitName == "Apple"){
-                MC->GetPlayer(playerID_)->UpgradeWeapons();
-                GetSubsystem<SpawnMaster>()->SpawnHitFX(MC->apple_->GetPosition(), playerID_, false);
-                MC->apple_->Respawn();
-            } else if (hitName == "Heart"){
-                MC->GetPlayer(playerID_)->ChargeShield();
-                GetSubsystem<SpawnMaster>()->SpawnHitFX(MC->heart_->GetPosition(), playerID_, false);
-                MC->heart_->Respawn();
-            } else if (hitName == "Player"){
-                ++playerCount;
+            Node* hitNode{ hitResult->GetNode() };
+            if (hitNode->GetName() == "PickupTrigger")
+                hitNode = hitNode->GetParent();
+
+            if (hitNode->HasComponent<Ship>()) {
+
+                ships.Push(hitNode->GetComponent<Ship>());
+
+            } else if (hitNode->HasComponent<Seeker>()){
+
+                owner->AddScore(Random(2, 3));
+                hitNode->GetComponent<Seeker>()->Disable();
+
+            } else if (hitNode->HasComponent<Apple>()) {
+
+                caughtApple = true;
+                hitNode->GetComponent<Apple>()->Respawn();
+
+            } else if (hitNode->HasComponent<Heart>()) {
+
+                caughtHeart = true;
+                hitNode->GetComponent<Heart>()->Respawn();
+
+            } else for (Component* c : hitNode->GetComponents()) {
+
+                if (c->IsInstanceOf<Enemy>() && !c->IsInstanceOf<ChaoMine>()){
+                    Enemy* e{ static_cast<Enemy*>(c) };
+                    ChaoMine* chaoMine{ GetSubsystem<SpawnMaster>()->Create<ChaoMine>() };
+                    chaoMine->Set(e->GetPosition(), playerId);
+                    MC->GetPlayer(playerId)->AddScore(Random(2, 3) * e->GetWorth());
+                    e->Disable();
+                }
             }
         }
     }
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(ChaoFlash, HandleSceneUpdate));
-    return playerCount;
-*/}
+
+    //Hand out upgrades
+    for (Ship* s : ships){
+        if (caughtApple)
+            s->UpgradeWeapons();
+        if (caughtHeart)
+            s->ChargeShield();
+    }
+
+    //Swap ship positions
+    if (ships.Size() > 1) {
+        Vector3 firstPos{ ships[0]->GetPosition() };
+        for (unsigned s{0}; s < ships.Size(); ++s){
+
+            if (s == ships.Size() - 1) {
+                ships[s]->GetNode()->SetPosition(firstPos);
+            } else
+                ships[s]->GetNode()->SetPosition(ships[s+1]->GetPosition());
+        }
+    } else if (ships.Size()) {
+        ships[0]->GetNode()->SetPosition(Quaternion(Random(360.0f), Vector3::UP) * (Vector3::FORWARD * Random(5.0f)) +
+                                       node_->GetPosition() * Vector3(1.0f, 0.0f, 1.0f));
+    }
+}
 
 void ChaoFlash::Disable()
 {
-    UnsubscribeFromEvent(E_SCENEUPDATE);
     SceneObject::Disable();
 }

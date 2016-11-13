@@ -24,46 +24,45 @@ void Line::RegisterObject(Context *context)
 }
 
 Line::Line(Context* context) :
-    LogicComponent(context),
+    Effect(context),
     baseScale_{Random(1.0f, 2.3f)}
 {
 }
 
 void Line::OnNodeSet(Node *node)
-{
-    rootNode_ = MC->scene_->CreateChild("Line");
-    rootNode_->SetScale(baseScale_);
-    model_ = rootNode_->CreateComponent<StaticModel>();
+{ (void)node;
+
+    node_->SetName("Line");
+    node_->SetScale(baseScale_);
+    model_ = node_->CreateComponent<StaticModel>();
     model_->SetModel(MC->GetModel("Line"));
 
 }
 
-void Line::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
+void Line::Update(float timeStep)
 {
-    float timeStep{eventData[Update::P_TIMESTEP].GetFloat()};
+    Effect::Update(timeStep);
 
-    if (((!rootNode_->GetComponent<StaticModel>()->IsInView() && rootNode_->GetPosition().y_ > 5.0f)
-        || rootNode_->GetScale().x_ <= 0.0f))
+    if (((!node_->GetComponent<StaticModel>()->IsInView() && node_->GetPosition().y_ > 5.0f)
+        || node_->GetScale().x_ <= 0.0f))
         Disable();
 
-    rootNode_->Translate(Vector3::UP * timeStep * (42.23f + baseScale_ * 23.5f), TS_WORLD);
-    rootNode_->SetScale(Max(rootNode_->GetScale().x_ - timeStep, 0.0f));
+    node_->Translate(Vector3::UP * timeStep * (42.23f + baseScale_ * 23.5f), TS_WORLD);
+    node_->SetScale(Max(node_->GetScale().x_ - timeStep, 0.0f));
 }
 
 void Line::Set(const Vector3 position, int playerID)
 {
+    Effect::Set(position);
     model_->SetMaterial(playerID == 2
                         ? MC->GetMaterial("PurpleBullet")
                         : MC->GetMaterial("GreenBullet"));
-    rootNode_->SetEnabledRecursive(true);
-    rootNode_->SetPosition(position);
-    rootNode_->SetScale(baseScale_);
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Line, HandleSceneUpdate));
+    node_->SetScale(baseScale_);
 }
 
 void Line::Disable()
 {
-    rootNode_->SetEnabledRecursive(false);
+    node_->SetEnabledRecursive(false);
     UnsubscribeFromEvent(E_SCENEUPDATE);
 }
 

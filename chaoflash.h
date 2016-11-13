@@ -39,17 +39,15 @@ public:
     ChaoFlash(Context* context);
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-    int Set(const Vector3 position);
+    virtual void Update(float timeStep);
+    void Set(const Vector3 position, int playerId);
     void Disable();
 private:
-    int playerID_;
     float age_;
     RigidBody* rigidBody_;
     StaticModel* chaoModel_;
     Material* chaoMaterial_;
     Material* sunMaterial_;
-    Sound* sample_;
 };
 
 #endif // CHAOFLASH_H

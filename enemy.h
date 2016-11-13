@@ -45,10 +45,12 @@ public:
     virtual void OnNodeSet(Node* node);
 
     float GetHealth() const { return health_; }
+    int GetWorth() const { return worth_; }
     float GetPanic() const { return panic_; }
     Vector3 GetLinearVelocity() const { return rigidBody_->GetLinearVelocity(); }
-    void Hit(const float damage, const int ownerID);
-    void Set(const Vector3 position);
+    virtual void Hit(const float damage, const int ownerID);
+    virtual void Set(const Vector3 position);
+    virtual void Update(float timeStep);
 protected:
     float panicTime_;
     float health_;
@@ -70,7 +72,7 @@ protected:
     StaticModel* centerModel_;
     Color color_;
 
-    virtual void HandleCollision(StringHash eventType, VariantMap &eventData);
+    virtual void HandleNodeCollision(StringHash eventType, VariantMap &eventData);
     void SetHealth(const float health);
     virtual void CheckHealth();
     Color GetGlowColor() const;
@@ -78,7 +80,6 @@ protected:
 private:
     Vector<SharedPtr<Sound> > samples_;
     SharedPtr<SoundSource> soundSource_;
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 };
 
 #endif // ENEMY_H

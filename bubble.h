@@ -20,24 +20,19 @@
 #define BUBBLE_H
 
 #include <Urho3D/Urho3D.h>
-#include "sceneobject.h"
+#include "effect.h"
 
 using namespace Urho3D;
 
-class Bubble : public LogicComponent
+class Bubble : public Effect
 {
-    URHO3D_OBJECT(Bubble, LogicComponent);
+    URHO3D_OBJECT(Bubble, Effect);
 public:
     Bubble(Context* context);
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
-
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-    void Set(const Vector3 position);
-    void Disable();
-    bool IsEnabled() { return rootNode_->IsEnabled(); }
+    virtual void Update(float timeStep);
 private:
-    Node* rootNode_;
     Vector3 spinAxis_;
     float spinVelocity_;
     float baseScale_;

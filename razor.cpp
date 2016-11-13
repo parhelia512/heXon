@@ -52,14 +52,13 @@ void Razor::OnNodeSet(Node *node)
     bottomModel_->SetMaterial(0, black);
     bottomModel_->SetMaterial(1, centerModel_->GetMaterial());
 
-    SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(Razor, HandleRazorUpdate));
-
 }
 
-void Razor::HandleRazorUpdate(StringHash eventType, VariantMap &eventData)
-{ (void)eventType;
+void Razor::Update(float timeStep)
+{
+    if (!node_->IsEnabled()) return;
 
-    float timeStep{eventData[ScenePostUpdate::P_TIMESTEP].GetFloat()};
+    Enemy::Update(timeStep);
 
     //Spin
     topNode_->Rotate(Quaternion(0.0f, timeStep*50.0f*aimSpeed_, 0.0f));
@@ -90,5 +89,4 @@ void Razor::Set(Vector3 position)
 {
     aimSpeed_ = 0.25f * topSpeed_;
     Enemy::Set(position);
-    SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(Razor, HandleRazorUpdate));
 }

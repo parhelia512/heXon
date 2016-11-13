@@ -47,6 +47,10 @@ InputMaster::InputMaster(Context* context):
     keyBindingsPlayer_[1][KEY_KP_2]   = PlayerInputAction::FIRE_S;
     keyBindingsPlayer_[1][KEY_KP_4]   = PlayerInputAction::FIRE_W;
     keyBindingsPlayer_[1][KEY_KP_6]   = PlayerInputAction::FIRE_E;
+    keyBindingsPlayer_[1][KEY_KP_9]   = PlayerInputAction::FIRE_NE;
+    keyBindingsPlayer_[1][KEY_KP_3]   = PlayerInputAction::FIRE_SE;
+    keyBindingsPlayer_[1][KEY_KP_1]   = PlayerInputAction::FIRE_SW;
+    keyBindingsPlayer_[1][KEY_KP_7]   = PlayerInputAction::FIRE_NW;
     keyBindingsPlayer_[1][KEY_LSHIFT] = PlayerInputAction::RUN;
 
     buttonBindingsPlayer_[1][SB_DPAD_UP]    = PlayerInputAction::MOVE_UP;
@@ -71,9 +75,11 @@ void InputMaster::HandleUpdate(StringHash eventType, VariantMap &eventData)
 { (void)eventType; (void)eventData;
 
     InputActions activeActions{};
-    for (int p : MC->GetPlayers()){
+    for (Player* p : MC->GetPlayers()){
+
+        int pId{ p->GetPlayerID() };
         Vector<PlayerInputAction> emptyActions{};
-        activeActions.player_[p] = emptyActions;
+        activeActions.player_[pId] = emptyActions;
     }
 
     //Convert key presses to actions
@@ -85,21 +91,25 @@ void InputMaster::HandleUpdate(StringHash eventType, VariantMap &eventData)
                 activeActions.master_.Push(action);
         }
         //Check for player key presses
-        for (int p : MC->GetPlayers())
-            if (keyBindingsPlayer_[p].Contains(key)){
-                PlayerInputAction action{keyBindingsPlayer_[p][key]};
-                if (!activeActions.player_[p].Contains(action))
-                    activeActions.player_[p].Push(action);
+        for (Player* p : MC->GetPlayers()){
+
+            int pId{ p->GetPlayerID() };
+            if (keyBindingsPlayer_[pId].Contains(key)){
+                PlayerInputAction action{keyBindingsPlayer_[pId][key]};
+                if (!activeActions.player_[pId].Contains(action))
+                    activeActions.player_[pId].Push(action);
             }
+        }
     }
     //Check for joystick button presses
-    for (int p : MC->GetPlayers()){
+    for (Player* p : MC->GetPlayers()){
 
-        for (int button : pressedJoystickButtons_[p-1])
-            if (buttonBindingsPlayer_[p].Contains(button)){
-                PlayerInputAction action{ buttonBindingsPlayer_[p][button]};
-                if (!activeActions.player_[p].Contains(action))
-                    activeActions.player_[p].Push(action);
+        int pId{ p->GetPlayerID() };
+        for (int button : pressedJoystickButtons_[pId-1])
+            if (buttonBindingsPlayer_[pId].Contains(button)){
+                PlayerInputAction action{ buttonBindingsPlayer_[pId][button]};
+                if (!activeActions.player_[pId].Contains(action))
+                    activeActions.player_[pId].Push(action);
             }
     }
 
@@ -109,13 +119,26 @@ void InputMaster::HandleUpdate(StringHash eventType, VariantMap &eventData)
 
 void InputMaster::SetPlayerControl(int player, Controllable* controllable)
 {
-    if (controlledByPlayer_.Contains(player))
+
+    if (controlledByPlayer_.Contains(player)){
+        if (controlledByPlayer_[player] == controllable)
+            return;
         controlledByPlayer_[player]->ClearControl();
+    }
     controlledByPlayer_[player] = controllable;
 }
 
-int InputMaster::GetPlayerByControllable(Controllable* controllable)
+Player* InputMaster::GetPlayerByControllable(Controllable* controllable)
 {
+    for (int k : controlledByPlayer_.Keys())
+    {
+        if (controlledByPlayer_[k] == controllable)
+            return MC->GetPlayer(k);
+    }
+}
+Controllable* InputMaster::GetControllableByPlayer(int playerId)
+{
+    return controlledByPlayer_[playerId];
 }
 
 void InputMaster::HandleActions(const InputActions& actions)
@@ -136,14 +159,16 @@ void InputMaster::HandleActions(const InputActions& actions)
     }
 
     //Handle player actions
-    for (int p : MC->GetPlayers()){
-        auto playerInputActions = actions.player_[p];
+    for (Player* p : MC->GetPlayers()){
 
-        Controllable* controlled{ controlledByPlayer_[p] };
+        int pId{ p->GetPlayerID() };
+        auto playerInputActions = actions.player_[pId];
+
+        Controllable* controlled{ controlledByPlayer_[pId] };
         if (controlled){
 
-            Vector3 stickMove{ Vector3(leftStickPosition_[p-1].x_, 0.0f, leftStickPosition_[p-1].y_) };
-            Vector3 stickAim{  Vector3(rightStickPosition_[p-1].x_, 0.0f, rightStickPosition_[p-1].y_) };
+            Vector3 stickMove{ Vector3(leftStickPosition_[pId-1].x_, 0.0f, leftStickPosition_[pId-1].y_) };
+            Vector3 stickAim{  Vector3(rightStickPosition_[pId-1].x_, 0.0f, rightStickPosition_[pId-1].y_) };
 
             controlled->SetMove(GetMoveFromActions(playerInputActions) + stickMove);
             controlled->SetAim(GetAimFromActions(playerInputActions) + stickAim);
@@ -302,13 +327,21 @@ Vector3 InputMaster::GetMoveFromActions(Vector<PlayerInputAction>* actions)
 }
 Vector3 InputMaster::GetAimFromActions(Vector<PlayerInputAction>* actions)
 {
-    return Vector3{Vector3::RIGHT *
+    return Vector3{ Vector3::RIGHT *
                 (actions->Contains(PlayerInputAction::FIRE_E) -
                  actions->Contains(PlayerInputAction::FIRE_W))
 
-                + Vector3::FORWARD *
+                +   Vector3::FORWARD *
                 (actions->Contains(PlayerInputAction::FIRE_N) -
-                 actions->Contains(PlayerInputAction::FIRE_S))};
+                 actions->Contains(PlayerInputAction::FIRE_S))
+                + Quaternion(45.0f, Vector3::UP) *
+                   (Vector3::RIGHT *
+                (actions->Contains(PlayerInputAction::FIRE_SE) -
+                 actions->Contains(PlayerInputAction::FIRE_NW))
+
+                +   Vector3::FORWARD *
+                (actions->Contains(PlayerInputAction::FIRE_NE) -
+                 actions->Contains(PlayerInputAction::FIRE_SW)))};
 }
 
 void InputMaster::Screenshot()

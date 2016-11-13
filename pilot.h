@@ -47,8 +47,8 @@ public:
     void HandleNodeCollisionStart(StringHash eventType, VariantMap& eventData);
 private:
     unsigned score_;
-    unsigned flightScore_;
-    int multiplier_;
+//    unsigned flightScore_;
+//    int multiplier_;
 
     int playerId_;
     bool male_;

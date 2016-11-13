@@ -24,7 +24,7 @@ void Bubble::RegisterObject(Context *context)
 }
 
 Bubble::Bubble(Context* context):
-    LogicComponent(context),
+    Effect(context),
     spinAxis_{Vector3(Random(), Random(), Random()).Normalized()},
     spinVelocity_{LucKey::RandomSign() * Random(23.0f, 42.0f)},
     baseScale_{Random(0.25f, 0.95f)}
@@ -32,37 +32,25 @@ Bubble::Bubble(Context* context):
 }
 
 void Bubble::OnNodeSet(Node *node)
-{
+{void node();
+
+    Effect::OnNodeSet(node_);
+
     baseScale_ *= baseScale_;
-    rootNode_ = MC->scene_->CreateChild("Bubble");
-    StaticModel* model = rootNode_->CreateComponent<StaticModel>();
+    node_->SetName("Bubble");
+    StaticModel* model = node_->CreateComponent<StaticModel>();
     model->SetModel(MC->GetModel("Box"));
     model->SetMaterial(MC->GetMaterial("Bubble"));
 }
 
-void Bubble::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
+void Bubble::Update(float timeStep)
 {
-    float timeStep{ eventData[Update::P_TIMESTEP].GetFloat() };
-
-    if (!rootNode_->GetComponent<StaticModel>()->IsInView() && rootNode_->GetPosition().y_ > 5.0f)
+    if (!node_->GetComponent<StaticModel>()->IsInView() && node_->GetPosition().y_ > 5.0f)
         Disable();
 
-    rootNode_->Translate(Vector3::UP * timeStep * (6.66f + MC->SinceLastReset() * 0.0023f), TS_WORLD);
-    rootNode_->Rotate(Quaternion(timeStep * spinVelocity_, spinAxis_));
-    rootNode_->SetWorldScale(Vector3(MC->Sine(4.0f - baseScale_, baseScale_*0.88f, baseScale_*1.23f, spinVelocity_),
-                                     MC->Sine(5.0f - baseScale_, baseScale_*0.88f, baseScale_*1.23f, spinVelocity_ + 2.0f),
-                                     MC->Sine(4.2f - baseScale_, baseScale_*0.88f, baseScale_*1.23f, spinVelocity_ + 3.0f)));
-}
-
-void Bubble::Set(const Vector3 position)
-{
-    rootNode_->SetEnabledRecursive(true);
-    rootNode_->SetPosition(position);
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Bubble, HandleSceneUpdate));
-}
-
-void Bubble::Disable()
-{
-    rootNode_->SetEnabledRecursive(false);
-    UnsubscribeFromEvent(E_SCENEUPDATE);
+    node_->Translate(Vector3::UP * timeStep * (6.66f + MC->SinceLastReset() * 0.0023f), TS_WORLD);
+    node_->Rotate(Quaternion(timeStep * spinVelocity_, spinAxis_));
+    node_->SetWorldScale(Vector3(MC->Sine(2.0f - baseScale_, baseScale_*0.88f, baseScale_*1.23f, spinVelocity_),
+                                     MC->Sine(3.0f - baseScale_, baseScale_*0.88f, baseScale_*1.23f, spinVelocity_ + 2.0f),
+                                     MC->Sine(2.3f - baseScale_, baseScale_*0.88f, baseScale_*1.23f, spinVelocity_ + 3.0f)));
 }

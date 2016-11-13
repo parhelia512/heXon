@@ -22,6 +22,7 @@
 #include <Urho3D/Urho3D.h>
 
 #include "luckey.h"
+#include "player.h"
 
 namespace Urho3D {
 class Node;
@@ -33,7 +34,7 @@ class InputMaster;
 class Arena;
 class SpawnMaster;
 class Razor;
-class Player;
+//class Player;
 class Door;
 class SplatterPillar;
 class Apple;
@@ -100,8 +101,6 @@ public:
     Lobby* lobby_;
     Arena* arena_;
 
-    Player* player1_;
-    Player* player2_;
     Vector< SharedPtr<Player> > players_;
 
     Apple* apple_;
@@ -122,8 +121,10 @@ public:
     Sound* GetMusic(String name) const;
     Sound* GetSample(String name) const;
 
-    Player* GetPlayer(int playerID, bool other = false) const;
-    Vector<int> GetPlayers() { Vector<int> players{}; players.Push(1); players.Push(2); return players; }
+    Player* GetPlayer(int playerID) const;
+    Player*GetNearestPlayer(Vector3 pos);
+    Vector< SharedPtr<Player> > GetPlayers() { return players_; }
+
     float SinceLastReset() const { return scene_->GetElapsedTime() - world.lastReset; }
     void SetGameState(GameState newState);
     GameState GetGameState(){ return currentState_; }

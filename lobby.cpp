@@ -49,7 +49,7 @@ void Lobby::OnNodeSet(Node *node)
 
     //Create highest
     Node* highestNode{ node_->CreateChild("Highest") };
-    highestNode->CreateComponent<Highest>();
+    highest_ = highestNode->CreateComponent<Highest>();
 
     //Create coliders
     node_->CreateComponent<RigidBody>();
@@ -110,11 +110,13 @@ void Lobby::Update(float timeStep)
                     0.5f * (lightNode->GetPosition().z_ < 0.0f)));
 }
 
-void Lobby::EnterLobbyState()
+void Lobby::EnterLobby()
 {
     node_->SetEnabledRecursive(true);
+    highest_->EnterLobby();
 }
-void Lobby::EnterPlayState()
+void Lobby::EnterPlay()
 {
     node_->SetEnabledRecursive(false);
+    highest_->EnterPlay();
 }

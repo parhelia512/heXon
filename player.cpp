@@ -22,6 +22,7 @@
 
 #include "mastercontrol.h"
 #include "hexocam.h"
+#include "inputmaster.h"
 #include "spawnmaster.h"
 #include "arena.h"
 #include "bullet.h"
@@ -34,26 +35,108 @@
 #include "pilot.h"
 #include "splatterpillar.h"
 #include "door.h"
+#include "ship.h"
 #include "phaser.h"
+#include "gui3d.h"
 
 Player::Player(int playerId, Context* context): Object(context),
-    playerID_{playerId},
+    playerId_{playerId},
 //    autoPilot_{playerID_ == 2 && !GetSubsystem<Input>()->GetJoystickByIndex(playerID-1)},
-//    autoPilot_{false},
-    autoPilot_{true}/*,
-    autoMove_{Vector3::ZERO},
-    autoFire_{Vector3::ZERO},
-    alive_{false},
-    appleCount_{0},
-    heartCount_{0},
+    autoPilot_{false},
+//    autoPilot_{true},
+//    autoMove_{Vector3::ZERO},
+//    autoFire_{Vector3::ZERO},
+    alive_{true},
+//    appleCount_{0},
+//    heartCount_{0},
 
     score_{0},
     flightScore_{0},
-    toCount_{0},
-    multiplier_{1},
-*/
+//    toCount_{0},
+    multiplier_{1}
+{
+    Node* guiNode{ MC->scene_->CreateChild("GUI3D") };
+    gui3d_ = guiNode->CreateComponent<GUI3D>();
+    gui3d_->Initialize(playerId_);
+}
+
+void Player::Die()
+{
+    alive_ = false;
+}
+void Player::Respawn()
+{
+    ResetScore();
+    alive_ = true;
+}
+
+void Player::SetScore(int points)
+{
+    score_ = points;
+    gui3d_->SetScore(score_);
+
+}
+void Player::ResetScore()
+{
+    SetScore(0);
+}
+
+void Player::EnterLobby()
 {
 
+    PODVector<Node*> pilotNodes{};
+    MC->scene_->GetChildrenWithComponent<Pilot>(pilotNodes);
+    for (Node* n : pilotNodes){
+        Pilot* pilot{ n->GetComponent<Pilot>() };
+        if (playerId_ == pilot->GetPlayerId()){
+            GetSubsystem<InputMaster>()->SetPlayerControl(playerId_, pilot);
+            if (!alive_){
+                pilot->Revive();
+            }
+        }
+    }
+
+    gui3d_->EnterLobby();
+}
+void Player::EnterPlay()
+{
+    gui3d_->EnterPlay();
+}
+
+void Player::AddScore(int points)
+{
+    if (!alive_) return;
+
+    points *= static_cast<int>(pow(2.0, static_cast<double>(multiplier_-1)));
+    SetScore(GetScore()+points);
+    //Check for multiplier increase
+    for (int i{0}; i < 10; ++i){
+        unsigned tenPow{static_cast<unsigned>(pow(10, i))};
+        if (flightScore_ < tenPow && (flightScore_ + points) > tenPow){
+            ++multiplier_;
+            GetSubsystem<InputMaster>()->GetControllableByPlayer(playerId_)->
+                    PlaySample(MC->GetSample("MultiX"), 0.42f);
+            MC->arena_->FlashX(playerId_);
+            break;
+        }
+    }
+    flightScore_ += points;
+//    toCount_ += points;
+}
+
+Vector3 Player::GetPosition()
+{
+    return GetSubsystem<InputMaster>()->GetControllableByPlayer(playerId_)->GetPosition();
+}
+
+Ship* Player::GetShip()
+{
+    Controllable* controllable{ GetSubsystem<InputMaster>()->GetControllableByPlayer(playerId_) };
+    if (controllable->IsInstanceOf<Ship>()){
+        Ship* ship{ static_cast<Ship*>(controllable) };
+        return ship;
+    }
+    return nullptr;
 }
 
 /*
@@ -137,108 +220,7 @@ void Player::SavePilot()
 
 void Player::CreateGUI()
 {
-    //Setup 3D GUI elements
-    guiNode_ = MC->scene_->CreateChild("GUI3D");
 
-    scoreNode_ = guiNode_->CreateChild("Score");
-    for (int d{0}; d < 10; ++d){
-        scoreDigits_[d] = scoreNode_->CreateChild("Digit");
-        scoreDigits_[d]->SetEnabled( d == 0 );
-        scoreDigits_[d]->Translate(Vector3::RIGHT * (playerID_ == 2 ? -0.5f : 0.5f) * d);
-        scoreDigits_[d]->Rotate(Quaternion(playerID_ == 2 ? 0.0f : 180.0f, Vector3::UP), TS_WORLD);
-        StaticModel* digitModel = scoreDigits_[d]->CreateComponent<StaticModel>();
-        digitModel->SetModel(MC->GetModel("0"));
-        digitModel->SetMaterial(playerID_==2
-                                ? MC->GetMaterial("PurpleGlowEnvmap")
-                                : MC->GetMaterial("GreenGlowEnvmap"));
-    }
-    scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 5.94252f : -5.94252f, 0.9f, 0.82951f));
-    scoreNode_->Rotate(Quaternion(-90.0f, Vector3::RIGHT));
-    scoreNode_->Rotate(Quaternion(playerID_ == 2 ? 60.0f : -60.0f, Vector3::UP), TS_WORLD);
-
-    Model* barModel = (playerID_ == 2)
-            ? MC->GetModel("BarRight")
-            : MC->GetModel("BarLeft");
-
-    healthBarNode_ = guiNode_->CreateChild("HealthBar");
-    healthBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
-    healthBarNode_->SetScale(Vector3(health_, 1.0f, 1.0f));
-    healthBarModel_ = healthBarNode_->CreateComponent<StaticModel>();
-    healthBarModel_->SetModel(barModel);
-    healthBarModel_->SetMaterial(MC->GetMaterial("GreenGlowEnvmap")->Clone());
-
-    shieldBarNode_ = guiNode_->CreateChild("HealthBar");
-    shieldBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
-    shieldBarNode_->SetScale(Vector3(health_, 0.9f, 0.9f));
-    shieldBarModel_ = shieldBarNode_->CreateComponent<StaticModel>();
-    shieldBarModel_->SetModel(barModel);
-    shieldBarModel_->SetMaterial(MC->GetMaterial("BlueGlowEnvmap"));
-
-    Node* healthBarHolderNode{ guiNode_->CreateChild("HealthBarHolder") };
-    healthBarHolderNode->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
-    StaticModel* healthBarHolderModel = healthBarHolderNode->CreateComponent<StaticModel>();
-    healthBarHolderModel->SetModel(MC->GetModel("BarHolder"));
-    healthBarHolderModel->SetMaterial(MC->GetMaterial("BarHolder"));
-
-    appleCounterRoot_ = guiNode_->CreateChild("AppleCounter");
-    for (int a{0}; a < 4; ++a){
-
-        appleCounter_[a] = appleCounterRoot_->CreateChild();
-        appleCounter_[a]->SetEnabled(false);
-        appleCounter_[a]->SetPosition(Vector3(playerID_ == 2 ? (a + 8.0f) : -(a + 8.0f), 1.0f, 21.0f));
-        appleCounter_[a]->SetScale(0.333f);
-        StaticModel* apple{appleCounter_[a]->CreateComponent<StaticModel>()};
-        apple->SetModel(MC->GetModel("Apple"));
-        apple->SetMaterial(MC->GetMaterial("GoldEnvmap"));
-    }
-
-    heartCounterRoot_ = guiNode_->CreateChild("HeartCounter");
-    for (int h{0}; h < 4; ++h){
-
-        heartCounter_[h] = heartCounterRoot_->CreateChild();
-        heartCounter_[h]->SetEnabled(false);
-        heartCounter_[h]->SetPosition(Vector3(playerID_ == 2 ? (h + 8.0f) : -(h + 8.0f), 1.0f, 21.0f));
-        heartCounter_[h]->SetScale(0.333f);
-        StaticModel* heart{heartCounter_[h]->CreateComponent<StaticModel>()};
-        heart->SetModel(MC->GetModel("Heart"));
-        heart->SetMaterial(MC->GetMaterial("RedEnvmap"));
-    }
-}
-
-void Player::SetScore(int points)
-{
-    score_ = points;
-    //Update score graphics
-    for (int d{0}; d < 10; ++d){
-        StaticModel* digitModel{scoreDigits_[d]->GetComponent<StaticModel>()};
-        digitModel->SetModel(MC->GetModel(String(
-                             static_cast<int>(score_ / static_cast<unsigned>(pow(10, d)))%10 )));
-
-        scoreDigits_[d]->SetEnabled( score_ >= static_cast<unsigned>(pow(10, d)) || d == 0 );
-    }
-}
-void Player::ResetScore()
-{
-    SetScore(0);
-}
-void Player::AddScore(int points)
-{
-    if (!alive_) return;
-
-    points *= static_cast<int>(pow(2.0, static_cast<double>(multiplier_-1)));
-    SetScore(GetScore()+points);
-    //Check for multiplier increase
-    for (int i{0}; i < 10; ++i){
-        unsigned tenPow{static_cast<unsigned>(pow(10, i))};
-        if (flightScore_ < tenPow && (flightScore_ + points) > tenPow){
-            ++multiplier_;
-            PlaySample(multix_s, 0.42f);
-            MC->arena_->FlashX(playerID_);
-            break;
-        }
-    }
-    flightScore_ += points;
-    toCount_ += points;
 }
 
 void Player::KillPilot()
@@ -382,70 +364,11 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
 void Player::UpdateGUI(float timeStep)
 {
-    for (int i = 0; i < 4; i++){
-        appleCounter_[i]->Rotate(Quaternion(0.0f, (i*i+10.0f) * 23.0f * timeStep, 0.0f));
-        appleCounter_[i]->SetScale(MC->Sine((1.0f+(appleCount_))*2.0f, 0.2f, 0.4, -i));
-        heartCounter_[i]->Rotate(Quaternion(0.0f, (i*i+10.0f) * 23.0f * timeStep, 0.0f));
-        heartCounter_[i]->SetScale(MC->Sine((1.0f+(heartCount_))*2.0f, 0.2f, 0.4, -i));
-    }
-    //Update HealthBar color
-    healthBarModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", HealthToColor(health_));
-    healthBarModel_->GetMaterial()->SetShaderParameter("MatSpecularColor", HealthToColor(health_));
+
+
 }
 
-void Player::ChargeShield()
-{
-    SetHealth(15.0);
-    PlaySample(powerup_s, 0.42f);
-}
 
-void Player::Pickup(PickupType pickup)
-{
-    if (health_ <= 0.0f) return;
-
-    switch (pickup) {
-    case PT_APPLE: {
-        bulletAmount_ = (bulletAmount_ == 0)?1:bulletAmount_;
-        heartCount_ = 0;
-        AddScore(23*(1+(3*weaponLevel_==23)));
-        if (weaponLevel_ < 23)
-            ++appleCount_;
-        if (appleCount_ >= 5){
-            UpgradeWeapons();
-            appleCount_ = 0;
-        } else {
-            PlaySample(pickup_s[Clamp(appleCount_-1, 0, static_cast<int>(pickup_s.Size()))], 0.42f);
-        }
-    } break;
-    case PT_HEART: {
-        ++heartCount_;
-        appleCount_ = 0;
-        if (heartCount_ >= 5){
-            ChargeShield();
-            heartCount_ = 0;
-        }
-        else {
-            SetHealth(Max(health_, Clamp(health_+5.0f, 0.0f, 10.0f)));
-            PlaySample(pickup_s[heartCount_-1], 0.42f);
-        }
-    } break;
-    case PT_CHAOBALL: {
-       PickupChaoBall();
-    } break;
-    case PT_RESET: {
-        appleCount_ = 0;
-        heartCount_ = 0;
-    }
-    }
-
-    //Update Pickup GUI elements
-    for (int a{0}; a < 4; ++a){
-        appleCounter_[a]->SetEnabled(appleCount_ > a);
-    }
-    for (int h{0}; h < 4; ++h){
-        heartCounter_[h]->SetEnabled(heartCount_ > h);
-    }
-}
 
 void Player::PickupChaoBall()
 {
@@ -465,21 +388,6 @@ void Player::SetPosition(Vector3 pos)
     node_->SetPosition(pos);
 }
 
-void Player::Die()
-{
-    alive_ = false;
-
-    Disable();
-    GetSubsystem<SpawnMaster>()->SpawnExplosion(node_->GetPosition(), playerID_ == 2 ? Color(1.0f, 0.42f, 0.0f) : Color(0.23f, 1.0f, 0.0f), 2.0f, playerID_);
-    deathSource_->Play(death_s);
-
-    int otherplayer = playerID_ == 2 ? 1 : 2;
-    if (!MC->GetPlayer(otherplayer)->IsAlive()
-        || !MC->GetPlayer(otherplayer)->IsEnabled())
-    {
-        MC->SetGameState(GS_DEAD);
-    }
-}
 
 void Player::EnterPlay()
 {
@@ -498,13 +406,6 @@ void Player::EnterPlay()
     Set(Vector3(playerID_==2 ? 4.2f : -4.2f, 0.0f, 0.0f));
     SetPilotMode(false);
 
-    scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 23.5f : -23.5f, 2.23f, 1.23f));
-    if (MC->GetAspectRatio() > 1.5f)
-        scoreNode_->SetWorldScale(4.2f);
-    else {
-        scoreNode_->SetWorldScale(3.666f);
-        scoreNode_->Translate((playerID_ == 2 ? Vector3::LEFT : Vector3::RIGHT) * 2.3f);
-    }
 }
 void Player::EnterLobby()
 {
@@ -530,9 +431,6 @@ void Player::EnterLobby()
 
     rigidBody_->ResetForces();
 
-    scoreNode_->SetWorldScale(1.0f);
-    scoreNode_->SetPosition(Vector3(playerID_ == 2 ? 5.94252f : -5.94252f, 0.9f, 0.82951f));
-
 }
 void Player::SetPilotMode(bool pilotMode){
     pilotMode_ = pilotMode;
@@ -548,8 +446,7 @@ void Player::SetPilotMode(bool pilotMode){
 void Player::SetHealth(float health)
 {
     health_ = Clamp(health, 0.0f, 15.0f);
-    healthBarNode_->SetScale(Vector3(Min(health_, 10.0f), 1.0f, 1.0f));
-    shieldBarNode_->SetScale(Vector3(health_, 0.95f, 0.95f));
+
 
     if (health_ <= 0.0f){
         Die();
@@ -567,24 +464,7 @@ Color Player::HealthToColor(float health)
     return color;
 }
 
-void Player::Hit(float damage, bool melee)
-{
-    if (health_ > 10.0f){
-        damage *= (melee ? 0.75f : 0.25f);
-        shieldMaterial_->SetShaderParameter("MatDiffColor", Color(2.0f, 3.0f, 5.0f, 1.0f));
-        PlaySample(shieldHit_s, 0.23f);
-    }
-    else if (!melee) PlaySample(seekerHits_s[Random((int)seekerHits_s.Size())], 0.75f);
-    SetHealth(health_ - damage);
-}
 
-void Player::UpgradeWeapons()
-{
-    ++weaponLevel_;
-    bulletAmount_ = 1 + ((weaponLevel_+5) / 6);
-    shotInterval_ = initialShotInterval_ - 0.0042f*weaponLevel_;
-    PlaySample(powerup_s, 0.42f);
-}
 
 //Updates autopilot input
 void Player::Think()

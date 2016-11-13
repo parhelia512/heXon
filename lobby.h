@@ -24,6 +24,8 @@
 #include "luckey.h"
 #include "mastercontrol.h"
 
+class Highest;
+
 class Lobby : public LogicComponent
 {
     URHO3D_OBJECT(Lobby, LogicComponent);
@@ -32,8 +34,10 @@ public:
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
     virtual void Update(float timeStep);
-    void EnterLobbyState();
-    void EnterPlayState();
+    void EnterLobby();
+    void EnterPlay();
+private:
+    Highest* highest_;
 };
 
 #endif // LOBBY_H

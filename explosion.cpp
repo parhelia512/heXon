@@ -47,7 +47,6 @@ void Explosion::OnNodeSet(Node *node)
     light_->SetRange(13.0f);
     light_->SetBrightness(initialBrightness_);
 
-//    particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
     particleEmitter_->SetEffect(CACHE->GetResource<ParticleEffect>("Particles/Explosion.xml"));
 
     sample_ = CACHE->GetResource<Sound>("Samples/Explode.ogg");
@@ -56,33 +55,37 @@ void Explosion::OnNodeSet(Node *node)
     sampleSource_->SetSoundType(SOUND_EFFECT);
 }
 
-void Explosion::UpdateExplosion(StringHash eventType, VariantMap& eventData)
+void Explosion::Update(float timeStep)
 {
-    float timeStep{eventData[Update::P_TIMESTEP].GetFloat()};
+    Effect::Update(timeStep);
 
-    rigidBody_->SetMass(Max(initialMass_*((0.1f - age_)/0.1f),0.01f));
-    light_->SetBrightness(Max(initialBrightness_*(0.32f - age_)/0.32f,0.0f));
+    rigidBody_->SetMass(Max(initialMass_ * ((0.1f - age_)/0.1f), 0.01f));
+    light_->SetBrightness(Max(initialBrightness_ * (0.32f - age_)/0.32f, 0.0f));
 
     if (node_->IsEnabled() && MC->scene_->IsUpdateEnabled()) {
-        PODVector<RigidBody* > hitResults{};
-        float radius{2.0f * initialMass_ + age_ * 7.0f};
-        if (MC->PhysicsSphereCast(hitResults,node_->GetPosition(), radius, M_MAX_UNSIGNED)) {
-            for (int i = 0; i < hitResults.Size(); i++){
-                Vector3 hitNodeWorldPos{hitResults[i]->GetNode()->GetWorldPosition()};
-                if (!hitResults[i]->IsTrigger() && hitResults[i]->GetPosition().y_ > -0.1f) {
+        PODVector<RigidBody*> hitResults{};
+        float radius{ 2.0f * initialMass_ + age_ * 7.0f };
+
+        if (MC->PhysicsSphereCast(hitResults, node_->GetPosition(), radius, M_MAX_UNSIGNED)) {
+
+            for (RigidBody* h : hitResults){
+                Vector3 hitNodeWorldPos{h->GetNode()->GetWorldPosition()};
+                if (!h->IsTrigger() && h->GetPosition().y_ > -0.1f) {
                     //positionDelta is used for force calculation
-                    Vector3 positionDelta{hitNodeWorldPos - node_->GetWorldPosition()};
-                    float distance{positionDelta.Length()};
-                    Vector3 force{positionDelta.Normalized() * Max(radius-distance, 0.0f)
-                                * timeStep * 2342.0f * rigidBody_->GetMass()};
-                    hitResults[i]->ApplyForce(force);
+                    Vector3 positionDelta{ hitNodeWorldPos - node_->GetWorldPosition() };
+                    float distance{ positionDelta.Length() };
+                    Vector3 force{ positionDelta.Normalized() * Max(radius-distance, 0.0f)
+                                 * timeStep * 2342.0f * rigidBody_->GetMass() };
+                    h->ApplyForce(force);
+
                     //Deal damage
-                    unsigned hitID{hitResults[i]->GetNode()->GetID()};
-                    float damage{rigidBody_->GetMass()*timeStep};
-                    if (GetSubsystem<SpawnMaster>()->spires_.Keys().Contains(hitID)) {
-                        GetSubsystem<SpawnMaster>()->spires_[hitID]->Hit(damage, playerID_);
-                    } else if (GetSubsystem<SpawnMaster>()->razors_.Keys().Contains(hitID)) {
-                        GetSubsystem<SpawnMaster>()->razors_[hitID]->Hit(damage, playerID_);
+                    float damage{rigidBody_->GetMass() * timeStep};
+
+                    for (Component* c : h->GetNode()->GetComponents()){
+                        if (c->IsInstanceOf<Enemy>()){
+                            Enemy* e{ static_cast<Enemy*>(c) };
+                                e->Hit(damage, playerID_);
+                            }
                     }
                 }
             }
@@ -114,11 +117,10 @@ void Explosion::Set(const Vector3 position, const Color color, const float size,
 
     MC->arena_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
 
-    SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(Explosion, UpdateExplosion));
 }
 
 void Explosion::Disable()
 {
-    UnsubscribeFromEvent(E_POSTUPDATE);
+//    UnsubscribeFromEvent(E_POSTUPDATE);
     Effect::Disable();
 }

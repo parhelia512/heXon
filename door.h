@@ -34,7 +34,7 @@ public:
     virtual void OnNodeSet(Node* node);
     virtual void Update(float timeStep);
 
-    float HidesPilot() const;
+    bool HidesPilot() const;
 private:
     AnimatedModel* model_;
     SharedPtr<Sound> doorSample_;

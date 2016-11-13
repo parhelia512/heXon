@@ -21,6 +21,7 @@
 #include "arena.h"
 #include "spawnmaster.h"
 #include "bullet.h"
+#include "flash.h"
 
 SceneObject::SceneObject(Context* context):
     LogicComponent(context),
@@ -31,8 +32,7 @@ SceneObject::SceneObject(Context* context):
 
 void SceneObject::OnNodeSet(Node *node)
 {
-    flashSample_ = CACHE->GetResource<Sound>("Samples/Flash.ogg");
-    flashSample_->SetLooped(false);
+    flashSample_ = MC->GetSample("Flash");
     for (int i{0}; i < 5; ++i){
         SharedPtr<SoundSource> sampleSource = SharedPtr<SoundSource>(node_->CreateComponent<SoundSource>());
         sampleSource->SetSoundType(SOUND_EFFECT);
@@ -51,7 +51,7 @@ void SceneObject::Set(const Vector3 position)
 
 void SceneObject::Disable()
 {
-//    MC->tileMaster_->RemoveFromAffectors(node_);
+    MC->arena_->RemoveFromAffectors(node_);
     node_->SetEnabledRecursive(false);
     if (blink_)
         UnsubscribeFromEvent(E_POSTRENDERUPDATE);
@@ -69,8 +69,8 @@ void SceneObject::PlaySample(Sound* sample, const float gain)
 }
 void SceneObject::StopAllSound()
 {
-//    for (SharedPtr<SoundSource> s : sampleSources_)
-//        s->Stop();
+    for (SharedPtr<SoundSource> s : sampleSources_)
+        s->Stop();
 }
 bool SceneObject::IsPlayingSound()
 {
@@ -96,16 +96,20 @@ void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
         float boundsCheck{flatPosition.Length() * LucKey::Cosine(M_DEGTORAD * flatPosition.Angle(hexantNormal))};
         if (boundsCheck > radius){
             if (node_->GetNameHash() == N_BULLET){
-                GetSubsystem<SpawnMaster>()->SpawnHitFX(GetPosition(), 0, false);
+                HitFX* hitFx{ GetSubsystem<SpawnMaster>()->Create<HitFX>() };
+                hitFx->Set(GetPosition(), 0, false);
                 Disable();
 
             } else if (blink_){
-                GetSubsystem<SpawnMaster>()->SpawnFlash(node_->GetPosition(), big_);
+                GetSubsystem<SpawnMaster>()->Create<Flash>()
+                        ->Set(GetPosition(), big_);
 
-                Vector3 newPosition{node_->GetPosition()-(1.995f*radius)*hexantNormal};
+                Vector3 newPosition{node_->GetPosition() - (1.995f * radius) * hexantNormal};
                 node_->SetPosition(newPosition);
 
-                GetSubsystem<SpawnMaster>()->SpawnFlash(newPosition, big_);
+                GetSubsystem<SpawnMaster>()->Create<Flash>()
+                        ->Set(newPosition, big_);
+
 
                 PlaySample(flashSample_, 0.16f);
             }
@@ -117,6 +121,6 @@ void SceneObject::Emerge(const float timeStep)
 {
     if (!IsEmerged())
         node_->Translate(2.3f * Vector3::UP * timeStep *
-                             (0.23f - node_->GetPosition().y_),
+                             (0.023f - node_->GetPosition().y_),
                              TS_WORLD);
 }

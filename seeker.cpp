@@ -21,6 +21,7 @@
 #include "hitfx.h"
 #include "arena.h"
 #include "player.h"
+#include "ship.h"
 #include "spawnmaster.h"
 
 void Seeker::RegisterObject(Context *context)
@@ -49,10 +50,10 @@ void Seeker::OnNodeSet(Node *node)
     rigidBody_->SetLinearDamping(0.23f);
     rigidBody_->SetTrigger(true);
 
-    CollisionShape* trigger = node_->CreateComponent<CollisionShape>();
+    CollisionShape* trigger{ node_->CreateComponent<CollisionShape>() };
     trigger->SetSphere(1.0f);
 
-    ParticleEmitter* particleEmitter = node_->CreateComponent<ParticleEmitter>();
+    ParticleEmitter* particleEmitter{ node_->CreateComponent<ParticleEmitter>() };
     particleEmitter->SetEffect(CACHE->GetResource<ParticleEffect>("Particles/Seeker.xml"));
 
     AddTail();
@@ -66,52 +67,54 @@ void Seeker::OnNodeSet(Node *node)
     sample_->SetLooped(false);
 }
 
-void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
-{/*
+void Seeker::Update(float timeStep)
+{
     if (!IsEnabled()) return;
-
-    float timeStep{ eventData[SceneUpdate::P_TIMESTEP].GetFloat() };
 
     age_ += timeStep;
     if (age_ > lifeTime_ && node_->IsEnabled()) {
-        GetSubsystem<SpawnMaster>()->SpawnHitFX(GetPosition(), 0, false);
+        HitFX* hitFx{ GetSubsystem<SpawnMaster>()->Create<HitFX>() };
+        hitFx->Set(GetPosition(), 0, false);
         Disable();
     }
 
-    Vector3 targetPosition = Vector3::ZERO;
-    Player* player1 = MC->GetPlayer(1);
-    Player* player2 = MC->GetPlayer(2);
-    if (player1->IsActive() && player2->IsActive())
-        targetPosition =
-                LucKey::Distance(node_->GetPosition(), player1->GetPosition()) <
-                LucKey::Distance(node_->GetPosition(), player2->GetPosition())
-                ? player1->GetPosition()
-                : player2->GetPosition();
-    else if (player1->IsActive()) targetPosition = player1->GetPosition();
-    else if (player2->IsActive()) targetPosition = player2->GetPosition();
+    Vector3 targetPosition{ Vector3::ZERO };
+
+    Player* nearestPlayer{ MC->GetNearestPlayer(GetPosition()) };
+    if (nearestPlayer)
+        targetPosition = nearestPlayer->GetPosition();
+
     rigidBody_->ApplyForce((targetPosition - node_->GetPosition()).Normalized() * timeStep * 666.0f);
-*/}
+}
 
 void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
 {
+    if (!node_->IsEnabled())
+        return;
+
     PODVector<RigidBody*> collidingBodies{};
     rigidBody_->GetCollidingBodies(collidingBodies);
 
-    for (int i = 0; i < collidingBodies.Size(); i++) {
-        RigidBody* collider = collidingBodies[i];
-        if (collider->GetNode()->GetNameHash() == N_PLAYER) {
-            Player* hitPlayer = MC->players_[collider->GetNode()->GetID()];
+    for (int i{0}; i < collidingBodies.Size(); ++i) {
+        RigidBody* collider{ collidingBodies[i] };
+        if (collider->GetNode()->HasComponent<Ship>()) {
+            Ship* hitShip{ collider->GetNode()->GetComponent<Ship>() };
 
-//            hitPlayer->Hit(2.3f, false);
-            GetSubsystem<SpawnMaster>()->SpawnHitFX(node_->GetPosition(), 0, false);
+            hitShip->Hit(2.3f, false);
+
+            GetSubsystem<SpawnMaster>()->Create<HitFX>()
+                    ->Set(node_->GetPosition(), 0, false);
             collider->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.5f);
             Disable();
         }
-        else if (collider->GetNode()->GetNameHash() == N_CHAOMINE){
-            GetSubsystem<SpawnMaster>()->chaoMines_[collider->GetNode()->GetID()]->Hit(damage_, 0);
+        else if (collider->GetNode()->HasComponent<ChaoMine>()){
+            collider->GetNode()->GetComponent<ChaoMine>()->Hit(damage_, 0);
         }
-        else if (collider->GetNode()->GetNameHash() == N_SEEKER){
-            GetSubsystem<SpawnMaster>()->SpawnHitFX(node_->GetPosition(), false);
+        else if (collider->GetNode()->HasComponent<Seeker>()) {
+
+            GetSubsystem<SpawnMaster>()->Create<HitFX>()
+                    ->Set(node_->GetPosition(), 0, false);
+
             Disable();
         }
     }
@@ -119,7 +122,7 @@ void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
 
 void Seeker::Set(Vector3 position)
 {
-    age_= 0.0f;
+    age_ = 0.0f;
     SceneObject::Set(position);
     rigidBody_->ResetForces();
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
@@ -127,7 +130,6 @@ void Seeker::Set(Vector3 position)
     AddTail();
     PlaySample(sample_, 0.666f);
 
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Seeker, HandleSceneUpdate));
     SubscribeToEvent(node_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Seeker, HandleTriggerStart));
 }
 void Seeker::Disable()
@@ -149,5 +151,6 @@ void Seeker::AddTail()
 }
 void Seeker::RemoveTail()
 {
-    tailGen_->Remove();
+    if (tailGen_)
+        tailGen_->Remove();
 }

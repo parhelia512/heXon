@@ -20,6 +20,7 @@
 
 #include "spawnmaster.h"
 #include "player.h"
+#include "ship.h"
 
 Enemy::Enemy(Context* context):
     SceneObject(context),
@@ -34,7 +35,6 @@ Enemy::Enemy(Context* context):
     sinceLastWhack_{0.0f},
     meleeDamage_{0.44f}
 {
-
 }
 
 void Enemy::OnNodeSet(Node *node)
@@ -71,6 +71,8 @@ void Enemy::OnNodeSet(Node *node)
     rigidBody_->SetMass(2.0f);
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
     rigidBody_->SetAngularFactor(Vector3::ZERO);
+    rigidBody_->SetCollisionLayerAndMask(3, M_MAX_UNSIGNED);
+
     CollisionShape* collider{node_->CreateComponent<CollisionShape>()};
     collider->SetSphere(2.0f);
     collider->SetPosition(Vector3::UP * 0.23f);
@@ -101,9 +103,7 @@ void Enemy::Set(const Vector3 position)
     particleEmitter_->RemoveAllParticles();
     SceneObject::Set(position);
     MC->arena_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Enemy, HandleSceneUpdate));
-    SubscribeToEvent(node_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Enemy, HandleCollision));
-    SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Enemy, HandleCollision));
+    SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Enemy, HandleNodeCollision));
 
     soundSource_->Stop();
 }
@@ -133,12 +133,15 @@ void Enemy::CheckHealth()
     //Die
     if (node_->IsEnabled() && health_ <= 0.0f) {
         if (lastHitBy_ != 0)
-//            MC->GetPlayer(lastHitBy_)->AddScore(bonus_ ? worth_ : 2 * worth_ / 3);
+            MC->GetPlayer(lastHitBy_)->AddScore(bonus_ ? worth_ : 2 * worth_ / 3);
 
-        GetSubsystem<SpawnMaster>()->SpawnExplosion(node_->GetPosition(),
-                                                     Color(color_.r_*color_.r_, color_.g_*color_.g_, color_.b_*color_.b_),
-                                                     0.5f*rigidBody_->GetMass(),
-                                                     lastHitBy_);
+        Explosion* explosion{ GetSubsystem<SpawnMaster>()->Create<Explosion>() };
+        explosion->Set(node_->GetPosition(),
+                       Color(color_.r_ * color_.r_,
+                             color_.g_ * color_.g_,
+                             color_.b_ * color_.b_),
+                       0.5f * rigidBody_->GetMass(),
+                       lastHitBy_);
         Disable();
     }
 }
@@ -150,15 +153,14 @@ void Enemy::Disable()
 
 Color Enemy::GetGlowColor() const
 {
-    float factor{(Sin(200.0f*(MC->scene_->GetElapsedTime()+panicTime_))*(0.25f+panic_*0.25f)+(panic_*0.5f))};
+    float factor{(Sin(200.0f * (MC->scene_->GetElapsedTime() + panicTime_)) * (0.25f + panic_ * 0.25f) + (panic_ * 0.5f))};
     factor *= factor * 2.0f;
     return color_ * factor;
 }
 
-void Enemy::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
+void Enemy::Update(float timeStep)
 {
     float time{MC->scene_->GetElapsedTime() + node_->GetID() * 0.023f};
-    float timeStep{eventData[SceneUpdate::P_TIMESTEP].GetFloat()};
     panicTime_ += 3.0f * panic_ * timeStep;
     sinceLastWhack_ += timeStep;
 
@@ -170,12 +172,19 @@ void Enemy::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     centerNode_->Rotate(Quaternion((1.0f + panic_) * timeStep * 333.0f, Vector3::UP));
 }
 
-void Enemy::HandleCollision(StringHash eventType, VariantMap &eventData)
-{
-    PODVector<RigidBody*> collidingBodies{};
-    rigidBody_->GetCollidingBodies(collidingBodies);
+void Enemy::HandleNodeCollision(StringHash eventType, VariantMap &eventData)
+{ (void)eventType;
 
-/*    if (sinceLastWhack_ > whackInterval_) {
+    Ship* ship{ static_cast<Node*>(eventData[NodeCollision::P_OTHERNODE].GetPtr())->GetComponent<Ship>() };
+    if (ship && sinceLastWhack_ > whackInterval_) {
+
+        ship->Hit(meleeDamage_, true);
+        sinceLastWhack_ = 0.0f;
+
+    }
+//    PODVector<RigidBody*> collidingBodies{};
+//    rigidBody_->GetCollidingBodies(collidingBodies);
+/*
         for (RigidBody* r : collidingBodies) {
             StringHash otherNameHash = r->GetNode()->GetNameHash();
             if (otherNameHash == N_PLAYER) {
@@ -188,7 +197,6 @@ void Enemy::HandleCollision(StringHash eventType, VariantMap &eventData)
                 GetSubsystem<SpawnMaster>()->SpawnHitFX(
                             (hitPlayer->GetPosition() + GetPosition()) * 0.5f, 0, false);
             }
-            sinceLastWhack_ = 0.0f;
         }
     }*/
 }

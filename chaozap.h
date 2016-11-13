@@ -31,13 +31,12 @@ class ChaoZap : public SceneObject
 public:
     ChaoZap(Context* context);
     static void RegisterObject(Context* context);
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
+    virtual void Update(float timeStep);
     void Set(const Vector3 position, int playerID);
     virtual void OnNodeSet(Node* node);
 protected:
     void Disable();
 private:
-    int playerID_;
     const float size_;
     RigidBody* rigidBody_;
     StaticModel* chaoModel_;

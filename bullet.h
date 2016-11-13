@@ -52,7 +52,7 @@ protected:
     SharedPtr<RigidBody> rigidBody_;
     SharedPtr<StaticModel> model_;
 
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
+    void Update(float timeStep);
 private:
     int playerID_;
     float age_ = 0.0f;

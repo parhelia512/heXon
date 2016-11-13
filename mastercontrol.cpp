@@ -50,6 +50,7 @@
 #include "door.h"
 #include "highest.h"
 #include "phaser.h"
+#include "gui3d.h"
 
 URHO3D_DEFINE_APPLICATION_MAIN(MasterControl);
 
@@ -80,16 +81,17 @@ void MasterControl::Setup()
     engineParameters_["WindowIcon"] = "icon.png";
 
     //Add resource path
-    Vector<String> resourcePaths{};
+//    Vector<String> resourcePaths{};
 //    resourcePaths.Push(FILES->GetAppPreferencesDir("luckey", "hexon"));
-    resourcePaths.Push(String("Resources"));
+    engineParameters_["ResourcePaths"] = "Resources;Data;CoreData";
+    /*resourcePaths.Push(String("Resources"));
     resourcePaths.Push(String("../heXon/Resources"));
 
     for (String path : resourcePaths)
         if (FILES->DirExists(path)){
             engineParameters_["ResourcePaths"] = path;
             break;
-        }
+        }*/
     engineParameters_["VSync"] = true;
 //    engineParameters_["FullScreen"] = false;
 //    engineParameters_["Headless"] = true;
@@ -122,6 +124,7 @@ void MasterControl::Start()
     Bullet::RegisterObject(context_);
     Muzzle::RegisterObject(context_);
     Phaser::RegisterObject(context_);
+    GUI3D::RegisterObject(context_);
 
     ChaoFlash::RegisterObject(context_);
     ChaoMine::RegisterObject(context_);
@@ -333,26 +336,29 @@ void MasterControl::EnterGameState()
     switch (currentState_) {
     case GS_INTRO : break;
     case GS_LOBBY : {
-        lobby_->EnterLobbyState();
-//        GetPlayer(1)->EnterLobby();
-//        GetPlayer(2)->EnterLobby();
-        musicSource_->Play(menuMusic_);
-//        lobby_->SetEnabledRecursive(true);
-//        lobby_->SetPosition((Vector3::DOWN * 23.0f) / (128.0f * sinceStateChange_+23.0f));
-
+        lobby_->EnterLobby();
+        arena_->EnterLobby();
         world.camera->EnterLobby();
         GetSubsystem<SpawnMaster>()->Clear();
 
-        arena_->EnterLobbyState();
-//        highestNode_->SetEnabledRecursive(highestScore_ != 0);
-//        highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f) * static_cast<float>(highestScore_ != 0));
+        PODVector<Node*> shipNodes{};
+        scene_->GetChildrenWithComponent<Ship>(shipNodes);
+        for (Node* n : shipNodes){
+            n->GetComponent<Ship>()->EnterLobby();
+        }
 
-//        apple_->Disable();
-//        heart_->Disable();
-//        chaoBall_->Disable();
+        for (Player* player : players_){
+            player->EnterLobby();
+        }
+
+        musicSource_->Play(menuMusic_);
+
+        apple_->Disable();
+        heart_->Disable();
+        chaoBall_->Disable();
     } break;
     case GS_PLAY : {
-        lobby_->EnterPlayState();
+        lobby_->EnterPlay();
         musicSource_->Play(gameMusic_);
         world.camera->EnterPlay();
 
@@ -363,6 +369,14 @@ void MasterControl::EnterGameState()
         world.lastReset = scene_->GetElapsedTime();
         GetSubsystem<SpawnMaster>()->Restart();
         arena_->EnterPlayState();
+
+        for (Controllable* c : GetSubsystem<InputMaster>()->GetControllables())
+        {
+            c->EnterPlay();
+        }
+        for (Player* player : players_){
+            player->EnterPlay();
+        }
     } break;
     case GS_DEAD : {
         GetSubsystem<SpawnMaster>()->Deactivate();
@@ -400,10 +414,17 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
     case GS_LOBBY: {
 
 
+        PODVector<Node*> doorNodes{};
+        scene_->GetChildrenWithComponent<Door>(doorNodes, true);
+        bool allHidden{ true };
+        for (Node* n : doorNodes){
+            if (!n->GetComponent<Door>()->HidesPilot())
+                allHidden = false;
+        }
+        if (allHidden){
+                Exit();
+        }
 
-//        if (door1_->HidesPlayer() > 0.5f && door2_->HidesPlayer() > 0.5f){
-//                Exit();
-//        }
         bool allReady{ true };
         for (Controllable* c : GetSubsystem<InputMaster>()->GetControllables()) {
 
@@ -500,15 +521,36 @@ float MasterControl::SinePhase(float freq, float shift)
 }
 
 
-Player* MasterControl::GetPlayer(int playerID, bool other) const
+Player* MasterControl::GetPlayer(int playerID) const
 {
-    if (!other)
-        return playerID == 1 ? player1_ : player2_;
-    else
-        return playerID != 1 ? player1_ : player2_;
+    for (Player* p : players_) {
+
+        if (p->GetPlayerID() == playerID)
+            return p;
+    }
+    return nullptr;
+}
+Player* MasterControl::GetNearestPlayer(Vector3 pos)
+{
+    Player* nearest{};
+    for (Player* p : players_){
+        if (p->IsAlive()){
+
+            if (!nearest
+            || (Distance(GetSubsystem<InputMaster>()->GetControllableByPlayer(p->GetPlayerID())->GetPosition(), pos) <
+                Distance(GetSubsystem<InputMaster>()->GetControllableByPlayer(nearest->GetPlayerID())->GetPosition(), pos)))
+            {
+                nearest = p;
+            }
+        }
+    }
+    return nearest;
 }
 
 bool MasterControl::NoHumans()
 {
-//    return !GetPlayer(1)->IsHuman() && !GetPlayer(2)->IsHuman();
+    for (Player* p : players_)
+        if (p->IsHuman())
+            return false;
+    return true;
 }

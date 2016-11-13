@@ -39,6 +39,9 @@ public:
     ChaoBall(Context* context);
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
+    virtual void Update(float timeStep);
+    virtual void Deactivate();
+
 };
 
 #endif // CHAOBALL_H

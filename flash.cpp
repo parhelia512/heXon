@@ -47,15 +47,14 @@ void Flash::OnNodeSet(Node *node)
     light_->SetBrightness(initialBrightness_);
 }
 
-void Flash::UpdateFlash(StringHash eventType, VariantMap &eventData)
+void Flash::Update(float timeStep)
 {
+    Effect::Update(timeStep);
     light_->SetBrightness(Max(initialBrightness_*(0.25f - age_)/0.25f,0.0f));
 }
 
 void Flash::Set(const Vector3 position, bool big)
 {
-    SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(Flash, UpdateFlash));
-
     if (big && particleEmitter_->GetEffect() != bigFlash_){
         particleEmitter_->SetEffect(bigFlash_);
     } else if (!big && particleEmitter_->GetEffect() != smallFlash_){

@@ -63,7 +63,7 @@ class InputMaster : public Object
 public:
     InputMaster(Context* context);
     void SetPlayerControl(int player, Controllable* controllable);
-    int  GetPlayerByControllable(Controllable* controllable);
+    Player *GetPlayerByControllable(Controllable* controllable);
     Controllable*  GetControllableByPlayer(int playerId);
     Vector<Controllable*>  GetControllables() { return controlledByPlayer_.Values(); }
 private:

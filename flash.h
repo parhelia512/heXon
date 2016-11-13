@@ -42,7 +42,7 @@ public:
 
     SharedPtr<Light> light_;
 
-    void UpdateFlash(StringHash eventType, VariantMap &eventData);
+    virtual void Update(float timeStep);
     void Set(const Vector3 position, bool big);
     void Disable();
 private:

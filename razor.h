@@ -30,9 +30,10 @@ public:
     Razor(Context* context);
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
+    virtual void Update(float timeStep);
 
-    void Hit(float damage, int ownerID);
-    void Set(Vector3 position);
+    virtual void Hit(float damage, int ownerID);
+    virtual void Set(Vector3 position);
 protected:
     float topSpeed_;
     float aimSpeed_;
@@ -44,7 +45,6 @@ protected:
     Vector2 textureOffset;
     Vector2 textureOffsetDelta;
 
-    void HandleRazorUpdate(StringHash eventType, VariantMap &eventData);
 };
 
 #endif // RAZOR_H

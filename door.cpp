@@ -18,6 +18,7 @@
 
 #include "door.h"
 #include "pilot.h"
+#include "inputmaster.h"
 
 void Door::RegisterObject(Context *context)
 {
@@ -82,9 +83,11 @@ void Door::Close(StringHash eventType, VariantMap& eventData)
     open_ = false;
 }
 
-float Door::HidesPilot() const
+bool Door::HidesPilot() const
 {
-    return hiding_;
+    return model_->GetMorphWeight(0) < 0.0023f
+            && GetSubsystem<InputMaster>()->GetControllableByPlayer(node_->GetPosition().x_ < 0.0f ? 1 : 2)
+               ->GetPosition().z_ > (node_->GetPosition().z_ + 0.5f);
 }
 
 void Door::Update(float timeStep)

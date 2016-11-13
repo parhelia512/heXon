@@ -97,7 +97,7 @@ void Arena::EnterPlayState()
         t->lastOffsetY_ = 2.3f;
     }
 }
-void Arena::EnterLobbyState()
+void Arena::EnterLobby()
 {
     targetPosition_ = Vector3::UP * 0.35f;
     targetScale_ = Vector3::ONE * 0.05f;
@@ -135,7 +135,7 @@ void Arena::HandleUpdate(StringHash eventType, VariantMap& eventData)
 Tile* Arena::GetRandomTile()
 {
     if (tiles_.Size()){
-        Tile* tile;
+        Tile* tile{ nullptr };
         while (!tile) {
             Tile* tryTile{ tiles_[Random((int)tiles_.Size())] };
             PODVector<PhysicsRaycastResult> hitResults;

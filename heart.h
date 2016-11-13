@@ -39,6 +39,7 @@ public:
     Heart(Context* context);
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
+    virtual void Update(float timeStep);
 };
 
 #endif // HEART_H

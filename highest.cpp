@@ -85,5 +85,13 @@ void Highest::OnNodeSet(Node *node)
 
 }
 
-
-
+void Highest::EnterLobby()
+{
+    node_->SetEnabledRecursive(highestScore_ != 0);
+    highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f) * static_cast<float>(highestScore_ != 0));
+}
+void Highest::EnterPlay()
+{
+    node_->SetEnabledRecursive(false);
+    highestScoreText_->SetColor(Color(0.13f, 0.666f, 1.0f, 0.55f) * static_cast<float>(highestScore_ != 0));
+}

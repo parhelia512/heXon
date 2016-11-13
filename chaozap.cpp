@@ -28,7 +28,6 @@ void ChaoZap::RegisterObject(Context *context)
 
 ChaoZap::ChaoZap(Context* context):
     SceneObject(context),
-    playerID_{0},
     size_{5.0f}
 {
 }
@@ -36,6 +35,8 @@ ChaoZap::ChaoZap(Context* context):
 void ChaoZap::OnNodeSet(Node *node)
 {
     SceneObject::OnNodeSet(node);
+
+    blink_ = false;
 
     node_->SetName("ChaoZap");
     node_->SetEnabled(false);
@@ -55,12 +56,10 @@ void ChaoZap::OnNodeSet(Node *node)
 
 }
 
-void ChaoZap::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
+void ChaoZap::Update(float timeStep)
 {
     if (!IsPlayingSound()) Disable();
     if (!IsEnabled()) return;
-
-    float timeStep{eventData[Update::P_TIMESTEP].GetFloat()};
 
     Color chaoColor{chaoMaterial_->GetShaderParameter("MatDiffColor").GetColor()};
     rigidBody_->SetMass(chaoColor.a_);
@@ -77,44 +76,38 @@ void ChaoZap::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
     node_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
 }
 
-void ChaoZap::Set(const Vector3 position, int playerID)
+void ChaoZap::Set(const Vector3 position, int playerId)
 {
-    playerID_ = playerID;
     SceneObject::Set(position);
+
     node_->SetScale(size_);
+    chaoMaterial_->SetShaderParameter("MatDiffColor", Color(0.1f, 0.5f, 0.2f, 0.5f));
     rigidBody_->SetMass(size_ * 0.5f);
     PlaySample(samples_[ Random(static_cast<int>(samples_.Size())) ], 0.75f);
-    PODVector<RigidBody* > hitResults{};
-    node_->SetEnabled(true);
-    chaoMaterial_->SetShaderParameter("MatDiffColor", Color(0.1f, 0.5f, 0.2f, 0.5f));
 
+    PODVector<RigidBody*> hitResults{};
     if (MC->PhysicsSphereCast(hitResults,node_->GetPosition(), size_, M_MAX_UNSIGNED)) {
         for (RigidBody* r : hitResults) {
-            unsigned hitID{r->GetNode()->GetID()};
+            Node* hitNode{ r->GetNode() };
 
-            if(GetSubsystem<SpawnMaster>()->spires_.Contains(hitID)) {
-                WeakPtr<Spire> spire{GetSubsystem<SpawnMaster>()->spires_[hitID]};
-                spire->Hit(spire->GetHealth(), 1);
-//                MC->GetPlayer(playerID)->AddScore(Random(23, 42));
-            }
-            else if(GetSubsystem<SpawnMaster>()->razors_.Contains(hitID)) {
-                WeakPtr<Razor> razor{GetSubsystem<SpawnMaster>()->razors_[hitID]};
-                razor->Hit(razor->GetHealth(), 1);
-//                MC->GetPlayer(playerID)->AddScore(Random(5, 23));
-            }
-            else if(GetSubsystem<SpawnMaster>()->seekers_.Contains(hitID)) {
-                WeakPtr<Seeker> seeker{GetSubsystem<SpawnMaster>()->seekers_[hitID]};
-                seeker->Disable();
-//                MC->GetPlayer(playerID)->AddScore(Random(2, 3));
+            if (hitNode->HasComponent<Seeker>()){
+
+                MC->GetPlayer(playerId)->AddScore(Random(2, 3));
+                hitNode->GetComponent<Seeker>()->Disable();
+
+            } else for (Component* c : hitNode->GetComponents()) {
+                if (c->IsInstanceOf<Enemy>()){
+
+                    Enemy* e{ static_cast<Enemy*>(c) };
+                    MC->GetPlayer(playerId)->AddScore(Random(2, 3) * e->GetWorth());
+                    e->Hit(e->GetHealth(), playerId);
+                }
             }
         }
     }
-
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(ChaoZap, HandleSceneUpdate));
 }
 
 void ChaoZap::Disable()
 {
-    UnsubscribeFromEvent(E_SCENEUPDATE);
     SceneObject::Disable();
 }

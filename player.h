@@ -22,6 +22,9 @@
 #include <Urho3D/Urho3D.h>
 #include "luckey.h"
 
+class GUI3D;
+class Ship;
+
 class Player : public Object
 {
     URHO3D_OBJECT(Player, Object);
@@ -30,30 +33,33 @@ public:
 //    static void RegisterObject(Context* context);
 //    virtual void OnNodeSet(Node* node);
 
-    int GetPlayerID() const { return playerID_; }
+    Vector3 GetPosition();
+    Ship *GetShip();
+
+    int GetPlayerID() const { return playerId_; }
     void AddScore(int points);
+    unsigned GetScore() const { return score_; }
+    void Die();
+    void Respawn();
     void ResetScore();
+
+    bool IsAlive() const noexcept { return alive_; }
+    bool IsHuman() const noexcept { return !autoPilot_; }
+    void EnterLobby();
+    void EnterPlay();
 
     /*
     unsigned GetRootNodeID() const { return node_->GetID(); }
     Vector3 GetWorldPosition() const { return node_->GetWorldPosition(); }
     void SetPosition(Vector3 pos);
     double GetHealth() const noexcept { return health_; }
-    bool IsAlive() const noexcept { return alive_; }
     bool IsActive() const noexcept { return alive_ && IsEnabled(); }
-    bool IsHuman() const noexcept { return !autoPilot_; }
     bool IsMoving() const { return rigidBody_->GetLinearVelocity().Length() > 0.01f; }
     void Hit(float damage, bool melee = true);
 
     void Eject();
-    void Die();
-    unsigned GetScore() const { return score_; }
     unsigned GetFlightScore() const { return flightScore_; }
-    void Pickup(PickupType pickup);
-    void UpgradeWeapons();
-    void ChargeShield();
 
-    void EnterLobby();
     void EnterPlay();
     void CreateNewPilot();
     void UpdateGUI(float timeStep);
@@ -62,17 +68,22 @@ public:
     void KillPilot();
     void SavePilot();*/
 
+    GUI3D* gui3d_;
 private:
-    int playerID_;
+    int playerId_;
     bool autoPilot_;
+    bool alive_;
 
+    unsigned score_;
+    unsigned flightScore_;
+    int multiplier_;
+
+
+    void SetScore(int points);
     /*
     bool pilotMode_;
     Vector3 autoMove_;
     Vector3 autoFire_;
-    bool alive_;
-    int appleCount_;
-    int heartCount_;
 
 
     SharedPtr<Pilot> pilot_;
@@ -115,9 +126,7 @@ private:
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void Shoot(Vector3 fire);
     void FireBullet(Vector3 direction);
-    void SetHealth(float health);
     Color HealthToColor(float health);
-    void SetScore(int points);
     void CreateGUI();
     void SetPilotMode(bool pilotMode);
     void MoveMuzzle();

@@ -54,10 +54,8 @@ void Bullet::OnNodeSet(Node *node)
     light->SetColor( playerID_ == 2 ? Color(1.0f + damage_, 0.6f, 0.2f) : Color(0.6f, 1.0f+damage_, 0.2f));
 }
 
-void Bullet::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
+void Bullet::Update(float timeStep)
 {
-    float timeStep = eventData[Update::P_TIMESTEP].GetFloat();
-
     age_ += timeStep;
     node_->SetScale(Vector3(Max(1.75f - 10.0f*age_, 1.0f+damage_),
                                 Max(1.75f - 10.0f*age_, 1.0f+damage_),
@@ -79,7 +77,6 @@ void Bullet::Set(const Vector3 position)
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();
     SceneObject::Set(position);
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Bullet, HandleSceneUpdate));
 }
 
 void Bullet::Disable()
@@ -95,19 +92,18 @@ void Bullet::HitCheck(float timeStep) {
         Ray bulletRay(node_->GetPosition() - rigidBody_->GetLinearVelocity()*timeStep, node_->GetDirection());
         if (MC->PhysicsRayCast(hitResults, bulletRay, 2.3f * rigidBody_->GetLinearVelocity().Length() * timeStep, M_MAX_UNSIGNED)){
             for (PhysicsRaycastResult h : hitResults){
-                if (!h.body_->IsTrigger()){// && h.body_->GetNode()->GetNameHash() != N_PLAYER){
+                if (!h.body_->IsTrigger()){
+                    //Add effect
                     h.body_->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.05f);
-                    GetSubsystem<SpawnMaster>()->SpawnHitFX(h.position_, playerID_);
+                    HitFX* hitFx{ GetSubsystem<SpawnMaster>()->Create<HitFX>() };
+                    hitFx->Set(h.position_, playerID_, true);
+
                     //Deal damage
-                    unsigned hitID = h.body_->GetNode()->GetID();
-                    if(GetSubsystem<SpawnMaster>()->spires_.Keys().Contains(hitID)){
-                        GetSubsystem<SpawnMaster>()->spires_[hitID]->Hit(damage_, playerID_);
-                    }
-                    else if(GetSubsystem<SpawnMaster>()->razors_.Keys().Contains(hitID)){
-                        GetSubsystem<SpawnMaster>()->razors_[hitID]->Hit(damage_, playerID_);
-                    }
-                    else if(GetSubsystem<SpawnMaster>()->chaoMines_.Keys().Contains(hitID)){
-                        GetSubsystem<SpawnMaster>()->chaoMines_[hitID]->Hit(damage_, playerID_);
+                    for (Component* c : h.body_->GetNode()->GetComponents()){
+                        if (c->IsInstanceOf<Enemy>()){
+                            Enemy* e{ static_cast<Enemy*>(c) };
+                                e->Hit(damage_, playerID_);
+                            }
                     }
                     Disable();
                 }

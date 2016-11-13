@@ -41,8 +41,10 @@ public:
     void Disable();
 
     Vector3 GetPosition() const { return node_->GetPosition(); }
-    bool IsEmerged() const { return GetPosition().y_ > -0.1f; }
+    bool IsEmerged() const { return GetPosition().y_ > -0.042f; }
     bool IsEnabled() const { return node_->IsEnabled(); }
+
+    void PlaySample(Sound *sample, const float gain = 0.5f);
 protected:
     bool blink_;
     bool big_;
@@ -52,7 +54,6 @@ protected:
 
     void Emerge(const float timeStep);
 
-    void PlaySample(Sound *sample, const float gain = 0.5f);
     bool IsPlayingSound();
     void StopAllSound();
 
