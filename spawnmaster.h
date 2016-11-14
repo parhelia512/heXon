@@ -34,7 +34,7 @@
 #include "bubble.h"
 #include "line.h"
 
-#define CHAOINTERVAL 1.0f//Random(23.0f, 100.0f)
+#define CHAOINTERVAL Random(23.0f, 100.0f)
 
 
 class SpawnMaster : public Object
@@ -59,17 +59,19 @@ public:
     Vector3 SpawnPoint();
     void ChaoPickup() { sinceLastChaoPickup_ = 0.0f; }
 
-    template <class T> T* Create()
+    template <class T> T* Create(bool recycle = true)
     {
         T* created{ nullptr };
 
-        PODVector<Node*> correctType{};
-        MC->scene_->GetChildrenWithComponent<T>(correctType);
-        for (Node* n : correctType) {
+        if (recycle) {
+            PODVector<Node*> correctType{};
+            MC->scene_->GetChildrenWithComponent<T>(correctType);
+            for (Node* n : correctType) {
 
-            if (!n->IsEnabled()) {
-                created = n->GetComponent<T>();
-                break;
+                if (!n->IsEnabled()) {
+                    created = n->GetComponent<T>();
+                    break;
+                }
             }
         }
         if(!created) {
@@ -113,7 +115,6 @@ private:
     float chaoInterval_;
 
     Vector3 BubbleSpawnPoint();
-    Vector3 LineSpawnPoint(int playerID);
 
     void Activate();
     void Deactivate();

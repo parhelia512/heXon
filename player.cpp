@@ -41,12 +41,12 @@
 
 Player::Player(int playerId, Context* context): Object(context),
     playerId_{playerId},
-//    autoPilot_{playerID_ == 2 && !GetSubsystem<Input>()->GetJoystickByIndex(playerID-1)},
-    autoPilot_{false},
+    autoPilot_{playerId_ == 2 && !GetSubsystem<Input>()->GetJoystickByIndex(playerId_-1)},
+//    autoPilot_{false},
 //    autoPilot_{true},
 //    autoMove_{Vector3::ZERO},
 //    autoFire_{Vector3::ZERO},
-    alive_{true},
+    alive_{false},
 //    appleCount_{0},
 //    heartCount_{0},
 
@@ -92,7 +92,7 @@ void Player::EnterLobby()
             GetSubsystem<InputMaster>()->SetPlayerControl(playerId_, pilot);
             if (!alive_){
                 pilot->Revive();
-            }
+            } else pilot->EnterLobbyFromShip();
         }
     }
 

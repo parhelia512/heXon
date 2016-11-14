@@ -36,8 +36,9 @@ public:
 
     Vector3 GetPosition() const { return node_->GetPosition(); }
     bool IsIdle() const;
+    int GetPlayerId() const { return playerId_; }
 private:
-    Player* player_;
+    int playerId_;
     Node* pillarNode_;
     Node* bloodNode_;
     Node* particleNode_;

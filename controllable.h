@@ -25,7 +25,6 @@
 #include <bitset>
 
 #define INPUTMASTER GetSubsystem<InputMaster>()
-#define PLAYER GetSubsystem<InputMaster>()->GetPlayerByControllable(this)
 
 class Controllable : public SceneObject
 {
@@ -41,6 +40,9 @@ public:
     virtual void ClearControl();
 
     virtual void EnterPlay() {}
+    virtual void Think() {}
+
+    Player* GetPlayer();
 protected:
 //    float randomizer_;
     bool controlled_;

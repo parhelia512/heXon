@@ -36,9 +36,10 @@ public:
     Vector3 GetPosition();
     Ship *GetShip();
 
-    int GetPlayerID() const { return playerId_; }
+    int GetPlayerId() const { return playerId_; }
     void AddScore(int points);
     unsigned GetScore() const { return score_; }
+    unsigned GetFlightScore() const { return flightScore_; }
     void Die();
     void Respawn();
     void ResetScore();
@@ -80,6 +81,7 @@ private:
 
 
     void SetScore(int points);
+    Vector3 Sniff(float playerFactor, bool taste);
     /*
     bool pilotMode_;
     Vector3 autoMove_;

@@ -54,7 +54,7 @@ void Effect::Set(const Vector3 position)
 {
     SceneObject::Set(position);
     age_ = 0.0f;
-    ParticleEffect* effect{particleEmitter_->GetEffect()};
+    ParticleEffect* effect{ particleEmitter_->GetEffect()};
     if (effect) {
         particleEmitter_->RemoveAllParticles();
         particleEmitter_->SetEmitting(true);

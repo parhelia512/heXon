@@ -39,12 +39,12 @@ public:
 
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
+    virtual void Update(float timeStep);
+    virtual void Set(Model* model, const Vector3 position, const Vector3 velocity);
 private:
     SharedPtr<Material> phaseMaterial_;
     Vector3 velocity_;
-    Vector<SharedPtr<StaticModel>> staticModels_;
-    void SetMaterial();
-    void HandlePostUpdate(StringHash eventType, VariantMap &eventData);
+    SharedPtr<StaticModel> staticModel_;
 };
 
 #endif // PHASER_H

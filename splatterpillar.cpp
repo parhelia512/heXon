@@ -27,7 +27,7 @@ void SplatterPillar::RegisterObject(Context *context)
 
 SplatterPillar::SplatterPillar(Context* context):
     LogicComponent(context),
-    player_{},
+    playerId_{0},
     spun_{false},
     reset_{true},
     lastTriggered_{-5.0f},
@@ -41,6 +41,8 @@ SplatterPillar::SplatterPillar(Context* context):
 
 void SplatterPillar::OnNodeSet(Node *node)
 { (void)node;
+
+    playerId_ = node_->GetPosition().x_ < 0.0f ? 1 : 2;
 
     node_->Rotate(Quaternion(Random(6) * 60.0f, Vector3::UP));
     pillarNode_ = node_->CreateChild("Pillar");

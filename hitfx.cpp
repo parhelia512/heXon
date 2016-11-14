@@ -24,7 +24,8 @@ void HitFX::RegisterObject(Context *context)
 }
 
 HitFX::HitFX(Context* context):
-    Effect(context)
+    Effect(context),
+    sample_{MC->GetSample("Hit")}
 {
 }
 
@@ -32,11 +33,7 @@ void HitFX::OnNodeSet(Node *node)
 {
     Effect::OnNodeSet(node);
 
-    node_->SetName("HitFX");
     particleEmitter_ = node_->CreateComponent<ParticleEmitter>();
-
-    sample_ = MC->GetSample("Hit");
-    sample_->SetLooped(false);
 }
 
 void HitFX::Set(const Vector3 position, int playerID, const bool sound)

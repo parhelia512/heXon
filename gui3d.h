@@ -56,6 +56,7 @@ private:
     Node* heartCounterRoot_;
     HashMap< int, Node* > heartCounter_;
     Color HealthToColor(float health);
+    void CountScore();
 };
 
 #endif // GUI3D_H

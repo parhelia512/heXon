@@ -138,7 +138,6 @@ public:
 
     bool PhysicsRayCast(PODVector<PhysicsRaycastResult> &hitResults, Urho3D::Ray ray, const float distance, const unsigned collisionMask = M_MAX_UNSIGNED);
     bool PhysicsSphereCast(PODVector<RigidBody*> &hitResults, Vector3 center, const float radius, const unsigned collisionMask = M_MAX_UNSIGNED);
-    void StartGame();
 
     void Eject();
     bool NoHumans();
@@ -146,6 +145,22 @@ public:
 
     float Sine(const float freq, const float min, const float max, const float shift = 0.0f);
     float Cosine(const float freq, const float min, const float max, const float shift = 0.0f);
+
+    template <class T> Vector<T*> GetNodesWithComponent()
+    {
+        PODVector<Node*> matchingNodes;
+
+        scene_->GetChildrenWithComponent<T>(matchingNodes, true);
+
+        Vector<T*> matchingComponents{};
+        for (Node* n : matchingNodes)
+            matchingComponents.Push(n->GetComponent<T>());
+
+        return matchingComponents;
+    }
+
+    bool AllReady(bool onlyHuman);
+
 private:
     static MasterControl* instance_;
 

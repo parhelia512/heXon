@@ -16,8 +16,10 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "phaser.h"
+#include "inputmaster.h"
 #include "player.h"
+
+#include "phaser.h"
 
 void Phaser::RegisterObject(Context *context)
 {
@@ -26,47 +28,44 @@ void Phaser::RegisterObject(Context *context)
 
 Phaser::Phaser(Context* context) : Effect(context),
     phaseMaterial_{MC->GetMaterial("Phase")->Clone()},
-    staticModels_{}
-//    velocity_{vel}
+    staticModel_{},
+    velocity_{}
 {
 }
 
 void Phaser::OnNodeSet(Node *node)
-{/*
+{
     Effect::OnNodeSet(node);
 
     node_->SetName("Phaser");
-    Set(pos);
-    node_->LookAt(pos+vel);
-
-    staticModels_.Push(SharedPtr<StaticModel>(node_->CreateComponent<StaticModel>()));
-    staticModels_[0]->SetModel(model);
-
-    SetMaterial();
-
-    SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(Phaser, HandlePostUpdate));
-*/}
-
-void Phaser::SetMaterial()
-{
-    for (StaticModel* m : staticModels_)
-        m->SetMaterial(phaseMaterial_);
+    staticModel_ = node_->CreateComponent<StaticModel>();
 }
 
-void Phaser::HandlePostUpdate(StringHash eventType, VariantMap& eventData)
-{/*
-    float timeStep{eventData[PostUpdate::P_TIMESTEP].GetFloat()};
+void Phaser::Set(Model* model, const Vector3 position, const Vector3 velocity)
+{
+
+    Effect::Set(position);
+
+    velocity_ = velocity;
+    node_->LookAt(position+velocity);
+
+    staticModel_->SetModel(model);
+    staticModel_->SetMaterial(phaseMaterial_);
+}
+
+void Phaser::Update(float timeStep)
+{
+    Effect::Update(timeStep);
+
     node_->Translate(velocity_ * timeStep, TS_WORLD);
     phaseMaterial_->SetShaderParameter("Dissolve", age_ * 2.3f);
     if (age_ > 2.0f){
+
         Disable();
-        if (!MC->GetPlayer(1)->IsEnabled() &&
-            !MC->GetPlayer(2)->IsEnabled() &&
-            MC->GetGameState() != GS_LOBBY)
-        {
-            MC->SetGameState(GS_LOBBY);
-        }
-        node_->Remove();
-        delete this;
+        for (Controllable* c : GetSubsystem<InputMaster>()->GetControllables())
+            if (c->IsEnabled())
+                return;
+
+        MC->SetGameState(GS_LOBBY);
     }
-*/}
+}

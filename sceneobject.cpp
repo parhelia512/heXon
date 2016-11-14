@@ -48,6 +48,10 @@ void SceneObject::Set(const Vector3 position)
     if (blink_)
         SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(SceneObject, BlinkCheck));
 }
+void SceneObject::Set(const Vector3 position, const Quaternion rotation){
+    node_->SetRotation(rotation);
+    Set(position);
+}
 
 void SceneObject::Disable()
 {

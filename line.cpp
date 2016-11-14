@@ -32,6 +32,8 @@ Line::Line(Context* context) :
 void Line::OnNodeSet(Node *node)
 { (void)node;
 
+    Effect::OnNodeSet(node_);
+
     node_->SetName("Line");
     node_->SetScale(baseScale_);
     model_ = node_->CreateComponent<StaticModel>();
@@ -51,8 +53,12 @@ void Line::Update(float timeStep)
     node_->SetScale(Max(node_->GetScale().x_ - timeStep, 0.0f));
 }
 
-void Line::Set(const Vector3 position, int playerID)
+void Line::Set(int playerID)
 {
+    Vector3 position{ Quaternion(( Random(2) + (playerID == 2 ? 1 : -2) ) * 60.0f, Vector3::UP) *
+            (Vector3::FORWARD * Random(23.0f, 42.0f) + Vector3::RIGHT * Random(-13.0f, 13.0f))
+            + Vector3::DOWN * (23.0f + Random(46.0f)) };
+
     Effect::Set(position);
     model_->SetMaterial(playerID == 2
                         ? MC->GetMaterial("PurpleBullet")

@@ -16,10 +16,15 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#include "spawnmaster.h"
+#include "line.h"
+
 #include "gui3d.h"
 
 
 GUI3D::GUI3D(Context* context) : LogicComponent(context),
+    score_{0},
+    toCount_{0},
     appleCount_{0},
     heartCount_{0}
 {
@@ -104,6 +109,8 @@ void GUI3D::Initialize(int playerId)
 
 void GUI3D::Update(float timeStep)
 {
+    CountScore();
+
     for (int i{0}; i < 4; ++i){
         appleCounter_[i]->Rotate(Quaternion(0.0f, (i * i + 10.0f) * 23.0f * timeStep, 0.0f));
         appleCounter_[i]->SetScale(MC->Sine((0.023f + (appleCount_)) * 0.5f, 0.2f, 0.4, -i * 2.3f));
@@ -137,6 +144,9 @@ void GUI3D::SetHeartsAndApples(int hearts, int apples)
 }
 void GUI3D::SetScore(unsigned score)
 {
+    if (score > score_)
+        toCount_ += score - score_;
+
     score_ = score;
     //Update score graphics
     for (int d{0}; d < 10; ++d){
@@ -147,6 +157,19 @@ void GUI3D::SetScore(unsigned score)
         scoreDigits_[d]->SetEnabled( score_ >= static_cast<unsigned>(pow(10, d)) || d == 0 );
     }
 }
+void GUI3D::CountScore()
+{
+    int threshold{ 1024 };
+    int lines{ GetSubsystem<SpawnMaster>()->CountActive<Line>() };
+
+    while (toCount_ > 0 && lines < threshold){
+        Line* line{ GetSubsystem<SpawnMaster>()->Create<Line>() };
+        line->Set(playerId_);
+        --toCount_;
+        ++lines;
+    }
+}
+
 
 void GUI3D::EnterLobby()
 {

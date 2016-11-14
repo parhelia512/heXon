@@ -31,7 +31,7 @@ public:
     virtual void OnNodeSet(Node* node);
 
     virtual void Update(float timeStep);
-    void Set(const Vector3 position, int playerID);
+    void Set(int playerID);
     void Disable();
     bool IsEnabled() { return node_->IsEnabled(); }
 private:

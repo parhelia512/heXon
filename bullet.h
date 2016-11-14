@@ -46,7 +46,7 @@ public:
     Bullet(Context* context);
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
-    void Set(const Vector3 position);
+    void Set(const Vector3 position, const int playerId, const Vector3 direction, Vector3 force, const float damage);
     int GetPlayerID() const noexcept { return playerID_; }
 protected:
     SharedPtr<RigidBody> rigidBody_;

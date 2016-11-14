@@ -69,6 +69,9 @@ void Explosion::Update(float timeStep)
         if (MC->PhysicsSphereCast(hitResults, node_->GetPosition(), radius, M_MAX_UNSIGNED)) {
 
             for (RigidBody* h : hitResults){
+                if (h->GetNode()->GetName() == "PickupTrigger")
+                    h = h->GetNode()->GetParent()->GetComponent<RigidBody>();
+
                 Vector3 hitNodeWorldPos{h->GetNode()->GetWorldPosition()};
                 if (!h->IsTrigger() && h->GetPosition().y_ > -0.1f) {
                     //positionDelta is used for force calculation
@@ -82,7 +85,7 @@ void Explosion::Update(float timeStep)
                     float damage{rigidBody_->GetMass() * timeStep};
 
                     for (Component* c : h->GetNode()->GetComponents()){
-                        if (c->IsInstanceOf<Enemy>()){
+                        if (c->IsInstanceOf<Enemy>() && !c->IsInstanceOf<ChaoMine>()){
                             Enemy* e{ static_cast<Enemy*>(c) };
                                 e->Hit(damage, playerID_);
                             }

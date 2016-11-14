@@ -19,6 +19,7 @@
 #include "inputmaster.h"
 
 #include "player.h"
+#include "ship.h"
 
 InputMaster::InputMaster(Context* context):
     Object(context)
@@ -77,7 +78,7 @@ void InputMaster::HandleUpdate(StringHash eventType, VariantMap &eventData)
     InputActions activeActions{};
     for (Player* p : MC->GetPlayers()){
 
-        int pId{ p->GetPlayerID() };
+        int pId{ p->GetPlayerId() };
         Vector<PlayerInputAction> emptyActions{};
         activeActions.player_[pId] = emptyActions;
     }
@@ -93,7 +94,7 @@ void InputMaster::HandleUpdate(StringHash eventType, VariantMap &eventData)
         //Check for player key presses
         for (Player* p : MC->GetPlayers()){
 
-            int pId{ p->GetPlayerID() };
+            int pId{ p->GetPlayerId() };
             if (keyBindingsPlayer_[pId].Contains(key)){
                 PlayerInputAction action{keyBindingsPlayer_[pId][key]};
                 if (!activeActions.player_[pId].Contains(action))
@@ -104,7 +105,7 @@ void InputMaster::HandleUpdate(StringHash eventType, VariantMap &eventData)
     //Check for joystick button presses
     for (Player* p : MC->GetPlayers()){
 
-        int pId{ p->GetPlayerID() };
+        int pId{ p->GetPlayerId() };
         for (int button : pressedJoystickButtons_[pId-1])
             if (buttonBindingsPlayer_[pId].Contains(button)){
                 PlayerInputAction action{ buttonBindingsPlayer_[pId][button]};
@@ -135,6 +136,7 @@ Player* InputMaster::GetPlayerByControllable(Controllable* controllable)
         if (controlledByPlayer_[k] == controllable)
             return MC->GetPlayer(k);
     }
+    return nullptr;
 }
 Controllable* InputMaster::GetControllableByPlayer(int playerId)
 {
@@ -161,7 +163,7 @@ void InputMaster::HandleActions(const InputActions& actions)
     //Handle player actions
     for (Player* p : MC->GetPlayers()){
 
-        int pId{ p->GetPlayerID() };
+        int pId{ p->GetPlayerId() };
         auto playerInputActions = actions.player_[pId];
 
         Controllable* controlled{ controlledByPlayer_[pId] };
@@ -205,7 +207,7 @@ void InputMaster::HandleKeyDown(StringHash eventType, VariantMap &eventData)
         PauseButtonPressed();
     } break;
     //Toggle music on M
-    case KEY_M: MC->musicSource_->SetGain(MC->musicSource_->GetGain()==0.0f ? 0.32f : 0.0f);
+    case KEY_M: MC->musicSource_->SetGain(MC->musicSource_->GetGain() == 0.0f ? 0.32f : 0.0f);
         break;
     }
 }
@@ -283,37 +285,39 @@ void InputMaster::PauseButtonPressed()
 }
 
 void InputMaster::EjectButtonPressed(int playerId)
-{/*
-    if (MC->GetGameState() == GS_DEAD)
+{
+    if (MC->GetGameState() == GS_DEAD){
         MC->SetGameState(GS_LOBBY);
+        return;
+    }
     if (MC->GetGameState() != GS_PLAY || MC->IsPaused())
         return;
 
-    Player* player1{ MC->GetPlayer(1) };
-    Player* player2{ MC->GetPlayer(2) };
+    Ship* ship1{ MC->GetPlayer(1)->GetShip() };
+    Ship* ship2{ MC->GetPlayer(2)->GetShip() };
 
     //Keyboard
     if (playerId == 0) {
-        if (player1->IsActive()){
-            player1->Eject();
-        } else if (player2->IsActive()){
-            player2->Eject();
-        }
+        if (ship1->IsEnabled()){
+            ship1->Eject();
+        } else if (ship2->IsEnabled()){
+            ship2->Eject();
+        }/*
     //Joysticks
     } else if (playerId == 1) {
-        if (player1->IsActive() && player1->IsHuman()){
-            player1->Eject();
-        } else if (player2->IsActive() && !player2->IsHuman()){
-            player2->Eject();
+        if (ship1->IsActive() && ship1->IsHuman()){
+            ship1->Eject();
+        } else if (ship2->IsActive() && !ship2->IsHuman()){
+            ship2->Eject();
         }
     } else if (playerId == 2) {
-        if (player2->IsActive() && player2->IsHuman()){
-            player2->Eject();
-        } else if (player1->IsActive() && !player1->IsHuman()){
-            player1->Eject();
-        }
+        if (ship2->IsActive() && ship2->IsHuman()){
+            ship2->Eject();
+        } else if (ship1->IsActive() && !ship1->IsHuman()){
+            ship1->Eject();
+        }*/
     }
-*/}
+}
 
 Vector3 InputMaster::GetMoveFromActions(Vector<PlayerInputAction>* actions)
 {

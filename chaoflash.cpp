@@ -80,8 +80,11 @@ void ChaoFlash::Update(float timeStep)
     chaoMaterial_->SetShaderParameter("MatSpecColor", newSpecColor);
     node_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
 
-    if (age_ > 0.16f)
-        sunMaterial_->SetShaderParameter("MatDiffColor", Color(Random(1.0f), Random(1.0f), Random(1.0f), Max(0.23f - age_, 0.0f)));
+    if (age_ > 0.13f)
+        sunMaterial_->SetShaderParameter("MatDiffColor", Color(Random(1.0f),
+                                                               Random(1.0f),
+                                                               Random(1.0f),
+                                                               Max(0.23f - age_, 0.0f)));
 
     if (age_ > 0.42f)
         Disable();
@@ -99,8 +102,8 @@ void ChaoFlash::Set(const Vector3 position, int playerId)
 
     PODVector<RigidBody* > hitResults{};
     float radius{7.666f};
-    node_->SetEnabled(true);
     chaoMaterial_->SetShaderParameter("MatDiffColor", Color(0.1f, 0.5f, 0.2f, 0.5f));
+
     if (MC->PhysicsSphereCast(hitResults, node_->GetPosition(), radius, M_MAX_UNSIGNED)){
         for (RigidBody* hitResult : hitResults){
             Node* hitNode{ hitResult->GetNode() };
@@ -108,13 +111,7 @@ void ChaoFlash::Set(const Vector3 position, int playerId)
                 hitNode = hitNode->GetParent();
 
             if (hitNode->HasComponent<Ship>()) {
-
                 ships.Push(hitNode->GetComponent<Ship>());
-
-            } else if (hitNode->HasComponent<Seeker>()){
-
-                owner->AddScore(Random(2, 3));
-                hitNode->GetComponent<Seeker>()->Disable();
 
             } else if (hitNode->HasComponent<Apple>()) {
 
@@ -122,13 +119,16 @@ void ChaoFlash::Set(const Vector3 position, int playerId)
                 hitNode->GetComponent<Apple>()->Respawn();
 
             } else if (hitNode->HasComponent<Heart>()) {
-
                 caughtHeart = true;
                 hitNode->GetComponent<Heart>()->Respawn();
-
+            //Destroy Seekers
+            } else if (hitNode->HasComponent<Seeker>()){
+                owner->AddScore(Random(2, 3));
+                hitNode->GetComponent<Seeker>()->Disable();
+            //Turn enemies into mines
             } else for (Component* c : hitNode->GetComponents()) {
-
                 if (c->IsInstanceOf<Enemy>() && !c->IsInstanceOf<ChaoMine>()){
+
                     Enemy* e{ static_cast<Enemy*>(c) };
                     ChaoMine* chaoMine{ GetSubsystem<SpawnMaster>()->Create<ChaoMine>() };
                     chaoMine->Set(e->GetPosition(), playerId);

@@ -17,6 +17,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#include "inputmaster.h"
 #include "controllable.h"
 
 Controllable::Controllable(Context* context) : SceneObject(context),
@@ -49,10 +50,17 @@ void Controllable::OnNodeSet(Node *node)
 }
 void Controllable::Update(float timeStep)
 {
-    for (int a{0}; a < static_cast<int>(actions_.size()); ++a){
+    if (!GetPlayer())
+        return;
 
-        if (actions_[a])
-            actionSince_[a] += timeStep;
+    if (GetPlayer()->IsHuman())
+        for (int a{0}; a < static_cast<int>(actions_.size()); ++a){
+
+            if (actions_[a])
+                actionSince_[a] += timeStep;
+        }
+    else {
+        Think();
     }
 }
 
@@ -121,5 +129,10 @@ void Controllable::ClampPitch(Quaternion& rot)
 void Controllable::ClearControl()
 {
     ResetInput();
+}
+
+Player *Controllable::GetPlayer()
+{
+    GetSubsystem<InputMaster>()->GetPlayerByControllable(this);
 }
 

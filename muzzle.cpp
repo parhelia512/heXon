@@ -28,18 +28,7 @@ Muzzle::Muzzle(Context* context):
 {
 }
 
-void Muzzle::OnNodeSet(Node *node)
+void Muzzle::SetColor(String color)
 {
-    node_->SetName("Muzzle");
-
-    particleEmitter_ = node_->CreateComponent<ParticleEmitter>();
-    ParticleEffect* particleEffect{};
-
-//    if (context == 2)
-//        particleEffect = CACHE->GetResource<ParticleEffect>("Particles/PurpleMuzzle.xml");
-//    else
-        particleEffect = CACHE->GetResource<ParticleEffect>("Particles/GreenMuzzle.xml");
-
-    particleEmitter_->SetEffect(particleEffect);
-
+    particleEmitter_->SetEffect(CACHE->GetResource<ParticleEffect>("Particles/"+color+"Muzzle.xml"));
 }

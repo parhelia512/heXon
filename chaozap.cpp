@@ -96,7 +96,7 @@ void ChaoZap::Set(const Vector3 position, int playerId)
                 hitNode->GetComponent<Seeker>()->Disable();
 
             } else for (Component* c : hitNode->GetComponents()) {
-                if (c->IsInstanceOf<Enemy>()){
+                if (c->IsInstanceOf<Enemy>() && !c->IsInstanceOf<ChaoMine>()){
 
                     Enemy* e{ static_cast<Enemy*>(c) };
                     MC->GetPlayer(playerId)->AddScore(Random(2, 3) * e->GetWorth());

@@ -45,6 +45,8 @@ public:
     void Trip(bool rightFoot);
     virtual void ClearControl();
     void HandleNodeCollisionStart(StringHash eventType, VariantMap& eventData);
+    void EnterLobbyFromShip();
+    virtual void Think();
 private:
     unsigned score_;
 //    unsigned flightScore_;

@@ -34,6 +34,7 @@ public:
     Ship(Context* context);
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
+    void Set(const Vector3 position, const Quaternion rotation);
     virtual void Update(float timeStep);
     void EnterPlay();
     void EnterLobby();
@@ -42,7 +43,11 @@ public:
     void UpgradeWeapons();
     void ChargeShield();
     void Hit(float damage, bool melee);
+    void Eject();
+
+    virtual void Think();
 private:
+    bool initialized_;
     Vector3 initialPosition_;
     Quaternion initialRotation_;
     int colorSet_;
@@ -77,6 +82,8 @@ private:
     void Explode();
     void SetTailsEnabled(bool enabled);
     void PickupChaoBall();
+    void SetColors();
+    Vector3 Sniff(float playerFactor, bool taste = false);
 };
 
 #endif // SHIP_H

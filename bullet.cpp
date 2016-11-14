@@ -40,9 +40,6 @@ void Bullet::OnNodeSet(Node *node)
     node_->SetScale(Vector3(1.0f+damage_, 1.0f+damage_, 0.1f));
     model_ = node_->CreateComponent<StaticModel>();
     model_->SetModel(MC->GetModel("Bullet"));
-    model_->SetMaterial(playerID_ == 2
-                        ? MC->GetMaterial("PurpleBullet")
-                        : MC->GetMaterial("GreenBullet"));
 
     rigidBody_ = node_->CreateComponent<RigidBody>();
     rigidBody_->SetMass(0.5f);
@@ -51,7 +48,6 @@ void Bullet::OnNodeSet(Node *node)
 
     Light* light = node_->CreateComponent<Light>();
     light->SetRange(6.66f);
-    light->SetColor( playerID_ == 2 ? Color(1.0f + damage_, 0.6f, 0.2f) : Color(0.6f, 1.0f+damage_, 0.2f));
 }
 
 void Bullet::Update(float timeStep)
@@ -68,15 +64,24 @@ void Bullet::Update(float timeStep)
     if (timeStep > 0.0f && !fading_) HitCheck(timeStep);
 }
 
-void Bullet::Set(const Vector3 position)
+void Bullet::Set(Vector3 position, int playerId, Vector3 direction, Vector3 force, float damage)
 {
     age_ = 0.0f;
     timeSinceHit_ = 0.0f;
     fading_ = false;
+    playerID_ = playerId;
+    damage_ = damage;
+
+    node_->GetComponent<Light>()->SetColor( playerID_ == 2 ? Color(1.0f + damage_, 0.6f, 0.2f) : Color(0.6f, 1.0f+damage_, 0.2f));
+    model_->SetMaterial(playerID_ == 2
+                        ? MC->GetMaterial("PurpleBullet")
+                        : MC->GetMaterial("GreenBullet"));
 
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();
     SceneObject::Set(position);
+    rigidBody_->ApplyForce(force);
+    node_->LookAt(node_->GetPosition() + direction);
 }
 
 void Bullet::Disable()

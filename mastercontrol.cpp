@@ -270,6 +270,9 @@ void MasterControl::CreateScene()
     Node* lobbyNode{ scene_->CreateChild("Lobby") };
     lobby_ = lobbyNode->CreateComponent<Lobby>();
 
+    for (int p : {1, 2}){
+        players_.Push(SharedPtr<Player>(new Player(p, context_)));
+    }
     //Create pilots
     for (float x : { -2.3f, 2.3f }) {
 
@@ -277,20 +280,15 @@ void MasterControl::CreateScene()
         pilotNode->SetPosition( Vector3(x, 0.0f, 5.5f) );
         pilotNode->Rotate(Quaternion(180.0f, Vector3::UP));
         Pilot* pilot{ pilotNode->CreateComponent<Pilot>() };
-        int playerId{ x < 0.0f ? 1 : 2 };
-        pilot->Initialize( playerId );
+
+        int playerId{ (x < 0.0f ? 1 : 2) };
         GetSubsystem<InputMaster>()->SetPlayerControl(playerId, pilot);
+        pilot->Initialize( playerId );
     }
     //Create ships
     for (float x : { -4.2f, 4.2f }) {
-        Node* shipNode{ scene_->CreateChild("Ship") };
-        shipNode->SetWorldPosition(Vector3(x, 0.6f, 0.0f));
-        shipNode->Rotate(Quaternion(x < 0 ? 90.0f : -90.0f, Vector3::UP));
-        shipNode->CreateComponent<Ship>();
-    }
-
-    for (int p : {1, 2}){
-        players_.Push(SharedPtr<Player>(new Player(p, context_)));
+        GetSubsystem<SpawnMaster>()->Create<Ship>()
+                ->Set(Vector3(x, 0.6f, 0.0f), Quaternion(x < 0 ? 90.0f : -90.0f, Vector3::UP));
     }
 
     Node* appleNode{ scene_->CreateChild("Apple") };
@@ -392,6 +390,23 @@ void MasterControl::Eject()
     SetGameState(GS_LOBBY);
 }
 
+bool MasterControl::AllReady(bool onlyHuman)
+{
+    for (Controllable* c : GetSubsystem<InputMaster>()->GetControllables()) {
+
+        if (c){
+            if (c->IsInstanceOf<Pilot>()){
+                if ( onlyHuman && c->GetPlayer()->IsHuman() )
+                    return false;
+                else if (!onlyHuman)
+                    return false;
+            }
+        }
+
+    }
+    return true;
+}
+
 void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 { (void)eventType;
 
@@ -413,28 +428,16 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
     switch (currentState_) {
     case GS_LOBBY: {
 
-
-        PODVector<Node*> doorNodes{};
-        scene_->GetChildrenWithComponent<Door>(doorNodes, true);
         bool allHidden{ true };
-        for (Node* n : doorNodes){
-            if (!n->GetComponent<Door>()->HidesPilot())
+        for (Door* d : GetNodesWithComponent<Door>()){
+            if (!d->HidesPilot())
                 allHidden = false;
         }
         if (allHidden){
                 Exit();
         }
 
-        bool allReady{ true };
-        for (Controllable* c : GetSubsystem<InputMaster>()->GetControllables()) {
-
-            if (c){
-                if ( c->IsInstanceOf<Pilot>() )
-                    allReady = false;
-            }
-
-        }
-        if (allReady)
+        if (AllReady(false))
             SetGameState(GS_PLAY);
 
     } break;
@@ -525,7 +528,7 @@ Player* MasterControl::GetPlayer(int playerID) const
 {
     for (Player* p : players_) {
 
-        if (p->GetPlayerID() == playerID)
+        if (p->GetPlayerId() == playerID)
             return p;
     }
     return nullptr;
@@ -537,8 +540,8 @@ Player* MasterControl::GetNearestPlayer(Vector3 pos)
         if (p->IsAlive()){
 
             if (!nearest
-            || (Distance(GetSubsystem<InputMaster>()->GetControllableByPlayer(p->GetPlayerID())->GetPosition(), pos) <
-                Distance(GetSubsystem<InputMaster>()->GetControllableByPlayer(nearest->GetPlayerID())->GetPosition(), pos)))
+            || (Distance(GetSubsystem<InputMaster>()->GetControllableByPlayer(p->GetPlayerId())->GetPosition(), pos) <
+                Distance(GetSubsystem<InputMaster>()->GetControllableByPlayer(nearest->GetPlayerId())->GetPosition(), pos)))
             {
                 nearest = p;
             }

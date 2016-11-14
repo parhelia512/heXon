@@ -38,6 +38,7 @@ public:
     SceneObject(Context* context);
     virtual void OnNodeSet(Node* node);
     void Set(const Vector3 position);
+    void Set(const Vector3 position, const Quaternion rotation);
     void Disable();
 
     Vector3 GetPosition() const { return node_->GetPosition(); }
