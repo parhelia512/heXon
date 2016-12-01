@@ -28,12 +28,11 @@ Enemy::Enemy(Context* context):
     initialHealth_{1.0f},
     panic_{0.0f},
     worth_{5},
-    bonus_{true},
-    firstHitBy_{0},
     lastHitBy_{0},
     whackInterval_{0.5f},
     sinceLastWhack_{0.0f},
-    meleeDamage_{0.44f}
+    meleeDamage_{0.44f},
+    damagePerPlayer_{}
 {
 }
 
@@ -95,8 +94,7 @@ void Enemy::Set(const Vector3 position)
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();
 
-    firstHitBy_ = lastHitBy_ = 0;
-    bonus_ = true;
+    lastHitBy_ = 0;
     health_ = initialHealth_;
     panic_ = 0.0f;
 
@@ -106,16 +104,23 @@ void Enemy::Set(const Vector3 position)
     SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Enemy, HandleNodeCollision));
 
     soundSource_->Stop();
+    damagePerPlayer_.Clear();
 }
 
 // Takes care of dealing damage and keeps track of who deserves how many points.
-void Enemy::Hit(const float damage, const int playerID) {
-    if (firstHitBy_ == 0) firstHitBy_ = playerID;
-    else if (firstHitBy_ != playerID && playerID != 0) bonus_ = false;
+void Enemy::Hit(const float damage, const int playerId) {
 
-    lastHitBy_ = playerID;
+    lastHitBy_ = playerId;
 
     SetHealth(health_ - damage);
+
+    if (playerId == 0)
+        return;
+
+    if (damagePerPlayer_.Contains(playerId))
+        damagePerPlayer_[playerId] += damage;
+    else
+        damagePerPlayer_[playerId] = damage;
 }
 
 void Enemy::SetHealth(const float health)
@@ -132,16 +137,21 @@ void Enemy::CheckHealth()
 {
     //Die
     if (node_->IsEnabled() && health_ <= 0.0f) {
+        int most{ (2 * worth_) / 3 };
         if (lastHitBy_ != 0)
-            MC->GetPlayer(lastHitBy_)->AddScore(bonus_ ? worth_ : 2 * worth_ / 3);
+            MC->GetPlayer(lastHitBy_)->AddScore(most);
 
-        Explosion* explosion{ GetSubsystem<SpawnMaster>()->Create<Explosion>() };
-        explosion->Set(node_->GetPosition(),
-                       Color(color_.r_ * color_.r_,
-                             color_.g_ * color_.g_,
-                             color_.b_ * color_.b_),
-                       0.5f * rigidBody_->GetMass(),
-                       lastHitBy_);
+        for (int playerId : damagePerPlayer_.Keys())
+            if (damagePerPlayer_[playerId] > initialHealth_ * 0.5f)
+                MC->GetPlayer(playerId)->AddScore(worth_ - most);
+
+        GetSubsystem<SpawnMaster>()->Create<Explosion>()
+                ->Set(node_->GetPosition(),
+                      Color(color_.r_ * color_.r_,
+                            color_.g_ * color_.g_,
+                            color_.b_ * color_.b_),
+                      0.5f * rigidBody_->GetMass(),
+                      lastHitBy_);
         Disable();
     }
 }

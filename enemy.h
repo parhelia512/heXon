@@ -57,8 +57,6 @@ protected:
     float initialHealth_;
     float panic_;
     int worth_;
-    bool bonus_;
-    int firstHitBy_;
     int lastHitBy_;
 
     float sinceLastWhack_;
@@ -71,6 +69,8 @@ protected:
     SharedPtr<RigidBody> rigidBody_;
     StaticModel* centerModel_;
     Color color_;
+
+    HashMap<int, float> damagePerPlayer_;
 
     virtual void HandleNodeCollision(StringHash eventType, VariantMap &eventData);
     void SetHealth(const float health);

@@ -281,7 +281,7 @@ void Pilot::EnterLobbyThroughDoor()
 {
     node_->SetEnabledRecursive(true);
 
-    node_->SetPosition( Vector3( node_->GetPosition().x_ < 0.0f ? -2.3f : 2.3f, 0.0f, 5.666f));
+    node_->SetPosition(Vector3( node_->GetPosition().x_ < 0.0f ? -2.3f : 2.3f, 0.0f, 5.666f));
     node_->SetRotation(Quaternion::IDENTITY);
     rigidBody_->ApplyImpulse(Vector3::BACK * 3.666f);
 }
@@ -289,7 +289,7 @@ void Pilot::EnterLobbyFromShip()
 {
     node_->SetEnabledRecursive(true);
 
-    node_->SetPosition( Vector3( node_->GetPosition().x_ < 0.0f ? -2.7f : 2.7f, 0.0f, 0.0f));
+    node_->SetPosition(Vector3(node_->GetPosition().x_ < 0.0f ? -2.7f : 2.7f, 0.0f, 0.0f));
     node_->SetRotation(Quaternion::IDENTITY);
     rigidBody_->ApplyImpulse(node_->GetPosition().x_ < 0.0f ? Vector3::RIGHT
                                                             : Vector3::LEFT);
@@ -349,33 +349,30 @@ void Pilot::Think()
 {
     Player* otherPlayer{ MC->GetPlayer(GetPlayer()->GetPlayerId() == 1 ? 2 : 1) };
 
-    PODVector<Node*> splatterPillars{};
-    MC->scene_->GetChildrenWithComponent<SplatterPillar>(splatterPillars, true);
-
     SplatterPillar* splatterPillar{};
-    for (SplatterPillar* s : MC->GetNodesWithComponent<SplatterPillar>())
+    for (SplatterPillar* s : MC->GetComponentsRecursive<SplatterPillar>())
         if (s->GetPlayerId() == GetPlayer()->GetPlayerId()){
             splatterPillar = s;
             break;
         }
 
-    bool splatterPillarsIdle{splatterPillar->IsIdle()};
-    Vector3 toPillar{splatterPillar->GetPosition() - GetPosition() * static_cast<float>(splatterPillar->IsIdle())};
+    bool splatterPillarsIdle{ splatterPillar->IsIdle() };
+    Vector3 toPillar{ splatterPillar->GetPosition() - GetPosition() * static_cast<float>(splatterPillar->IsIdle()) };
 
 
 //    if (MC->NoHumans()){
 
         //Enter play
-        if ((MC->NoHumans() && GetPlayer()->GetScore() == 0 && otherPlayer->GetScore() == 0 && splatterPillarsIdle)
-         || MC->AllReady(true))
-            SetMove(4.2f * (GetPlayer()->GetPlayerId() == 2 ? Vector3::RIGHT : Vector3::LEFT) - GetPosition());
-        //Reset Score
-        else if (GetPlayer()->GetScore() != 0 && otherPlayer->GetScore() == 0)
-            SetMove(toPillar);
-        //Stay put
-        else
-            SetMove(Vector3::ZERO);
-//    }
+    if ((MC->NoHumans() && GetPlayer()->GetScore() == 0 && otherPlayer->GetScore() == 0 && splatterPillarsIdle)
+            || MC->AllReady(true))
+        SetMove(2.3f * (GetPlayer()->GetPlayerId() == 2 ? Vector3::RIGHT : Vector3::LEFT) - GetPosition());
+    //Reset Score
+    else if (GetPlayer()->GetScore() != 0 && otherPlayer->GetScore() == 0)
+        SetMove(toPillar);
+    //Stay put)
+    else
+        SetMove(Vector3::ZERO);
+    //    }
     //Reset Score
     //Exit
 //    else if (DOOR->HidesPlayer() == 0.0f && OTHERDOOR->HidesPlayer() > 0.1f * playerFactor)

@@ -41,6 +41,8 @@ Controllable::Controllable(Context* context) : SceneObject(context),
 void Controllable::OnNodeSet(Node *node)
 { (void)node;
 
+    SceneObject::OnNodeSet(node_);
+
     model_ = node_->CreateComponent<AnimatedModel>();
     rigidBody_ = node_->CreateComponent<RigidBody>();
     collisionShape_ = node_->CreateComponent<CollisionShape>();

@@ -146,7 +146,7 @@ public:
     float Sine(const float freq, const float min, const float max, const float shift = 0.0f);
     float Cosine(const float freq, const float min, const float max, const float shift = 0.0f);
 
-    template <class T> Vector<T*> GetNodesWithComponent()
+    template <class T> Vector<T*> GetComponentsRecursive()
     {
         PODVector<Node*> matchingNodes;
 

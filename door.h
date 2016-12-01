@@ -37,10 +37,8 @@ public:
     bool HidesPilot() const;
 private:
     AnimatedModel* model_;
-    SharedPtr<Sound> doorSample_;
 
     bool open_;
-    float hiding_;
 
     void Close(StringHash eventType, VariantMap& eventData);
     void Open(StringHash eventType, VariantMap& eventData);

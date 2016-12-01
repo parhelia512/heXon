@@ -23,6 +23,7 @@
 #include "inputmaster.h"
 #include "player.h"
 #include "ship.h"
+#include "hitfx.h"
 
 Pickup::Pickup(Context* context) : SceneObject(context)
 {

@@ -20,6 +20,7 @@
 
 #include "spawnmaster.h"
 #include "player.h"
+#include "chaozap.h"
 
 void ChaoMine::RegisterObject(Context *context)
 {

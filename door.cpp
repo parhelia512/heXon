@@ -16,9 +16,10 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "door.h"
-#include "pilot.h"
 #include "inputmaster.h"
+#include "pilot.h"
+
+#include "door.h"
 
 void Door::RegisterObject(Context *context)
 {
@@ -27,8 +28,7 @@ void Door::RegisterObject(Context *context)
 
 Door::Door(Context* context) :
     LogicComponent(context),
-    open_{false},
-    hiding_{0.0f}
+    open_{false}
 {
 }
 
@@ -46,10 +46,8 @@ void Door::OnNodeSet(Node *node)
     doorLight->SetRange(10.0f);
     doorLight->SetBrightness(5.0f);
     doorLight->SetCastShadows(true);
-    doorLight->SetShadowBias(BiasParameters(0.00008f, 0.042f));
+    doorLight->SetShadowBias(BiasParameters(0.000023f, 0.042f));
 
-    doorSample_ = MC->GetSample("Door");
-    doorSample_->SetLooped(false);
     node_->CreateComponent<SoundSource>();
 
     Node* triggerNode{ node_->CreateChild("Trigger") };
@@ -73,13 +71,13 @@ void Door::OnNodeSet(Node *node)
 void Door::Open(StringHash eventType, VariantMap& eventData)
 { (void)eventType; (void)eventData;
 
-    node_->GetComponent<SoundSource>()->Play(doorSample_);
+    node_->GetComponent<SoundSource>()->Play(MC->GetSample("Door"));
     open_ = true;
 }
 void Door::Close(StringHash eventType, VariantMap& eventData)
 { (void)eventType; (void)eventData;
 
-    node_->GetComponent<SoundSource>()->Play(doorSample_);
+    node_->GetComponent<SoundSource>()->Play(MC->GetSample("Door"));
     open_ = false;
 }
 

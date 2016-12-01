@@ -19,20 +19,9 @@
 #ifndef SPAWNMASTER_H
 #define SPAWNMASTER_H
 
-#include <algorithm>
-
 #include <Urho3D/Urho3D.h>
 
 #include "mastercontrol.h"
-#include "razor.h"
-#include "spire.h"
-#include "chaozap.h"
-#include "chaomine.h"
-#include "seeker.h"
-#include "flash.h"
-#include "explosion.h"
-#include "bubble.h"
-#include "line.h"
 
 #define CHAOINTERVAL Random(23.0f, 100.0f)
 
@@ -43,17 +32,6 @@ class SpawnMaster : public Object
     URHO3D_OBJECT(SpawnMaster, Object);
 public:
     SpawnMaster(Context* context);
-
-    HashMap<unsigned, SharedPtr<Razor> > razors_;
-    HashMap<unsigned, SharedPtr<Spire> > spires_;
-    HashMap<unsigned, SharedPtr<Seeker> > seekers_;
-    HashMap<unsigned, SharedPtr<ChaoMine> > chaoMines_;
-    Vector<SharedPtr<HitFX> > hitFXs_;
-    Vector<SharedPtr<ChaoZap> > chaoZaps_;
-    Vector<SharedPtr<Flash> > flashes_;
-    Vector<SharedPtr<Explosion> > explosions_;
-    Vector<SharedPtr<Bubble> > bubbles_;
-    Vector<SharedPtr<Line> > lines_;
 
     void Clear();
     Vector3 SpawnPoint();

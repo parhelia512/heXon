@@ -28,7 +28,6 @@ void Highest::RegisterObject(Context *context)
 Highest::Highest(Context* context) : LogicComponent(context),
     highestScore_{0}
 {
-
 }
 
 void Highest::OnNodeSet(Node *node)
@@ -37,19 +36,18 @@ void Highest::OnNodeSet(Node *node)
     node_->Translate(Vector3(0.0f, 3.2f, -5.0f));
     node_->Rotate(Quaternion(45.0f, Vector3::RIGHT));
     node_->Rotate(Quaternion(180.0f, Vector3::UP));
-    Node* podiumNode = node_->CreateChild("Podium");
+    Node* podiumNode{ node_->CreateChild("Podium") };
     podiumNode->SetScale(0.5f);
-    StaticModel* hexPodium{podiumNode->CreateComponent<StaticModel>()};
+    StaticModel* hexPodium{ podiumNode->CreateComponent<StaticModel>() };
     hexPodium->SetModel(MC->GetModel("Hexagon"));
     hexPodium->SetMaterial(MC->GetMaterial("BackgroundTile")->Clone());
-    Node* highestPilotNode{podiumNode->CreateChild("HighestPilot")};
+    Node* highestPilotNode{ podiumNode->CreateChild("HighestPilot") };
     highestPilotNode->SetScale(2.0f);
 
-
-    Node* spotNode{node_->CreateChild("HighestSpot")};
+    Node* spotNode{ node_->CreateChild("HighestSpot") };
     spotNode->Translate(Vector3(0.0f, -2.0f, 3.0f));
     spotNode->LookAt(node_->GetWorldPosition());
-    Light* highestSpot{spotNode->CreateComponent<Light>()};
+    Light* highestSpot{ spotNode->CreateComponent<Light>() };
     highestSpot->SetLightType(LIGHT_SPOT);
     highestSpot->SetRange(5.0f);
     highestSpot->SetFov(23.5f);
@@ -57,7 +55,7 @@ void Highest::OnNodeSet(Node *node)
     highestSpot->SetBrightness(5.0f);
     highestSpot->SetSpecularIntensity(0.23f);
 
-    UI* ui{GetSubsystem<UI>()};
+    UI* ui{ GetSubsystem<UI>() };
     highestScoreText_ = ui->GetRoot()->CreateChild<Text>();
     highestScoreText_->SetName("HighestScore");
     highestScoreText_->SetText("0");
@@ -77,7 +75,7 @@ void Highest::OnNodeSet(Node *node)
 
     } else {
         podiumNode->SetRotation(Quaternion::IDENTITY);
-        podiumNode->Rotate(Quaternion(LucKey::RandomSign()*30.0f, Vector3::UP));
+        podiumNode->Rotate(Quaternion(LucKey::RandomSign() * 30.0f, Vector3::UP));
         node_->SetEnabledRecursive(true);
         highestScoreText_->SetText(String(highestScore_));
         highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f));

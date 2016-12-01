@@ -22,6 +22,8 @@
 #include "apple.h"
 #include "heart.h"
 #include "ship.h"
+#include "chaomine.h"
+#include "seeker.h"
 #include "spawnmaster.h"
 
 void ChaoFlash::RegisterObject(Context *context)

@@ -221,7 +221,8 @@ void InputMaster::HandleKeyUp(StringHash eventType, VariantMap &eventData)
 }
 
 void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
-{
+{ (void)eventType;
+
     int joystickId{ eventData[JoystickButtonDown::P_JOYSTICKID].GetInt() };
     SixaxisButton button{ static_cast<SixaxisButton>(eventData[JoystickButtonDown::P_BUTTON].GetInt()) };
 
@@ -247,7 +248,8 @@ void InputMaster::HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D:
     }
 }
 void InputMaster::HandleJoystickButtonUp(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
-{
+{ (void)eventType;
+
     int joystickId{ eventData[JoystickButtonDown::P_JOYSTICKID].GetInt() };
     SixaxisButton button{ static_cast<SixaxisButton>(eventData[JoystickButtonUp::P_BUTTON].GetInt()) };
 
@@ -256,19 +258,21 @@ void InputMaster::HandleJoystickButtonUp(Urho3D::StringHash eventType, Urho3D::V
 }
 
 void InputMaster::HandleJoystickAxisMove(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
-{
+{ (void)eventType;
+
     int joystickId{ eventData[JoystickAxisMove::P_JOYSTICKID].GetInt() };
     int axis{ eventData[JoystickAxisMove::P_AXIS].GetInt() };
     float position{ eventData[JoystickAxisMove::P_POSITION].GetFloat() };
 
     if (axis == 0){
         leftStickPosition_[joystickId].x_ = position;
-    } else if (axis == 1) {
-        leftStickPosition_[joystickId].y_ = -position;
-    } else if (axis == 2) {
-        rightStickPosition_[joystickId].x_ = position;
-    } else if (axis == 3) {
-        rightStickPosition_[joystickId].y_ = -position;
+
+    } else if (axis == 1) { leftStickPosition_[joystickId].y_ = -position;
+
+    } else if (axis == 2) { rightStickPosition_[joystickId].x_ = position;
+
+    } else if (axis == 3) { rightStickPosition_[joystickId].y_ = -position;
+
     }
 }
 
@@ -286,11 +290,12 @@ void InputMaster::PauseButtonPressed()
 
 void InputMaster::EjectButtonPressed(int playerId)
 {
-    if (MC->GetGameState() == GS_DEAD){
+    if (MC->GetGameState() == GS_DEAD) {
         MC->SetGameState(GS_LOBBY);
         return;
-    }
-    if (MC->GetGameState() != GS_PLAY || MC->IsPaused())
+//    } else if (MC->GetGameState() == GS_LOBBY) {
+//        MC->GetPlayer(playerId)->EnterLobby();
+    } else if (MC->GetGameState() != GS_PLAY || MC->IsPaused())
         return;
 
     Ship* ship1{ MC->GetPlayer(1)->GetShip() };

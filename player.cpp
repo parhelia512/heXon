@@ -44,15 +44,9 @@ Player::Player(int playerId, Context* context): Object(context),
     autoPilot_{playerId_ == 2 && !GetSubsystem<Input>()->GetJoystickByIndex(playerId_-1)},
 //    autoPilot_{false},
 //    autoPilot_{true},
-//    autoMove_{Vector3::ZERO},
-//    autoFire_{Vector3::ZERO},
     alive_{false},
-//    appleCount_{0},
-//    heartCount_{0},
-
     score_{0},
     flightScore_{0},
-//    toCount_{0},
     multiplier_{1}
 {
     Node* guiNode{ MC->scene_->CreateChild("GUI3D") };
@@ -67,6 +61,7 @@ void Player::Die()
 void Player::Respawn()
 {
     ResetScore();
+    multiplier_ = 1;
     alive_ = true;
 }
 
@@ -84,10 +79,7 @@ void Player::ResetScore()
 void Player::EnterLobby()
 {
 
-    PODVector<Node*> pilotNodes{};
-    MC->scene_->GetChildrenWithComponent<Pilot>(pilotNodes);
-    for (Node* n : pilotNodes){
-        Pilot* pilot{ n->GetComponent<Pilot>() };
+    for (Pilot* pilot : MC->GetComponentsRecursive<Pilot>()) {
         if (playerId_ == pilot->GetPlayerId()){
             GetSubsystem<InputMaster>()->SetPlayerControl(playerId_, pilot);
             if (!alive_){

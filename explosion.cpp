@@ -19,6 +19,7 @@
 #include "explosion.h"
 
 #include "spawnmaster.h"
+#include "chaomine.h"
 
 void Explosion::RegisterObject(Context *context)
 {

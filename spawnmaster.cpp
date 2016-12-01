@@ -22,6 +22,14 @@
 #include "tile.h"
 #include "player.h"
 #include "chaoball.h"
+#include "chaomine.h"
+#include "chaozap.h"
+#include "razor.h"
+#include "spire.h"
+#include "seeker.h"
+#include "flash.h"
+#include "bubble.h"
+#include "line.h"
 
 SpawnMaster::SpawnMaster(Context* context):
     Object(context),

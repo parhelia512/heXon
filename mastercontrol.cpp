@@ -39,6 +39,8 @@
 #include "flash.h"
 #include "hitfx.h"
 #include "explosion.h"
+#include "bubble.h"
+#include "line.h"
 #include "muzzle.h"
 #include "pilot.h"
 #include "ship.h"
@@ -119,8 +121,6 @@ void MasterControl::Start()
     Highest::RegisterObject(context_);
     Ship::RegisterObject(context_);
     Pilot::RegisterObject(context_);
-//    Human::RegisterObject(context_);
-//    AutoPilot::RegisterObject(context_);
     Bullet::RegisterObject(context_);
     Muzzle::RegisterObject(context_);
     Phaser::RegisterObject(context_);
@@ -167,7 +167,7 @@ void MasterControl::Start()
     musicSource_->SetGain(0.32f);
     musicSource_->SetSoundType(SOUND_MUSIC);
 
-    GetSubsystem<Audio>()->Stop(); ///////////////////////////////////////////////////////////////////////
+//    GetSubsystem<Audio>()->Stop(); ///////////////////////////////////////////////////////////////////////
 
     SetGameState(GS_LOBBY);
 
@@ -286,9 +286,14 @@ void MasterControl::CreateScene()
         pilot->Initialize( playerId );
     }
     //Create ships
-    for (float x : { -4.2f, 4.2f }) {
+//    for (float x : { -4.2f, 4.2f }) {
+//        GetSubsystem<SpawnMaster>()->Create<Ship>()
+//                ->Set(Vector3(x, 0.6f, 0.0f), Quaternion(x < 0 ? 90.0f : -90.0f, Vector3::UP));
+//    }
+    for (int s{0}; s < 4; ++s) {
         GetSubsystem<SpawnMaster>()->Create<Ship>()
-                ->Set(Vector3(x, 0.6f, 0.0f), Quaternion(x < 0 ? 90.0f : -90.0f, Vector3::UP));
+                ->Set(Quaternion(60.0f + ((s % 2) * 60.0f + (s / 2) * 180.0f), Vector3::UP) * Vector3(0.0f, 0.6f, 2.3f),
+                      Quaternion(60.0f + ((s % 2) * 60.0f + (s / 2) * 180.0f), Vector3::UP));
     }
 
     Node* appleNode{ scene_->CreateChild("Apple") };
@@ -429,7 +434,7 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
     case GS_LOBBY: {
 
         bool allHidden{ true };
-        for (Door* d : GetNodesWithComponent<Door>()){
+        for (Door* d : GetComponentsRecursive<Door>()){
             if (!d->HidesPilot())
                 allHidden = false;
         }

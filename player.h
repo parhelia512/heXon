@@ -49,26 +49,6 @@ public:
     void EnterLobby();
     void EnterPlay();
 
-    /*
-    unsigned GetRootNodeID() const { return node_->GetID(); }
-    Vector3 GetWorldPosition() const { return node_->GetWorldPosition(); }
-    void SetPosition(Vector3 pos);
-    double GetHealth() const noexcept { return health_; }
-    bool IsActive() const noexcept { return alive_ && IsEnabled(); }
-    bool IsMoving() const { return rigidBody_->GetLinearVelocity().Length() > 0.01f; }
-    void Hit(float damage, bool melee = true);
-
-    void Eject();
-    unsigned GetFlightScore() const { return flightScore_; }
-
-    void EnterPlay();
-    void CreateNewPilot();
-    void UpdateGUI(float timeStep);
-    void PickupChaoBall();
-    void UpdatePilot();
-    void KillPilot();
-    void SavePilot();*/
-
     GUI3D* gui3d_;
 private:
     int playerId_;
@@ -82,14 +62,8 @@ private:
 
     void SetScore(int points);
     Vector3 Sniff(float playerFactor, bool taste);
-    /*
-    bool pilotMode_;
-    Vector3 autoMove_;
-    Vector3 autoFire_;
 
-
-    SharedPtr<Pilot> pilot_;
-    Node* shieldNode_;
+    /*Node* shieldNode_;
     StaticModel* shieldModel_;
     SharedPtr<Material> shieldMaterial_;
     ChaoFlash* chaoFlash_;

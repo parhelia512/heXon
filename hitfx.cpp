@@ -38,6 +38,8 @@ void HitFX::OnNodeSet(Node *node)
 
 void HitFX::Set(const Vector3 position, int playerID, const bool sound)
 {
+    Effect::Set(position);
+
     ParticleEffect* effect{ nullptr };
     switch (playerID) {
     case 1: effect = CACHE->GetResource<ParticleEffect>("Particles/GreenHitFX.xml");
@@ -51,5 +53,4 @@ void HitFX::Set(const Vector3 position, int playerID, const bool sound)
     particleEmitter_->SetEffect(effect);
 
     if (sound) PlaySample(sample_, 0.23f);
-    Effect::Set(position);
 }

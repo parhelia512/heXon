@@ -30,7 +30,6 @@ void Lobby::RegisterObject(Context *context)
 
 Lobby::Lobby(Context* context) : LogicComponent(context)
 {
-
 }
 
 void Lobby::OnNodeSet(Node *node)

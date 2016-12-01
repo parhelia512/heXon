@@ -19,6 +19,8 @@
 #include "chaozap.h"
 
 #include "player.h"
+#include "chaomine.h"
+#include "seeker.h"
 #include "spawnmaster.h"
 
 void ChaoZap::RegisterObject(Context *context)

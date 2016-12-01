@@ -124,6 +124,7 @@ void Ship::EnterPlay()
     Pickup(PT_RESET);
 
     rigidBody_->SetMass(1.0f);
+    rigidBody_->ApplyImpulse(node_->GetDirection() * 5.0f);
     particleEmitter_->SetEmitting(true);
     model_->SetMaterial(0, colorSet_ == 2 ? MC->GetMaterial("PurpleGlowEnvmap") : MC->GetMaterial("GreenGlowEnvmap"));
     model_->SetMaterial(1, colorSet_ == 2 ? MC->GetMaterial("PurpleEnvmap") : MC->GetMaterial("GreenEnvmap"));
@@ -352,7 +353,7 @@ void Ship::Pickup(PickupType pickup)
 
 void Ship::PlayPickupSample(int pickupCount)
 {
-    PlaySample(MC->GetSample("Pickup"+String(Clamp(pickupCount-1, 1, 4))), 0.42f);
+    PlaySample(MC->GetSample("Pickup" + String(Clamp(pickupCount - 1, 1, 4))), 0.42f);
 }
 
 void Ship::UpgradeWeapons()
@@ -475,7 +476,7 @@ void Ship::Think()
     //Pick firing target
     bool fire{false};
     Pair<float, Vector3> target{};
-    for (SharedPtr<Razor> r : GetSubsystem<SpawnMaster>()->razors_.Values()){
+    for (Razor* r : MC->GetComponentsRecursive<Razor>()){
         if (r->IsEnabled() && r->GetPosition().y_ > (-playerFactor * 0.1f)){
             float distance = LucKey::Distance(this->GetPosition(), r->GetPosition());
             float panic = r->GetPanic();
@@ -487,11 +488,11 @@ void Ship::Think()
             }
         }
     }
-    for (SharedPtr<Spire> s : GetSubsystem<SpawnMaster>()->spires_.Values()){
+    for (Spire* s : MC->GetComponentsRecursive<Spire>()){
         if (s->IsEnabled() && s->GetPosition().y_ > (-playerFactor * 0.23f) && GetPlayer()->GetFlightScore() != 0){
-            float distance = LucKey::Distance(this->GetPosition(), s->GetPosition());
-            float panic = s->GetPanic();
-            float weight = (23.0f * panic) - (distance / playerFactor) + 32.0f;
+            float distance{ LucKey::Distance(this->GetPosition(), s->GetPosition()) };
+            float panic{ s->GetPanic() };
+            float weight{ (23.0f * panic) - (distance / playerFactor) + 32.0f };
             if (weight > target.first_){
                 target.first_ = weight;
                 target.second_ = s->GetPosition();

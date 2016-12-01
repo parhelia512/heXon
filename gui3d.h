@@ -45,6 +45,8 @@ private:
     int appleCount_;
     int heartCount_;
 
+    AnimatedModel* healthIndicator_;
+
     Node* scoreNode_;
     HashMap< int, Node* > scoreDigits_;
     Node* healthBarNode_;

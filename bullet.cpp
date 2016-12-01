@@ -91,7 +91,8 @@ void Bullet::Disable()
     UnsubscribeFromEvent(E_SCENEUPDATE);
 }
 
-void Bullet::HitCheck(float timeStep) {
+void Bullet::HitCheck(float timeStep)
+{
     if (!fading_) {
         PODVector<PhysicsRaycastResult> hitResults{};
         Ray bulletRay(node_->GetPosition() - rigidBody_->GetLinearVelocity()*timeStep, node_->GetDirection());
@@ -99,7 +100,7 @@ void Bullet::HitCheck(float timeStep) {
             for (PhysicsRaycastResult h : hitResults){
                 if (!h.body_->IsTrigger()){
                     //Add effect
-                    h.body_->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.05f);
+                    h.body_->ApplyImpulse(rigidBody_->GetLinearVelocity() * 0.05f);
                     HitFX* hitFx{ GetSubsystem<SpawnMaster>()->Create<HitFX>() };
                     hitFx->Set(h.position_, playerID_, true);
 

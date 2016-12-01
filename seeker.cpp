@@ -22,6 +22,7 @@
 #include "arena.h"
 #include "player.h"
 #include "ship.h"
+#include "chaomine.h"
 #include "spawnmaster.h"
 
 void Seeker::RegisterObject(Context *context)
@@ -63,8 +64,7 @@ void Seeker::OnNodeSet(Node *node)
     light->SetBrightness(2.3f);
     light->SetColor(Color(1.0f, 1.0f, 1.0f));
 
-    sample_ = CACHE->GetResource<Sound>("Samples/Seeker.ogg");
-    sample_->SetLooped(false);
+    sample_ = MC->GetSample("Seeker");
 }
 
 void Seeker::Update(float timeStep)

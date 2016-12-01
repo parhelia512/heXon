@@ -26,7 +26,8 @@ GUI3D::GUI3D(Context* context) : LogicComponent(context),
     score_{0},
     toCount_{0},
     appleCount_{0},
-    heartCount_{0}
+    heartCount_{0},
+    healthIndicator_{}
 {
 }
 
@@ -50,9 +51,9 @@ void GUI3D::Initialize(int playerId)
         scoreDigits_[d]->SetEnabled( d == 0 );
         scoreDigits_[d]->Translate(Vector3::RIGHT * (playerId == 2 ? -0.5f : 0.5f) * d);
         scoreDigits_[d]->Rotate(Quaternion(playerId == 2 ? 0.0f : 180.0f, Vector3::UP), TS_WORLD);
-        StaticModel* digitModel = scoreDigits_[d]->CreateComponent<StaticModel>();
+        StaticModel* digitModel{ scoreDigits_[d]->CreateComponent<StaticModel>() };
         digitModel->SetModel(MC->GetModel("0"));
-        digitModel->SetMaterial(playerId==2
+        digitModel->SetMaterial(playerId == 2
                                 ? MC->GetMaterial("PurpleGlowEnvmap")
                                 : MC->GetMaterial("GreenGlowEnvmap"));
     }
@@ -63,6 +64,12 @@ void GUI3D::Initialize(int playerId)
     Model* barModel = (playerId == 2)
             ? MC->GetModel("BarRight")
             : MC->GetModel("BarLeft");
+
+    healthIndicator_ = node_->CreateComponent<AnimatedModel>();
+    healthIndicator_->SetModel(MC->GetModel("HealthIndicator"));
+    healthIndicator_->SetMaterial(0, MC->GetMaterial("GreenGlowEnvMap"));
+    healthIndicator_->SetMaterial(1, MC->GetMaterial("BlueGlowEnvMap"));
+    healthIndicator_->SetMaterial(2, MC->GetMaterial("BarHolder"));
 
     healthBarNode_ = node_->CreateChild("HealthBar");
     healthBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
@@ -119,16 +126,19 @@ void GUI3D::Update(float timeStep)
     }
 
     //Update HealthBar color
-    healthBarModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", HealthToColor(health_));
-    healthBarModel_->GetMaterial()->SetShaderParameter("MatSpecularColor", HealthToColor(health_));
+//    healthBarModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", HealthToColor(health_));
+//    healthBarModel_->GetMaterial()->SetShaderParameter("MatSpecularColor", HealthToColor(health_));
 }
 
 void GUI3D::SetHealth(float health)
 {
     health_ = health;
 
-    healthBarNode_->SetScale(Vector3(Min(health_, 10.0f), 1.0f, 1.0f));
-    shieldBarNode_->SetScale(Vector3(health_, 0.95f, 0.95f));
+    healthIndicator_->SetMorphWeight(0, Min(health_, 10.0f) * 0.1f);
+    healthIndicator_->SetMorphWeight(1, Max(health_ - 10.0f,  0.0f) * 0.2f);
+
+//    healthBarNode_->SetScale(Vector3(Min(health_, 10.0f), 1.0f, 1.0f));
+//    shieldBarNode_->SetScale(Vector3(health_, 0.95f, 0.95f));
 }
 void GUI3D::SetHeartsAndApples(int hearts, int apples)
 {
@@ -149,7 +159,7 @@ void GUI3D::SetScore(unsigned score)
 
     score_ = score;
     //Update score graphics
-    for (int d{0}; d < 10; ++d){
+    for (int d{0}; d < 10; ++d) {
         StaticModel* digitModel{scoreDigits_[d]->GetComponent<StaticModel>()};
         digitModel->SetModel(MC->GetModel(String(
                              static_cast<int>(score_ / static_cast<unsigned>(pow(10, d)))%10 )));

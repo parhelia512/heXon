@@ -31,10 +31,11 @@ SceneObject::SceneObject(Context* context):
 }
 
 void SceneObject::OnNodeSet(Node *node)
-{
+{ (void)node;
+
     flashSample_ = MC->GetSample("Flash");
     for (int i{0}; i < 5; ++i){
-        SharedPtr<SoundSource> sampleSource = SharedPtr<SoundSource>(node_->CreateComponent<SoundSource>());
+        SharedPtr<SoundSource> sampleSource{ SharedPtr<SoundSource>(node_->CreateComponent<SoundSource>()) };
         sampleSource->SetSoundType(SOUND_EFFECT);
         sampleSources_.Push(sampleSource);
     }
@@ -84,7 +85,8 @@ bool SceneObject::IsPlayingSound()
 }
 
 void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
-{
+{ (void)eventType; (void)eventData;
+
     if (MC->IsPaused()) return;
 
     Vector3 flatPosition{LucKey::Scale(node_->GetPosition(), Vector3::ONE-Vector3::UP)};
