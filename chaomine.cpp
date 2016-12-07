@@ -28,7 +28,7 @@ void ChaoMine::RegisterObject(Context *context)
 }
 
 ChaoMine::ChaoMine(Context* context) : Enemy(context),
-    playerID_{0}
+    colorSet_{0}
 {
 }
 
@@ -58,19 +58,13 @@ void ChaoMine::OnNodeSet(Node *node)
     outerModel_->SetMaterial(1, MC->GetMaterial("GreenEnvmap"));
 }
 
-void ChaoMine::Set(const Vector3 position, int playerID)
+void ChaoMine::Set(const Vector3 position, int colorSet)
 {
-    playerID_ = playerID;
+    colorSet_ = colorSet;
 
-    if (playerID_ == 1) {
-        innerModel_->SetMaterial(0, MC->GetMaterial("GreenEnvmap"));
-        outerModel_->SetMaterial(0, MC->GetMaterial("GreenGlowEnvmap"));
-        outerModel_->SetMaterial(1, MC->GetMaterial("GreenEnvmap"));
-    } else if (playerID_ == 2) {
-        innerModel_->SetMaterial(0, MC->GetMaterial("PurpleEnvmap"));
-        outerModel_->SetMaterial(0, MC->GetMaterial("PurpleGlowEnvmap"));
-        outerModel_->SetMaterial(1, MC->GetMaterial("PurpleEnvmap"));
-    }
+    innerModel_->SetMaterial(0, MC->colorSets_[colorSet_].hullMaterial_);
+    outerModel_->SetMaterial(0, MC->colorSets_[colorSet_].glowMaterial_);
+    outerModel_->SetMaterial(1, MC->colorSets_[colorSet_].hullMaterial_);
 
     Enemy::Set(position);
 }
@@ -90,7 +84,7 @@ void ChaoMine::CheckHealth()
        (health_ <= 0 || panicTime_ > 23.0f)) {
         ChaoZap* chaoZap{ GetSubsystem<SpawnMaster>()->Create<ChaoZap>() };
         Enemy::CheckHealth();
-        chaoZap->Set(GetPosition(), playerID_);
+        chaoZap->Set(GetPosition(), colorSet_);
     }
 }
 

@@ -40,7 +40,7 @@ public:
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
     virtual void Update(float timeStep);
-    void Set(const Vector3 position, int playerId);
+    void Set(const Vector3 position, int colorSet);
     void Disable();
 private:
     float age_;

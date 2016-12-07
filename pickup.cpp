@@ -95,9 +95,9 @@ void Pickup::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
 
         Ship* ship{ otherNode->GetComponent<Ship>() };
         ship->Pickup(pickupType_);
-        int hitPlayer{ GetSubsystem<InputMaster>()->GetPlayerByControllable(ship)->GetPlayerId() };
+        int hitPlayer{ ship->GetPlayer()->GetPlayerId() };
         GetSubsystem<SpawnMaster>()->Create<HitFX>()
-                ->Set(GetPosition(), hitPlayer, false);
+                ->Set(GetPosition(), ship->GetColorSet(), false);
         switch (pickupType_){
         case PT_CHAOBALL: GetSubsystem<SpawnMaster>()->ChaoPickup(); Deactivate(); break;
         case PT_APPLE: case PT_HEART: Respawn(); break;

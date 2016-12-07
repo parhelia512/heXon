@@ -48,7 +48,7 @@ public:
     int GetWorth() const { return worth_; }
     float GetPanic() const { return panic_; }
     Vector3 GetLinearVelocity() const { return rigidBody_->GetLinearVelocity(); }
-    virtual void Hit(const float damage, const int ownerID);
+    virtual void Hit(const float damage, const int colorSet);
     virtual void Set(const Vector3 position);
     virtual void Update(float timeStep);
 protected:
@@ -70,7 +70,7 @@ protected:
     StaticModel* centerModel_;
     Color color_;
 
-    HashMap<int, float> damagePerPlayer_;
+    HashMap<int, float> damagePerColorSet_;
 
     virtual void HandleNodeCollision(StringHash eventType, VariantMap &eventData);
     void SetHealth(const float health);

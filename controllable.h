@@ -39,7 +39,8 @@ public:
     void SetAim(Vector3 aim);
     virtual void ClearControl();
 
-    virtual void EnterPlay() {}
+    virtual void EnterLobby(StringHash eventType, VariantMap &eventData) {}
+    virtual void EnterPlay(StringHash eventType, VariantMap &eventData) {}
     virtual void Think() {}
 
     Player* GetPlayer();

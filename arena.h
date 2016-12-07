@@ -49,7 +49,7 @@ public:
     HashMap<Node*, RigidBody* >* GetAffectors() { return &hexAffectors_; }
 
     Tile* GetRandomTile();
-    void FlashX(int playerID);
+    void FlashX(Color color);
 private:
     Vector3 targetPosition_;
     Vector3 targetScale_;
@@ -62,8 +62,8 @@ private:
 
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
 
-    void EnterPlayState();
-    void EnterLobby();
+    void EnterPlay(StringHash eventType, VariantMap &eventData);
+    void EnterLobby(StringHash eventType, VariantMap &eventData);
 
 };
 

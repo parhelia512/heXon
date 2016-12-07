@@ -47,14 +47,14 @@ public:
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
     void Set(const Vector3 position, const int playerId, const Vector3 direction, Vector3 force, const float damage);
-    int GetPlayerID() const noexcept { return playerID_; }
+    int GetPlayerID() const noexcept { return colorSet_; }
 protected:
     SharedPtr<RigidBody> rigidBody_;
     SharedPtr<StaticModel> model_;
 
     void Update(float timeStep);
 private:
-    int playerID_;
+    int colorSet_;
     float age_ = 0.0f;
     float timeSinceHit_ = 0.0f;
     float lifeTime_;

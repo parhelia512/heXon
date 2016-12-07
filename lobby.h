@@ -34,8 +34,8 @@ public:
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
     virtual void Update(float timeStep);
-    void EnterLobby();
-    void EnterPlay();
+    void EnterLobby(StringHash eventType, VariantMap &eventData);
+    void EnterPlay(StringHash eventType, VariantMap &eventData);
 private:
     Highest* highest_;
 };

@@ -5,11 +5,11 @@
 	<texture unit="emissive" name="Textures/BloodSplat.png" />
 	<parameter name="UOffset" value="1 0 0 0" />
 	<parameter name="VOffset" value="0 1 0 0" />
-	<parameter name="MatDiffColor" value="0.666 0 0.1 0.42" />
-	<parameter name="MatEmissiveColor" value="0.42 0.1 0.1" />
+	<parameter name="MatDiffColor" value="1.0 1.0 1.0 0.42" />
+	<parameter name="MatEmissiveColor" value="0.666 0.23 0.23" />
 	<parameter name="MatEnvMapColor" value="1 1 1" />
 	<parameter name="MatSpecColor" value="0 0 0 1" />
-	<cull value="ccw" />
-	<shadowcull value="ccw" />
+	<cull value="cw" />
+	<shadowcull value="cw" />
 	<depthbias constant="0" slopescaled="0" />
 </material>

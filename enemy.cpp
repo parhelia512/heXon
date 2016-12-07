@@ -32,7 +32,7 @@ Enemy::Enemy(Context* context):
     whackInterval_{0.5f},
     sinceLastWhack_{0.0f},
     meleeDamage_{0.44f},
-    damagePerPlayer_{}
+    damagePerColorSet_{}
 {
 }
 
@@ -46,14 +46,16 @@ void Enemy::OnNodeSet(Node *node)
 
     //Generate random color
     int randomizer{Random(6)};
-    color_ = Color(0.5f + (randomizer * 0.075f), 0.9f - (randomizer * 0.075f), 0.5f+Max(randomizer-3.0f, 3.0f)/6.0f, 1.0f);
+    color_ = Color(0.5f + (randomizer * 0.075f), 0.9f - (randomizer * 0.075f), 0.5f + Max(randomizer - 3.0f, 3.0f)/6.0f, 1.0f);
 
     centerNode_ = node_->CreateChild("SmokeTrail");
     particleEmitter_ = centerNode_->CreateComponent<ParticleEmitter>();
     particleEffect_ = CACHE->GetTempResource<ParticleEffect>("Particles/Enemy.xml");
     Vector<ColorFrame> colorFrames{};
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
-    colorFrames.Push(ColorFrame(Color(color_.r_*0.666f, color_.g_*0.666f, color_.b_*0.666f, 0.5f), 0.1f));
+    colorFrames.Push(ColorFrame(Color(color_.r_ * 0.666f,
+                                      color_.g_ * 0.666f,
+                                      color_.b_ * 0.666f, 0.5f), 0.1f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 1.0f));
     particleEffect_->SetColorFrames(colorFrames);
     particleEmitter_->SetEffect(particleEffect_);
@@ -104,23 +106,23 @@ void Enemy::Set(const Vector3 position)
     SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Enemy, HandleNodeCollision));
 
     soundSource_->Stop();
-    damagePerPlayer_.Clear();
+    damagePerColorSet_.Clear();
 }
 
 // Takes care of dealing damage and keeps track of who deserves how many points.
-void Enemy::Hit(const float damage, const int playerId) {
+void Enemy::Hit(const float damage, const int colorSet) {
 
-    lastHitBy_ = playerId;
+    lastHitBy_ = colorSet;
 
     SetHealth(health_ - damage);
 
-    if (playerId == 0)
+    if (colorSet == 0)
         return;
 
-    if (damagePerPlayer_.Contains(playerId))
-        damagePerPlayer_[playerId] += damage;
+    if (damagePerColorSet_.Contains(colorSet))
+        damagePerColorSet_[colorSet] += damage;
     else
-        damagePerPlayer_[playerId] = damage;
+        damagePerColorSet_[colorSet] = damage;
 }
 
 void Enemy::SetHealth(const float health)
@@ -139,11 +141,11 @@ void Enemy::CheckHealth()
     if (node_->IsEnabled() && health_ <= 0.0f) {
         int most{ (2 * worth_) / 3 };
         if (lastHitBy_ != 0)
-            MC->GetPlayer(lastHitBy_)->AddScore(most);
+            MC->GetPlayerByColorSet(lastHitBy_)->AddScore(most);
 
-        for (int playerId : damagePerPlayer_.Keys())
-            if (damagePerPlayer_[playerId] > initialHealth_ * 0.5f)
-                MC->GetPlayer(playerId)->AddScore(worth_ - most);
+        for (int colorSet : damagePerColorSet_.Keys())
+            if (damagePerColorSet_[colorSet] > initialHealth_ * 0.5f)
+                MC->GetPlayerByColorSet(colorSet)->AddScore(worth_ - most);
 
         GetSubsystem<SpawnMaster>()->Create<Explosion>()
                 ->Set(node_->GetPosition(),

@@ -81,6 +81,8 @@ void Arena::OnNodeSet(Node *node)
     logoModel->SetMaterial(1, xMaterial_);
 
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Arena, HandleUpdate));
+    SubscribeToEvent(E_ENTERLOBBY, URHO3D_HANDLER(Arena, EnterLobby));
+    SubscribeToEvent(E_ENTERPLAY,  URHO3D_HANDLER(Arena, EnterPlay));
 }
 
 void Arena::RemoveFromAffectors(Node* affector)
@@ -89,7 +91,7 @@ void Arena::RemoveFromAffectors(Node* affector)
         hexAffectors_.Erase(affector);
 }
 
-void Arena::EnterPlayState()
+void Arena::EnterPlay(StringHash eventType, VariantMap &eventData)
 {
     targetPosition_ = Vector3::DOWN * 0.23f;
     targetScale_ = Vector3::ONE;
@@ -97,7 +99,7 @@ void Arena::EnterPlayState()
         t->lastOffsetY_ = 2.3f;
     }
 }
-void Arena::EnterLobby()
+void Arena::EnterLobby(StringHash eventType, VariantMap &eventData)
 {
     targetPosition_ = Vector3::UP * 0.35f;
     targetScale_ = Vector3::ONE * 0.05f;
@@ -148,7 +150,7 @@ Tile* Arena::GetRandomTile()
     }
 }
 
-void Arena::FlashX(int playerID)
+void Arena::FlashX(Color color)
 {
-    xMaterial_->SetShaderParameter("MatEmissiveColor", playerID == 2 ? Color(2.3f, 1.0f, 0.0f, 1.0f) : Color(1.0f, 2.3f, 0.0f, 1.0f));
+    xMaterial_->SetShaderParameter("MatEmissiveColor", color * 5.0f);
 }

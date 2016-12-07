@@ -25,6 +25,7 @@
 GUI3D::GUI3D(Context* context) : LogicComponent(context),
     score_{0},
     toCount_{0},
+    health_{0.0f},
     appleCount_{0},
     heartCount_{0},
     healthIndicator_{}
@@ -40,74 +41,96 @@ void GUI3D::RegisterObject(Context* context)
 void GUI3D::OnNodeSet(Node* node)
 { (void)node;
 
+    SubscribeToEvent(E_ENTERLOBBY, URHO3D_HANDLER(GUI3D, EnterLobby));
+    SubscribeToEvent(E_ENTERPLAY,  URHO3D_HANDLER(GUI3D, EnterPlay));
 }
-void GUI3D::Initialize(int playerId)
+void GUI3D::Initialize(int colorSet)
 {
-    playerId_ = playerId;
+    colorSet_ = colorSet;
 
-    scoreNode_ = node_->CreateChild("Score");
+    Node* subNode{ node_->CreateChild("Sub") };
+    subNode->SetPosition(LOBBYPOS);
+    if (MC->GetAspectRatio() < 1.6f){
+        subNode->SetScale(0.75f);
+        subNode->Translate(Vector3( (colorSet_ / 2 == 1) ? -1.6f : 1.6f,
+                                    0.0f, 0.0f));
+    }
+
+    float angle{};
+    switch(colorSet_){
+    case 1: angle =  -60.0f; break;
+    case 2: angle =   60.0f; break;
+    case 3: angle = -120.0f; break;
+    case 4: angle =  120.0f; break;
+    }
+
+    subNode->Rotate(Quaternion(180.0f * (colorSet_ - 1 % 2), Vector3::FORWARD));
+    node_->Rotate(Quaternion(angle, Vector3::UP));
+
+    scoreNode_ = subNode->CreateChild("Score");
+    scoreNode_->Rotate(Quaternion(180.0f * (colorSet_ == 4), Vector3::RIGHT));
+    scoreNode_->Rotate(Quaternion(180.0f * (colorSet_ == 2), Vector3::FORWARD));
+
     for (int d{0}; d < 10; ++d){
         scoreDigits_[d] = scoreNode_->CreateChild("Digit");
         scoreDigits_[d]->SetEnabled( d == 0 );
-        scoreDigits_[d]->Translate(Vector3::RIGHT * (playerId == 2 ? -0.5f : 0.5f) * d);
-        scoreDigits_[d]->Rotate(Quaternion(playerId == 2 ? 0.0f : 180.0f, Vector3::UP), TS_WORLD);
+        scoreDigits_[d]->Translate(Vector3::RIGHT * (colorSet == 2 ? -0.5f : 0.5f) * (d - 4.5f));
+        scoreDigits_[d]->Rotate(Quaternion(colorSet == 2 ? 0.0f : 180.0f, Vector3::UP), TS_WORLD);
+        scoreDigits_[d]->Rotate(Quaternion((colorSet % 2) * 90.0f - 45.0f, Vector3::RIGHT), TS_LOCAL);
         StaticModel* digitModel{ scoreDigits_[d]->CreateComponent<StaticModel>() };
         digitModel->SetModel(MC->GetModel("0"));
-        digitModel->SetMaterial(playerId == 2
-                                ? MC->GetMaterial("PurpleGlowEnvmap")
-                                : MC->GetMaterial("GreenGlowEnvmap"));
+        digitModel->SetMaterial(MC->colorSets_[colorSet_].glowMaterial_);
+//        digitModel->SetLightMask(0);
     }
-    scoreNode_->SetPosition(Vector3(playerId == 2 ? 5.94252f : -5.94252f, 0.9f, 0.82951f));
-    scoreNode_->Rotate(Quaternion(-90.0f, Vector3::RIGHT));
-    scoreNode_->Rotate(Quaternion(playerId == 2 ? 60.0f : -60.0f, Vector3::UP), TS_WORLD);
+//    scoreNode_->SetPosition(Vector3(playerId == 2 ? 5.94252f : -5.94252f, 0.9f, 0.82951f));
+//    scoreNode_->Rotate(Quaternion(-90.0f, Vector3::RIGHT));
+//    scoreNode_->Rotate(Quaternion(playerId == 2 ? 60.0f : -60.0f, Vector3::UP), TS_WORLD);
 
-    Model* barModel = (playerId == 2)
+    /*Model* barModel = (playerId == 2)
             ? MC->GetModel("BarRight")
-            : MC->GetModel("BarLeft");
+            : MC->GetModel("BarLeft");*/
 
-    healthIndicator_ = node_->CreateComponent<AnimatedModel>();
+    healthIndicator_ = subNode->CreateComponent<AnimatedModel>();
     healthIndicator_->SetModel(MC->GetModel("HealthIndicator"));
-    healthIndicator_->SetMaterial(0, MC->GetMaterial("GreenGlowEnvMap"));
-    healthIndicator_->SetMaterial(1, MC->GetMaterial("BlueGlowEnvMap"));
-    healthIndicator_->SetMaterial(2, MC->GetMaterial("BarHolder"));
+    healthIndicator_->SetMaterial(0, MC->GetMaterial("GreenGlow")->Clone());
+    healthIndicator_->SetMaterial(1, MC->GetMaterial("BlueGlow"));
+    healthIndicator_->SetMaterial(2, MC->GetMaterial("Black"));
+    healthIndicator_->SetMorphWeight(0, 1.0f);
+    healthIndicator_->SetMorphWeight(1, 0.0f);
 
-    healthBarNode_ = node_->CreateChild("HealthBar");
-    healthBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
-    healthBarModel_ = healthBarNode_->CreateComponent<StaticModel>();
-    healthBarModel_->SetModel(barModel);
-    healthBarModel_->SetMaterial(MC->GetMaterial("GreenGlowEnvmap")->Clone());
-
-    shieldBarNode_ = node_->CreateChild("HealthBar");
-    shieldBarNode_->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
-    shieldBarModel_ = shieldBarNode_->CreateComponent<StaticModel>();
-    shieldBarModel_->SetModel(barModel);
-    shieldBarModel_->SetMaterial(MC->GetMaterial("BlueGlowEnvmap"));
-
-    Node* healthBarHolderNode{ node_->CreateChild("HealthBarHolder") };
-    healthBarHolderNode->SetPosition(Vector3(0.0f, 1.0f, 21.0f));
-    StaticModel* healthBarHolderModel = healthBarHolderNode->CreateComponent<StaticModel>();
-    healthBarHolderModel->SetModel(MC->GetModel("BarHolder"));
-    healthBarHolderModel->SetMaterial(MC->GetMaterial("BarHolder"));
-
-    appleCounterRoot_ = node_->CreateChild("AppleCounter");
+    appleCounterRoot_ = subNode->CreateChild("AppleCounter");
+    appleCounterRoot_->Rotate(Quaternion(180.0f * ((colorSet_ - 1) % 2), Vector3::FORWARD));
     for (int a{0}; a < 4; ++a){
 
         appleCounter_[a] = appleCounterRoot_->CreateChild();
         appleCounter_[a]->SetEnabled(false);
-        appleCounter_[a]->SetPosition(Vector3(playerId == 2 ? (a + 8.0f) : -(a + 8.0f), 1.0f, 21.0f));
-        appleCounter_[a]->SetScale(0.333f);
+
+        if ((colorSet_ - 1) % 2)
+            appleCounter_[a]->SetPosition(Vector3::FORWARD * 2.3f + Vector3::RIGHT * (a * -0.666f + 1.0f));
+        else
+            appleCounter_[a]->SetPosition(Vector3::FORWARD * 2.3f + Vector3::RIGHT * (a * 0.666f - 1.0f));
+
+        appleCounter_[a]->SetScale(0.23f);
+        appleCounter_[a]->Rotate(Quaternion(13.0f, Vector3::RIGHT), TS_WORLD);
         StaticModel* apple{ appleCounter_[a]->CreateComponent<StaticModel>() };
         apple->SetModel(MC->GetModel("Apple"));
         apple->SetMaterial(MC->GetMaterial("GoldEnvmap"));
     }
 
-    heartCounterRoot_ = node_->CreateChild("HeartCounter");
+    heartCounterRoot_ = subNode->CreateChild("HeartCounter");
+    heartCounterRoot_->Rotate(Quaternion(180.0f * ((colorSet_ - 1) % 2), Vector3::FORWARD));
     for (int h{0}; h < 4; ++h){
 
         heartCounter_[h] = heartCounterRoot_->CreateChild();
         heartCounter_[h]->SetEnabled(false);
-        heartCounter_[h]->SetPosition(Vector3(playerId == 2 ? (h + 8.0f) : -(h + 8.0f), 1.0f, 21.0f));
-        heartCounter_[h]->SetScale(0.333f);
+
+        if ((colorSet_ - 1) % 2)
+            heartCounter_[h]->SetPosition(Vector3::FORWARD * 2.3f + Vector3::RIGHT *  (h * -0.666f + 1.0f));
+        else
+            heartCounter_[h]->SetPosition(Vector3::FORWARD * 2.3f + Vector3::RIGHT * (h * 0.666f - 1.0f));
+
+        heartCounter_[h]->SetScale(0.23f);
+        heartCounter_[h]->Rotate(Quaternion(13.0f, Vector3::RIGHT), TS_WORLD);
         StaticModel* heart{ heartCounter_[h]->CreateComponent<StaticModel>() };
         heart->SetModel(MC->GetModel("Heart"));
         heart->SetMaterial(MC->GetMaterial("RedEnvmap"));
@@ -118,16 +141,18 @@ void GUI3D::Update(float timeStep)
 {
     CountScore();
 
-    for (int i{0}; i < 4; ++i){
+    for (int i{0}; i < 4; ++i) {
+
         appleCounter_[i]->Rotate(Quaternion(0.0f, (i * i + 10.0f) * 23.0f * timeStep, 0.0f));
-        appleCounter_[i]->SetScale(MC->Sine((0.023f + (appleCount_)) * 0.5f, 0.2f, 0.4, -i * 2.3f));
+        appleCounter_[i]->SetScale(MC->Sine((0.23f + (appleCount_)) * 0.23f, 0.1f, 0.17f, -i * 2.3f));
         heartCounter_[i]->Rotate(Quaternion(0.0f, (i * i + 10.0f) * 23.0f * timeStep, 0.0f));
-        heartCounter_[i]->SetScale(MC->Sine((0.023f + (heartCount_)) * 0.5f, 0.2f, 0.4, -i * 2.3f));
+        heartCounter_[i]->SetScale(MC->Sine((0.23f + (heartCount_)) * 0.23f, 0.1f, 0.17f, -i * 2.3f));
     }
 
     //Update HealthBar color
-//    healthBarModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", HealthToColor(health_));
-//    healthBarModel_->GetMaterial()->SetShaderParameter("MatSpecularColor", HealthToColor(health_));
+    healthIndicator_->GetMaterial(0)->SetShaderParameter("MatDiffColor", HealthToColor(health_));
+    healthIndicator_->GetMaterial(0)->SetShaderParameter("MatEmissiveColor", HealthToColor(health_) * 0.13f);
+    healthIndicator_->GetMaterial(0)->SetShaderParameter("MatSpecularColor", HealthToColor(health_) * 0.05f);
 }
 
 void GUI3D::SetHealth(float health)
@@ -162,48 +187,63 @@ void GUI3D::SetScore(unsigned score)
     for (int d{0}; d < 10; ++d) {
         StaticModel* digitModel{scoreDigits_[d]->GetComponent<StaticModel>()};
         digitModel->SetModel(MC->GetModel(String(
-                             static_cast<int>(score_ / static_cast<unsigned>(pow(10, d)))%10 )));
+                             static_cast<int>(score_ / static_cast<unsigned>(pow(10, d))) % 10 )));
 
-        scoreDigits_[d]->SetEnabled( score_ >= static_cast<unsigned>(pow(10, d)) || d == 0 );
+        scoreDigits_[d]->SetEnabled( score_ >= static_cast<unsigned>(pow(10, d))
+                                     || d == 0 );
     }
 }
 void GUI3D::CountScore()
 {
-    int threshold{ 1024 };
+    int threshold{ 256 };
     int lines{ GetSubsystem<SpawnMaster>()->CountActive<Line>() };
 
-    while (toCount_ > 0 && lines < threshold){
-        Line* line{ GetSubsystem<SpawnMaster>()->Create<Line>() };
-        line->Set(playerId_);
+    while (toCount_ > 0 && lines < threshold) {
+
+        GetSubsystem<SpawnMaster>()->Create<Line>()->Set(colorSet_);
         --toCount_;
         ++lines;
     }
 }
 
 
-void GUI3D::EnterLobby()
+void GUI3D::EnterLobby(StringHash eventType, VariantMap &eventData)
 {
-    scoreNode_->SetWorldScale(1.0f);
-    scoreNode_->SetPosition(Vector3(playerId_ == 2 ? 5.94252f : -5.94252f, 0.9f, 0.82951f));
+    SetHeartsAndApples(0, 0);
+
+    health_ = 0.0f;
+    healthIndicator_->SetMorphWeight(0, 1.0f);
+    healthIndicator_->SetMorphWeight(1, 0.0f);
+
+    node_->SetPosition(Vector3::UP);
+    node_->SetScale(MC->GetAspectRatio() > 1.6f ? 1.0f
+                                                : 0.85f);
+//    scoreNode_->SetWorldScale(1.0f);
+//    scoreNode_->SetPosition(Vector3(playerId_ == 2 ? 5.94252f : -5.94252f, 0.9f, 0.82951f));
 }
-void GUI3D::EnterPlay()
+void GUI3D::EnterPlay(StringHash eventType, VariantMap &eventData)
 {
-    scoreNode_->SetPosition(Vector3(playerId_ == 2 ? 23.5f : -23.5f, 2.23f, 1.23f));
+//    node_->GetChild("Sub")->SetScale();
+    node_->SetPosition(Vector3::DOWN * 1.23f);
+    node_->SetScale(MC->GetAspectRatio() > 1.6f ? 3.6f
+                                                : 3.23f);
+    /*scoreNode_->SetPosition(Vector3(playerId_ == 2 ? 23.5f : -23.5f, 2.23f, 1.23f));
     if (MC->GetAspectRatio() > 1.5f)
         scoreNode_->SetWorldScale(4.2f);
     else {
         scoreNode_->SetWorldScale(3.666f);
         scoreNode_->Translate((playerId_ == 2 ? Vector3::LEFT : Vector3::RIGHT) * 2.3f);
-    }
+    }*/
 }
 
 Color GUI3D::HealthToColor(float health)
 {
-    Color color(1.0f, 1.0f, 0.05f, 1.0f);
+    Color color(0.23f, 1.0f, 0.05f, 1.0f);
     health = Clamp(health, 0.0f, 10.0f);
-    float maxBright{1.0f};
-    if (health < 5.0f) maxBright = MC->Sine(0.2f + 0.3f * (5.0f-health), 0.2f*health, 1.0f);
-    color.r_ = Clamp((3.0f - (health - 3.0f))/3.0f, 0.0f, maxBright);
-    color.g_ = Clamp((health - 3.0f)/4.0f, 0.0f, maxBright);
+    float maxBright( health < 5.0f ? MC->Sine(0.2f + 0.3f * (5.0f - health), 0.2f * health, 1.0f)
+                                   : 0.42f);
+
+    color.r_ = Clamp((3.0f - (health - 3.0f)) / 2.3f, 0.0f, maxBright);
+    color.g_ = Clamp((health - 3.0f) / 4.0f, 0.0f, maxBright);
     return color;
 }

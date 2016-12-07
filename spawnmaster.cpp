@@ -21,6 +21,7 @@
 #include "arena.h"
 #include "tile.h"
 #include "player.h"
+#include "ship.h"
 #include "chaoball.h"
 #include "chaomine.h"
 #include "chaozap.h"
@@ -113,7 +114,8 @@ void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         razor->Set(SpawnPoint());
 
         sinceRazorSpawn_ = 0.0f;
-        razorInterval_ = 7.0f * pow(0.95f, ((MC->SinceLastReset()) + 10.0f) / 10.0f);
+        razorInterval_ = (7.0f - GetSubsystem<SpawnMaster>()->CountActive<Ship>() * 0.42f)
+                * pow(0.95f, ((MC->SinceLastReset()) + 10.0f) / 10.0f);
 
     }
     if (sinceSpireSpawn_ > spireInterval_ && CountActive<Spire>() < 7) {
@@ -122,7 +124,8 @@ void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
         spire->Set(SpawnPoint());
 
         sinceSpireSpawn_ = 0.0f;
-        spireInterval_ = 23.0f * pow(0.95f, ((MC->scene_->GetElapsedTime() - MC->world.lastReset) + 42.0f) / 42.0f);
+        spireInterval_ = (23.0f - GetSubsystem<SpawnMaster>()->CountActive<Ship>() * 0.42f)
+                * pow(0.95f, ((MC->scene_->GetElapsedTime() - MC->world.lastReset) + 42.0f) / 42.0f);
 
     }
 
@@ -143,6 +146,6 @@ void SpawnMaster::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 Vector3 SpawnMaster::BubbleSpawnPoint()
 {
     return Quaternion(( Random(5) - 2 ) * 60.0f, Vector3::UP) *
-            (Vector3::FORWARD * 21.0f + Vector3::RIGHT * Random(-10.0f, 10.0f))
+            (Vector3::FORWARD * 20.0f + Vector3::RIGHT * Random(-10.0f, 10.0f))
             + Vector3::DOWN * 23.0f;
 }

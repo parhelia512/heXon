@@ -45,7 +45,7 @@ public:
     virtual void OnNodeSet(Node* node);
     virtual void Update(float timeStep);
 
-    void Set(const Vector3 position, const Color color, const float size, int playerID);
+    void Set(const Vector3 position, const Color color, const float size, int colorSet);
     void Disable();
 protected:
     SharedPtr<RigidBody> rigidBody_;

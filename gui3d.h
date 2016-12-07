@@ -21,6 +21,8 @@
 
 #include "mastercontrol.h"
 
+#define LOBBYPOS Vector3::FORWARD * 6.66f
+
 class GUI3D : public LogicComponent
 {
     URHO3D_OBJECT(GUI3D, LogicComponent);
@@ -30,14 +32,14 @@ public:
     virtual void Update(float timeStep);
     virtual void OnNodeSet(Node* node);
 
-    void Initialize(int playerId);
-    void EnterLobby();
-    void EnterPlay();
+    void Initialize(int colorSet);
+    void EnterLobby(StringHash eventType, VariantMap &eventData);
+    void EnterPlay(StringHash eventType, VariantMap &eventData);
     void SetHealth(float health);
     void SetHeartsAndApples(int hearts, int apples);
     void SetScore(unsigned score);
 private:
-    int playerId_;
+    int colorSet_;
     unsigned score_;
     unsigned toCount_;
 

@@ -31,8 +31,8 @@ public:
     Highest(Context* context);
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
-    void EnterLobby();
-    void EnterPlay();
+    void EnterLobby(StringHash eventType, VariantMap &eventData);
+    void EnterPlay(StringHash eventType, VariantMap &eventData);
 private:
     unsigned highestScore_;
     Text* highestScoreText_;

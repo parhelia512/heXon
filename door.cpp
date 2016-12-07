@@ -41,30 +41,34 @@ void Door::OnNodeSet(Node *node)
     model_->SetCastShadows(true);
 
     Node* lightNode{ node_->CreateChild("DoorLight") };
-    lightNode->SetPosition(Vector3(0.0f, 0.666f, 2.3f));
+    lightNode->LookAt(Vector3::BACK);
+    lightNode->SetPosition(Vector3(0.0f, 1.0, 3.4f));
     Light* doorLight{ lightNode->CreateComponent<Light>() };
-    doorLight->SetRange(10.0f);
-    doorLight->SetBrightness(5.0f);
+    doorLight->SetLightType(LIGHT_SPOT);
+    doorLight->SetFov(160.0f);
+    doorLight->SetRange(11.0f);
+    doorLight->SetBrightness(6.66f);
+    doorLight->SetSpecularIntensity(0.05f);
     doorLight->SetCastShadows(true);
-    doorLight->SetShadowBias(BiasParameters(0.000023f, 0.042f));
+    doorLight->SetShadowBias(BiasParameters(0.000000023f, 0.42f));
+//    doorLight->SetShadowResolution(0.5f);
 
     node_->CreateComponent<SoundSource>();
 
-    Node* triggerNode{ node_->CreateChild("Trigger") };
-    RigidBody* triggerBody{ triggerNode->CreateComponent<RigidBody>() };
+    RigidBody* triggerBody{ node_->CreateComponent<RigidBody>() };
     triggerBody->SetTrigger(true);
-    CollisionShape* trigger{ triggerNode->CreateComponent<CollisionShape>() };
-    trigger->SetBox(Vector3(2.0f, 3.0f, 1.0f), Vector3::BACK * 0.34f);
+    CollisionShape* trigger{ node_->CreateComponent<CollisionShape>() };
+    trigger->SetBox(Vector3(4.23f, 3.0f, 1.0f), Vector3::BACK * 0.34f);
 
-    node_->CreateComponent<RigidBody>();
-    for (float x : { -0.5f, 0.5f }){
+    /*node_->CreateComponent<RigidBody>();
+    for (float x : { -2.05f, 2.05f }){
 
         CollisionShape* collider{ node_->CreateComponent<CollisionShape>() };
         collider->SetCapsule(0.2f, 3.0f, Vector3( x, 0.0f, -0.23f));
-    }
+    }*/
 
-    SubscribeToEvent(triggerNode, E_NODECOLLISIONSTART, URHO3D_HANDLER(Door, Open));
-    SubscribeToEvent(triggerNode, E_NODECOLLISIONEND, URHO3D_HANDLER(Door, Close));
+    SubscribeToEvent(node_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Door, Open));
+    SubscribeToEvent(node_, E_NODECOLLISIONEND, URHO3D_HANDLER(Door, Close));
 
 }
 
@@ -77,15 +81,27 @@ void Door::Open(StringHash eventType, VariantMap& eventData)
 void Door::Close(StringHash eventType, VariantMap& eventData)
 { (void)eventType; (void)eventData;
 
-    node_->GetComponent<SoundSource>()->Play(MC->GetSample("Door"));
-    open_ = false;
+    PODVector<RigidBody*> colliders{};
+    node_->GetComponent<RigidBody>()->GetCollidingBodies(colliders);
+    if (!colliders.Size()) {
+
+        node_->GetComponent<SoundSource>()->Play(MC->GetSample("Door"));
+        open_ = false;
+    }
 }
 
-bool Door::HidesPilot() const
+bool Door::HidesAllPilots() const
 {
-    return model_->GetMorphWeight(0) < 0.0023f
-            && GetSubsystem<InputMaster>()->GetControllableByPlayer(node_->GetPosition().x_ < 0.0f ? 1 : 2)
-               ->GetPosition().z_ > (node_->GetPosition().z_ + 0.5f);
+    Vector<Controllable*> controllables{ GetSubsystem<InputMaster>()->GetControllables() };
+    for (Controllable* c : controllables) {
+        if (c)
+
+            if (c->IsInstanceOf<Pilot>()) {
+                if (c->GetPosition().z_ < node_->GetPosition().z_ + 0.5f)
+                    return false;
+            } else return false;
+    }
+    return model_->GetMorphWeight(0) < 0.0023f;
 }
 
 void Door::Update(float timeStep)
@@ -93,5 +109,5 @@ void Door::Update(float timeStep)
 
     model_->SetMorphWeight(0, Lerp( model_->GetMorphWeight(0),
                                   static_cast<float>(open_),
-                                  timeStep * 23.0f) );
+                                  timeStep * 7.0f) );
 }

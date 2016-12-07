@@ -49,6 +49,9 @@ void Controllable::OnNodeSet(Node *node)
     animCtrl_ = node_->CreateComponent<AnimationController>();
 
     model_->SetCastShadows(true);
+
+    SubscribeToEvent(E_ENTERLOBBY, URHO3D_HANDLER(Controllable, EnterLobby));
+    SubscribeToEvent(E_ENTERPLAY,  URHO3D_HANDLER(Controllable, EnterPlay));
 }
 void Controllable::Update(float timeStep)
 {
@@ -101,7 +104,7 @@ void Controllable::HandleAction(int actionId)
 
 void Controllable::AlignWithMovement(float timeStep)
 {
-    Quaternion rot{node_->GetRotation()};
+    Quaternion rot{ node_->GetRotation() };
     Quaternion targetRot{};
     targetRot.FromLookRotation(move_);
     rot = rot.Slerp(targetRot, Clamp(timeStep * 23.0f, 0.0f, 1.0f));
@@ -110,7 +113,7 @@ void Controllable::AlignWithMovement(float timeStep)
 void Controllable::AlignWithVelocity(float timeStep)
 {
     Quaternion targetRot{};
-    Quaternion rot{node_->GetRotation()};
+    Quaternion rot{ node_->GetRotation() };
     targetRot.FromLookRotation(rigidBody_->GetLinearVelocity());
     ClampPitch(targetRot);
     float horizontalVelocity{(rigidBody_->GetLinearVelocity() * Vector3(1.0f, 0.0f, 1.0f)).Length()};
@@ -133,8 +136,7 @@ void Controllable::ClearControl()
     ResetInput();
 }
 
-Player *Controllable::GetPlayer()
+Player* Controllable::GetPlayer()
 {
     GetSubsystem<InputMaster>()->GetPlayerByControllable(this);
 }
-

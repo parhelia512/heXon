@@ -46,8 +46,8 @@ public:
 
     bool IsAlive() const noexcept { return alive_; }
     bool IsHuman() const noexcept { return !autoPilot_; }
-    void EnterLobby();
-    void EnterPlay();
+    void EnterLobby(StringHash eventType, VariantMap &eventData);
+    void EnterPlay(StringHash eventType, VariantMap &eventData);
 
     GUI3D* gui3d_;
 private:
@@ -63,9 +63,7 @@ private:
     void SetScore(int points);
     Vector3 Sniff(float playerFactor, bool taste);
 
-    /*Node* shieldNode_;
-    StaticModel* shieldModel_;
-    SharedPtr<Material> shieldMaterial_;
+    /*
     ChaoFlash* chaoFlash_;
     Vector3 lastHitDirection_;
     RigidBody* rigidBody_;

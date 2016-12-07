@@ -47,6 +47,8 @@ void heXoCam::OnNodeSet(Node *node)
 
     SetupViewport();
 
+    SubscribeToEvent(E_ENTERLOBBY, URHO3D_HANDLER(heXoCam, EnterLobby));
+    SubscribeToEvent(E_ENTERPLAY,  URHO3D_HANDLER(heXoCam, EnterPlay));
 }
 
 void heXoCam::Start()
@@ -59,11 +61,12 @@ void heXoCam::Stop()
 
 void heXoCam::SetupViewport()
 {
-    ResourceCache* cache{GetSubsystem<ResourceCache>()};
-    Renderer* renderer{GetSubsystem<Renderer>()};
+    ResourceCache* cache{ GetSubsystem<ResourceCache>() };
+    Renderer* renderer{ GetSubsystem<Renderer>() };
 
-    SharedPtr<Viewport> viewport{new Viewport(MC->GetContext(), MC->scene_, camera_)};
+    SharedPtr<Viewport> viewport{ new Viewport(MC->GetContext(), MC->scene_, camera_) };
     viewport_ = viewport;
+//    viewport_->SetRenderPath(CACHE->GetResource<XMLFile>("RenderPaths/DeferredHWDepth.xml"));
 
     //Add anti-asliasing, bloom and a greyscale effects
     effectRenderPath_ = viewport_->GetRenderPath()->Clone();
@@ -83,8 +86,8 @@ void heXoCam::SetupViewport()
 void heXoCam::Update(float timeStep)
 {
     node_->SetPosition(node_->GetPosition().Lerp(closeUp_ ?
-                                     Vector3(0.0f, 13.5f, -6.23f):
-                                     Vector3(0.0f, 42.0f, -23.0f),
+                                     Vector3(0.0f, 13.0f, -6.55f):
+                                     Vector3(0.0f, 43.0f, -23.5f),
                                                     Clamp(5.0f * timeStep, 0.0f, 1.0f)));
 }
 
@@ -93,11 +96,13 @@ void heXoCam::SetGreyScale(const bool enabled)
     effectRenderPath_->SetEnabled("GreyScale", enabled);
 }
 
-void heXoCam::EnterLobby(){
+void heXoCam::EnterLobby(StringHash eventType, VariantMap &eventData)
+{
     closeUp_ = true;
     effectRenderPath_->SetShaderParameter("BloomHDRThreshold", 0.42f);
 }
-void heXoCam::EnterPlay(){
+void heXoCam::EnterPlay(StringHash eventType, VariantMap &eventData)
+{
     closeUp_ = false;
     effectRenderPath_->SetShaderParameter("BloomHDRThreshold", 0.32f);
 }

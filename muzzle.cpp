@@ -28,7 +28,10 @@ Muzzle::Muzzle(Context* context):
 {
 }
 
-void Muzzle::SetColor(String color)
+void Muzzle::SetColor(float colorSet)
 {
-    particleEmitter_->SetEffect(CACHE->GetResource<ParticleEffect>("Particles/"+color+"Muzzle.xml"));
+    SharedPtr<ParticleEffect> effect{ CACHE->GetResource<ParticleEffect>("Particles/Muzzle.xml")->Clone() };
+    effect->SetMaterial(MC->colorSets_[colorSet].hitFx_->GetMaterial());
+    particleEmitter_->SetEffect(effect);
+
 }

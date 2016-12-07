@@ -53,16 +53,22 @@ void Line::Update(float timeStep)
     node_->SetScale(Max(node_->GetScale().x_ - timeStep, 0.0f));
 }
 
-void Line::Set(int playerID)
+void Line::Set(int colorSet)
 {
-    Vector3 position{ Quaternion(( Random(2) + (playerID == 2 ? 1 : -2) ) * 60.0f, Vector3::UP) *
-            (Vector3::FORWARD * Random(23.0f, 42.0f) + Vector3::RIGHT * Random(-13.0f, 13.0f))
+    float angle{};
+    switch(colorSet){
+    case 1: angle =  -60.0f; break;
+    case 2: angle =   60.0f; break;
+    case 3: angle = -120.0f; break;
+    case 4: angle =  120.0f; break;
+    }
+
+    Vector3 position{ Quaternion(angle, Vector3::UP) *
+            (Vector3::FORWARD * Random(32.0f, 42.0f) + Vector3::RIGHT * Random(-13.0f, 13.0f))
             + Vector3::DOWN * (23.0f + Random(46.0f)) };
 
     Effect::Set(position);
-    model_->SetMaterial(playerID == 2
-                        ? MC->GetMaterial("PurpleBullet")
-                        : MC->GetMaterial("GreenBullet"));
+    model_->SetMaterial(MC->colorSets_[colorSet].bulletMaterial_);
     node_->SetScale(baseScale_);
 }
 

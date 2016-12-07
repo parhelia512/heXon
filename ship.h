@@ -36,16 +36,19 @@ public:
     virtual void OnNodeSet(Node* node);
     void Set(const Vector3 position, const Quaternion rotation);
     virtual void Update(float timeStep);
-    void EnterPlay();
-    void EnterLobby();
+    void EnterPlay(StringHash eventType, VariantMap &eventData);
+    void EnterLobby(StringHash eventType, VariantMap &eventData);
 
     void Pickup(PickupType pickup);
     void UpgradeWeapons();
     void ChargeShield();
+    void SetHealth(float health);
     void Hit(float damage, bool melee);
     void Eject();
 
     virtual void Think();
+    int GetColorSet() const { return colorSet_; }
+    GUI3D* gui3d_;
 private:
     bool initialized_;
     Vector3 initialPosition_;
@@ -54,10 +57,9 @@ private:
 
     const float initialHealth_;
     float health_;
+
     int weaponLevel_;
     int bulletAmount_;
-    float bulletDamage_;
-
     const float initialShotInterval_;
     float shotInterval_;
     float sinceLastShot_;
@@ -68,12 +70,13 @@ private:
     Muzzle* muzzle_;
     ParticleEmitter* particleEmitter_;
     Vector<TailGenerator*> tailGens_;
-
+    Node* shieldNode_;
+    StaticModel* shieldModel_;
+    SharedPtr<Material> shieldMaterial_;
     Vector<SharedPtr<Bullet> > bullets_;
 
     Sound* shot_s;
 
-    void SetHealth(float health);
     void CreateTails();
     void Shoot(Vector3 aim);
     void FireBullet(Vector3 direction);
@@ -83,7 +86,7 @@ private:
     void SetTailsEnabled(bool enabled);
     void PickupChaoBall();
     void SetColors();
-    Vector3 Sniff(float playerFactor, bool taste = false);
+    Vector3 Sniff(float playerFactor, Vector3 &move, bool taste = false);
 };
 
 #endif // SHIP_H

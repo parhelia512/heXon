@@ -78,7 +78,7 @@ void ChaoZap::Update(float timeStep)
     node_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
 }
 
-void ChaoZap::Set(const Vector3 position, int playerId)
+void ChaoZap::Set(const Vector3 position, int colorSet)
 {
     SceneObject::Set(position);
 
@@ -94,15 +94,15 @@ void ChaoZap::Set(const Vector3 position, int playerId)
 
             if (hitNode->HasComponent<Seeker>()){
 
-                MC->GetPlayer(playerId)->AddScore(Random(2, 3));
+                MC->GetPlayerByColorSet(colorSet)->AddScore(Random(2, 3));
                 hitNode->GetComponent<Seeker>()->Disable();
 
             } else for (Component* c : hitNode->GetComponents()) {
                 if (c->IsInstanceOf<Enemy>() && !c->IsInstanceOf<ChaoMine>()){
 
                     Enemy* e{ static_cast<Enemy*>(c) };
-                    MC->GetPlayer(playerId)->AddScore(Random(2, 3) * e->GetWorth());
-                    e->Hit(e->GetHealth(), playerId);
+                    MC->GetPlayerByColorSet(colorSet)->AddScore(Random(2, 3) * e->GetWorth());
+                    e->Hit(e->GetHealth(), colorSet);
                 }
             }
         }

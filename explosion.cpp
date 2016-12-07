@@ -60,8 +60,8 @@ void Explosion::Update(float timeStep)
 {
     Effect::Update(timeStep);
 
-    rigidBody_->SetMass(Max(initialMass_ * ((0.1f - age_)/0.1f), 0.01f));
-    light_->SetBrightness(Max(initialBrightness_ * (0.32f - age_)/0.32f, 0.0f));
+    rigidBody_->SetMass(Max(initialMass_ * ((0.1f - age_) / 0.1f), 0.01f));
+    light_->SetBrightness(Max(initialBrightness_ * (0.32f - age_) / 0.32f, 0.0f));
 
     if (node_->IsEnabled() && MC->scene_->IsUpdateEnabled()) {
         PODVector<RigidBody*> hitResults{};
@@ -97,9 +97,9 @@ void Explosion::Update(float timeStep)
     }
 }
 
-void Explosion::Set(const Vector3 position, const Color color, const float size, int playerID)
+void Explosion::Set(const Vector3 position, const Color color, const float size, int colorSet)
 {
-    playerID_ = playerID;
+    playerID_ = colorSet;
     Effect::Set(position);
     node_->SetScale(size);
     initialMass_ = 3.0f * size;
@@ -107,16 +107,16 @@ void Explosion::Set(const Vector3 position, const Color color, const float size,
     light_->SetColor(color);
     light_->SetBrightness(initialBrightness_);
 
-    ParticleEffect* particleEffect{particleEmitter_->GetEffect()};
+    ParticleEffect* particleEffect{ particleEmitter_->GetEffect() };
     Vector<ColorFrame> colorFrames{};
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
-    Color mixColor{0.5f * (color + particleEffect->GetColorFrame(1)->color_)};
-    colorFrames.Push(ColorFrame(mixColor, 0.1f));
-    colorFrames.Push(ColorFrame(mixColor*0.1f, 0.35f));
+//    Color mixColor{0.5f * (color + particleEffect->GetColorFrame(1)->color_)};
+    colorFrames.Push(ColorFrame(color, 0.1f));
+    colorFrames.Push(ColorFrame(color * 0.1f, 0.35f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
     particleEffect->SetColorFrames(colorFrames);
 
-    sampleSource_->SetGain(Min(0.5f*size, 1.0f));
+    sampleSource_->SetGain(Min(0.5f * size, 1.0f));
     sampleSource_->Play(sample_);
 
     MC->arena_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));

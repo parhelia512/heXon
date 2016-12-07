@@ -28,7 +28,9 @@
 #include "muzzle.h"
 #include "phaser.h"
 #include "chaoball.h"
+#include "chaomine.h"
 #include "chaoflash.h"
+#include "seeker.h"
 
 #include "ship.h"
 
@@ -46,7 +48,6 @@ Ship::Ship(Context* context) : Controllable(context),
     health_{initialHealth_},
     weaponLevel_{0},
     bulletAmount_{1},
-    bulletDamage_{0.15f},
     initialShotInterval_{0.30f},
     shotInterval_{initialShotInterval_},
     sinceLastShot_{0.0f},
@@ -66,13 +67,23 @@ void Ship::OnNodeSet(Node *node)
     MC->scene_->GetChildrenWithComponent<Ship>(ships, true);
     colorSet_ = ships.Size();
 
+    Node* guiNode{ MC->scene_->CreateChild("GUI3D") };
+    gui3d_ = guiNode->CreateComponent<GUI3D>();
+    gui3d_->Initialize(colorSet_);
+
     model_->SetModel(MC->GetModel("KlåMk10"));
 
     particleEmitter_ = node_->CreateComponent<ParticleEmitter>();
     particleEmitter_->SetEmitting(false);
 
+    shieldNode_ = node_->CreateChild("Shield");
+    shieldModel_ = shieldNode_->CreateComponent<StaticModel>();
+    shieldModel_->SetModel(MC->GetModel("Shield"));
+    shieldMaterial_ = MC->GetMaterial("Shield")->Clone();
+    shieldModel_->SetMaterial(shieldMaterial_);
+
     muzzle_ = GetSubsystem<SpawnMaster>()->Create<Muzzle>(false);
-    muzzle_->SetColor(colorSet_ == 2 ? "Purple" : "Green");
+    muzzle_->SetColor(colorSet_);
 
     //Setup ship physics
     rigidBody_->SetRestitution(0.666f);
@@ -106,37 +117,47 @@ void Ship::Set(const Vector3 position, const Quaternion rotation)
 
 void Ship::SetColors()
 {
-    model_->SetMaterial(0, colorSet_ == 2 ? MC->GetMaterial("PurpleGlow") : MC->GetMaterial("GreenGlow"));
-    model_->SetMaterial(1, colorSet_ == 2 ? MC->GetMaterial("Purple") : MC->GetMaterial("Green"));
+    model_->SetMaterial(0, MC->colorSets_[colorSet_].glowMaterial_);
+    model_->SetMaterial(1, MC->colorSets_[colorSet_].hullMaterial_);
+//    model_->SetMaterial(0, colorSet_ == 2 ? MC->GetMaterial("PurpleGlow") : MC->GetMaterial("GreenGlow"));
+//    model_->SetMaterial(1, colorSet_ == 2 ? MC->GetMaterial("Purple") : MC->GetMaterial("Green"));
 
     SharedPtr<ParticleEffect> particleEffect{ CACHE->GetTempResource<ParticleEffect>("Particles/Shine.xml") };
     Vector<ColorFrame> colorFrames{};
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
-    colorFrames.Push(ColorFrame(colorSet_ == 2 ? Color(0.42f, 0.0f, 0.88f, 0.05f) : Color(0.42f, 0.7f, 0.23f, 0.23f), 0.05f));
+    colorFrames.Push(ColorFrame(MC->colorSets_[colorSet_].colors_.first_ * 0.23f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
     particleEffect->SetColorFrames(colorFrames);
     particleEmitter_->SetEffect(particleEffect);
 }
 
-void Ship::EnterPlay()
+void Ship::EnterPlay(StringHash eventType, VariantMap &eventData)
 {
+    if (!GetPlayer()) {
+
+        node_->SetEnabledRecursive(false);
+        return;
+    }
+
     SetHealth(initialHealth_);
     Pickup(PT_RESET);
 
     rigidBody_->SetMass(1.0f);
     rigidBody_->ApplyImpulse(node_->GetDirection() * 5.0f);
     particleEmitter_->SetEmitting(true);
-    model_->SetMaterial(0, colorSet_ == 2 ? MC->GetMaterial("PurpleGlowEnvmap") : MC->GetMaterial("GreenGlowEnvmap"));
-    model_->SetMaterial(1, colorSet_ == 2 ? MC->GetMaterial("PurpleEnvmap") : MC->GetMaterial("GreenEnvmap"));
+    /*model_->SetMaterial(0, colorSet_ == 2 ? MC->GetMaterial("PurpleGlowEnvmap")
+                                          : MC->GetMaterial("GreenGlowEnvmap"));
+    model_->SetMaterial(1, colorSet_ == 2 ? MC->GetMaterial("PurpleEnvmap")
+                                          : MC->GetMaterial("GreenEnvmap"));*/
 
     SetTailsEnabled(true);
+
 }
-void Ship::EnterLobby()
+void Ship::EnterLobby(StringHash eventType, VariantMap &eventData)
 {
     health_ = initialHealth_;
     weaponLevel_ = 0;
     bulletAmount_ = 1;
-    bulletDamage_ = 0.15f;
     shotInterval_ = initialShotInterval_;
     sinceLastShot_ = 0.0f;
 
@@ -144,8 +165,8 @@ void Ship::EnterLobby()
     Set(initialPosition_, initialRotation_);
     rigidBody_->SetMass(0.0f);
     particleEmitter_->SetEmitting(false);
-    model_->SetMaterial(0, colorSet_ == 2 ? MC->GetMaterial("PurpleGlow") : MC->GetMaterial("GreenGlow"));
-    model_->SetMaterial(1, colorSet_ == 2 ? MC->GetMaterial("Purple") : MC->GetMaterial("Green"));
+//    model_->SetMaterial(0, colorSet_ == 2 ? MC->GetMaterial("PurpleGlow") : MC->GetMaterial("GreenGlow"));
+//    model_->SetMaterial(1, colorSet_ == 2 ? MC->GetMaterial("Purple") : MC->GetMaterial("Green"));
 
     SetTailsEnabled(false);
 }
@@ -167,8 +188,8 @@ void Ship::CreateTails()
         tailGen->SetTailLength(t==1? 0.05f : 0.025f);
         tailGen->SetNumTails(t==1? 13 : 7);
         tailGen->SetWidthScale(t==1? 0.5f : 0.13f);
-        tailGen->SetColorForHead(colorSet_==2 ? Color(1.0f, 0.666f, 0.23f) : Color(0.8f, 0.8f, 0.2f));
-        tailGen->SetColorForTip(colorSet_==2 ? Color(1.0f, 0.23f, 0.0f) : Color(0.23f, 0.6f, 0.0f));
+        tailGen->SetColorForHead(MC->colorSets_[colorSet_].colors_.first_);//colorSet_==2 ? Color(1.0f, 0.666f, 0.23f) : Color(0.8f, 0.8f, 0.2f));
+        tailGen->SetColorForTip(MC->colorSets_[colorSet_].colors_.first_);//colorSet_==2 ? Color(1.0f, 0.23f, 0.0f) : Color(0.23f, 0.6f, 0.0f));
         tailGens_.Push(tailGen);
         /*RibbonTrail* tailGen{tailNode->CreateComponent<RibbonTrail>()};
         tailGen->SetTrailType(TT_FACE_CAMERA);
@@ -197,13 +218,13 @@ void Ship::Update(float timeStep)
     Controllable::Update(timeStep);
 
     //Update shield
-//    Quaternion randomRotation = Quaternion(Random(360.0f),Random(360.0f),Random(360.0f));
-//    shieldNode_->SetRotation(shieldNode_->GetRotation().Slerp(randomRotation, Random(1.0f)));
-//    Color shieldColor = shieldMaterial_->GetShaderParameter("MatDiffColor").GetColor();
-//    Color newColor = Color(shieldColor.r_ * Random(0.6f, 0.9f),
-//                           shieldColor.g_ * Random(0.7f, 0.95f),
-//                           shieldColor.b_ * Random(0.8f, 0.9f));
-//    shieldMaterial_->SetShaderParameter("MatDiffColor", shieldColor.Lerp(newColor, Min(timeStep * 23.5f, 1.0f)));
+    Quaternion randomRotation = Quaternion(Random(360.0f),Random(360.0f),Random(360.0f));
+    shieldNode_->SetRotation(shieldNode_->GetRotation().Slerp(randomRotation, Random(1.0f)));
+    Color shieldColor = shieldMaterial_->GetShaderParameter("MatDiffColor").GetColor();
+    Color newColor = Color(shieldColor.r_ * Random(0.6f, 0.9f),
+                           shieldColor.g_ * Random(0.7f, 0.95f),
+                           shieldColor.b_ * Random(0.8f, 0.9f));
+    shieldMaterial_->SetShaderParameter("MatDiffColor", shieldColor.Lerp(newColor, Min(timeStep * 23.5f, 1.0f)));
 
     //Float
 //        ship_.node_->SetPosition(Vector3::UP *MC->Sine(2.3f, -0.1f, 0.1f));
@@ -283,7 +304,7 @@ void Ship::FireBullet(Vector3 direction)
     float damage{ 0.15f + 0.00666f * weaponLevel_ };
 
     GetSubsystem<SpawnMaster>()->Create<Bullet>()
-            ->Set(position, GetPlayer()->GetPlayerId(), direction, force, damage);
+            ->Set(position, colorSet_, direction, force, damage);
     /*SharedPtr<Bullet> bullet{};
     if (bullets_.Size() > 0) {
 
@@ -310,7 +331,7 @@ void Ship::MoveMuzzle()
 
 void Ship::Pickup(PickupType pickup)
 {
-    if (health_ <= 0.0f)
+    if (health_ <= 0.0f && pickup != PT_RESET)
         return;
 
     switch (pickup) {
@@ -371,7 +392,7 @@ void Ship::ChargeShield()
 void Ship::PickupChaoBall()
 {
     ChaoFlash* chaoFlash{ GetSubsystem<SpawnMaster>()->Create<ChaoFlash>() };
-    chaoFlash->Set(MC->chaoBall_->GetPosition(), GetPlayer()->GetPlayerId());
+    chaoFlash->Set(MC->chaoBall_->GetPosition(), colorSet_);
     PlaySample(MC->GetSample("Chaos"), 0.8f);
 }
 
@@ -389,11 +410,12 @@ void Ship::Hit(float damage, bool melee)
 {
     if (health_ > 10.0f){
         damage *= (melee ? 0.75f : 0.25f);
-//        shieldMaterial_->SetShaderParameter("MatDiffColor", Color(2.0f, 3.0f, 5.0f, 1.0f));
-//        PlaySample(shieldHit_s, 0.23f);
+        shieldMaterial_->SetShaderParameter("MatDiffColor", Color(2.0f, 3.0f, 5.0f, 1.0f));
+        PlaySample(MC->GetSample((health_ - damage) > 10.0f ? "ShieldHit"
+                                                            : "ShieldDown"), 0.23f);
     }
-//    else if (!melee)
-//        PlaySample(seekerHits_s[Random((int)seekerHits_s.Size())], 0.75f);
+    else if (!melee)
+        PlaySample(MC->GetSample("SeekerHit" + String(Random(4)+1)));
     SetHealth(health_ - damage);
 }
 
@@ -404,10 +426,11 @@ void Ship::Explode()
     Disable();
     Explosion* explosion{ GetSubsystem<SpawnMaster>()->Create<Explosion>() };
     explosion->Set(node_->GetPosition(),
-                   GetPlayer()->GetPlayerId() == 2 ? Color(1.0f, 0.42f, 0.0f)
-                                              : Color(0.23f, 1.0f, 0.0f),
-                   2.0f, GetPlayer()->GetPlayerId());
+                   MC->colorSets_[colorSet_].colors_.first_,
+                   2.0f, 0);
     PlaySample(MC->GetSample("Death"), 2.3f);
+
+    Pickup(PT_RESET);
 
     for (Player* p : MC->GetPlayers())
     {
@@ -427,20 +450,28 @@ void Ship::Eject()
 
 void Ship::Think()
 {
-    float playerFactor{ (GetPlayer()->GetPlayerId() == 2 ? 3.4f : 2.3f) };
+    Vector3 move{ move_ };
+
+    float playerFactor{ 1.0f };
+    switch (GetPlayer()->GetPlayerId()){
+    case 1: playerFactor = 2.3f; break;
+    case 2: playerFactor = 3.4f; break;
+    case 3: playerFactor = 6.66f; break;
+    case 4: playerFactor = 5.0f; break;
+    }
 
     if (MC->GetSinceStateChange() < playerFactor * 0.1f){
-        SetMove(Vector3::ZERO);
+        move = Vector3::ZERO;
         return;
     }
 
     Vector3 pickupPos{ Vector3::ZERO };
-    Vector3 smell{ Sniff(playerFactor) * playerFactor };
-    Vector3 taste{ Sniff(playerFactor, true) * playerFactor };
+    Vector3 smell{ Sniff(playerFactor, move, false) * playerFactor };
+    Vector3 taste{ Sniff(playerFactor, move, true) * playerFactor };
 
     if (health_ < (5.0f - appleCount_)
      || GetPlayer()->GetFlightScore() == 0
-     || (appleCount_ == 0 && health_ < 8.0f)
+     || ((health_ + 0.5f * appleCount_) < 8.0f)
      || (heartCount_ != 0 && health_ <= 10.0f && weaponLevel_ > 13)
      || (weaponLevel_==23 && health_ <= 10.0f)
      ||  heartCount_ == 4)
@@ -462,17 +493,20 @@ void Ship::Think()
                 GetPosition(), LucKey::Scale(pickupPos, Vector3(1.0f, 0.0f, 1.0f))) < playerFactor)
         pickupPos = GetPosition() + node_->GetDirection() * playerFactor;
 
-    SetMove(0.5f * (move_ +
+    move = 0.5f * (move +
                     LucKey::Scale(pickupPos - node_->GetPosition()
                                   - 0.05f * playerFactor * rigidBody_->GetLinearVelocity()
                                   - 0.1f * playerFactor * node_->GetDirection()
-                                  , Vector3(1.0f, 0.0f, 1.0f)).Normalized()));
+                                  , Vector3(1.0f, 0.0f, 1.0f)).Normalized());
+
     if (LucKey::Distance(pickupPos, GetPosition()) > playerFactor)
-        SetMove( move_ + smell * 13.0f);
-    SetMove( move_ + Vector3(
+        move += smell * 5.0f;
+    move += Vector3(
                  MC->Sine(playerFactor, -0.05f, 0.05f, playerFactor),
                  0.0f,
-                 MC->Sine(playerFactor, -0.05f, 0.05f, -playerFactor)));
+                 MC->Sine(playerFactor, -0.05f, 0.05f, -playerFactor));
+
+    SetMove(move);
     //Pick firing target
     bool fire{false};
     Pair<float, Vector3> target{};
@@ -502,18 +536,19 @@ void Ship::Think()
     }
     if (fire){
         SetAim((target.second_ - GetPosition()).Normalized());
+        float aimFactor{ 23.0f / playerFactor };
         if (bulletAmount_ == 2 || bulletAmount_ == 3)
-            SetAim(Quaternion((GetPlayer()->GetPlayerId() == 2 ? -1.0f :1.0f)*Min(0.666f * LucKey::Distance(this->GetPosition(), target.second_), 5.0f), Vector3::UP) * aim_);
-        SetAim(Quaternion((GetPlayer()->GetPlayerId() == 2 ? -1.0f:1.0f)*MC->Sine(playerFactor, -playerFactor, playerFactor), Vector3::UP) * aim_);
+            SetAim((Quaternion((GetPlayer()->GetPlayerId() == 2 ? -1.0f : 1.0f) * (Min(0.666f * LucKey::Distance(this->GetPosition(), target.second_), 5.0f) + MC->Sine(aimFactor * aimFactor, -aimFactor, aimFactor)), Vector3::UP) * aim_).Normalized());
+        else SetAim((Quaternion((GetPlayer()->GetPlayerId() == 2 ? -1.0f : 1.0f) * MC->Sine(aimFactor * aimFactor, -aimFactor, aimFactor), Vector3::UP) * aim_).Normalized());
     }
     else SetAim(Vector3::ZERO);
-    SetAim(aim_ - taste);
+//    SetAim((aim_ - taste).Normalized());
 }
 
-Vector3 Ship::Sniff(float playerFactor, bool taste)
+Vector3 Ship::Sniff(float playerFactor, Vector3& move, bool taste)
 {
     Vector3 smell;
-    int whiskers{42};
+    int whiskers{23};
     int detected{0};
 
     //Smell across borders
@@ -522,49 +557,51 @@ Vector3 Ship::Sniff(float playerFactor, bool taste)
                                                : GetPosition() )};
         for (int w = 0; w < whiskers; ++w){
             PODVector<PhysicsRaycastResult> hitResults{};
-            Vector3 whiskerDirection = Quaternion((360.0f / whiskers) * w, Vector3::UP) * (2.0f * node_->GetDirection() + 3.0f * move_.Normalized());
+            Vector3 whiskerDirection{ Quaternion((360.0f / whiskers) * w, Vector3::UP)
+                        * (2.0f * node_->GetDirection() + 3.0f * move_.Normalized())};
             Ray whiskerRay{projectedPlayerPos + Vector3::DOWN * Random(0.666f), whiskerDirection};
-            if (MC->PhysicsRayCast(hitResults, whiskerRay, playerFactor * playerFactor, M_MAX_UNSIGNED)){
+            if (MC->PhysicsRayCast(hitResults, whiskerRay, playerFactor + playerFactor * (w == 0), M_MAX_UNSIGNED)){
                 ++detected;
                 PhysicsRaycastResult r{hitResults[0]};
-                    StringHash nodeNameHash{r.body_->GetNode()->GetNameHash()};
-                    float distSquared{(r.distance_ * r.distance_) *
-                                (0.005f * whiskerDirection.Angle(move_) +
-                                 playerFactor * playerFactor)};
-                    if (nodeNameHash ==N_APPLE) {
-                        smell += 230.0f * (whiskerDirection / (distSquared)) * (appleCount_ - static_cast<float>(GetPlayer()->GetFlightScore() == 0));
-                    } else if (nodeNameHash == N_HEART) {
-                        smell += 235.0f * (whiskerDirection / (distSquared)) * (heartCount_ * 2.0f - appleCount_ * 10.0f + (10.0f - health_));
-                    } else if ((nodeNameHash == N_CHAOBALL) && !taste) {
-                        if (r.body_->GetNode()->GetComponent<RigidBody>()->GetLinearVelocity().Length() < 5.0f)
-                            smell += 666.0f * whiskerDirection / (distSquared * distSquared);
-                    } else if ((nodeNameHash == N_CHAOMINE) && !taste) {
-                        if (r.body_->GetNode()->GetComponent<RigidBody>()->GetLinearVelocity().Length() < 5.0f)
-                            smell += 9000.0f * whiskerDirection / (distSquared * distSquared * Random(5.0f));
-                    } else if (nodeNameHash == N_RAZOR) {
-                        smell -= 320.0f * (whiskerDirection / (distSquared));
-                    } else if (nodeNameHash == N_SPIRE) {
-                        smell -= 3200.0f * (whiskerDirection / (distSquared * distSquared));
-                    } else if (nodeNameHash == N_SEEKER && !taste) {
-                        smell -= 1000.0f * (whiskerDirection / r.distance_) * (3.0f - 2.0f * static_cast<float>(health_ > 10.0f));
-                        ++detected;
-                    }
-                    if (!taste){
-                        if (nodeNameHash != N_APPLE && nodeNameHash != N_HEART
-                                && nodeNameHash != N_CHAOBALL && nodeNameHash != N_CHAOMINE
-                                && nodeNameHash != StringHash("PickupTrigger"))
-                            smell += 0.005f * whiskerDirection * r.distance_;
-                        else smell += 0.005f * whiskerDirection * playerFactor * playerFactor;
-                    }
+                Node* node{ r.body_->GetNode() };
+                float distSquared{(r.distance_ * r.distance_) *
+                            (0.005f * whiskerDirection.Angle(move_) +
+                             playerFactor * playerFactor)};
+
+                if (node->HasComponent<Apple>()) {
+                    smell += 230.0f * (whiskerDirection / (distSquared)) * (appleCount_ - static_cast<float>(GetPlayer()->GetFlightScore() == 0));
+                } else if (node->HasComponent<Heart>()) {
+                    smell += 235.0f * (whiskerDirection / (distSquared)) * (heartCount_ * 2.0f - appleCount_ * 10.0f + (10.0f - health_));
+                } else if ((node->HasComponent<ChaoBall>()) && !taste) {
+                    if (r.body_->GetNode()->GetComponent<RigidBody>()->GetLinearVelocity().Length() < 5.0f)
+                        smell += 666.0f * whiskerDirection / (distSquared * distSquared);
+                } else if ((node->HasComponent<ChaoMine>()) && !taste) {
+                    if (r.body_->GetNode()->GetComponent<RigidBody>()->GetLinearVelocity().Length() < 5.0f)
+                        smell += 9000.0f * whiskerDirection / (distSquared * distSquared * Random(5.0f));
+                } else if (node->HasComponent<Razor>()) {
+                    smell -= ((w == 0) * 2300.0f + 320.0f) * (whiskerDirection / (distSquared));
+                } else if (node->HasComponent<Spire>()) {
+                    smell -= ((w == 0) * 4200.0f + 3200.0f) * (whiskerDirection / (distSquared * distSquared));
+                } else if (node->HasComponent<Seeker>() && !taste) {
+                    smell -= 1000.0f * (whiskerDirection / r.distance_) * (3.0f - 2.0f * static_cast<float>(health_ > 10.0f));
+                    ++detected;
                 }
+                if (!taste){
+                    if (!node->HasComponent<Apple>() && !node->HasComponent<Heart>()
+                            && node->HasComponent<ChaoBall>() && node->HasComponent<ChaoMine>()
+                            && node->GetNameHash() != StringHash("PickupTrigger"))
+                         smell += 0.005f * whiskerDirection * r.distance_;
+//                    else smell += 0.005f * whiskerDirection * playerFactor * playerFactor;
+                }
+            }
             else if (!taste) smell += 0.005f * whiskerDirection * playerFactor * playerFactor;
         }
     }
     //Rely more on scent in crowded spaces
     if (!taste){
         float scentEffect{0.23f * static_cast<float>(detected) / whiskers};
-        SetMove(move_ * (1.0f - scentEffect));
-        SetMove(move_ - 0.5f * scentEffect * rigidBody_->GetLinearVelocity());
+        move = move * (1.0f - scentEffect);
+        move = move - 0.5f * scentEffect * rigidBody_->GetLinearVelocity();
         smell *= 1.0f + (0.5f * scentEffect);
     }
     return smell / whiskers;

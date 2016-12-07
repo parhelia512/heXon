@@ -32,7 +32,7 @@ public:
     ChaoZap(Context* context);
     static void RegisterObject(Context* context);
     virtual void Update(float timeStep);
-    void Set(const Vector3 position, int playerID);
+    void Set(const Vector3 position, int colorSet);
     virtual void OnNodeSet(Node* node);
 protected:
     void Disable();

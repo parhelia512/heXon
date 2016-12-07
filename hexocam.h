@@ -37,6 +37,9 @@ class heXoCam : public LogicComponent
     URHO3D_OBJECT(heXoCam, LogicComponent);
     friend class MasterControl;
     friend class InputMaster;
+
+    void EnterLobby(StringHash eventType, VariantMap &eventData);
+    void EnterPlay(StringHash eventType, VariantMap &eventData);
 public:
     heXoCam(Context* context);
     static void RegisterObject(Context* context);
@@ -56,9 +59,6 @@ public:
 private:
     bool closeUp_;
     void SetupViewport();
-    void EnterLobby();
-    void EnterPlay();
-
 };
 
 #endif // HEXOCAM_H

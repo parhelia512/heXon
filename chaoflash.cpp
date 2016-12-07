@@ -92,9 +92,9 @@ void ChaoFlash::Update(float timeStep)
         Disable();
 }
 
-void ChaoFlash::Set(const Vector3 position, int playerId)
+void ChaoFlash::Set(const Vector3 position, int colorSet)
 {
-    Player* owner{ MC->GetPlayer(playerId) };
+    Player* owner{ MC->GetPlayer(colorSet) };
     Vector<Ship*> ships{};
     bool caughtApple{ false };
     bool caughtHeart{ false };
@@ -133,8 +133,8 @@ void ChaoFlash::Set(const Vector3 position, int playerId)
 
                     Enemy* e{ static_cast<Enemy*>(c) };
                     ChaoMine* chaoMine{ GetSubsystem<SpawnMaster>()->Create<ChaoMine>() };
-                    chaoMine->Set(e->GetPosition(), playerId);
-                    MC->GetPlayer(playerId)->AddScore(Random(2, 3) * e->GetWorth());
+                    chaoMine->Set(e->GetPosition(), colorSet);
+                    MC->GetPlayerByColorSet(colorSet)->AddScore(Random(2, 3) * e->GetWorth());
                     e->Disable();
                 }
             }

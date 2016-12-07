@@ -25,7 +25,7 @@ void Bullet::RegisterObject(Context *context)
 
 Bullet::Bullet(Context* context):
     SceneObject(context),
-    playerID_{1},
+    colorSet_{1},
     lifeTime_{1.0f},
     damage_{0.0f}
 {
@@ -37,7 +37,7 @@ void Bullet::OnNodeSet(Node *node)
 
     node_->SetName("Bullet");
     node_->SetEnabled(false);
-    node_->SetScale(Vector3(1.0f+damage_, 1.0f+damage_, 0.1f));
+    node_->SetScale(Vector3(1.0f + damage_, 1.0f + damage_, 0.1f));
     model_ = node_->CreateComponent<StaticModel>();
     model_->SetModel(MC->GetModel("Bullet"));
 
@@ -47,7 +47,8 @@ void Bullet::OnNodeSet(Node *node)
     rigidBody_->SetFriction(0.0f);
 
     Light* light = node_->CreateComponent<Light>();
-    light->SetRange(6.66f);
+    light->SetBrightness(4.2f);
+    light->SetRange(5.5f);
 }
 
 void Bullet::Update(float timeStep)
@@ -64,18 +65,18 @@ void Bullet::Update(float timeStep)
     if (timeStep > 0.0f && !fading_) HitCheck(timeStep);
 }
 
-void Bullet::Set(Vector3 position, int playerId, Vector3 direction, Vector3 force, float damage)
+void Bullet::Set(Vector3 position, int colorSet, Vector3 direction, Vector3 force, float damage)
 {
     age_ = 0.0f;
     timeSinceHit_ = 0.0f;
     fading_ = false;
-    playerID_ = playerId;
+    colorSet_ = colorSet;
     damage_ = damage;
 
-    node_->GetComponent<Light>()->SetColor( playerID_ == 2 ? Color(1.0f + damage_, 0.6f, 0.2f) : Color(0.6f, 1.0f+damage_, 0.2f));
-    model_->SetMaterial(playerID_ == 2
-                        ? MC->GetMaterial("PurpleBullet")
-                        : MC->GetMaterial("GreenBullet"));
+    Light* light{ node_->GetComponent<Light>() };
+    light->SetColor( MC->colorSets_[colorSet].colors_.first_ * (1.0f + damage_) );// colorSet_ == 2 ? Color(1.0f + damage_, 0.6f, 0.2f) : Color(0.6f, 1.0f+damage_, 0.2f));
+    light->SetBrightness(3.4f + damage_ * 2.3f);
+    model_->SetMaterial(MC->colorSets_[colorSet].bulletMaterial_);
 
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
     rigidBody_->ResetForces();
@@ -96,19 +97,19 @@ void Bullet::HitCheck(float timeStep)
     if (!fading_) {
         PODVector<PhysicsRaycastResult> hitResults{};
         Ray bulletRay(node_->GetPosition() - rigidBody_->GetLinearVelocity()*timeStep, node_->GetDirection());
-        if (MC->PhysicsRayCast(hitResults, bulletRay, 2.3f * rigidBody_->GetLinearVelocity().Length() * timeStep, M_MAX_UNSIGNED)){
-            for (PhysicsRaycastResult h : hitResults){
-                if (!h.body_->IsTrigger()){
+        if (MC->PhysicsRayCast(hitResults, bulletRay, 2.3f * rigidBody_->GetLinearVelocity().Length() * timeStep, M_MAX_UNSIGNED)) {
+            for (PhysicsRaycastResult h : hitResults) {
+                if (!h.body_->IsTrigger()) {
                     //Add effect
                     h.body_->ApplyImpulse(rigidBody_->GetLinearVelocity() * 0.05f);
                     HitFX* hitFx{ GetSubsystem<SpawnMaster>()->Create<HitFX>() };
-                    hitFx->Set(h.position_, playerID_, true);
+                    hitFx->Set(h.position_, colorSet_, true);
 
                     //Deal damage
                     for (Component* c : h.body_->GetNode()->GetComponents()){
                         if (c->IsInstanceOf<Enemy>()){
                             Enemy* e{ static_cast<Enemy*>(c) };
-                                e->Hit(damage_, playerID_);
+                                e->Hit(damage_, colorSet_);
                             }
                     }
                     Disable();

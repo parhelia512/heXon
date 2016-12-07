@@ -47,16 +47,14 @@ void SplatterPillar::OnNodeSet(Node *node)
     node_->Rotate(Quaternion(Random(6) * 60.0f, Vector3::UP));
     pillarNode_ = node_->CreateChild("Pillar");
     bloodNode_ = node_->CreateChild("Blood");
+    bloodNode_->SetScale(1.23f);
     pillar_ = pillarNode_->CreateComponent<AnimatedModel>();
     pillar_->SetModel(MC->GetModel("SplatterPillar"));
     pillar_->SetMorphWeight(0, 0.0f);
     pillar_->SetCastShadows(true);
 
     pillar_->SetMaterial(0, MC->GetMaterial("Basic"));
-    if ( node_->GetPosition().x_ < 0.0f )
-            pillar_->SetMaterial(1, MC->GetMaterial("GreenGlow"));
-    else
-        pillar_->SetMaterial(1, MC->GetMaterial("PurpleGlow"));
+    pillar_->SetMaterial(1, MC->GetMaterial("BlueGlow"));
 
     pillar_->SetMaterial(2, MC->GetMaterial("Metal"));
     pillar_->SetMaterial(3, MC->GetMaterial("Drain"));
@@ -82,7 +80,7 @@ void SplatterPillar::OnNodeSet(Node *node)
     RigidBody* triggerBody{ node_->CreateComponent<RigidBody>() };
     triggerBody->SetTrigger(true);
     CollisionShape* trigger{ node_->CreateComponent<CollisionShape>() };
-    trigger->SetSphere(0.13f);
+    trigger->SetSphere(0.13f, Vector3::UP * 0.42f);
     SubscribeToEvent(node_, E_NODECOLLISIONSTART, URHO3D_HANDLER(SplatterPillar, Trigger));
 
 }
@@ -94,6 +92,7 @@ void SplatterPillar::Trigger(StringHash eventType, VariantMap& eventData)
     lastTriggered_ = MC->scene_->GetElapsedTime();
     bloodNode_->Rotate(Quaternion(Random(360.0f), Vector3::UP));
     blood_->SetEnabled(true);
+    splatEmitter_->SetEmitting(true);
     soundSource_->Play(CACHE->GetResource<Sound>("Samples/Splatter" + String(Random(1, 6)) + ".ogg"));
 
     Node* otherNode{ static_cast<Node*>(eventData[NodeCollisionStart::P_OTHERNODE].GetPtr()) };
@@ -115,7 +114,6 @@ void SplatterPillar::Update(float timeStep)
         //Animate blood
         if (!bloodNode_->IsEnabled()){
             bloodNode_->SetEnabled(true);
-            splatEmitter_->SetEmitting(true);
             particleNode_->Rotate(Quaternion{Random(360.0f), Vector3::UP});
         }
         if (intoSequence > 0.023f) {
@@ -144,10 +142,10 @@ void SplatterPillar::Update(float timeStep)
                 spun_ = true;
             }
         }
-        else if (intoSequence > (1.0f/6.0f)) {
+        else if (intoSequence > (1.0f / 6.0f)) {
             spun_ = false;
-            float weight{Max(2.0f * (1.0f - 3.0f*intoSequence), 0.0f)};
-            pillar_->SetMorphWeight(0, weight*weight*weight);
+            float weight{Max(2.0f * (1.0f - 3.0f * intoSequence), 0.0f)};
+            pillar_->SetMorphWeight(0, weight * weight * weight);
         }
     } else {
     //When idle

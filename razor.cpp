@@ -43,7 +43,7 @@ void Razor::OnNodeSet(Node *node)
     topNode_ = node_->CreateChild();
     topModel_ = topNode_->CreateComponent<StaticModel>();
     topModel_->SetModel(MC->GetModel("RazorTop"));
-    topModel_->SetMaterial(0, black);
+    topModel_->SetMaterial(0, MC->GetMaterial("Razor"));
     topModel_->SetMaterial(1, centerModel_->GetMaterial());
 
     bottomNode_ = node_->CreateChild();
@@ -67,15 +67,15 @@ void Razor::Update(float timeStep)
     topModel_->GetMaterial(0)->SetShaderParameter("MatEmissiveColor", GetGlowColor());
     //Get moving
     if (rigidBody_->GetLinearVelocity().Length() < rigidBody_->GetLinearRestThreshold() && IsEmerged()) {
-        rigidBody_->ApplyImpulse(0.23f*(Quaternion(Random(6)*60.0f, Vector3::UP)*Vector3::FORWARD));
+        rigidBody_->ApplyImpulse(0.23f * (Quaternion(Random(6) * 60.0f, Vector3::UP) * Vector3::FORWARD));
     }
     //Adjust speed
     else if (rigidBody_->GetLinearVelocity().Length() < aimSpeed_) {
         rigidBody_->ApplyForce(4.2f * rigidBody_->GetLinearVelocity().Normalized() * Max(aimSpeed_ - rigidBody_->GetLinearVelocity().Length(), 0.1f));
     }
     else {
-        float overSpeed = rigidBody_->GetLinearVelocity().Length() - aimSpeed_;
-        rigidBody_->ApplyForce(-rigidBody_->GetLinearVelocity()*overSpeed);
+        float overSpeed{ rigidBody_->GetLinearVelocity().Length() - aimSpeed_ };
+        rigidBody_->ApplyForce(-rigidBody_->GetLinearVelocity() * overSpeed);
     }
 }
 

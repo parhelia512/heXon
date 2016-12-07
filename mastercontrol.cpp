@@ -94,7 +94,7 @@ void MasterControl::Setup()
             engineParameters_["ResourcePaths"] = path;
             break;
         }*/
-    engineParameters_["VSync"] = true;
+//    engineParameters_["VSync"] = true;
 //    engineParameters_["FullScreen"] = false;
 //    engineParameters_["Headless"] = true;
 //    engineParameters_["WindowWidth"] = 1920/2;
@@ -144,16 +144,12 @@ void MasterControl::Start()
     context_->RegisterSubsystem(new InputMaster(context_));
     context_->RegisterSubsystem(new SpawnMaster(context_));
 
-    // Get default style
     defaultStyle_ = CACHE->GetResource<XMLFile>("UI/DefaultStyle.xml");
-    //Create console and debug HUD.
     CreateConsoleAndDebugHud();
-    //Create the scene content
-    CreateScene();
 
-    //Create the UI content
+    CreateColorSets();
+    CreateScene();
     CreateUI();
-    //Hook up to the frame update and render post-update events
 
     Node* announcerNode{ scene_->CreateChild("Announcer") };
     announcerNode->CreateComponent<SoundSource>()->Play(GetSample("Welcome"));
@@ -218,8 +214,54 @@ Sound* MasterControl::GetMusic(String name) const {
 }
 Sound* MasterControl::GetSample(String name) const {
     Sound* sample{ CACHE->GetResource<Sound>("Samples/"+name+".ogg") };
-    sample->SetLooped(false);
+//    sample->SetLooped(false);
     return sample;
+}
+
+void MasterControl::CreateColorSets()
+{
+    for (int c : { 0, 1, 2, 3, 4 }) {
+
+        ColorSet set{};
+
+        switch (c){
+        case 0: set.colors_.first_ = Color(0.23f, 0.5f, 1.0f);
+                set.colors_.second_ = Color(0.05f, 0.05f, 0.05f);
+            break;
+        case 1: set.colors_.first_ = Color(0.42f, 0.5f, 0.0f);
+                set.colors_.second_ = Color(0.1f, 0.3f, 0.05f);
+            break;
+        case 2: set.colors_.first_ = Color(0.55f, 0.32f, 0.0f);
+                set.colors_.second_ = Color(0.16f, 0.0f, 0.38f);
+            break;
+        case 3: set.colors_.first_ = Color(0.45f, 0.1f, 0.42f);
+                set.colors_.second_ = Color(0.0f, 0.27f, 0.42f);
+            break;
+        case 4: set.colors_.first_ = Color(0.42f, 0.07f, 0.0f);
+                set.colors_.second_ = Color(0.34f, 0.34f, 0.34f);
+            break;
+        }
+
+        set.glowMaterial_ = GetMaterial("Glow")->Clone();
+        set.hullMaterial_ = GetMaterial("Hull")->Clone();
+        set.bulletMaterial_ = GetMaterial("Bullet")->Clone();
+
+        set.glowMaterial_->SetShaderParameter("MatEmissiveColor", set.colors_.first_);
+        set.glowMaterial_->SetShaderParameter("MatDiffColor", set.colors_.first_ * 0.23f);
+        set.glowMaterial_->SetShaderParameter("MatSpecColor", (set.colors_.first_ + Color::WHITE) * 0.23f);
+
+        set.hullMaterial_->SetShaderParameter("MatDiffColor", set.colors_.second_);
+        set.hullMaterial_->SetShaderParameter("MatSpecColor", set.colors_.second_);
+
+        set.bulletMaterial_->SetShaderParameter("MatDiffColor", set.colors_.first_ * 1.23f);
+
+        SharedPtr<Material> flash{ GetMaterial("Flash")->Clone() };
+        flash->SetShaderParameter("MatDiffColor", set.colors_.first_ * 1.23f);
+        set.hitFx_ = CACHE->GetResource<ParticleEffect>("Particles/HitFX.xml")->Clone();
+        set.hitFx_->SetMaterial(flash);
+
+        colorSets_[c] = set;
+    }
 }
 
 void MasterControl::CreateScene()
@@ -237,8 +279,8 @@ void MasterControl::CreateScene()
     Zone* zone{ zoneNode->CreateComponent<Zone>() };
     zone->SetBoundingBox(BoundingBox( Vector3(-100.0f, -100.0f, -100.0f), Vector3(100.0f, 5.0f, 100.0f) ));
     zone->SetFogColor(Color(0.0f, 0.0f, 0.0f));
-    zone->SetFogStart(56.8f);
-    zone->SetFogEnd(61.8f);
+    zone->SetFogStart(60.0f);
+    zone->SetFogEnd(62.3f);
     zone->SetHeightFog(true);
     zone->SetFogHeight(-10.0f);
     zone->SetFogHeightScale(0.23f);
@@ -270,30 +312,25 @@ void MasterControl::CreateScene()
     Node* lobbyNode{ scene_->CreateChild("Lobby") };
     lobby_ = lobbyNode->CreateComponent<Lobby>();
 
-    for (int p : {1, 2}){
+    for (int p : {1, 2, 3, 4}){
         players_.Push(SharedPtr<Player>(new Player(p, context_)));
-    }
-    //Create pilots
-    for (float x : { -2.3f, 2.3f }) {
 
         Node* pilotNode{ scene_->CreateChild("Pilot") };
-        pilotNode->SetPosition( Vector3(x, 0.0f, 5.5f) );
         pilotNode->Rotate(Quaternion(180.0f, Vector3::UP));
         Pilot* pilot{ pilotNode->CreateComponent<Pilot>() };
 
-        int playerId{ (x < 0.0f ? 1 : 2) };
-        GetSubsystem<InputMaster>()->SetPlayerControl(playerId, pilot);
-        pilot->Initialize( playerId );
+        GetSubsystem<InputMaster>()->SetPlayerControl(p, pilot);
+        pilot->Initialize( p );
     }
     //Create ships
 //    for (float x : { -4.2f, 4.2f }) {
 //        GetSubsystem<SpawnMaster>()->Create<Ship>()
 //                ->Set(Vector3(x, 0.6f, 0.0f), Quaternion(x < 0 ? 90.0f : -90.0f, Vector3::UP));
 //    }
-    for (int s{0}; s < 4; ++s) {
+    for (int s : { 3, 4, 2, 1 }) {
         GetSubsystem<SpawnMaster>()->Create<Ship>()
-                ->Set(Quaternion(60.0f + ((s % 2) * 60.0f + (s / 2) * 180.0f), Vector3::UP) * Vector3(0.0f, 0.6f, 2.3f),
-                      Quaternion(60.0f + ((s % 2) * 60.0f + (s / 2) * 180.0f), Vector3::UP));
+                ->Set(Quaternion(60.0f + ((s % 2) * 60.0f - (s / 2) * 180.0f), Vector3::UP) * Vector3(0.0f, 0.6f, 2.3f),
+                      Quaternion(60.0f + ((s % 2) * 60.0f - (s / 2) * 180.0f), Vector3::UP));
     }
 
     Node* appleNode{ scene_->CreateChild("Apple") };
@@ -339,20 +376,9 @@ void MasterControl::EnterGameState()
     switch (currentState_) {
     case GS_INTRO : break;
     case GS_LOBBY : {
-        lobby_->EnterLobby();
-        arena_->EnterLobby();
-        world.camera->EnterLobby();
+        SendEvent(E_ENTERLOBBY);
+
         GetSubsystem<SpawnMaster>()->Clear();
-
-        PODVector<Node*> shipNodes{};
-        scene_->GetChildrenWithComponent<Ship>(shipNodes);
-        for (Node* n : shipNodes){
-            n->GetComponent<Ship>()->EnterLobby();
-        }
-
-        for (Player* player : players_){
-            player->EnterLobby();
-        }
 
         musicSource_->Play(menuMusic_);
 
@@ -361,9 +387,9 @@ void MasterControl::EnterGameState()
         chaoBall_->Disable();
     } break;
     case GS_PLAY : {
-        lobby_->EnterPlay();
+        SendEvent(E_ENTERPLAY);
+
         musicSource_->Play(gameMusic_);
-        world.camera->EnterPlay();
 
         apple_->Respawn(true);
         heart_->Respawn(true);
@@ -371,15 +397,6 @@ void MasterControl::EnterGameState()
 
         world.lastReset = scene_->GetElapsedTime();
         GetSubsystem<SpawnMaster>()->Restart();
-        arena_->EnterPlayState();
-
-        for (Controllable* c : GetSubsystem<InputMaster>()->GetControllables())
-        {
-            c->EnterPlay();
-        }
-        for (Player* player : players_){
-            player->EnterPlay();
-        }
     } break;
     case GS_DEAD : {
         GetSubsystem<SpawnMaster>()->Deactivate();
@@ -433,12 +450,8 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
     switch (currentState_) {
     case GS_LOBBY: {
 
-        bool allHidden{ true };
         for (Door* d : GetComponentsRecursive<Door>()){
-            if (!d->HidesPilot())
-                allHidden = false;
-        }
-        if (allHidden){
+            if (d->HidesAllPilots())
                 Exit();
         }
 
@@ -537,6 +550,14 @@ Player* MasterControl::GetPlayer(int playerID) const
             return p;
     }
     return nullptr;
+}
+Player* MasterControl::GetPlayerByColorSet(int colorSet)
+{
+    for (Ship* s : GetComponentsRecursive<Ship>()) {
+
+        if (s->GetColorSet() == colorSet)
+            return s->GetPlayer();
+    }
 }
 Player* MasterControl::GetNearestPlayer(Vector3 pos)
 {

@@ -33,7 +33,7 @@ Highest::Highest(Context* context) : LogicComponent(context),
 void Highest::OnNodeSet(Node *node)
 { (void)node;
 
-    node_->Translate(Vector3(0.0f, 3.2f, -5.0f));
+    node_->Translate(Vector3(0.0f, 2.3f, -3.4f));
     node_->Rotate(Quaternion(45.0f, Vector3::RIGHT));
     node_->Rotate(Quaternion(180.0f, Vector3::UP));
     Node* podiumNode{ node_->CreateChild("Podium") };
@@ -60,10 +60,10 @@ void Highest::OnNodeSet(Node *node)
     highestScoreText_->SetName("HighestScore");
     highestScoreText_->SetText("0");
     highestScoreText_->SetFont(CACHE->GetResource<Font>("Fonts/skirmishergrad.ttf"), 23);
-    highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f));
+    highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 1.0f));
     highestScoreText_->SetHorizontalAlignment(HA_CENTER);
     highestScoreText_->SetVerticalAlignment(VA_CENTER);
-    highestScoreText_->SetPosition(0, ui->GetRoot()->GetHeight()/2.13f);
+    highestScoreText_->SetPosition(0, ui->GetRoot()->GetHeight()/4.2f);
 
     Node* pilotNode{ node_->CreateChild("HighestPilot") };
     Pilot* highestPilot{ pilotNode->CreateComponent<Pilot>() };
@@ -81,15 +81,17 @@ void Highest::OnNodeSet(Node *node)
         highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f));
     }
 
+    SubscribeToEvent(E_ENTERLOBBY, URHO3D_HANDLER(Highest, EnterLobby));
+    SubscribeToEvent(E_ENTERPLAY,  URHO3D_HANDLER(Highest, EnterPlay));
 }
 
-void Highest::EnterLobby()
+void Highest::EnterLobby(StringHash eventType, VariantMap &eventData)
 {
     node_->SetEnabledRecursive(highestScore_ != 0);
     highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f) * static_cast<float>(highestScore_ != 0));
 }
-void Highest::EnterPlay()
+void Highest::EnterPlay(StringHash eventType, VariantMap &eventData)
 {
     node_->SetEnabledRecursive(false);
-    highestScoreText_->SetColor(Color(0.13f, 0.666f, 1.0f, 0.55f) * static_cast<float>(highestScore_ != 0));
+    highestScoreText_->SetColor(Color(0.13f, 0.666f, 1.0f, 0.23f) * static_cast<float>(highestScore_ != 0));
 }

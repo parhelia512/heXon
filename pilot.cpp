@@ -58,8 +58,8 @@ void Pilot::OnNodeSet(Node *node)
     rigidBody_->SetLinearDamping(0.88f);
     rigidBody_->SetLinearRestThreshold(0.0f);
     rigidBody_->SetAngularFactor(Vector3::ZERO);
-    rigidBody_->SetAngularRestThreshold(0.1f);
-    collisionShape_->SetCapsule(0.23f, 0.5f);
+    rigidBody_->SetAngularRestThreshold(0.0f);
+    collisionShape_->SetCapsule(0.42f, 0.5f, Vector3::UP * 0.32f);
 
     //Also animates highest
     animCtrl_->PlayExclusive("Models/IdleAlert.ani", 0, true);
@@ -116,6 +116,12 @@ void Pilot::Update(float timeStep)
 void Pilot::Initialize(int playerId)
 {
     playerId_ = playerId;
+
+    if (playerId_ == 0) {
+
+        rigidBody_->SetKinematic(true);
+    }
+
     Load();
 }
 
@@ -281,9 +287,9 @@ void Pilot::EnterLobbyThroughDoor()
 {
     node_->SetEnabledRecursive(true);
 
-    node_->SetPosition(Vector3( node_->GetPosition().x_ < 0.0f ? -2.3f : 2.3f, 0.0f, 5.666f));
+    node_->SetPosition(SPAWNPOS);
     node_->SetRotation(Quaternion::IDENTITY);
-    rigidBody_->ApplyImpulse(Vector3::BACK * 3.666f);
+    rigidBody_->ApplyImpulse(Vector3::BACK * 4.2f);
 }
 void Pilot::EnterLobbyFromShip()
 {
@@ -339,9 +345,11 @@ void Pilot::HandleNodeCollisionStart(StringHash eventType, VariantMap& eventData
     Node* otherNode{ static_cast<Node*>(eventData[NodeCollisionStart::P_OTHERNODE].GetPtr()) };
 
     Ship* ship{ otherNode->GetComponent<Ship>() };
-    if (ship)
+    if (ship && !ship->GetPlayer())
     {
         GetSubsystem<InputMaster>()->SetPlayerControl(playerId_, ship);
+        MC->GetPlayer(playerId_)->gui3d_ = ship->gui3d_;
+        ship->SetHealth(10.0f);
     }
 }
 
@@ -351,21 +359,23 @@ void Pilot::Think()
 
     SplatterPillar* splatterPillar{};
     for (SplatterPillar* s : MC->GetComponentsRecursive<SplatterPillar>())
-        if (s->GetPlayerId() == GetPlayer()->GetPlayerId()){
-            splatterPillar = s;
-            break;
-        }
+        splatterPillar = s;
 
     bool splatterPillarsIdle{ splatterPillar->IsIdle() };
     Vector3 toPillar{ splatterPillar->GetPosition() - GetPosition() * static_cast<float>(splatterPillar->IsIdle()) };
-
+    Ship* pickedShip{};
+    for (Ship* ship : MC->GetComponentsRecursive<Ship>())
+        if (!ship->GetPlayer()){
+            pickedShip = ship;
+            break;
+        }
 
 //    if (MC->NoHumans()){
 
         //Enter play
     if ((MC->NoHumans() && GetPlayer()->GetScore() == 0 && otherPlayer->GetScore() == 0 && splatterPillarsIdle)
             || MC->AllReady(true))
-        SetMove(2.3f * (GetPlayer()->GetPlayerId() == 2 ? Vector3::RIGHT : Vector3::LEFT) - GetPosition());
+        SetMove(pickedShip->GetPosition() - node_->GetWorldPosition());
     //Reset Score
     else if (GetPlayer()->GetScore() != 0 && otherPlayer->GetScore() == 0)
         SetMove(toPillar);

@@ -25,6 +25,10 @@
 #include "player.h"
 
 namespace Urho3D {
+
+URHO3D_EVENT(E_ENTERPLAY, EnterPlay){}
+URHO3D_EVENT(E_ENTERLOBBY, EnterLobby){}
+
 class Node;
 class Scene;
 }
@@ -56,6 +60,15 @@ typedef struct GameWorld
     } cursor;
 } GameWorld;
 
+typedef struct ColorSet
+{
+    Pair<Color, Color> colors_;
+    SharedPtr<Material> glowMaterial_;
+    SharedPtr<Material> hullMaterial_;
+    SharedPtr<Material> bulletMaterial_;
+    SharedPtr<ParticleEffect> hitFx_;
+} ColorSet;
+
 typedef struct HitInfo
 {
     Vector3 position_;
@@ -64,27 +77,11 @@ typedef struct HitInfo
     Drawable* drawable_;
 } HitInfo;
 
-namespace {
-StringHash const N_VOID = StringHash("Void");
-StringHash const N_ARENAEDGE = StringHash("ArenaEdge");
-StringHash const N_CURSOR = StringHash("Cursor");
-StringHash const N_TILE = StringHash("Tile");
-StringHash const N_PLAYER = StringHash("Player");
-StringHash const N_BULLET = StringHash("Bullet");
-StringHash const N_APPLE = StringHash("Apple");
-StringHash const N_HEART = StringHash("Heart");
-StringHash const N_CHAOBALL = StringHash("ChaoBall");
-StringHash const N_CHAOMINE = StringHash("ChaoMine");
-StringHash const N_RESET = StringHash("Reset");
-StringHash const N_SEEKER = StringHash("Seeker");
-StringHash const N_SPIRE = StringHash("Spire");
-StringHash const N_RAZOR = StringHash("Razor");
-}
-
 enum GameState {GS_INTRO, GS_LOBBY, GS_PLAY, GS_DEAD, GS_EDIT};
 enum PickupType {PT_RESET, PT_APPLE, PT_HEART, PT_CHAOBALL};
 
 #define MC MasterControl::GetInstance()
+
 
 class MasterControl : public Application
 {
@@ -102,6 +99,7 @@ public:
     Arena* arena_;
 
     Vector< SharedPtr<Player> > players_;
+    HashMap< int, ColorSet > colorSets_;
 
     Apple* apple_;
     Heart* heart_;
@@ -122,6 +120,7 @@ public:
     Sound* GetSample(String name) const;
 
     Player* GetPlayer(int playerID) const;
+    Player *GetPlayerByColorSet(int colorSet);
     Player*GetNearestPlayer(Vector3 pos);
     Vector< SharedPtr<Player> > GetPlayers() { return players_; }
 
@@ -183,6 +182,7 @@ private:
     void SetWindowTitleAndIcon();
     void CreateConsoleAndDebugHud();
 
+    void CreateColorSets();
     void CreateScene();
     void CreateUI();
     void SubscribeToEvents();

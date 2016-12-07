@@ -41,17 +41,17 @@
 
 Player::Player(int playerId, Context* context): Object(context),
     playerId_{playerId},
-    autoPilot_{playerId_ == 2 && !GetSubsystem<Input>()->GetJoystickByIndex(playerId_-1)},
+    autoPilot_{playerId_ != 1 && !GetSubsystem<Input>()->GetJoystickByIndex(playerId_ - 1)},
 //    autoPilot_{false},
 //    autoPilot_{true},
     alive_{false},
     score_{0},
     flightScore_{0},
-    multiplier_{1}
+    multiplier_{1},
+    gui3d_{nullptr}
 {
-    Node* guiNode{ MC->scene_->CreateChild("GUI3D") };
-    gui3d_ = guiNode->CreateComponent<GUI3D>();
-    gui3d_->Initialize(playerId_);
+    SubscribeToEvent(E_ENTERLOBBY, URHO3D_HANDLER(Player, EnterLobby));
+    SubscribeToEvent(E_ENTERPLAY,  URHO3D_HANDLER(Player, EnterPlay));
 }
 
 void Player::Die()
@@ -68,7 +68,8 @@ void Player::Respawn()
 void Player::SetScore(int points)
 {
     score_ = points;
-    gui3d_->SetScore(score_);
+    if (gui3d_ != nullptr)
+        gui3d_->SetScore(score_);
 
 }
 void Player::ResetScore()
@@ -76,7 +77,7 @@ void Player::ResetScore()
     SetScore(0);
 }
 
-void Player::EnterLobby()
+void Player::EnterLobby(StringHash eventType, VariantMap &eventData)
 {
 
     for (Pilot* pilot : MC->GetComponentsRecursive<Pilot>()) {
@@ -87,12 +88,9 @@ void Player::EnterLobby()
             } else pilot->EnterLobbyFromShip();
         }
     }
-
-    gui3d_->EnterLobby();
 }
-void Player::EnterPlay()
+void Player::EnterPlay(StringHash eventType, VariantMap &eventData)
 {
-    gui3d_->EnterPlay();
 }
 
 void Player::AddScore(int points)
@@ -108,7 +106,9 @@ void Player::AddScore(int points)
             ++multiplier_;
             GetSubsystem<InputMaster>()->GetControllableByPlayer(playerId_)->
                     PlaySample(MC->GetSample("MultiX"), 0.42f);
-            MC->arena_->FlashX(playerId_);
+            Ship* ship{ GetShip() };
+            if (ship)
+                MC->arena_->FlashX(MC->colorSets_[ship->GetColorSet()].colors_.first_);
             break;
         }
     }
@@ -152,13 +152,6 @@ void Player::OnNodeSet(Node *node)
 //        alive_ = true;
 //        SetScore(score_);
 //    }
-
-    //Setup shield
-    shieldNode_ = node_->CreateChild("Shield");
-    shieldModel_ = shieldNode_->CreateComponent<StaticModel>();
-    shieldModel_->SetModel(MC->GetModel("Shield"));
-    shieldMaterial_ = MC->GetMaterial("Shield")->Clone();
-    shieldModel_->SetMaterial(shieldMaterial_);
 
     //Setup ChaoFlash
 //    chaoFlash_ = new ChaoFlash(playerID_);
@@ -352,32 +345,6 @@ void Player::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
 
 
     }
-}
-
-void Player::UpdateGUI(float timeStep)
-{
-
-
-}
-
-
-
-void Player::PickupChaoBall()
-{
-    bool swap{chaoFlash_->Set(MC->chaoBall_->GetPosition()) > 1};
-    if (swap){
-        Vector3 tempPos{node_->GetPosition()};
-        node_->SetPosition(MC->GetPlayer(playerID_, true)->GetPosition());
-        MC->GetPlayer(playerID_, true)->SetPosition(tempPos);
-    } else{
-        node_->SetPosition(Quaternion(Random(360.0f), Vector3::UP) * (Vector3::FORWARD * Random(5.0f)) +
-                               MC->chaoBall_->GetPosition() * Vector3(1.0f, 0.0f, 1.0f));
-    }
-    PlaySample(chaoball_s, 0.8f);
-}
-void Player::SetPosition(Vector3 pos)
-{
-    node_->SetPosition(pos);
 }
 
 

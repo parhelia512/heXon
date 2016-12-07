@@ -31,7 +31,7 @@ public:
     virtual void OnNodeSet(Node* node);
 
     virtual void Update(float timeStep);
-    void Set(int playerID);
+    void Set(int colorSet);
     void Disable();
     bool IsEnabled() { return node_->IsEnabled(); }
 private:

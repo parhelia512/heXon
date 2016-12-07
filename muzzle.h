@@ -30,7 +30,7 @@ public:
     Muzzle(Context* context);
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     static void RegisterObject(Context* context);
-    void SetColor(String color);
+    void SetColor(float colorSet);
 };
 
 #endif // MUZZLE_H
