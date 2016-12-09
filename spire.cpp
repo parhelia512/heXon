@@ -23,41 +23,50 @@
 #include "seeker.h"
 #include "spawnmaster.h"
 
-Spire::Spire():
-    Enemy(),
+void Spire::RegisterObject(Context *context)
+{
+    context->RegisterFactory<Spire>();
+}
+
+Spire::Spire(Context* context):
+    Enemy(context),
     initialShotInterval_{5.0f},
     shotInterval_{initialShotInterval_},
     sinceLastShot_{0.0f}
 {
-    rootNode_->SetName("Spire");
+}
+
+void Spire::OnNodeSet(Node *node)
+{
+    Enemy::OnNodeSet(node);
+
+    node_->SetName("Spire");
 
     health_ = initialHealth_ = 5.0f;
     worth_ = 10;
+
     rigidBody_->SetMass(3.0f);
     rigidBody_->SetLinearFactor(Vector3::ZERO);
 
     SharedPtr<Material> black{MC->GetMaterial("Spire")->Clone()};
 
-    topNode_ = rootNode_->CreateChild();
+    topNode_ = node_->CreateChild();
     topModel_ = topNode_->CreateComponent<StaticModel>();
     topModel_->SetModel(MC->GetModel("SpireTop"));
     topModel_->SetMaterial(black);
 
-    bottomNode_ = rootNode_->CreateChild();
+    bottomNode_ = node_->CreateChild();
     bottomModel_ = bottomNode_->CreateComponent<StaticModel>();
     bottomModel_->SetModel(MC->GetModel("SpireBottom"));
     bottomModel_->SetMaterial(black);
 
-    SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(Spire, HandleSpireUpdate));
 }
 
-void Spire::HandleSpireUpdate(StringHash eventType, VariantMap &eventData)
-{ (void)eventType;
+void Spire::Update(float timeStep)
+{
+    if (!node_->IsEnabled()) return;
 
-    if (!rootNode_->IsEnabled()) return;
-
-    double timeStep = eventData[ScenePostUpdate::P_TIMESTEP].GetFloat();
-
+    Enemy::Update(timeStep);
     //Pulse
     topModel_->GetMaterial()->SetShaderParameter("MatEmissiveColor", GetGlowColor());
     //Spin
@@ -69,7 +78,8 @@ void Spire::HandleSpireUpdate(StringHash eventType, VariantMap &eventData)
         sinceLastShot_ += timeStep;
         if (sinceLastShot_ > shotInterval_){
             sinceLastShot_ = 0.0f;
-            MC->spawnMaster_->SpawnSeeker(rootNode_->GetPosition());
+            Seeker* seeker{ GetSubsystem<SpawnMaster>()->Create<Seeker>() };
+            seeker->Set(node_->GetPosition());
         }
     }
 }
@@ -82,7 +92,6 @@ void Spire::Hit(float damage, int ownerID)
 
 void Spire::Set(Vector3 position)
 {
-    shotInterval_ = initialShotInterval_;
     Enemy::Set(position);
-    SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(Spire, HandleSpireUpdate));
+    shotInterval_ = initialShotInterval_;
 }

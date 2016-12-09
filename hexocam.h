@@ -32,15 +32,21 @@ class Camera;
 
 using namespace Urho3D;
 
-class heXoCam : public Object
+class heXoCam : public LogicComponent
 {
-    URHO3D_OBJECT(heXoCam, Object);
+    URHO3D_OBJECT(heXoCam, LogicComponent);
     friend class MasterControl;
     friend class InputMaster;
+
+    void EnterLobby(StringHash eventType, VariantMap &eventData);
+    void EnterPlay(StringHash eventType, VariantMap &eventData);
 public:
-    heXoCam();
+    heXoCam(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
 
     virtual void Start();
+    virtual void Update(float timeStep);
     virtual void Stop();
 
     SharedPtr<Camera> camera_;
@@ -48,23 +54,11 @@ public:
     SharedPtr<Viewport> viewport_;
     SharedPtr<RenderPath> effectRenderPath_;
 
-    Vector3 GetWorldPosition();
-    Quaternion GetRotation();
     void SetGreyScale(const bool enabled);
-private:
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-    SharedPtr<Node> rootNode_;
 
-    SharedPtr<RigidBody> rigidBody_;
-    float yaw_;
-    float pitch_;
-    float yawDelta_;
-    float pitchDelta_;
-    float forceMultiplier;
+private:
     bool closeUp_;
     void SetupViewport();
-    void EnterLobby();
-    void EnterPlay();
 };
 
 #endif // HEXOCAM_H

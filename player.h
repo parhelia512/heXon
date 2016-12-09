@@ -20,92 +20,50 @@
 #define PLAYER_H
 
 #include <Urho3D/Urho3D.h>
+#include "luckey.h"
 
-#include "sceneobject.h"
+class GUI3D;
+class Ship;
 
-#define DOOR        (playerID_==2 ? MC->door2_ : MC->door1_)
-#define OTHERDOOR   (playerID_==1 ? MC->door2_ : MC->door1_)
-#define SPLATTERPILLAR      (playerID_==2 ? MC->splatterPillar2_ : MC->splatterPillar1_)
-#define OTHERSPLATTERPILLAR (playerID_==1 ? MC->splatterPillar2_ : MC->splatterPillar1_)
-#define JOY INPUT->GetJoystickByIndex(playerID_ - 1)
-
-class Bullet;
-class Muzzle;
-class ChaoFlash;
-class TailGenerator;
-class Pilot;
-
-typedef struct Ship
+class Player : public Object
 {
-    Node* node_;
-    StaticModel* model_;
-} Ship;
-
-class Player : public SceneObject
-{
-    friend class ChaoMine;
-    URHO3D_OBJECT(Player, SceneObject);
+    URHO3D_OBJECT(Player, Object);
 public:
-    Player(int playerID);
+    Player(int playerId, Context* context);
+//    static void RegisterObject(Context* context);
+//    virtual void OnNodeSet(Node* node);
 
-    unsigned GetRootNodeID() const { return rootNode_->GetID(); }
-    int GetPlayerID() const { return playerID_; }
-    Vector3 GetWorldPosition() const { return rootNode_->GetWorldPosition(); }
-    void SetPosition(Vector3 pos);
-    double GetHealth() const noexcept { return health_; }
-    bool IsAlive() const noexcept { return alive_; }
-    bool IsActive() const noexcept { return alive_ && IsEnabled(); }
-    bool IsHuman() const noexcept { return !autoPilot_; }
-    bool IsMoving() const { return rigidBody_->GetLinearVelocity().Length() > 0.01f; }
-    void Hit(float damage, bool melee = true);
+    Vector3 GetPosition();
+    Ship *GetShip();
 
+    int GetPlayerId() const { return playerId_; }
     void AddScore(int points);
-    void Eject();
-    void Die();
-    void ResetScore();
     unsigned GetScore() const { return score_; }
     unsigned GetFlightScore() const { return flightScore_; }
-    void Pickup(PickupType pickup);
-    void UpgradeWeapons();
+    void Die();
+    void Respawn();
+    void ResetScore();
 
-    void EnterLobby();
-    void EnterPlay();
-    void CreateNewPilot();
-    void UpdateGUI(float timeStep);
-    void PickupChaoBall();
-    void UpdatePilot();
-    void KillPilot();
-    void SavePilot();
-    void ChargeShield();
+    bool IsAlive() const noexcept { return alive_; }
+    bool IsHuman() const noexcept { return !autoPilot_; }
+    void EnterLobby(StringHash eventType, VariantMap &eventData);
+    void EnterPlay(StringHash eventType, VariantMap &eventData);
 
+    GUI3D* gui3d_;
 private:
-    int playerID_;
-    bool pilotMode_;
+    int playerId_;
     bool autoPilot_;
-    Vector3 autoMove_;
-    Vector3 autoFire_;
     bool alive_;
-    int appleCount_;
-    int heartCount_;
-    const float initialHealth_;
-    float health_;
+
     unsigned score_;
     unsigned flightScore_;
-    unsigned toCount_;
     int multiplier_;
-    int weaponLevel_;
-    int bulletAmount_;
-    float bulletDamage_;
 
-    const float initialShotInterval_;
-    float shotInterval_;
-    float sinceLastShot_;
 
-    SharedPtr<Pilot> pilot_;
-    Ship ship_;
-    Node* shieldNode_;
-    StaticModel* shieldModel_;
-    SharedPtr<Material> shieldMaterial_;
+    void SetScore(int points);
+    Vector3 Sniff(float playerFactor, bool taste);
+
+    /*
     ChaoFlash* chaoFlash_;
     Vector3 lastHitDirection_;
     RigidBody* rigidBody_;
@@ -126,7 +84,7 @@ private:
     Node* scoreDigits_[10];
 
     Vector<SharedPtr<TailGenerator> > tailGens_;
-    Vector<SharedPtr<Bullet> > bullets_;
+
     SharedPtr<Muzzle> muzzle_;
 
     SharedPtr<SoundSource> deathSource_;
@@ -142,19 +100,14 @@ private:
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
     void Shoot(Vector3 fire);
     void FireBullet(Vector3 direction);
-    void SetHealth(float health);
     Color HealthToColor(float health);
-    void SetScore(int points);
-    void SetupShip();
-    void CreateTails();
-    void RemoveTails();
     void CreateGUI();
     void SetPilotMode(bool pilotMode);
     void MoveMuzzle();
     void LoadPilot();
     void Think();
     Vector3 Sniff(float playerFactor, bool taste = false);
-    void CountScore();
+    void CountScore();*/
 };
 
 #endif // PLAYER_H

@@ -18,35 +18,37 @@
 
 #include "hexocam.h"
 
-heXoCam::heXoCam():
-    Object(MC->GetContext()),
-    yaw_{0.0f},
-    pitch_{0.0f},
-    yawDelta_{0.0f},
-    pitchDelta_{0.0f},
-    forceMultiplier{1.0f}
+void heXoCam::RegisterObject(Context *context)
 {
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(heXoCam, HandleSceneUpdate));
+    context->RegisterFactory<heXoCam>();
+}
 
-    rootNode_ = MC->world.scene->CreateChild("Camera");
-    Node* leftEye{rootNode_->CreateChild("Left Eye")};
+heXoCam::heXoCam(Context* context):
+    LogicComponent(context)
+{
+}
+
+void heXoCam::OnNodeSet(Node *node)
+{ (void)node;
+
+    /* Ready for VR :)
+    Node* leftEye{ node_->CreateChild("Left Eye") };
     leftEye->SetPosition(Vector3::LEFT);
     stereoCam_.first_ = leftEye->CreateComponent<Camera>();
-    Node* rightEye{rootNode_->CreateChild("Right Eye")};
+    Node* rightEye{ node_->CreateChild("Right Eye") };
     rightEye->SetPosition(Vector3::RIGHT);
     stereoCam_.second_ = rightEye->CreateComponent<Camera>();
+    */
 
-    camera_ = rootNode_->CreateComponent<Camera>();
+    camera_ = node_->CreateComponent<Camera>();
     camera_->SetFarClip(128.0f);
-    rootNode_->SetPosition(Vector3(0.0f, 42.0f, -23.0f));
-    rootNode_->SetRotation(Quaternion(65.0f, 0.0f, 0.0f));
-    rigidBody_ = rootNode_->CreateComponent<RigidBody>();
-    rigidBody_->SetAngularDamping(10.0f);
-    CollisionShape* collisionShape{rootNode_->CreateComponent<CollisionShape>()};
-    collisionShape->SetSphere(0.1f);
-    rigidBody_->SetMass(1.0f);
+    node_->SetPosition(Vector3(0.0f, 42.0f, -23.0f));
+    node_->SetRotation(Quaternion(65.0f, 0.0f, 0.0f));
 
     SetupViewport();
+
+    SubscribeToEvent(E_ENTERLOBBY, URHO3D_HANDLER(heXoCam, EnterLobby));
+    SubscribeToEvent(E_ENTERPLAY,  URHO3D_HANDLER(heXoCam, EnterPlay));
 }
 
 void heXoCam::Start()
@@ -59,11 +61,12 @@ void heXoCam::Stop()
 
 void heXoCam::SetupViewport()
 {
-    ResourceCache* cache{GetSubsystem<ResourceCache>()};
-    Renderer* renderer{GetSubsystem<Renderer>()};
+    ResourceCache* cache{ GetSubsystem<ResourceCache>() };
+    Renderer* renderer{ GetSubsystem<Renderer>() };
 
-    SharedPtr<Viewport> viewport{new Viewport(MC->GetContext(), MC->world.scene, camera_)};
+    SharedPtr<Viewport> viewport{ new Viewport(MC->GetContext(), MC->scene_, camera_) };
     viewport_ = viewport;
+//    viewport_->SetRenderPath(CACHE->GetResource<XMLFile>("RenderPaths/DeferredHWDepth.xml"));
 
     //Add anti-asliasing, bloom and a greyscale effects
     effectRenderPath_ = viewport_->GetRenderPath()->Clone();
@@ -80,24 +83,12 @@ void heXoCam::SetupViewport()
 
 }
 
-Vector3 heXoCam::GetWorldPosition()
+void heXoCam::Update(float timeStep)
 {
-    return rootNode_->GetWorldPosition();
-}
-
-Quaternion heXoCam::GetRotation()
-{
-    return rootNode_->GetRotation();
-}
-
-void heXoCam::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
-{
-    float timeStep{eventData[SceneUpdate::P_TIMESTEP].GetFloat()};
-
-    rootNode_->SetPosition(rootNode_->GetPosition().Lerp(closeUp_?
-                                     Vector3(0.0f, 13.5f, -6.23f):
-                                     Vector3(0.0f, 42.0f, -23.0f),
-                                                    Clamp(13.0f * timeStep, 0.0f, 1.0f)));
+    node_->SetPosition(node_->GetPosition().Lerp(closeUp_ ?
+                                     Vector3(0.0f, 13.0f, -6.55f):
+                                     Vector3(0.0f, 43.0f, -23.5f),
+                                                    Clamp(5.0f * timeStep, 0.0f, 1.0f)));
 }
 
 void heXoCam::SetGreyScale(const bool enabled)
@@ -105,11 +96,13 @@ void heXoCam::SetGreyScale(const bool enabled)
     effectRenderPath_->SetEnabled("GreyScale", enabled);
 }
 
-void heXoCam::EnterLobby(){
+void heXoCam::EnterLobby(StringHash eventType, VariantMap &eventData)
+{
     closeUp_ = true;
     effectRenderPath_->SetShaderParameter("BloomHDRThreshold", 0.42f);
 }
-void heXoCam::EnterPlay(){
+void heXoCam::EnterPlay(StringHash eventType, VariantMap &eventData)
+{
     closeUp_ = false;
     effectRenderPath_->SetShaderParameter("BloomHDRThreshold", 0.32f);
 }

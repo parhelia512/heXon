@@ -18,42 +18,63 @@
 
 #include "line.h"
 
-Line::Line() :
-    Object(MC->GetContext()),
+void Line::RegisterObject(Context *context)
+{
+    context->RegisterFactory<Line>();
+}
+
+Line::Line(Context* context) :
+    Effect(context),
     baseScale_{Random(1.0f, 2.3f)}
 {
-    rootNode_ = MC->world.scene->CreateChild("Line");
-    rootNode_->SetScale(baseScale_);
-    model_ = rootNode_->CreateComponent<StaticModel>();
-    model_->SetModel(MC->GetModel("Line"));
 }
 
-void Line::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
-{
-    float timeStep{eventData[Update::P_TIMESTEP].GetFloat()};
+void Line::OnNodeSet(Node *node)
+{ (void)node;
 
-    if (((!rootNode_->GetComponent<StaticModel>()->IsInView() && rootNode_->GetPosition().y_ > 5.0f)
-        || rootNode_->GetScale().x_ <= 0.0f))
+    Effect::OnNodeSet(node_);
+
+    node_->SetName("Line");
+    node_->SetScale(baseScale_);
+    model_ = node_->CreateComponent<StaticModel>();
+    model_->SetModel(MC->GetModel("Line"));
+
+}
+
+void Line::Update(float timeStep)
+{
+    Effect::Update(timeStep);
+
+    if (((!node_->GetComponent<StaticModel>()->IsInView() && node_->GetPosition().y_ > 5.0f)
+        || node_->GetScale().x_ <= 0.0f))
         Disable();
 
-    rootNode_->Translate(Vector3::UP * timeStep * (42.23f + baseScale_ * 23.5f), TS_WORLD);
-    rootNode_->SetScale(Max(rootNode_->GetScale().x_ - timeStep, 0.0f));
+    node_->Translate(Vector3::UP * timeStep * (42.23f + baseScale_ * 23.5f), TS_WORLD);
+    node_->SetScale(Max(node_->GetScale().x_ - timeStep, 0.0f));
 }
 
-void Line::Set(const Vector3 position, int playerID)
+void Line::Set(int colorSet)
 {
-    model_->SetMaterial(playerID == 2
-                        ? MC->GetMaterial("PurpleBullet")
-                        : MC->GetMaterial("GreenBullet"));
-    rootNode_->SetEnabledRecursive(true);
-    rootNode_->SetPosition(position);
-    rootNode_->SetScale(baseScale_);
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Line, HandleSceneUpdate));
+    float angle{};
+    switch(colorSet){
+    case 1: angle =  -60.0f; break;
+    case 2: angle =   60.0f; break;
+    case 3: angle = -120.0f; break;
+    case 4: angle =  120.0f; break;
+    }
+
+    Vector3 position{ Quaternion(angle, Vector3::UP) *
+            (Vector3::FORWARD * Random(32.0f, 42.0f) + Vector3::RIGHT * Random(-13.0f, 13.0f))
+            + Vector3::DOWN * (23.0f + Random(46.0f)) };
+
+    Effect::Set(position);
+    model_->SetMaterial(MC->colorSets_[colorSet].bulletMaterial_);
+    node_->SetScale(baseScale_);
 }
 
 void Line::Disable()
 {
-    rootNode_->SetEnabledRecursive(false);
+    node_->SetEnabledRecursive(false);
     UnsubscribeFromEvent(E_SCENEUPDATE);
 }
 

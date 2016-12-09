@@ -18,13 +18,24 @@
 
 #include "heart.h"
 
-Heart::Heart():
-    Pickup()
+void Heart::RegisterObject(Context *context)
 {
-    rootNode_->SetName("Heart");
+    context->RegisterFactory<Heart>();
+}
+
+Heart::Heart(Context* context):
+    Pickup(context)
+{
+}
+
+void Heart::OnNodeSet(Node *node)
+{
+    Pickup::OnNodeSet(node);
+
+    node_->SetName("Heart");
     pickupType_ = PT_HEART;
     initialPosition_ = Vector3::BACK*10.0f;
-    rootNode_->SetPosition(initialPosition_);
+    node_->SetPosition(initialPosition_);
     model_->SetModel(MC->GetModel("Heart"));
     model_->SetMaterial(MC->GetMaterial("RedEnvmap"));
 
@@ -33,4 +44,15 @@ Heart::Heart():
     colorFrames.Push(ColorFrame(Color(0.7f, 0.23f, 0.23f, 0.42f), 0.1f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
     particleEmitter_->GetEffect()->SetColorFrames(colorFrames);
+}
+
+void Heart::Update(float timeStep)
+{
+    Pickup::Update(timeStep);
+
+    //Spin
+    node_->Rotate(Quaternion(0.0f, 100.0f * timeStep, 0.0f));
+    //Float like a float
+    float floatFactor = 0.5f - Min(0.5f, 0.5f * Abs(node_->GetPosition().y_));
+    graphicsNode_->SetPosition(Vector3::UP * MC->Sine(0.23f, -floatFactor, floatFactor));
 }

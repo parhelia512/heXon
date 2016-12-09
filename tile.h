@@ -21,37 +21,31 @@
 
 #include <Urho3D/Urho3D.h>
 
-#include "tilemaster.h"
+#include "arena.h"
 
 namespace Urho3D {
 class Node;
 }
 
-class Tile : public Object
+class Tile : public LogicComponent
 {
-    URHO3D_OBJECT(Tile, Object);
-    friend class TileMaster;
+    URHO3D_OBJECT(Tile, LogicComponent);
+    friend class Arena;
     friend class InputMaster;
     friend class SpawnMaster;
 public:
-    IntVector2 coords_;
-    TileType tileType_;
-    Tile(TileMaster* tileMaster, Vector3 position);
+    Tile(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
 private:
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
-    TileMaster* tileMaster_;
 
-    Node* rootNode_;
     Vector3 referencePosition_;
     float centerDistExp_;
     float wave_;
     float lastOffsetY_;
     StaticModel* model_;
     bool flipped_;
-
-    Node* cursor_;
-    void FixFringe();
-    void SetTileType(TileType type);
 };
 
 #endif // TILE_H

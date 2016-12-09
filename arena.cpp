@@ -16,27 +16,29 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "tilemaster.h"
+#include "arena.h"
 
 #include "mastercontrol.h"
 #include "tile.h"
 
-//Makes IntVector2 available as HashMap key
-namespace Urho3D {
-template <> unsigned MakeHash(const IntVector2& value)
-  {
-    return LucKey::IntVector2ToHash(value);
-  }
+void Arena::RegisterObject(Context *context)
+{
+    context->RegisterFactory<Arena>();
 }
 
-TileMaster::TileMaster():
-    Object(MC->GetContext()),
+Arena::Arena(Context* context):
+    LogicComponent(context),
     targetPosition_{Vector3::UP * 0.666f},
     targetScale_{Vector3::ONE * 0.05f}
 {
-    rootNode_ = MC->world.scene->CreateChild("TileMaster");
-    rootNode_->SetPosition(targetPosition_);
-    rootNode_->SetScale(targetScale_);
+
+}
+
+void Arena::OnNodeSet(Node *node)
+{ (void)node;
+
+    node_->SetPosition(targetPosition_);
+    node_->SetScale(targetScale_);
 
     //Create hexagonal field
     //Lays a field of hexagons at the origin
@@ -48,12 +50,15 @@ TileMaster::TileMaster():
                     i + 1 < (bigHexSize - bigHexSize / 4) + ((bigHexSize - j + 1)) / 2 &&   //Exclude top right
                     i - 1 > (bigHexSize / 4) - ((bigHexSize - j + 2) / 2)) {                //Exclude top left
                 Vector3 tilePos = Vector3((-bigHexSize / 2.0f + i) * 2.0f + j % 2, -0.1f, (-bigHexSize / 2.0f + j + 0.5f) * 1.8f);
-                tileMap_[IntVector2(i, j)] = new Tile(this, tilePos);
+
+                Node* tileNode{ node_->CreateChild("Tile") };
+                tileNode->SetPosition(tilePos);
+                tiles_.Push(tileNode->CreateComponent<Tile>());
             }
         }
     }
     //Add a directional light to the arena.
-    Node* lightNode = rootNode_->CreateChild("Sun");
+    Node* lightNode = node_->CreateChild("Sun");
     lightNode->SetPosition(Vector3::UP*5.0f);
     lightNode->SetRotation(Quaternion(90.0f, 0.0f, 0.0f));
     playLight_ = lightNode->CreateComponent<Light>();
@@ -64,7 +69,7 @@ TileMaster::TileMaster():
     playLight_->SetCastShadows(false);
 
     //Create heXon logo
-    logoNode_ = rootNode_->CreateChild("heXon");
+    logoNode_ = node_->CreateChild("heXon");
     logoNode_->SetPosition(Vector3(0.0f, -4.0f, 0.0f));
     logoNode_->SetRotation(Quaternion(0.0f, 180.0f, 0.0f));
     logoNode_->SetScale(16.0f);
@@ -75,42 +80,50 @@ TileMaster::TileMaster():
     logoModel->SetMaterial(0, logoMaterial_);
     logoModel->SetMaterial(1, xMaterial_);
 
-    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(TileMaster, HandleUpdate));
+    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Arena, HandleUpdate));
+    SubscribeToEvent(E_ENTERLOBBY, URHO3D_HANDLER(Arena, EnterLobby));
+    SubscribeToEvent(E_ENTERPLAY,  URHO3D_HANDLER(Arena, EnterPlay));
 }
 
-void TileMaster::EnterPlayState()
+void Arena::RemoveFromAffectors(Node* affector)
+{
+    if (hexAffectors_.Contains(affector) )
+        hexAffectors_.Erase(affector);
+}
+
+void Arena::EnterPlay(StringHash eventType, VariantMap &eventData)
 {
     targetPosition_ = Vector3::DOWN * 0.23f;
     targetScale_ = Vector3::ONE;
-    Vector<SharedPtr<Tile> > tiles = tileMap_.Values();
-    for (SharedPtr<Tile> t : tiles){
+    for (Tile* t : tiles_){
         t->lastOffsetY_ = 2.3f;
     }
 }
-void TileMaster::EnterLobbyState()
+void Arena::EnterLobby(StringHash eventType, VariantMap &eventData)
 {
     targetPosition_ = Vector3::UP * 0.35f;
     targetScale_ = Vector3::ONE * 0.05f;
 }
 
-void TileMaster::HandleUpdate(StringHash eventType, VariantMap& eventData)
-{
-    float timestep = eventData[Update::P_TIMESTEP].GetFloat();
-    float lerpFactor = MC->GetGameState() == GS_LOBBY ? 13.0f : 6.66f ;
-    float t = Min(1.0f, timestep * lerpFactor);
-    rootNode_->SetPosition(rootNode_->GetPosition().Lerp(targetPosition_, t));
-    rootNode_->SetScale(rootNode_->GetScale().Lerp(targetScale_, pow(t, 0.88f) ));
+void Arena::HandleUpdate(StringHash eventType, VariantMap& eventData)
+{ (void)eventType;
+
+    float timestep{ eventData[Update::P_TIMESTEP].GetFloat() };
+    float lerpFactor{ MC->GetGameState() == GS_LOBBY ? 13.0f : 6.66f };
+    float t{ Min(1.0f, timestep * lerpFactor) };
+    node_->SetPosition(node_->GetPosition().Lerp(targetPosition_, t));
+    node_->SetScale(node_->GetScale().Lerp(targetScale_, pow(t, 0.88f) ));
 
     logoNode_->SetPosition(logoNode_->GetPosition().Lerp(MC->GetGameState() == GS_LOBBY
-                                                         ? Vector3::UP * 4.0f * MC->Sine(5.0f, 0.23f, 1.23f)
+                                                         ? Vector3::UP * 4.0f * MC->Sine(0.666f, 0.23f, 1.23f)
                                                          : Vector3::UP * -4.0f, t));
     logoMaterial_->SetShaderParameter("MatDiffColor", logoMaterial_->GetShaderParameter("MatDiffColor").GetColor().Lerp(
                                           MC->GetGameState() == GS_LOBBY
-                                          ? Color(0.42f, Random(0.666f), Random(0.666f), 2.0f) * MC->Sine(5.0f, 0.88f, 1.0f, 0.23f)
+                                          ? Color(0.42f, Random(0.666f), Random(0.666f), 2.0f) * MC->Sine(5.0f, 0.5f, 0.8f, 0.23f)
                                           : Color(0.0666f, 0.16f, 0.16f, 0.23f), t));
     logoMaterial_->SetShaderParameter("MatEmissiveColor", logoMaterial_->GetShaderParameter("MatEmissiveColor").GetColor().Lerp(
                                           MC->GetGameState() == GS_LOBBY
-                                          ? Color(Random(0.42f), Random(0.42f), Random(0.42f)) * MC->Sine(5.0f, 0.88f, 1.0f, 0.23f)
+                                          ? Color(Random(0.42f), Random(0.42f), Random(0.42f)) * MC->Sine(4.0f, 1.3f, 2.3f, 0.23f)
                                           : Color(0.005f, 0.05f, 0.02f), t));
     xMaterial_->SetShaderParameter("MatDiffColor", MC->GetGameState() == GS_LOBBY
                                           ? logoMaterial_->GetShaderParameter("MatDiffColor").GetColor()
@@ -121,24 +134,23 @@ void TileMaster::HandleUpdate(StringHash eventType, VariantMap& eventData)
     playLight_->SetBrightness(MC->GetGameState() == GS_PLAY? 0.8f : 0.0f);
 }
 
-Tile* TileMaster::GetRandomTile()
+Tile* Arena::GetRandomTile()
 {
-    Vector<SharedPtr<Tile> > tiles = tileMap_.Values();
-    if (tiles.Size()){
-        SharedPtr<Tile> tile;
-        while (!tile){
-            SharedPtr<Tile> tryTile = tiles[Random((int)tiles.Size())];
+    if (tiles_.Size()){
+        Tile* tile{ nullptr };
+        while (!tile) {
+            Tile* tryTile{ tiles_[Random((int)tiles_.Size())] };
             PODVector<PhysicsRaycastResult> hitResults;
-            Ray spawnRay(tryTile->rootNode_->GetPosition()-Vector3::UP, Vector3::UP*10.0f);
+            Ray spawnRay(tryTile->node_->GetPosition()-Vector3::UP, Vector3::UP * 10.0f);
             if (!MC->PhysicsRayCast(hitResults, spawnRay, 23.0f, M_MAX_UNSIGNED)){
                 tile = tryTile;
             }
         }
-        return tile.Get();
+        return tile;
     }
 }
 
-void TileMaster::FlashX(int playerID)
+void Arena::FlashX(Color color)
 {
-    xMaterial_->SetShaderParameter("MatEmissiveColor", playerID == 2 ? Color(2.3f, 1.0f, 0.0f, 1.0f) : Color(1.0f, 2.3f, 0.0f, 1.0f));
+    xMaterial_->SetShaderParameter("MatEmissiveColor", color * 5.0f);
 }

@@ -24,23 +24,35 @@
 #include "TailGenerator.h"
 
 #include "hexocam.h"
+#include "effectmaster.h"
 #include "inputmaster.h"
 #include "spawnmaster.h"
 #include "player.h"
 #include "apple.h"
 #include "heart.h"
-#include "multix.h"
 #include "chaoball.h"
+#include "chaoflash.h"
+#include "chaomine.h"
+#include "chaozap.h"
 #include "bullet.h"
 #include "seeker.h"
 #include "flash.h"
 #include "hitfx.h"
 #include "explosion.h"
+#include "bubble.h"
+#include "line.h"
 #include "muzzle.h"
-#include "chaomine.h"
 #include "pilot.h"
+#include "ship.h"
 #include "splatterpillar.h"
 #include "door.h"
+#include "arena.h"
+#include "tile.h"
+#include "lobby.h"
+#include "door.h"
+#include "highest.h"
+#include "phaser.h"
+#include "gui3d.h"
 
 URHO3D_DEFINE_APPLICATION_MAIN(MasterControl);
 
@@ -71,17 +83,18 @@ void MasterControl::Setup()
     engineParameters_["WindowIcon"] = "icon.png";
 
     //Add resource path
-    Vector<String> resourcePaths{};
+//    Vector<String> resourcePaths{};
 //    resourcePaths.Push(FILES->GetAppPreferencesDir("luckey", "hexon"));
-    resourcePaths.Push(String("Resources"));
+    engineParameters_["ResourcePaths"] = "Resources;Data;CoreData";
+    /*resourcePaths.Push(String("Resources"));
     resourcePaths.Push(String("../heXon/Resources"));
 
     for (String path : resourcePaths)
         if (FILES->DirExists(path)){
             engineParameters_["ResourcePaths"] = path;
             break;
-        }
-    engineParameters_["VSync"] = true;
+        }*/
+//    engineParameters_["VSync"] = true;
 //    engineParameters_["FullScreen"] = false;
 //    engineParameters_["Headless"] = true;
 //    engineParameters_["WindowWidth"] = 1920/2;
@@ -96,29 +109,61 @@ void MasterControl::Start()
 
     TailGenerator::RegisterObject(context_);
 
-    new InputMaster();
-    renderer_ = GetSubsystem<Renderer>();
+    heXoCam::RegisterObject(context_);
+    Lobby::RegisterObject(context_);
+    Door::RegisterObject(context_);
+    SplatterPillar::RegisterObject(context_);
+    Arena::RegisterObject(context_);
+    Apple::RegisterObject(context_);
+    Heart::RegisterObject(context_);
+    ChaoBall::RegisterObject(context_);
+    Tile::RegisterObject(context_);
+    Highest::RegisterObject(context_);
+    Ship::RegisterObject(context_);
+    Pilot::RegisterObject(context_);
+    Bullet::RegisterObject(context_);
+    Muzzle::RegisterObject(context_);
+    Phaser::RegisterObject(context_);
+    GUI3D::RegisterObject(context_);
 
-    LoadHair();
+    ChaoFlash::RegisterObject(context_);
+    ChaoMine::RegisterObject(context_);
+    ChaoZap::RegisterObject(context_);
 
-    // Get default style
+    Razor::RegisterObject(context_);
+    Spire::RegisterObject(context_);
+    Seeker::RegisterObject(context_);
+
+    HitFX::RegisterObject(context_);
+    Bubble::RegisterObject(context_);
+    Flash::RegisterObject(context_);
+    Explosion::RegisterObject(context_);
+    Line::RegisterObject(context_);
+
+    context_->RegisterSubsystem(new EffectMaster(context_));
+    context_->RegisterSubsystem(new InputMaster(context_));
+    context_->RegisterSubsystem(new SpawnMaster(context_));
+
     defaultStyle_ = CACHE->GetResource<XMLFile>("UI/DefaultStyle.xml");
-    //Create console and debug HUD.
     CreateConsoleAndDebugHud();
-    //Create the scene content
+
+    CreateColorSets();
     CreateScene();
-    //Create the UI content
     CreateUI();
-    //Hook up to the frame update and render post-update events
+
+    Node* announcerNode{ scene_->CreateChild("Announcer") };
+    announcerNode->CreateComponent<SoundSource>()->Play(GetSample("Welcome"));
 
     menuMusic_ = GetMusic("Modanung - BulletProof MagiRex");
     menuMusic_->SetLooped(true);
     gameMusic_ = GetMusic("Alien Chaos - Disorder");
     gameMusic_->SetLooped(true);
-    Node* musicNode{world.scene->CreateChild("Music")};
+    Node* musicNode{ scene_->CreateChild("Music") };
     musicSource_ = musicNode->CreateComponent<SoundSource>();
     musicSource_->SetGain(0.32f);
     musicSource_->SetSoundType(SOUND_MUSIC);
+
+//    GetSubsystem<Audio>()->Stop(); ///////////////////////////////////////////////////////////////////////
 
     SetGameState(GS_LOBBY);
 
@@ -142,7 +187,7 @@ void MasterControl::SubscribeToEvents()
 void MasterControl::CreateConsoleAndDebugHud()
 {
     // Create console
-    Console* console{engine_->CreateConsole()};
+    Console* console{ engine_->CreateConsole() };
     console->SetDefaultStyle(defaultStyle_);
     console->GetBackground()->SetOpacity(0.8f);
 
@@ -153,263 +198,153 @@ void MasterControl::CreateConsoleAndDebugHud()
 
 void MasterControl::CreateUI()
 {
-    ui_ = GetSubsystem<UI>();
-
     //Create a Cursor UI element because we want to be able to hide and show it at will. When hidden, the mouse cursor will control the camera
     world.cursor.uiCursor = new Cursor(context_);
     world.cursor.uiCursor->SetVisible(true);
-    ui_->SetCursor(world.cursor.uiCursor);
+    GetSubsystem<UI>()->SetCursor(world.cursor.uiCursor);
 
     //Set starting position of the cursor at the rendering window center
     world.cursor.uiCursor->SetPosition(GRAPHICS->GetWidth()/2, GRAPHICS->GetHeight()/2);
 }
 
 Sound* MasterControl::GetMusic(String name) const {
-    Sound* song{CACHE->GetResource<Sound>("Music/"+name+".ogg")};
+    Sound* song{ CACHE->GetResource<Sound>("Music/"+name+".ogg") };
     song->SetLooped(true);
     return song;
 }
-Sound*MasterControl::GetSample(String name) const {
-    Sound* sample{CACHE->GetResource<Sound>("Samples/"+name+".ogg")};
-    sample->SetLooped(false);
+Sound* MasterControl::GetSample(String name) const {
+    Sound* sample{ CACHE->GetResource<Sound>("Samples/"+name+".ogg") };
+//    sample->SetLooped(false);
     return sample;
 }
 
-void MasterControl::LoadHair()
+void MasterControl::CreateColorSets()
 {
-    //Load hairmodels
-    hairStyles_.Push(SharedPtr<Model>(GetModel("Mohawk")));
-    hairStyles_.Push(SharedPtr<Model>(GetModel("Seagull")));
-    hairStyles_.Push(SharedPtr<Model>(GetModel("Mustain")));
-    hairStyles_.Push(SharedPtr<Model>(GetModel("Frotoad")));
-}
+    for (int c : { 0, 1, 2, 3, 4 }) {
 
-void MasterControl::LoadHighest()
-{
-    highestPilot_->Load("Resources/.Pilot0.lkp", highestScore_);
-    if (highestScore_ == 0){
-        highestNode_->SetEnabledRecursive(false);
-        highestScoreText_->SetColor(Color{0.0f, 0.0f, 0.0f, 0.0f});
+        ColorSet set{};
 
-    } else {
-        podiumNode_->SetRotation(Quaternion::IDENTITY);
-        podiumNode_->Rotate(Quaternion(LucKey::RandomSign()*30.0f, Vector3::UP));
-        highestNode_->SetEnabledRecursive(true);
-        highestScoreText_->SetText(String(highestScore_));
-        highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f));
+        switch (c){
+        case 0: set.colors_.first_ = Color(0.23f, 0.5f, 1.0f);
+                set.colors_.second_ = Color(0.05f, 0.05f, 0.05f);
+            break;
+        case 1: set.colors_.first_ = Color(0.42f, 0.5f, 0.0f);
+                set.colors_.second_ = Color(0.1f, 0.3f, 0.05f);
+            break;
+        case 2: set.colors_.first_ = Color(0.55f, 0.32f, 0.0f);
+                set.colors_.second_ = Color(0.16f, 0.0f, 0.38f);
+            break;
+        case 3: set.colors_.first_ = Color(0.45f, 0.1f, 0.42f);
+                set.colors_.second_ = Color(0.0f, 0.27f, 0.42f);
+            break;
+        case 4: set.colors_.first_ = Color(0.42f, 0.07f, 0.0f);
+                set.colors_.second_ = Color(0.34f, 0.34f, 0.34f);
+            break;
+        }
+
+        set.glowMaterial_ = GetMaterial("Glow")->Clone();
+        set.hullMaterial_ = GetMaterial("Hull")->Clone();
+        set.bulletMaterial_ = GetMaterial("Bullet")->Clone();
+
+        set.glowMaterial_->SetShaderParameter("MatEmissiveColor", set.colors_.first_);
+        set.glowMaterial_->SetShaderParameter("MatDiffColor", set.colors_.first_ * 0.23f);
+        set.glowMaterial_->SetShaderParameter("MatSpecColor", (set.colors_.first_ + Color::WHITE) * 0.23f);
+
+        set.hullMaterial_->SetShaderParameter("MatDiffColor", set.colors_.second_);
+        set.hullMaterial_->SetShaderParameter("MatSpecColor", set.colors_.second_);
+
+        set.bulletMaterial_->SetShaderParameter("MatDiffColor", set.colors_.first_ * 1.23f);
+
+        SharedPtr<Material> flash{ GetMaterial("Flash")->Clone() };
+        flash->SetShaderParameter("MatDiffColor", set.colors_.first_ * 1.23f);
+        set.hitFx_ = CACHE->GetResource<ParticleEffect>("Particles/HitFX.xml")->Clone();
+        set.hitFx_->SetMaterial(flash);
+
+        colorSets_[c] = set;
     }
 }
 
 void MasterControl::CreateScene()
 {
-    world.scene = new Scene(context_);
-    world.scene->SetTimeScale(1.23f);
+    scene_ = new Scene(context_);
+    scene_->SetTimeScale(1.23f);
 
-    world.octree = world.scene->CreateComponent<Octree>();
-    physicsWorld_ = world.scene->CreateComponent<PhysicsWorld>();
+    world.octree = scene_->CreateComponent<Octree>();
+    physicsWorld_ = scene_->CreateComponent<PhysicsWorld>();
     physicsWorld_->SetGravity(Vector3::ZERO);
-    world.scene->CreateComponent<DebugRenderer>();
+    scene_->CreateComponent<DebugRenderer>();
 
     //Create a Zone component for fog control
-    Node* zoneNode{world.scene->CreateChild("Zone")};
-    Zone* zone{zoneNode->CreateComponent<Zone>()};
-    zone->SetBoundingBox(BoundingBox(Vector3(-100.0f, -100.0f, -100.0f),Vector3(100.0f, 5.0f, 100.0f)));
+    Node* zoneNode{ scene_->CreateChild("Zone") };
+    Zone* zone{ zoneNode->CreateComponent<Zone>() };
+    zone->SetBoundingBox(BoundingBox( Vector3(-100.0f, -100.0f, -100.0f), Vector3(100.0f, 5.0f, 100.0f) ));
     zone->SetFogColor(Color(0.0f, 0.0f, 0.0f));
-    zone->SetFogStart(56.8f);
-    zone->SetFogEnd(61.8f);
+    zone->SetFogStart(60.0f);
+    zone->SetFogEnd(62.3f);
     zone->SetHeightFog(true);
     zone->SetFogHeight(-10.0f);
     zone->SetFogHeightScale(0.23f);
 
     //Create cursor
-    world.cursor.sceneCursor = world.scene->CreateChild("Cursor");
-    StaticModel* cursorObject{world.cursor.sceneCursor->CreateComponent<StaticModel>()};
+    world.cursor.sceneCursor = scene_->CreateChild("Cursor");
+    StaticModel* cursorObject{ world.cursor.sceneCursor->CreateComponent<StaticModel>() };
     cursorObject->SetModel(GetModel("Hexagon"));
     cursorObject->SetMaterial(GetMaterial("Glow"));
     world.cursor.sceneCursor->SetEnabled(false);
 
     //Create an solid black plane to hide everything beyond full fog
-    world.voidNode = world.scene->CreateChild("Void");
+    world.voidNode = scene_->CreateChild("Void");
     world.voidNode->SetPosition(Vector3::DOWN * 10.0f);
     world.voidNode->SetScale(Vector3(1000.0f, 1.0f, 1000.0f));
-    StaticModel* planeObject{world.voidNode->CreateComponent<StaticModel>()};
+    StaticModel* planeObject{ world.voidNode->CreateComponent<StaticModel>() };
     planeObject->SetModel(GetModel("Plane"));
     planeObject->SetMaterial(GetMaterial("PitchBlack"));
 
     //Create camera
-    world.camera = new heXoCam();
+    Node* cameraNode{ scene_->CreateChild("Camera") };
+    world.camera = cameraNode->CreateComponent<heXoCam>();
 
     //Create arena
-    tileMaster_ = new TileMaster();
+    Node* arenaNode{ scene_->CreateChild("Arena") };
+    arena_ = arenaNode->CreateComponent<Arena>();
 
     //Construct lobby
-    lobbyNode_ = world.scene->CreateChild("Lobby");
-    lobbyNode_->Rotate(Quaternion(0.0f, 0.0f, 0.0f));
-    Node* chamberNode{lobbyNode_->CreateChild("Chamber")};
-    StaticModel* chamberModel{chamberNode->CreateComponent<StaticModel>()};
-    chamberModel->SetModel(GetModel("Chamber"));
-    chamberModel->SetMaterial(0, GetMaterial("Basic"));
-    chamberModel->SetMaterial(1, GetMaterial("PitchBlack"));
-    chamberModel->SetMaterial(4, GetMaterial("Drain"));
-    lobbyGlowGreen_ = GetMaterial("GreenGlow");
-    chamberModel->SetMaterial(2, lobbyGlowGreen_);
-    lobbyGlowPurple_ = GetMaterial("PurpleGlow");
-    chamberModel->SetMaterial(3, lobbyGlowPurple_);
-    chamberModel->SetCastShadows(true);
+    Node* lobbyNode{ scene_->CreateChild("Lobby") };
+    lobby_ = lobbyNode->CreateComponent<Lobby>();
 
-    //Create player 1 lobby ship
-    Node* ship1Node{lobbyNode_->CreateChild("Ship")};
-    ship1Node->SetWorldPosition(Vector3(-4.2f, 0.6f, 0.0f));
-    ship1Node->Rotate(Quaternion(90.0f, Vector3::UP));
-    StaticModel* ship1{ship1Node->CreateComponent<StaticModel>()};
-    ship1->SetModel(GetModel("KlåMk10"));
-    ship1->SetMaterial(0, GetMaterial("GreenGlow"));
-    ship1->SetMaterial(1, GetMaterial("Green"));
-    ship1->SetCastShadows(true);
-    RigidBody* ship1Body{ship1Node->CreateComponent<RigidBody>()};
-    ship1Body->SetTrigger(true);
-    ship1Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
-    SubscribeToEvent(ship1Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandlePlayTrigger1));
+    for (int p : {1, 2, 3, 4}){
+        players_.Push(SharedPtr<Player>(new Player(p, context_)));
 
-    //Create player 2 lobby ship
-    Node* ship2Node{lobbyNode_->CreateChild("Ship")};
-    ship2Node->SetWorldPosition(Vector3(4.2f, 0.6f, 0.0f));
-    ship2Node->Rotate(Quaternion(270.0f, Vector3::UP));
-    StaticModel* ship2{ship2Node->CreateComponent<StaticModel>()};
-    ship2->SetModel(GetModel("KlåMk10"));
-    ship2->SetMaterial(0, GetMaterial("PurpleGlow"));
-    ship2->SetMaterial(1, GetMaterial("Purple"));
-    ship2->SetCastShadows(true);
-    RigidBody* ship2Body{ship2Node->CreateComponent<RigidBody>()};
-    ship2Body->SetTrigger(true);
-    ship2Node->CreateComponent<CollisionShape>()->SetBox(Vector3::ONE * 2.23f);
-    SubscribeToEvent(ship2Node, E_NODECOLLISIONSTART, URHO3D_HANDLER(MasterControl, HandlePlayTrigger2));
+        Node* pilotNode{ scene_->CreateChild("Pilot") };
+        pilotNode->Rotate(Quaternion(180.0f, Vector3::UP));
+        Pilot* pilot{ pilotNode->CreateComponent<Pilot>() };
 
-    //Create highest
-    highestNode_ = lobbyNode_->CreateChild("Highest");
-    highestNode_->Translate(Vector3(0.0f, 3.2f, -5.0f));
-    highestNode_->Rotate(Quaternion(45.0f, Vector3::RIGHT));
-    highestNode_->Rotate(Quaternion(180.0f, Vector3::UP));
-    podiumNode_ = highestNode_->CreateChild("Podium");
-    podiumNode_->SetScale(0.5f);
-    StaticModel* hexPodium{podiumNode_->CreateComponent<StaticModel>()};
-    hexPodium->SetModel(GetModel("Hexagon"));
-    hexPodium->SetMaterial(GetMaterial("BackgroundTile")->Clone());
-    Node* highestPilotNode{podiumNode_->CreateChild("HighestPilot")};
-    highestPilotNode->SetScale(2.0f);
+        GetSubsystem<InputMaster>()->SetPlayerControl(p, pilot);
+        pilot->Initialize( p );
+    }
+    //Create ships
+//    for (float x : { -4.2f, 4.2f }) {
+//        GetSubsystem<SpawnMaster>()->Create<Ship>()
+//                ->Set(Vector3(x, 0.6f, 0.0f), Quaternion(x < 0 ? 90.0f : -90.0f, Vector3::UP));
+//    }
+    for (int s : { 3, 4, 2, 1 }) {
+        GetSubsystem<SpawnMaster>()->Create<Ship>()
+                ->Set(Quaternion(60.0f + ((s % 2) * 60.0f - (s / 2) * 180.0f), Vector3::UP) * Vector3(0.0f, 0.6f, 2.3f),
+                      Quaternion(60.0f + ((s % 2) * 60.0f - (s / 2) * 180.0f), Vector3::UP));
+    }
 
-
-    Node* spotNode{highestNode_->CreateChild("HighestSpot")};
-    spotNode->Translate(Vector3(0.0f, -2.0f, 3.0f));
-    spotNode->LookAt(highestNode_->GetWorldPosition());
-    Light* highestSpot{spotNode->CreateComponent<Light>()};
-    highestSpot->SetLightType(LIGHT_SPOT);
-    highestSpot->SetRange(5.0f);
-    highestSpot->SetFov(23.5f);
-    highestSpot->SetColor(Color(0.6f, 0.7f, 1.0f));
-    highestSpot->SetBrightness(5.0f);
-    highestSpot->SetSpecularIntensity(0.23f);
-
-    UI* ui{GetSubsystem<UI>()};
-    highestScoreText_ = ui->GetRoot()->CreateChild<Text>();
-    highestScoreText_->SetName("HighestScore");
-    highestScoreText_->SetText("0");
-    highestScoreText_->SetFont(CACHE->GetResource<Font>("Fonts/skirmishergrad.ttf"), 23);
-    highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f));
-    highestScoreText_->SetHorizontalAlignment(HA_CENTER);
-    highestScoreText_->SetVerticalAlignment(VA_CENTER);
-    highestScoreText_->SetPosition(0, ui->GetRoot()->GetHeight()/2.13f);
-
-    highestPilot_ = new Pilot(highestPilotNode);
-    LoadHighest();
-
-    lobbyNode_->CreateComponent<RigidBody>();
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_Center"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_CentralBox"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_Edge1"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_Edge2"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_Side1"));
-    lobbyNode_->CreateComponent<CollisionShape>()->SetConvexHull(GetModel("CC_Side2"));
-
-    CollisionShape* edge1Shape{lobbyNode_->CreateComponent<CollisionShape>()};
-    edge1Shape->SetConvexHull(GetModel("CC_Edge1"));
-    edge1Shape->SetPosition(Vector3::FORWARD * 1.23f);
-    edge1Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
-    CollisionShape* edge2Shape{lobbyNode_->CreateComponent<CollisionShape>()};
-    edge2Shape->SetConvexHull(GetModel("CC_Edge2"));
-    edge2Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
-    CollisionShape* side1Shape{lobbyNode_->CreateComponent<CollisionShape>()};
-    side1Shape->SetConvexHull(GetModel("CC_Side1"));
-    side1Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
-    CollisionShape* side2Shape{lobbyNode_->CreateComponent<CollisionShape>()};
-    side2Shape->SetConvexHull(GetModel("CC_Side2"));
-    side2Shape->SetRotation(Quaternion(180.0f, Vector3::UP));
-
-
-    Node* leftPointLightNode1{lobbyNode_->CreateChild("PointLight")};
-    leftPointLightNode1->SetPosition(Vector3(-2.3f, 2.3f, 3.0f));
-    leftPointLight1_ = leftPointLightNode1->CreateComponent<Light>();
-    leftPointLight1_->SetLightType(LIGHT_POINT);
-    leftPointLight1_->SetBrightness(0.83f);
-    leftPointLight1_->SetColor(Color(0.42f, 1.0f, 0.1f));
-    leftPointLight1_->SetRange(13.0f);
-    leftPointLight1_->SetCastShadows(true);
-    leftPointLight1_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
-
-    Node* leftPointLightNode2{lobbyNode_->CreateChild("PointLight")};
-    leftPointLightNode2->SetPosition(Vector3(-2.3f, 2.3f, -3.0f));
-    leftPointLight2_ = leftPointLightNode2->CreateComponent<Light>();
-    leftPointLight2_->SetLightType(LIGHT_POINT);
-    leftPointLight2_->SetBrightness(0.83f);
-    leftPointLight2_->SetColor(Color(0.42f, 1.0f, 0.1f));
-    leftPointLight2_->SetRange(13.0f);
-    leftPointLight2_->SetCastShadows(true);
-    leftPointLight2_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
-
-    Node* rightPointLightNode1{lobbyNode_->CreateChild("PointLight")};
-    rightPointLightNode1->SetPosition(Vector3(2.3f, 2.3f, 3.0f));
-    rightPointLight1_ = rightPointLightNode1->CreateComponent<Light>();
-    rightPointLight1_->SetLightType(LIGHT_POINT);
-    rightPointLight1_->SetBrightness(1.0f);
-    rightPointLight1_->SetColor(Color(0.42f, 0.1f, 1.0f));
-    rightPointLight1_->SetRange(13.0f);
-    rightPointLight1_->SetCastShadows(true);
-    rightPointLight1_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
-
-    Node* rightPointLightNode2{lobbyNode_->CreateChild("PointLight")};
-    rightPointLightNode2->SetPosition(Vector3(2.3f, 2.3f, -3.0f));
-    rightPointLight2_ = rightPointLightNode2->CreateComponent<Light>();
-    rightPointLight2_->SetLightType(LIGHT_POINT);
-    rightPointLight2_->SetBrightness(1.0f);
-    rightPointLight2_->SetColor(Color(0.42f, 0.1f, 1.0f));
-    rightPointLight2_->SetRange(13.0f);
-    rightPointLight2_->SetCastShadows(true);
-    rightPointLight2_->SetShadowBias(BiasParameters(0.0001f, 0.1f));
-
-    //Create game elements
-    spawnMaster_ = new SpawnMaster();
-
-    player1_ = new Player(1);
-    player2_ = new Player(2);
-    players_[player1_->GetRootNodeID()] = player1_;
-    players_[player2_->GetRootNodeID()] = player2_;
-
-
-    door1_ = new Door(false);
-    door2_ = new Door(true);
-
-    splatterPillar1_ = new SplatterPillar(false);
-    splatterPillar2_ = new SplatterPillar(true);
-
-    apple_ = new Apple();
-    heart_ = new Heart();
-    multiX_ = new MultiX();
-    chaoBall_ = new ChaoBall();
+    Node* appleNode{ scene_->CreateChild("Apple") };
+    apple_ = appleNode->CreateComponent<Apple>();
+    Node* heartNode{ scene_->CreateChild("Heart") };
+    heart_ = heartNode->CreateComponent<Heart>();
+    Node* chaoBallNode{ scene_->CreateChild("ChaoBall") };
+    chaoBall_ = chaoBallNode->CreateComponent<ChaoBall>();
 }
 
 void MasterControl::SetGameState(const GameState newState)
 {
     if (newState != currentState_) {
+
         LeaveGameState();
         previousState_ = currentState_;
         currentState_ = newState;
@@ -422,12 +357,12 @@ void MasterControl::LeaveGameState()
     switch (currentState_) {
     case GS_INTRO : break;
     case GS_LOBBY : {
-        lobbyNode_->SetEnabledRecursive(false);
-        if (highestScore_ != 0)
-            highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.23f));
+//        lobby_->SetEnabledRecursive(false);
+//        if (highestScore_ != 0)
+//            highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.23f));
     } break;
     case GS_PLAY : {
-        spawnMaster_->Deactivate();
+        GetSubsystem<SpawnMaster>()->Deactivate();
     } break; //Eject when alive
     case GS_DEAD : {
         world.camera->SetGreyScale(false);
@@ -441,38 +376,30 @@ void MasterControl::EnterGameState()
     switch (currentState_) {
     case GS_INTRO : break;
     case GS_LOBBY : {
-        GetPlayer(1)->EnterLobby();
-        GetPlayer(2)->EnterLobby();
+        SendEvent(E_ENTERLOBBY);
+
+        GetSubsystem<SpawnMaster>()->Clear();
+
         musicSource_->Play(menuMusic_);
-        lobbyNode_->SetEnabledRecursive(true);
-        world.camera->EnterLobby();
-        spawnMaster_->Clear();
-        tileMaster_->EnterLobbyState();
-        highestNode_->SetEnabledRecursive(highestScore_ != 0);
-        highestScoreText_->SetColor(Color(0.23f, 0.75f, 1.0f, 0.75f) * static_cast<float>(highestScore_ != 0));
 
         apple_->Disable();
         heart_->Disable();
-        multiX_->Disable();
         chaoBall_->Disable();
     } break;
     case GS_PLAY : {
+        SendEvent(E_ENTERPLAY);
+
         musicSource_->Play(gameMusic_);
-        player1_->EnterPlay();
-        player2_->EnterPlay();
-        world.camera->EnterPlay();
 
         apple_->Respawn(true);
         heart_->Respawn(true);
-        multiX_->Deactivate();
         chaoBall_->Deactivate();
 
-        world.lastReset = world.scene->GetElapsedTime();
-        spawnMaster_->Restart();
-        tileMaster_->EnterPlayState();
+        world.lastReset = scene_->GetElapsedTime();
+        GetSubsystem<SpawnMaster>()->Restart();
     } break;
     case GS_DEAD : {
-        spawnMaster_->Deactivate();
+        GetSubsystem<SpawnMaster>()->Deactivate();
         world.camera->SetGreyScale(true);
         musicSource_->SetGain(musicSource_->GetGain() * 0.666f);
     } break;
@@ -483,6 +410,23 @@ void MasterControl::EnterGameState()
 void MasterControl::Eject()
 {
     SetGameState(GS_LOBBY);
+}
+
+bool MasterControl::AllReady(bool onlyHuman)
+{
+    for (Controllable* c : GetSubsystem<InputMaster>()->GetControllables()) {
+
+        if (c){
+            if (c->IsInstanceOf<Pilot>()){
+                if ( onlyHuman && c->GetPlayer()->IsHuman() )
+                    return false;
+                else if (!onlyHuman)
+                    return false;
+            }
+        }
+
+    }
+    return true;
 }
 
 void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
@@ -505,19 +449,18 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
 
     switch (currentState_) {
     case GS_LOBBY: {
-        lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) / (128.0f * sinceStateChange_+23.0f));
 
-        leftPointLight1_->SetBrightness(Sine(1.0f, 0.666f, 0.95f));
-        leftPointLight2_->SetBrightness(Sine(1.0f, 0.666f, 0.95f, M_PI));
-        rightPointLight1_->SetBrightness(Sine(1.0f, 0.95f, 1.23f));
-        rightPointLight2_->SetBrightness(Sine(1.0f, 0.95f, 1.23f, M_PI));
-
-        if (door1_->HidesPlayer() > 0.5f && door2_->HidesPlayer() > 0.5f){
+        for (Door* d : GetComponentsRecursive<Door>()){
+            if (d->HidesAllPilots())
                 Exit();
         }
+
+        if (AllReady(false))
+            SetGameState(GS_PLAY);
+
     } break;
     case GS_PLAY: {
-        lobbyNode_->SetPosition((Vector3::DOWN * 23.0f) * Min(1.0f, sinceStateChange_));
+//        lobby_->SetPosition((Vector3::DOWN * 23.0f) * Min(1.0f, sinceStateChange_));
     } break;
     case GS_DEAD: {
         if (sinceStateChange_ > 5.0f && NoHumans())
@@ -544,10 +487,11 @@ void MasterControl::UpdateCursor(const float timeStep)
 bool MasterControl::CursorRayCast(const float maxDistance, PODVector<RayQueryResult> &hitResults)
 {
     IntVector2 mousePos{world.cursor.uiCursor->GetPosition()};
-    Ray cameraRay{world.camera->camera_->GetScreenRay((float)mousePos.x_/GRAPHICS->GetWidth(),
-                                                        (float)mousePos.y_/GRAPHICS->GetHeight())};
+    Ray cameraRay{ world.camera->camera_->GetScreenRay((float)mousePos.x_/GRAPHICS->GetWidth(),
+                                                       (float)mousePos.y_/GRAPHICS->GetHeight())
+                 };
     RayOctreeQuery query{hitResults, cameraRay, RAY_TRIANGLE, maxDistance, DRAWABLE_GEOMETRY};
-    world.scene->GetComponent<Octree>()->Raycast(query);
+    scene_->GetComponent<Octree>()->Raycast(query);
 
     if (hitResults.Size())
         return true;
@@ -575,8 +519,8 @@ bool MasterControl::PhysicsSphereCast(PODVector<RigidBody*> &hitResults, const V
 void MasterControl::Exit()
 {
     //Save pilots and their scores
-    player1_->SavePilot();
-    player2_->SavePilot();
+//    player1_->SavePilot();
+//    player2_->SavePilot();
 
     //...and exit to the left
     engine_->Exit();
@@ -584,26 +528,58 @@ void MasterControl::Exit()
 
 float MasterControl::Sine(const float freq, const float min, const float max, const float shift)
 {
-    float phase{freq * world.scene->GetElapsedTime() + shift};
+    float phase{SinePhase(freq, shift)};
     float add{0.5f * (min + max)};
     return LucKey::Sine(phase) * 0.5f * (max - min) + add;
 }
 float MasterControl::Cosine(const float freq, const float min, const float max, const float shift)
 {
-    float phase{freq * world.scene->GetElapsedTime() + shift};
-    float add{0.5f * (min + max)};
-    return LucKey::Cosine(phase) * 0.5f * (max - min) + add;
+    return Sine(freq, min, max, shift + 0.25f);
+}
+float MasterControl::SinePhase(float freq, float shift)
+{
+    return M_PI * 2.0f * (freq * scene_->GetElapsedTime() + shift);
 }
 
-Player* MasterControl::GetPlayer(int playerID, bool other) const
+
+Player* MasterControl::GetPlayer(int playerID) const
 {
-    if (!other)
-        return playerID == 1 ? player1_.Get() : player2_.Get();
-    else
-        return playerID != 1 ? player1_.Get() : player2_.Get();
+    for (Player* p : players_) {
+
+        if (p->GetPlayerId() == playerID)
+            return p;
+    }
+    return nullptr;
+}
+Player* MasterControl::GetPlayerByColorSet(int colorSet)
+{
+    for (Ship* s : GetComponentsRecursive<Ship>()) {
+
+        if (s->GetColorSet() == colorSet)
+            return s->GetPlayer();
+    }
+}
+Player* MasterControl::GetNearestPlayer(Vector3 pos)
+{
+    Player* nearest{};
+    for (Player* p : players_){
+        if (p->IsAlive()){
+
+            if (!nearest
+            || (Distance(GetSubsystem<InputMaster>()->GetControllableByPlayer(p->GetPlayerId())->GetPosition(), pos) <
+                Distance(GetSubsystem<InputMaster>()->GetControllableByPlayer(nearest->GetPlayerId())->GetPosition(), pos)))
+            {
+                nearest = p;
+            }
+        }
+    }
+    return nearest;
 }
 
 bool MasterControl::NoHumans()
 {
-    return !GetPlayer(1)->IsHuman() && !GetPlayer(2)->IsHuman();
+    for (Player* p : players_)
+        if (p->IsHuman())
+            return false;
+    return true;
 }

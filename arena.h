@@ -31,27 +31,25 @@ class Tile;
 class Slot;
 
 enum TileElement {TE_CENTER = 0, TE_NORTH, TE_EAST, TE_SOUTH, TE_WEST, TE_NORTHWEST, TE_NORTHEAST, TE_SOUTHEAST, TE_SOUTHWEST, TE_LENGTH};
-enum CornerType {CT_NONE, CT_IN, CT_OUT, CT_TWEEN, CT_DOUBLE, CT_FILL};
 enum TileType {B_SPACE, B_EMPTY, B_ENGINE};
 
-class TileMaster : public Object
+class Arena : public LogicComponent
 {
-    URHO3D_OBJECT(TileMaster, Object);
+    URHO3D_OBJECT(Arena, LogicComponent);
     friend class InputMaster;
     friend class MasterControl;
     friend class Tile;
 public:
-    TileMaster();
+    Arena(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
 
-    Node* rootNode_;
-    RigidBody* rigidBody_;
-
-    void AddToAffectors(WeakPtr<Node> affector, WeakPtr<RigidBody> rigidBody) { hexAffectors_[affector] = rigidBody; }
-    void RemoveFromAffectors(WeakPtr<Node> affector) { if (hexAffectors_.Contains(affector) ) hexAffectors_.Erase(affector); }
-    HashMap<WeakPtr<Node>, WeakPtr<RigidBody> >* GetAffectors() { return &hexAffectors_; }
+    void AddToAffectors(Node* affector, RigidBody* rigidBody) { hexAffectors_[affector] = rigidBody; }
+    void RemoveFromAffectors(Node* affector);
+    HashMap<Node*, RigidBody* >* GetAffectors() { return &hexAffectors_; }
 
     Tile* GetRandomTile();
-    void FlashX(int playerID);
+    void FlashX(Color color);
 private:
     Vector3 targetPosition_;
     Vector3 targetScale_;
@@ -59,13 +57,14 @@ private:
     Material* logoMaterial_;
     Material* xMaterial_;
     Light* playLight_;
-    HashMap<WeakPtr<Node>, WeakPtr<RigidBody> > hexAffectors_;
-    HashMap<IntVector2, SharedPtr<Tile> > tileMap_;
+    HashMap<Node*, RigidBody*> hexAffectors_;
+    Vector<Tile*> tiles_;
 
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
 
-    void EnterPlayState();
-    void EnterLobbyState();
+    void EnterPlay(StringHash eventType, VariantMap &eventData);
+    void EnterLobby(StringHash eventType, VariantMap &eventData);
+
 };
 
 #endif // TILEMASTER_H

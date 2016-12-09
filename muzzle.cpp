@@ -18,18 +18,20 @@
 
 #include "muzzle.h"
 
-Muzzle::Muzzle(int playerID):
-    Effect()
+void Muzzle::RegisterObject(Context *context)
 {
-    rootNode_->SetName("Muzzle");
+    context->RegisterFactory<Muzzle>();
+}
 
-    particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
-    ParticleEffect* particleEffect{};
+Muzzle::Muzzle(Context* context):
+    Effect(context)
+{
+}
 
-    if (playerID == 2)
-        particleEffect = CACHE->GetResource<ParticleEffect>("Particles/PurpleMuzzle.xml");
-    else
-        particleEffect = CACHE->GetResource<ParticleEffect>("Particles/GreenMuzzle.xml");
+void Muzzle::SetColor(float colorSet)
+{
+    SharedPtr<ParticleEffect> effect{ CACHE->GetResource<ParticleEffect>("Particles/Muzzle.xml")->Clone() };
+    effect->SetMaterial(MC->colorSets_[colorSet].hitFx_->GetMaterial());
+    particleEmitter_->SetEffect(effect);
 
-    particleEmitter_->SetEffect(particleEffect);
 }

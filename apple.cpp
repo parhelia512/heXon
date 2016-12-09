@@ -18,12 +18,24 @@
 
 #include "apple.h"
 
-Apple::Apple() : Pickup()
+void Apple::RegisterObject(Context *context)
 {
-    rootNode_->SetName("Apple");
+    context->RegisterFactory<Apple>();
+}
+
+Apple::Apple(Context* context) : Pickup(context)
+{
+
+}
+
+void Apple::OnNodeSet(Node *node)
+{
+    Pickup::OnNodeSet(node);
+
+    node_->SetName("Apple");
     pickupType_ = PT_APPLE;
     initialPosition_ = Vector3::FORWARD*10.0f;
-    rootNode_->SetPosition(initialPosition_);
+    node_->SetPosition(initialPosition_);
     model_->SetModel(MC->GetModel("Apple"));
     model_->SetMaterial(MC->GetMaterial("GoldEnvmap"));
 
@@ -32,4 +44,15 @@ Apple::Apple() : Pickup()
     colorFrames.Push(ColorFrame(Color(0.5f, 0.5f, 0.23f, 0.42f), 0.1f));
     colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
     particleEmitter_->GetEffect()->SetColorFrames(colorFrames);
+}
+
+void Apple::Update(float timeStep)
+{
+    Pickup::Update(timeStep);
+
+    //Spin
+    node_->Rotate(Quaternion(0.0f, 100.0f * timeStep, 0.0f));
+    //Float like a float
+    float floatFactor = 0.5f - Min(0.5f, 0.5f * Abs(node_->GetPosition().y_));
+    graphicsNode_->SetPosition(Vector3::UP * MC->Sine(0.23f, -floatFactor, floatFactor, 0.23f));
 }

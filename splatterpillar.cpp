@@ -18,35 +18,43 @@
 
 #include "splatterpillar.h"
 
-#include "player.h"
+#include "pilot.h"
 
-SplatterPillar::SplatterPillar(bool right):
-    Object(MC->GetContext()),
-    player_{},
-    right_{right},
+void SplatterPillar::RegisterObject(Context *context)
+{
+    context->RegisterFactory<SplatterPillar>();
+}
+
+SplatterPillar::SplatterPillar(Context* context):
+    LogicComponent(context),
+    playerId_{0},
     spun_{false},
     reset_{true},
-    delayed_{0.0f},
-    delay_{0.5f},
-    sequenceLength_{5.0f},
     lastTriggered_{-5.0f},
+    delay_{0.5f},
+    delayed_{0.0f},
+    sequenceLength_{5.0f},
     rotationSpeed_{}
 {
-    rootNode_ = MC->lobbyNode_->CreateChild("SplatterPillar");
-    rootNode_->SetPosition(Vector3(right_? 2.26494f : -2.26494f, 0.0f, -3.91992f));
-    rootNode_->Rotate(Quaternion(Random(6)*60.0f, Vector3::UP));
-    pillarNode_ = rootNode_->CreateChild("Pillar");
-    bloodNode_ = rootNode_->CreateChild("Blood");
+
+}
+
+void SplatterPillar::OnNodeSet(Node *node)
+{ (void)node;
+
+    playerId_ = node_->GetPosition().x_ < 0.0f ? 1 : 2;
+
+    node_->Rotate(Quaternion(Random(6) * 60.0f, Vector3::UP));
+    pillarNode_ = node_->CreateChild("Pillar");
+    bloodNode_ = node_->CreateChild("Blood");
+    bloodNode_->SetScale(1.23f);
     pillar_ = pillarNode_->CreateComponent<AnimatedModel>();
     pillar_->SetModel(MC->GetModel("SplatterPillar"));
     pillar_->SetMorphWeight(0, 0.0f);
     pillar_->SetCastShadows(true);
 
     pillar_->SetMaterial(0, MC->GetMaterial("Basic"));
-    if (!right_)
-            pillar_->SetMaterial(1, MC->GetMaterial("GreenGlow"));
-    else
-        pillar_->SetMaterial(1, MC->GetMaterial("PurpleGlow"));
+    pillar_->SetMaterial(1, MC->GetMaterial("BlueGlow"));
 
     pillar_->SetMaterial(2, MC->GetMaterial("Metal"));
     pillar_->SetMaterial(3, MC->GetMaterial("Drain"));
@@ -57,8 +65,8 @@ SplatterPillar::SplatterPillar(bool right):
     blood_->SetModel(MC->GetModel("Blood"));
     blood_->SetMaterial(0, MC->GetMaterial("Blood")->Clone());
 
-    particleNode_ = rootNode_->CreateChild("BloodParticles");
-    particleNode_->Translate(Vector3::UP*2.3f);
+    particleNode_ = node_->CreateChild("BloodParticles");
+    particleNode_->Translate(Vector3::UP * 2.3f);
     splatEmitter_ = particleNode_->CreateComponent<ParticleEmitter>();
     splatEmitter_->SetEffect(CACHE->GetResource<ParticleEffect>("Particles/BloodSplat.xml"));
     splatEmitter_->SetEmitting(false);
@@ -66,30 +74,38 @@ SplatterPillar::SplatterPillar(bool right):
     dripEmitter_->SetEffect(CACHE->GetTempResource<ParticleEffect>("Particles/BloodDrip.xml"));
     dripEmitter_->SetEmitting(false);
 
-    soundSource_ = rootNode_->CreateComponent<SoundSource>();
+    soundSource_ = node_->CreateComponent<SoundSource>();
     soundSource_->SetGain(1.0f);
 
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(SplatterPillar, HandleSceneUpdate));
+    RigidBody* triggerBody{ node_->CreateComponent<RigidBody>() };
+    triggerBody->SetTrigger(true);
+    CollisionShape* trigger{ node_->CreateComponent<CollisionShape>() };
+    trigger->SetSphere(0.13f, Vector3::UP * 0.42f);
+    SubscribeToEvent(node_, E_NODECOLLISIONSTART, URHO3D_HANDLER(SplatterPillar, Trigger));
+
 }
 
-void SplatterPillar::Trigger()
-{
+void SplatterPillar::Trigger(StringHash eventType, VariantMap& eventData)
+{ (void)eventType;
+
     rotationSpeed_ = Random(-1.0f, 1.0f);
-    lastTriggered_ = MC->world.scene->GetElapsedTime();
-    player_->KillPilot();
+    lastTriggered_ = MC->scene_->GetElapsedTime();
     bloodNode_->Rotate(Quaternion(Random(360.0f), Vector3::UP));
     blood_->SetEnabled(true);
-    soundSource_->Play(CACHE->GetResource<Sound>("Samples/Splatter" + String(Random(1,6)) + ".ogg"));
+    splatEmitter_->SetEmitting(true);
+    soundSource_->Play(CACHE->GetResource<Sound>("Samples/Splatter" + String(Random(1, 6)) + ".ogg"));
+
+    Node* otherNode{ static_cast<Node*>(eventData[NodeCollisionStart::P_OTHERNODE].GetPtr()) };
+    if (otherNode->HasComponent<Pilot>())
+        otherNode->GetComponent<Pilot>()->Upload();
 }
 
-void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventData)
-{
-    if (player_ == nullptr) player_ = MC->GetPlayer(right_+1);
+void SplatterPillar::Update(float timeStep)
+{ (void)timeStep;
 
     if (MC->GetGameState() != GS_LOBBY) return;
 
-    float timeStep_{eventData[SceneUpdate::P_TIMESTEP].GetFloat()};
-    float elapsedTime{MC->world.scene->GetElapsedTime()};
+    float elapsedTime{MC->scene_->GetElapsedTime()};
     float intoSequence{(elapsedTime - lastTriggered_)/sequenceLength_};
     unsigned numMorphs{blood_->GetNumMorphs()};
 
@@ -98,7 +114,6 @@ void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventDa
         //Animate blood
         if (!bloodNode_->IsEnabled()){
             bloodNode_->SetEnabled(true);
-            splatEmitter_->SetEmitting(true);
             particleNode_->Rotate(Quaternion{Random(360.0f), Vector3::UP});
         }
         if (intoSequence > 0.023f) {
@@ -118,7 +133,8 @@ void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventDa
         dripEffect->SetMinEmissionRate(Max(123.0f - 200.0f * intoSequence, 0.0f));
         dripEffect->SetMaxEmissionRate(Max(320.0f - 340.0f * intoSequence, 0.0f));
         //Animate pillar
-        if      (intoSequence < 0.125f) pillar_->SetMorphWeight(0, 123.0f * intoSequence);
+        if      (intoSequence < 0.125f)
+            pillar_->SetMorphWeight(0, 123.0f * intoSequence);
         else if (intoSequence < 0.1666f) {
             pillar_->SetMorphWeight(0, 1.0f);
             if (!spun_){
@@ -126,10 +142,10 @@ void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventDa
                 spun_ = true;
             }
         }
-        else if (intoSequence > (1.0f/6.0f)) {
+        else if (intoSequence > (1.0f / 6.0f)) {
             spun_ = false;
-            float weight{Max(2.0f * (1.0f - 3.0f*intoSequence), 0.0f)};
-            pillar_->SetMorphWeight(0, weight*weight*weight);
+            float weight{Max(2.0f * (1.0f - 3.0f * intoSequence), 0.0f)};
+            pillar_->SetMorphWeight(0, weight * weight * weight);
         }
     } else {
     //When idle
@@ -139,14 +155,6 @@ void SplatterPillar::HandleSceneUpdate(StringHash eventType, VariantMap& eventDa
             dripEmitter_->SetEmitting(false);
         }
         if (pillar_->GetMorphWeight(0) != 0.0f) pillar_->SetMorphWeight(0, 0.0f);
-        //Trigger
-        if (player_ && LucKey::Distance(player_->GetPosition(), rootNode_->GetWorldPosition()) < 0.23f) {
-            delayed_ += timeStep_;
-            if (delayed_ > delay_){
-                Trigger();
-                delayed_ = 0.0f;
-            }
-        } else delayed_ = 0.0f;
     }
 }
 

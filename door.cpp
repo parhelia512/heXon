@@ -16,55 +16,98 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#include "inputmaster.h"
+#include "pilot.h"
+
 #include "door.h"
-#include "player.h"
 
-Door::Door(bool right) :
-    Object(MC->GetContext()),
-    right_{right},
-    wasNear_{true},
-    hiding_{0.0f}
+void Door::RegisterObject(Context *context)
 {
-    player_ = right ? MC->GetPlayer(2) : MC->GetPlayer(1);
-    rootNode_ = MC->lobbyNode_->CreateChild("Door");
-    rootNode_->SetPosition(Vector3(right_? 2.26494f : -2.26494f, 0.0f, 5.21843f));
-    door_ = rootNode_->CreateComponent<AnimatedModel>();
-    door_->SetModel(MC->GetModel("Door"));
-    door_->SetMaterial(0, MC->GetMaterial("Basic"));
-    door_->SetCastShadows(true);
+    context->RegisterFactory<Door>();
+}
 
-    Node* lightNode{rootNode_->CreateChild("DoorLight")};
-    lightNode->SetPosition(Vector3(0.0f, 0.666f, 2.3f));
-    Light* doorLight{lightNode->CreateComponent<Light>()};
-    doorLight->SetRange(10.0f);
-    doorLight->SetBrightness(5.0f);
+Door::Door(Context* context) :
+    LogicComponent(context),
+    open_{false}
+{
+}
+
+void Door::OnNodeSet(Node *node)
+{ (void)node;
+
+    model_ = node_->CreateComponent<AnimatedModel>();
+    model_->SetModel(MC->GetModel("Door"));
+    model_->SetMaterial(0, MC->GetMaterial("Basic"));
+    model_->SetCastShadows(true);
+
+    Node* lightNode{ node_->CreateChild("DoorLight") };
+    lightNode->LookAt(Vector3::BACK);
+    lightNode->SetPosition(Vector3(0.0f, 1.0, 3.4f));
+    Light* doorLight{ lightNode->CreateComponent<Light>() };
+    doorLight->SetLightType(LIGHT_SPOT);
+    doorLight->SetFov(160.0f);
+    doorLight->SetRange(11.0f);
+    doorLight->SetBrightness(6.66f);
+    doorLight->SetSpecularIntensity(0.05f);
     doorLight->SetCastShadows(true);
-    doorLight->SetShadowBias(BiasParameters(0.000023, 0.042f));
+    doorLight->SetShadowBias(BiasParameters(0.000000023f, 0.42f));
+//    doorLight->SetShadowResolution(0.5f);
 
-    doorSample_ = CACHE->GetResource<Sound>("Samples/Door.ogg");
-    doorSample_->SetLooped(false);
+    node_->CreateComponent<SoundSource>();
 
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Door, HandleSceneUpdate));
+    RigidBody* triggerBody{ node_->CreateComponent<RigidBody>() };
+    triggerBody->SetTrigger(true);
+    CollisionShape* trigger{ node_->CreateComponent<CollisionShape>() };
+    trigger->SetBox(Vector3(4.23f, 3.0f, 1.0f), Vector3::BACK * 0.34f);
+
+    /*node_->CreateComponent<RigidBody>();
+    for (float x : { -2.05f, 2.05f }){
+
+        CollisionShape* collider{ node_->CreateComponent<CollisionShape>() };
+        collider->SetCapsule(0.2f, 3.0f, Vector3( x, 0.0f, -0.23f));
+    }*/
+
+    SubscribeToEvent(node_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Door, Open));
+    SubscribeToEvent(node_, E_NODECOLLISIONEND, URHO3D_HANDLER(Door, Close));
+
 }
 
-float Door::HidesPlayer() const
-{
-    return hiding_;
-}
+void Door::Open(StringHash eventType, VariantMap& eventData)
+{ (void)eventType; (void)eventData;
 
-void Door::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
-{
-    bool playerNear{LucKey::Distance(rootNode_->GetWorldPosition(), player_->GetPosition()) < 0.666f};
-    if (playerNear != wasNear_) {
-        player_->PlaySample(doorSample_);
+    node_->GetComponent<SoundSource>()->Play(MC->GetSample("Door"));
+    open_ = true;
+}
+void Door::Close(StringHash eventType, VariantMap& eventData)
+{ (void)eventType; (void)eventData;
+
+    PODVector<RigidBody*> colliders{};
+    node_->GetComponent<RigidBody>()->GetCollidingBodies(colliders);
+    if (!colliders.Size()) {
+
+        node_->GetComponent<SoundSource>()->Play(MC->GetSample("Door"));
+        open_ = false;
     }
-    wasNear_ = playerNear;
+}
 
-    if (door_->GetMorphWeight(0) < 0.023f && player_->GetPosition().z_ > GetPosition().z_)
-        hiding_ += eventData[SceneUpdate::P_TIMESTEP].GetFloat();
-    else hiding_ = 0.0f;
+bool Door::HidesAllPilots() const
+{
+    Vector<Controllable*> controllables{ GetSubsystem<InputMaster>()->GetControllables() };
+    for (Controllable* c : controllables) {
+        if (c)
 
-    door_->SetMorphWeight(0, Lerp(door_->GetMorphWeight(0),
-                                  static_cast<float>(playerNear),
-                                  eventData[SceneUpdate::P_TIMESTEP].GetFloat() *23.0f));
+            if (c->IsInstanceOf<Pilot>()) {
+                if (c->GetPosition().z_ < node_->GetPosition().z_ + 0.5f)
+                    return false;
+            } else return false;
+    }
+    return model_->GetMorphWeight(0) < 0.0023f;
+}
+
+void Door::Update(float timeStep)
+{
+
+    model_->SetMorphWeight(0, Lerp( model_->GetMorphWeight(0),
+                                  static_cast<float>(open_),
+                                  timeStep * 7.0f) );
 }

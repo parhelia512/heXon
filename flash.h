@@ -36,10 +36,13 @@ class Flash : public Effect
 {
     URHO3D_OBJECT(Flash, Effect);
 public:
-    Flash();
+    Flash(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
+
     SharedPtr<Light> light_;
 
-    void UpdateFlash(StringHash eventType, VariantMap &eventData);
+    virtual void Update(float timeStep);
     void Set(const Vector3 position, bool big);
     void Disable();
 private:

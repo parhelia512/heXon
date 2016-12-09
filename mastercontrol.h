@@ -22,30 +22,33 @@
 #include <Urho3D/Urho3D.h>
 
 #include "luckey.h"
+#include "player.h"
 
 namespace Urho3D {
+
+URHO3D_EVENT(E_ENTERPLAY, EnterPlay){}
+URHO3D_EVENT(E_ENTERLOBBY, EnterLobby){}
+
 class Node;
 class Scene;
 }
 
 class heXoCam;
 class InputMaster;
-class TileMaster;
+class Arena;
 class SpawnMaster;
 class Razor;
-class Player;
+//class Player;
 class Door;
-class Pilot;
 class SplatterPillar;
 class Apple;
-class MultiX;
 class ChaoBall;
 class Heart;
+class Lobby;
 
 typedef struct GameWorld
 {
     SharedPtr<heXoCam> camera;
-    SharedPtr<Scene> scene;
     float lastReset;
     SharedPtr<Octree> octree;
     SharedPtr<Node> backdropNode;
@@ -57,6 +60,15 @@ typedef struct GameWorld
     } cursor;
 } GameWorld;
 
+typedef struct ColorSet
+{
+    Pair<Color, Color> colors_;
+    SharedPtr<Material> glowMaterial_;
+    SharedPtr<Material> hullMaterial_;
+    SharedPtr<Material> bulletMaterial_;
+    SharedPtr<ParticleEffect> hitFx_;
+} ColorSet;
+
 typedef struct HitInfo
 {
     Vector3 position_;
@@ -65,31 +77,11 @@ typedef struct HitInfo
     Drawable* drawable_;
 } HitInfo;
 
-namespace {
-StringHash const N_VOID = StringHash("Void");
-StringHash const N_ARENAEDGE = StringHash("ArenaEdge");
-StringHash const N_CURSOR = StringHash("Cursor");
-StringHash const N_TILE = StringHash("Tile");
-StringHash const N_PLAYER = StringHash("Player");
-StringHash const N_BULLET = StringHash("Bullet");
-StringHash const N_APPLE = StringHash("Apple");
-StringHash const N_HEART = StringHash("Heart");
-StringHash const N_MULTIX = StringHash("MultiX");
-StringHash const N_CHAOBALL = StringHash("ChaoBall");
-StringHash const N_CHAOMINE = StringHash("ChaoMine");
-StringHash const N_RESET = StringHash("Reset");
-StringHash const N_SEEKER = StringHash("Seeker");
-StringHash const N_SPIRE = StringHash("Spire");
-StringHash const N_RAZOR = StringHash("Razor");
-}
-
 enum GameState {GS_INTRO, GS_LOBBY, GS_PLAY, GS_DEAD, GS_EDIT};
-enum JoyStickButton {JB_SELECT, JB_LEFTSTICK, JB_RIGHTSTICK, JB_START,
-                     JB_DPAD_UP, JB_DPAD_RIGHT, JB_DPAD_DOWN, JB_DPAD_LEFT,
-                     JB_L2, JB_R2, JB_L1, JB_R1, JB_TRIANGLE, JB_CIRCLE, JB_CROSS, JB_SQUARE};
-enum PickupType {PT_RESET, PT_APPLE, PT_HEART, PT_MULTIX, PT_CHAOBALL};
+enum PickupType {PT_RESET, PT_APPLE, PT_HEART, PT_CHAOBALL};
 
 #define MC MasterControl::GetInstance()
+
 
 class MasterControl : public Application
 {
@@ -99,34 +91,19 @@ public:
     static MasterControl* GetInstance();
 
     GameWorld world;
-    Vector< SharedPtr<Model> > hairStyles_;
-    SharedPtr<PhysicsWorld> physicsWorld_;
-    SharedPtr<SoundSource> musicSource_;
-    SharedPtr<UI> ui_;
-    SharedPtr<Renderer> renderer_;
+    Scene* scene_;
+    PhysicsWorld* physicsWorld_;
+    SoundSource* musicSource_;
     SharedPtr<XMLFile> defaultStyle_;
-    SharedPtr<TileMaster> tileMaster_;
-    SharedPtr<InputMaster> inputMaster_;
-    SharedPtr<SpawnMaster> spawnMaster_;
+    Lobby* lobby_;
+    Arena* arena_;
 
-    SharedPtr<Player> player1_;
-    SharedPtr<Player> player2_;
-    SharedPtr<Pilot> highestPilot_;
-    SharedPtr<Node> highestNode_;
-    unsigned highestScore_;
-    SharedPtr<Text> highestScoreText_;
-    SharedPtr<Node> podiumNode_;
+    Vector< SharedPtr<Player> > players_;
+    HashMap< int, ColorSet > colorSets_;
 
-    SharedPtr<Door> door1_;
-    SharedPtr<Door> door2_;
-    SharedPtr<SplatterPillar> splatterPillar1_;
-    SharedPtr<SplatterPillar> splatterPillar2_;
-    HashMap<unsigned, SharedPtr<Player> > players_;
-    SharedPtr<Apple> apple_;
-    SharedPtr<Heart> heart_;
-    SharedPtr<MultiX> multiX_;
-    SharedPtr<ChaoBall> chaoBall_;
-    SharedPtr<Node> lobbyNode_;
+    Apple* apple_;
+    Heart* heart_;
+    ChaoBall* chaoBall_;
 
     // Setup before engine initialization. Modifies the engine paramaters.
     virtual void Setup();
@@ -142,21 +119,24 @@ public:
     Sound* GetMusic(String name) const;
     Sound* GetSample(String name) const;
 
-    Player* GetPlayer(int playerID, bool other = false) const;
-    float SinceLastReset() const { return world.scene->GetElapsedTime() - world.lastReset; }
+    Player* GetPlayer(int playerID) const;
+    Player *GetPlayerByColorSet(int colorSet);
+    Player*GetNearestPlayer(Vector3 pos);
+    Vector< SharedPtr<Player> > GetPlayers() { return players_; }
+
+    float SinceLastReset() const { return scene_->GetElapsedTime() - world.lastReset; }
     void SetGameState(GameState newState);
     GameState GetGameState(){ return currentState_; }
     GameState GetPreviousGameState(){ return previousState_; }
     float GetAspectRatio() const noexcept { return aspectRatio_; }
     bool IsPaused() { return paused_; }
-    void SetPaused(bool paused) { paused_ = paused; world.scene->SetUpdateEnabled(!paused);}
+    void SetPaused(bool paused) { paused_ = paused; scene_->SetUpdateEnabled(!paused);}
     void Pause() { SetPaused(true);}
     void Unpause() { SetPaused(false); }
     float GetSinceStateChange() const noexcept { return sinceStateChange_; }
 
     bool PhysicsRayCast(PODVector<PhysicsRaycastResult> &hitResults, Urho3D::Ray ray, const float distance, const unsigned collisionMask = M_MAX_UNSIGNED);
     bool PhysicsSphereCast(PODVector<RigidBody*> &hitResults, Vector3 center, const float radius, const unsigned collisionMask = M_MAX_UNSIGNED);
-    void StartGame();
 
     void Eject();
     bool NoHumans();
@@ -164,6 +144,22 @@ public:
 
     float Sine(const float freq, const float min, const float max, const float shift = 0.0f);
     float Cosine(const float freq, const float min, const float max, const float shift = 0.0f);
+
+    template <class T> Vector<T*> GetComponentsRecursive()
+    {
+        PODVector<Node*> matchingNodes;
+
+        scene_->GetChildrenWithComponent<T>(matchingNodes, true);
+
+        Vector<T*> matchingComponents{};
+        for (Node* n : matchingNodes)
+            matchingComponents.Push(n->GetComponent<T>());
+
+        return matchingComponents;
+    }
+
+    bool AllReady(bool onlyHuman);
+
 private:
     static MasterControl* instance_;
 
@@ -179,10 +175,6 @@ private:
     SharedPtr<Sound> gameMusic_;
 
     Light* lobbySpotLight_;
-    Light* leftPointLight1_;
-    Light* leftPointLight2_;
-    Light* rightPointLight1_;
-    Light* rightPointLight2_;
 
     Material* lobbyGlowGreen_;
     Material* lobbyGlowPurple_;
@@ -190,24 +182,22 @@ private:
     void SetWindowTitleAndIcon();
     void CreateConsoleAndDebugHud();
 
+    void CreateColorSets();
     void CreateScene();
     void CreateUI();
     void SubscribeToEvents();
 
     void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-    void HandlePlayTrigger1(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY); (void)otherNode; (void)eventData;}
-    void HandlePlayTrigger2(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY); (void)otherNode; (void)eventData;}
-    void HandlePlayTrigger(StringHash otherNode, VariantMap &eventData){ SetGameState(GS_PLAY);  (void)otherNode; (void)eventData;}
 
     void UpdateCursor(const float timeStep);
     bool CursorRayCast(const float maxDistance, PODVector<RayQueryResult> &hitResults);
 
     void LeaveGameState();
     void EnterGameState();
-    void LoadHair();
 
     float secondsPerFrame_;
     float sinceFrameRateReport_;
+    float SinePhase(float freq, float shift);
 };
 
 #endif // MASTERCONTROL_H

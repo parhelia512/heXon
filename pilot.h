@@ -21,31 +21,55 @@
 
 #include <Urho3D/Urho3D.h>
 
-#include "sceneobject.h"
+#include "controllable.h"
 
-class Pilot : public SceneObject
+enum PilotColor { PC_SKIN, PC_SHIRT, PC_PANTS, PC_SHOES, PC_HAIR, PC_ALL };
+enum Hair{HAIR_BALD, HAIR_SHORT, HAIR_MOHAWK, HAIR_SEAGULL, HAIR_MUSTAIN, HAIR_FROTOAD, HAIR_FLATTOP, HAIR_ALL};
+
+
+class Pilot : public Controllable
 {
-    URHO3D_OBJECT(Pilot, SceneObject);
+#define SPAWNPOS Vector3(playerId_ * 0.88f - 2.3f - Random(0.23f), 0.0f, 5.666f - Random(0.42f))
+
+    URHO3D_OBJECT(Pilot, Controllable);
     friend class Player;
     friend class MasterControl;
 public:
-    Pilot(Node *parent);
-    Pilot(Node *parent, const std::string file, unsigned &score);
+    Pilot(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
+    virtual void Update(float timeStep);
 
-    void Randomize(bool autoPilot = false);
+    void Randomize();
+    void Initialize(int playerId);
+    int GetPlayerId() { return playerId_; }
+    unsigned GetScore() const { return score_; }
+    void Upload();
+    void Trip(bool rightFoot);
+    virtual void ClearControl();
+    void HandleNodeCollisionStart(StringHash eventType, VariantMap& eventData);
+    void EnterLobbyFromShip();
+    virtual void Think();
 private:
-    Node* rootNode_;
-    bool male_;
-    int hairStyle_;
-    Vector<Color> colors_;
-    AnimatedModel* bodyModel_;
-    StaticModel* hairModel_;
-    AnimationController* animCtrl_;
+    unsigned score_;
+//    unsigned flightScore_;
+//    int multiplier_;
 
-    void Load(std::__cxx11::string file, unsigned &score);
+    int playerId_;
+    bool male_;
+    bool alive_;
+    float deceased_;
+    bool autoPilot_;
+    int hairStyle_;
+    HashMap<int, Color> pilotColors_;
+    AnimatedModel* hairModel_;
+
+    void Load();
     void UpdateModel();
     void Save(int playerID, unsigned score);
-    void Initialize(Node* parent);
+    void Die();
+    void Revive();
+    void EnterLobbyThroughDoor();
 };
 
 #endif // PILOT_H

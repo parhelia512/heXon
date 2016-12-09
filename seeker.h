@@ -31,16 +31,18 @@ class Seeker : public SceneObject
     friend class ChaoZap;
     URHO3D_OBJECT(Seeker, SceneObject);
 public:
-    Seeker();
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
+    Seeker(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
+    virtual void Update(float timeStep);
     void HandleTriggerStart(StringHash eventType, VariantMap &eventData);
     void Set(Vector3 position);
     void Disable();
 protected:
     RigidBody* rigidBody_;
     SharedPtr<Sound> sample_;
-    SharedPtr<Node> target_;
-    SharedPtr<TailGenerator> tailGen_;
+    Node* target_;
+    RibbonTrail* tailGen_;
 
     float age_;
     float lifeTime_;

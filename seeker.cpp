@@ -18,89 +18,103 @@
 
 #include "seeker.h"
 
-#include "TailGenerator.h"
 #include "hitfx.h"
-#include "tilemaster.h"
+#include "arena.h"
 #include "player.h"
+#include "ship.h"
+#include "chaomine.h"
 #include "spawnmaster.h"
 
-Seeker::Seeker():
-    SceneObject(),
+void Seeker::RegisterObject(Context *context)
+{
+    context->RegisterFactory<Seeker>();
+}
+
+Seeker::Seeker(Context* context):
+    SceneObject(context),
     age_{0.0f},
     lifeTime_{7.5f},
     damage_{2.3f}
 {
-    rootNode_->SetName("Seeker");
+
+}
+
+void Seeker::OnNodeSet(Node *node)
+{
+    SceneObject::OnNodeSet(node);
+
+    node_->SetName("Seeker");
     big_ = false;
 
-    rigidBody_ = rootNode_->CreateComponent<RigidBody>();
+    rigidBody_ = node_->CreateComponent<RigidBody>();
     rigidBody_->SetMass(2.3f);
     rigidBody_->SetLinearDamping(0.23f);
     rigidBody_->SetTrigger(true);
 
-    CollisionShape* trigger = rootNode_->CreateComponent<CollisionShape>();
+    CollisionShape* trigger{ node_->CreateComponent<CollisionShape>() };
     trigger->SetSphere(1.0f);
 
-    ParticleEmitter* particleEmitter = rootNode_->CreateComponent<ParticleEmitter>();
+    ParticleEmitter* particleEmitter{ node_->CreateComponent<ParticleEmitter>() };
     particleEmitter->SetEffect(CACHE->GetResource<ParticleEffect>("Particles/Seeker.xml"));
 
     AddTail();
 
-    Light* light = rootNode_->CreateComponent<Light>();
+    Light* light{ node_->CreateComponent<Light>() };
     light->SetRange(6.66f);
     light->SetBrightness(2.3f);
     light->SetColor(Color(1.0f, 1.0f, 1.0f));
 
-    sample_ = CACHE->GetResource<Sound>("Samples/Seeker.ogg");
-    sample_->SetLooped(false);
+    sample_ = MC->GetSample("Seeker");
 }
 
-void Seeker::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
+void Seeker::Update(float timeStep)
 {
     if (!IsEnabled()) return;
 
-    float timeStep = eventData[SceneUpdate::P_TIMESTEP].GetFloat();
-
     age_ += timeStep;
-    if (age_ > lifeTime_ && rootNode_->IsEnabled()) {
-        MC->spawnMaster_->SpawnHitFX(GetPosition(), 0, false);
+    if (age_ > lifeTime_ && node_->IsEnabled()) {
+        HitFX* hitFx{ GetSubsystem<SpawnMaster>()->Create<HitFX>() };
+        hitFx->Set(GetPosition(), 0, false);
         Disable();
     }
 
-    Vector3 targetPosition = Vector3::ZERO;
-    Player* player1 = MC->GetPlayer(1);
-    Player* player2 = MC->GetPlayer(2);
-    if (player1->IsActive() && player2->IsActive())
-        targetPosition =
-                LucKey::Distance(rootNode_->GetPosition(), player1->GetPosition()) <
-                LucKey::Distance(rootNode_->GetPosition(), player2->GetPosition())
-                ? player1->GetPosition()
-                : player2->GetPosition();
-    else if (player1->IsActive()) targetPosition = player1->GetPosition();
-    else if (player2->IsActive()) targetPosition = player2->GetPosition();
-    rigidBody_->ApplyForce((targetPosition - rootNode_->GetPosition()).Normalized() * timeStep * 666.0f);
+    Vector3 targetPosition{ Vector3::ZERO };
+
+    Player* nearestPlayer{ MC->GetNearestPlayer(GetPosition()) };
+    if (nearestPlayer)
+        targetPosition = nearestPlayer->GetPosition();
+
+    rigidBody_->ApplyForce((targetPosition - node_->GetPosition()).Normalized() * timeStep * 666.0f);
 }
 
 void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
 {
+    if (!node_->IsEnabled())
+        return;
+
     PODVector<RigidBody*> collidingBodies{};
     rigidBody_->GetCollidingBodies(collidingBodies);
 
-    for (int i = 0; i < collidingBodies.Size(); i++) {
-        RigidBody* collider = collidingBodies[i];
-        if (collider->GetNode()->GetNameHash() == N_PLAYER) {
-            Player* hitPlayer = MC->players_[collider->GetNode()->GetID()];
+    for (int i{0}; i < collidingBodies.Size(); ++i) {
+        RigidBody* collider{ collidingBodies[i] };
+        if (collider->GetNode()->HasComponent<Ship>()) {
+            Ship* hitShip{ collider->GetNode()->GetComponent<Ship>() };
 
-            hitPlayer->Hit(2.3f, false);
-            MC->spawnMaster_->SpawnHitFX(rootNode_->GetPosition(), 0, false);
+            hitShip->Hit(2.3f, false);
+
+            GetSubsystem<SpawnMaster>()->Create<HitFX>()
+                    ->Set(node_->GetPosition(), 0, false);
             collider->ApplyImpulse(rigidBody_->GetLinearVelocity()*0.5f);
             Disable();
         }
-        else if (collider->GetNode()->GetNameHash() == N_CHAOMINE){
-            MC->spawnMaster_->chaoMines_[collider->GetNode()->GetID()]->Hit(damage_, 0);
+        else if (collider->GetNode()->HasComponent<ChaoMine>()){
+            collider->GetNode()->GetComponent<ChaoMine>()->Hit(damage_, 0);
         }
-        else if (collider->GetNode()->GetNameHash() == N_SEEKER){
-            MC->spawnMaster_->SpawnHitFX(rootNode_->GetPosition(), false);
+        else if (collider->GetNode()->HasComponent<Seeker>()) {
+
+            GetSubsystem<SpawnMaster>()->Create<HitFX>()
+                    ->Set(node_->GetPosition(), 0, false);
+
             Disable();
         }
     }
@@ -108,16 +122,15 @@ void Seeker::HandleTriggerStart(StringHash eventType, VariantMap &eventData)
 
 void Seeker::Set(Vector3 position)
 {
-    age_= 0.0f;
+    age_ = 0.0f;
     SceneObject::Set(position);
     rigidBody_->ResetForces();
     rigidBody_->SetLinearVelocity(Vector3::ZERO);
-    MC->tileMaster_->AddToAffectors(WeakPtr<Node>(rootNode_), WeakPtr<RigidBody>(rigidBody_));
+    MC->arena_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
     AddTail();
     PlaySample(sample_, 0.666f);
 
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Seeker, HandleSceneUpdate));
-    SubscribeToEvent(rootNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Seeker, HandleTriggerStart));
+    SubscribeToEvent(node_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Seeker, HandleTriggerStart));
 }
 void Seeker::Disable()
 {
@@ -127,16 +140,17 @@ void Seeker::Disable()
 
 void Seeker::AddTail()
 {
-    tailGen_ = rootNode_->CreateComponent<TailGenerator>();
-    tailGen_->SetDrawHorizontal(true);
-    tailGen_->SetDrawVertical(false);
-    tailGen_->SetTailLength(0.23f);
-    tailGen_->SetNumTails(9);
-    tailGen_->SetWidthScale(0.666f);
-    tailGen_->SetColorForHead(Color(0.5f, 0.23f, 0.666f));
-    tailGen_->SetColorForTip(Color(0.0f, 0.1f, 0.23f));
+    tailGen_ = node_->CreateComponent<RibbonTrail>();
+    tailGen_->SetStartScale(0.666f);
+    tailGen_->SetEndScale(0.0f);
+    tailGen_->SetLifetime(0.23f);
+    tailGen_->SetVertexDistance(0.5f);
+    tailGen_->SetTailColumn(3);
+    tailGen_->SetStartColor(Color(0.5f, 0.23f, 0.666f));
+    tailGen_->SetEndColor(Color(0.0f, 0.1f, 0.23f));
 }
 void Seeker::RemoveTail()
 {
-    tailGen_->Remove();
+    if (tailGen_)
+        tailGen_->Remove();
 }

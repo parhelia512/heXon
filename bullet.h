@@ -24,7 +24,7 @@
 #include "spawnmaster.h"
 #include "razor.h"
 #include "spire.h"
-#include "tilemaster.h"
+#include "arena.h"
 #include "hitfx.h"
 
 #include <Urho3D/Urho3D.h>
@@ -39,20 +39,22 @@ using namespace Urho3D;
 
 class Bullet : public SceneObject
 {
-    friend class Player;
+    friend class Ship;
     friend class SpawnMaster;
     URHO3D_OBJECT(Bullet, SceneObject);
 public:
-    Bullet(int playerID);
-    void Set(const Vector3 position);
-    int GetPlayerID() const noexcept { return playerID_; }
+    Bullet(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
+    void Set(const Vector3 position, const int playerId, const Vector3 direction, Vector3 force, const float damage);
+    int GetPlayerID() const noexcept { return colorSet_; }
 protected:
     SharedPtr<RigidBody> rigidBody_;
     SharedPtr<StaticModel> model_;
 
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
+    void Update(float timeStep);
 private:
-    int playerID_;
+    int colorSet_;
     float age_ = 0.0f;
     float timeSinceHit_ = 0.0f;
     float lifeTime_;

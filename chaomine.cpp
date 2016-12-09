@@ -20,11 +20,23 @@
 
 #include "spawnmaster.h"
 #include "player.h"
+#include "chaozap.h"
 
-ChaoMine::ChaoMine() : Enemy(),
-    playerID_{0}
+void ChaoMine::RegisterObject(Context *context)
 {
-    rootNode_->SetName("ChaoMine");
+    context->RegisterFactory<ChaoMine>();
+}
+
+ChaoMine::ChaoMine(Context* context) : Enemy(context),
+    colorSet_{0}
+{
+}
+
+void ChaoMine::OnNodeSet(Node *node)
+{
+    Enemy::OnNodeSet(node);
+
+    node_->SetName("ChaoMine");
     big_ = false;
 
     rigidBody_->SetMass(0.5f);
@@ -34,41 +46,32 @@ ChaoMine::ChaoMine() : Enemy(),
     worth_ = 1;
 
     countDown_ = Random(1.0f, 5.0f);
-    innerNode_ = rootNode_->CreateChild();
+    innerNode_ = node_->CreateChild();
     innerModel_ = innerNode_->CreateComponent<StaticModel>();
     innerModel_->SetModel(MC->GetModel("MineInner"));
     innerModel_->SetMaterial(0, MC->GetMaterial("GreenEnvmap"));
 
-    outerNode_ = rootNode_->CreateChild();
+    outerNode_ = node_->CreateChild();
     outerModel_ = outerNode_->CreateComponent<StaticModel>();
     outerModel_->SetModel(MC->GetModel("MineOuter"));
     outerModel_->SetMaterial(0, MC->GetMaterial("GreenGlowEnvmap"));
     outerModel_->SetMaterial(1, MC->GetMaterial("GreenEnvmap"));
-
 }
 
-void ChaoMine::Set(const Vector3 position, int playerID)
+void ChaoMine::Set(const Vector3 position, int colorSet)
 {
-    playerID_ = playerID;
+    colorSet_ = colorSet;
 
-    if (playerID_ == 1) {
-        innerModel_->SetMaterial(0, MC->GetMaterial("GreenEnvmap"));
-        outerModel_->SetMaterial(0, MC->GetMaterial("GreenGlowEnvmap"));
-        outerModel_->SetMaterial(1, MC->GetMaterial("GreenEnvmap"));
-    } else if (playerID_ == 2) {
-        innerModel_->SetMaterial(0, MC->GetMaterial("PurpleEnvmap"));
-        outerModel_->SetMaterial(0, MC->GetMaterial("PurpleGlowEnvmap"));
-        outerModel_->SetMaterial(1, MC->GetMaterial("PurpleEnvmap"));
-    }
-
+    innerModel_->SetMaterial(0, MC->colorSets_[colorSet_].hullMaterial_);
+    outerModel_->SetMaterial(0, MC->colorSets_[colorSet_].glowMaterial_);
+    outerModel_->SetMaterial(1, MC->colorSets_[colorSet_].hullMaterial_);
 
     Enemy::Set(position);
-    SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(ChaoMine, HandleMineUpdate));
 }
 
-void ChaoMine::HandleMineUpdate(StringHash eventType, VariantMap &eventData)
+void ChaoMine::Update(float timeStep)
 {
-    float timeStep{eventData[ScenePostUpdate::P_TIMESTEP].GetFloat()};
+    Enemy::Update(timeStep);
 
     //Spin
     innerNode_->Rotate(Quaternion(50.0f*timeStep, 80.0f*timeStep, 92.0f*timeStep));
@@ -77,22 +80,21 @@ void ChaoMine::HandleMineUpdate(StringHash eventType, VariantMap &eventData)
 
 void ChaoMine::CheckHealth()
 {
-    if (rootNode_->IsEnabled() && health_ <= 0 || panicTime_ > 23.0f) {
-        MC->spawnMaster_->SpawnChaoZap(GetPosition(), playerID_);
-        Disable();
+    if (node_->IsEnabled() &&
+       (health_ <= 0 || panicTime_ > 23.0f)) {
+        ChaoZap* chaoZap{ GetSubsystem<SpawnMaster>()->Create<ChaoZap>() };
+        Enemy::CheckHealth();
+        chaoZap->Set(GetPosition(), colorSet_);
     }
 }
 
-void ChaoMine::HandleCollision(StringHash eventType, VariantMap &eventData)
-{
-    PODVector<RigidBody*> collidingBodies{};
-    rigidBody_->GetCollidingBodies(collidingBodies);
+void ChaoMine::HandleNodeCollision(StringHash eventType, VariantMap &eventData)
+{ (void)eventType;
 
-    for (RigidBody* b : collidingBodies) {
-        StringHash colliderNodeNameHash = b->GetNode()->GetNameHash();
-        if (    colliderNodeNameHash == N_RAZOR ||
-                colliderNodeNameHash == N_SPIRE   ) {
+    Node* otherNode{ static_cast<Node*>(eventData[NodeCollision::P_OTHERNODE].GetPtr()) };
+
+    for (Component* c : otherNode->GetComponents())
+        if (c->IsInstanceOf<Enemy>() && !c->IsInstanceOf<ChaoMine>()){
             SetHealth(0.0f);
         }
-    }
 }

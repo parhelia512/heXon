@@ -35,14 +35,16 @@ using namespace Urho3D;
 class Phaser : public Effect
 {
 public:
-    Phaser(Model *model, Vector3 pos, Vector3 vel);
+    Phaser(Context* context);
 
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
+    virtual void Update(float timeStep);
+    virtual void Set(Model* model, const Vector3 position, const Vector3 velocity);
 private:
     SharedPtr<Material> phaseMaterial_;
     Vector3 velocity_;
-    Vector<SharedPtr<StaticModel>> staticModels_;
-    void SetMaterial();
-    void HandlePostUpdate(StringHash eventType, VariantMap &eventData);
+    SharedPtr<StaticModel> staticModel_;
 };
 
 #endif // PHASER_H

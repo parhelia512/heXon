@@ -28,7 +28,11 @@ class Spire : public Enemy
     URHO3D_OBJECT(Spire, Enemy);
     friend class SpawnMaster;
 public:
-    Spire();
+    Spire(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
+    virtual void Update(float timeStep);
+
     void Hit(float damage, int ownerID);
     void Set(Vector3 position);
 protected:
@@ -41,7 +45,6 @@ protected:
     float shotInterval_;
     float sinceLastShot_;
 
-    void HandleSpireUpdate(StringHash eventType, VariantMap &eventData);
 };
 
 #endif // SPIRE_H

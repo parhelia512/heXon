@@ -23,8 +23,10 @@ SOURCES += \
     chaoflash.cpp \
     chaomine.cpp \
     chaozap.cpp \
+    controllable.cpp \
     door.cpp \
     effect.cpp \
+    effectmaster.cpp \
     enemy.cpp \
     explosion.cpp \
     flash.cpp \
@@ -35,7 +37,6 @@ SOURCES += \
     line.cpp \
     luckey.cpp \
     mastercontrol.cpp \
-    multix.cpp \
     muzzle.cpp \
     pickup.cpp \
     player.cpp \
@@ -47,9 +48,13 @@ SOURCES += \
     splatterpillar.cpp \
     TailGenerator.cpp \
     tile.cpp \
-    tilemaster.cpp \
     pilot.cpp \
-    phaser.cpp
+    phaser.cpp \
+    arena.cpp \
+    lobby.cpp \
+    highest.cpp \
+    ship.cpp \
+    gui3d.cpp
 
 HEADERS += \
     apple.h \
@@ -59,8 +64,10 @@ HEADERS += \
     chaoflash.h \
     chaomine.h \
     chaozap.h \
+    controllable.h \
     door.h \
     effect.h \
+    effectmaster.h \
     enemy.h \
     explosion.h \
     flash.h \
@@ -71,7 +78,6 @@ HEADERS += \
     line.h \
     luckey.h \
     mastercontrol.h \
-    multix.h \
     muzzle.h \
     pickup.h \
     player.h \
@@ -83,9 +89,14 @@ HEADERS += \
     splatterpillar.h \
     TailGenerator.h \
     tile.h \
-    tilemaster.h \
     pilot.h \
-    phaser.h
+    phaser.h \
+    arena.h \
+    lobby.h \
+    highest.h \
+    ship.h \
+    hexonevents.h \
+    gui3d.h
 
 OTHER_FILES += \
     Docs/Todo.md \
@@ -118,3 +129,6 @@ unix {
 
     INSTALLS += target icon desktop appdata
 }
+
+DISTFILES += \
+    LICENSE_TEMPLATE

@@ -20,14 +20,25 @@
 
 #include "spawnmaster.h"
 
-ChaoBall::ChaoBall():
-    Pickup()
+void ChaoBall::RegisterObject(Context *context)
 {
-    rootNode_->SetName("ChaoBall");
+    context->RegisterFactory<ChaoBall>();
+}
+
+ChaoBall::ChaoBall(Context* context):
+    Pickup(context)
+{
+}
+
+void ChaoBall::OnNodeSet(Node *node)
+{
+    Pickup::OnNodeSet(node);
+
+    node_->SetName("ChaoBall");
     pickupType_ = PT_CHAOBALL;
-    rootNode_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
-    initialPosition_ = Vector3::FORWARD*5.0f;
-    rootNode_->SetPosition(initialPosition_);
+    node_->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
+    initialPosition_ = Vector3::FORWARD * 5.0f;
+    node_->SetPosition(initialPosition_);
     model_->SetModel(MC->GetModel("Chaosphere"));
     model_->SetMaterial(MC->GetMaterial("Chaosphere")->Clone());
 
@@ -44,4 +55,33 @@ ChaoBall::ChaoBall():
     particleEmitter_->GetEffect()->SetColorFrames(colorFrames);
 
     Disable();
+
+}
+
+void ChaoBall::Update(float timeStep)
+{
+    Pickup::Update(timeStep);
+
+    //Spin
+    node_->Rotate(Quaternion(23.0f  * timeStep,
+                             100.0f * timeStep,
+                             42.0f  * timeStep));
+    //Float like a float
+    float floatFactor = 0.5f - Min(0.5f, 0.5f * Abs(node_->GetPosition().y_));
+    graphicsNode_->SetPosition(Vector3::UP * MC->Sine(0.5f, -floatFactor, floatFactor, 0.23f));
+
+    Player* player1 = MC->GetPlayer(1);
+    Player* player2 = MC->GetPlayer(2);
+
+    if (IsEmerged() && MC->GetGameState() == GS_PLAY){
+        Vector3 force{};
+        force += player1->IsAlive() * -3.0f*player1->GetPosition() - rigidBody_->GetLinearVelocity();
+        force += player2->IsAlive() * -3.0f*player2->GetPosition() - rigidBody_->GetLinearVelocity();
+        rigidBody_->ApplyForce(force);
+    }
+}
+
+void ChaoBall::Deactivate()
+{
+    Pickup::Deactivate();
 }

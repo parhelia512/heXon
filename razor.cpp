@@ -18,36 +18,47 @@
 
 #include "razor.h"
 
-Razor::Razor():
-    Enemy(),
+void Razor::RegisterObject(Context *context)
+{
+    context->RegisterFactory<Razor>();
+}
+
+Razor::Razor(Context* context):
+    Enemy(context),
     topSpeed_{10.0f},
     aimSpeed_{0.25f * topSpeed_}
 {
-    rootNode_->SetName("Razor");
+
+}
+
+void Razor::OnNodeSet(Node *node)
+{
+    Enemy::OnNodeSet(node);
+
+    node_->SetName("Razor");
     meleeDamage_ = 0.9f;
 
     SharedPtr<Material> black{MC->GetMaterial("Razor")->Clone()};
 
-    topNode_ = rootNode_->CreateChild();
+    topNode_ = node_->CreateChild();
     topModel_ = topNode_->CreateComponent<StaticModel>();
     topModel_->SetModel(MC->GetModel("RazorTop"));
-    topModel_->SetMaterial(0, black);
+    topModel_->SetMaterial(0, MC->GetMaterial("Razor"));
     topModel_->SetMaterial(1, centerModel_->GetMaterial());
 
-    bottomNode_ = rootNode_->CreateChild();
+    bottomNode_ = node_->CreateChild();
     bottomModel_ = bottomNode_->CreateComponent<StaticModel>();
     bottomModel_->SetModel(MC->GetModel("RazorBottom"));
     bottomModel_->SetMaterial(0, black);
     bottomModel_->SetMaterial(1, centerModel_->GetMaterial());
 
-    SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(Razor, HandleRazorUpdate));
-
 }
 
-void Razor::HandleRazorUpdate(StringHash eventType, VariantMap &eventData)
-{ (void)eventType;
+void Razor::Update(float timeStep)
+{
+    if (!node_->IsEnabled()) return;
 
-    float timeStep{eventData[ScenePostUpdate::P_TIMESTEP].GetFloat()};
+    Enemy::Update(timeStep);
 
     //Spin
     topNode_->Rotate(Quaternion(0.0f, timeStep*50.0f*aimSpeed_, 0.0f));
@@ -56,15 +67,15 @@ void Razor::HandleRazorUpdate(StringHash eventType, VariantMap &eventData)
     topModel_->GetMaterial(0)->SetShaderParameter("MatEmissiveColor", GetGlowColor());
     //Get moving
     if (rigidBody_->GetLinearVelocity().Length() < rigidBody_->GetLinearRestThreshold() && IsEmerged()) {
-        rigidBody_->ApplyImpulse(0.23f*(Quaternion(Random(6)*60.0f, Vector3::UP)*Vector3::FORWARD));
+        rigidBody_->ApplyImpulse(0.23f * (Quaternion(Random(6) * 60.0f, Vector3::UP) * Vector3::FORWARD));
     }
     //Adjust speed
     else if (rigidBody_->GetLinearVelocity().Length() < aimSpeed_) {
         rigidBody_->ApplyForce(4.2f * rigidBody_->GetLinearVelocity().Normalized() * Max(aimSpeed_ - rigidBody_->GetLinearVelocity().Length(), 0.1f));
     }
     else {
-        float overSpeed = rigidBody_->GetLinearVelocity().Length() - aimSpeed_;
-        rigidBody_->ApplyForce(-rigidBody_->GetLinearVelocity()*overSpeed);
+        float overSpeed{ rigidBody_->GetLinearVelocity().Length() - aimSpeed_ };
+        rigidBody_->ApplyForce(-rigidBody_->GetLinearVelocity() * overSpeed);
     }
 }
 
@@ -78,5 +89,4 @@ void Razor::Set(Vector3 position)
 {
     aimSpeed_ = 0.25f * topSpeed_;
     Enemy::Set(position);
-    SubscribeToEvent(E_SCENEPOSTUPDATE, URHO3D_HANDLER(Razor, HandleRazorUpdate));
 }

@@ -18,20 +18,26 @@
 
 #include "effect.h"
 
-Effect::Effect():
-    SceneObject(),
+Effect::Effect(Context* context):
+    SceneObject(context),
     age_{0.0f},
     emitTime_{0.1f}
 {
-    blink_ = false;
-
-    rootNode_->SetName("Effect");
-    particleEmitter_ = rootNode_->CreateComponent<ParticleEmitter>();
 }
 
-void Effect::HandleSceneUpdate(StringHash eventType, VariantMap &eventData)
+void Effect::OnNodeSet(Node *node)
 {
-    float timeStep{eventData[Update::P_TIMESTEP].GetFloat()};
+    SceneObject::OnNodeSet(node);
+
+    blink_ = false;
+
+    node_->SetName("Effect");
+    particleEmitter_ = node_->CreateComponent<ParticleEmitter>();
+
+}
+
+void Effect::Update(float timeStep)
+{
     age_ += timeStep;
 
     ParticleEffect* effect{particleEmitter_->GetEffect()};
@@ -48,13 +54,14 @@ void Effect::Set(const Vector3 position)
 {
     SceneObject::Set(position);
     age_ = 0.0f;
-    particleEmitter_->RemoveAllParticles();
-    particleEmitter_->SetEmitting(true);
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Effect, HandleSceneUpdate));
+    ParticleEffect* effect{ particleEmitter_->GetEffect()};
+    if (effect) {
+        particleEmitter_->RemoveAllParticles();
+        particleEmitter_->SetEmitting(true);
+    }
 }
 
 void Effect::Disable()
 {
-    UnsubscribeFromEvent(E_SCENEUPDATE);
     SceneObject::Disable();
 }

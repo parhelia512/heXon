@@ -26,16 +26,19 @@
 
 class Player;
 
-class SplatterPillar : public Object
+class SplatterPillar : public LogicComponent
 {
-    URHO3D_OBJECT(SplatterPillar, Object);
+    URHO3D_OBJECT(SplatterPillar, LogicComponent);
 public:
-    SplatterPillar(bool right);
-    Vector3 GetPosition() const { return rootNode_->GetPosition(); }
+    SplatterPillar(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
+
+    Vector3 GetPosition() const { return node_->GetPosition(); }
     bool IsIdle() const;
+    int GetPlayerId() const { return playerId_; }
 private:
-    Player* player_;
-    Node* rootNode_;
+    int playerId_;
     Node* pillarNode_;
     Node* bloodNode_;
     Node* particleNode_;
@@ -45,7 +48,6 @@ private:
     ParticleEmitter* splatEmitter_;
     ParticleEmitter* dripEmitter_;
 
-    bool right_;
     bool spun_;
     bool reset_;
     float lastTriggered_;
@@ -54,8 +56,8 @@ private:
     float sequenceLength_;
     float rotationSpeed_;
 
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-    void Trigger();
+    virtual void Update(float timeStep);
+    void Trigger(StringHash eventType, VariantMap& eventData);
 };
 
 #endif // SPLATTERPILLAR_H

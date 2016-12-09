@@ -28,39 +28,41 @@ class Node;
 class Scene;
 }
 
-class SceneObject : public Object
+class SceneObject : public LogicComponent
 {
     friend class SpawnMaster;
     friend class Seeker;
     friend class Door;
-    URHO3D_OBJECT(SceneObject, Object);
+    URHO3D_OBJECT(SceneObject, LogicComponent);
 public:
-    SceneObject();
+    SceneObject(Context* context);
+    virtual void OnNodeSet(Node* node);
     void Set(const Vector3 position);
+    void Set(const Vector3 position, const Quaternion rotation);
     void Disable();
 
-    Node* GetRootNode() const { return rootNode_.Get(); }
-    Vector3 GetPosition() const { return rootNode_->GetPosition(); }
-    bool IsEmerged() const { return GetPosition().y_ > -0.1f; }
-    bool IsEnabled() const { return rootNode_->IsEnabled(); }
+    Vector3 GetPosition() const { return node_->GetPosition(); }
+    bool IsEmerged() const { return GetPosition().y_ > -0.042f; }
+    bool IsEnabled() const { return node_->IsEnabled(); }
+
+    void PlaySample(Sound *sample, const float gain = 0.5f);
 protected:
     bool blink_;
     bool big_;
-    SharedPtr<Node> rootNode_;
     SharedPtr<Node> soundNode_;
     SharedPtr<Node> graphicsNode_;
     Vector<SharedPtr<SoundSource> > sampleSources_;
 
     void Emerge(const float timeStep);
 
-    void PlaySample(Sound *sample, const float gain = 0.5f);
     bool IsPlayingSound();
     void StopAllSound();
+
+    void BlinkCheck(StringHash eventType, VariantMap &eventData);
 private:
     SharedPtr<Sound> flashSample_;
     SharedPtr<SoundSource> flashSource_;
 
-    void BlinkCheck(StringHash eventType, VariantMap &eventData);
 };
 
 #endif // SCENEOBJECT_H

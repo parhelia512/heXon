@@ -16,28 +16,13 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-//The multiplier used to be a pickup
+#include "luckey.h"
 
-#include "multix.h"
+#ifndef HEXONEVENTS
+#define HEXONEVENTS
 
-MultiX::MultiX():
-    Pickup()
-{
-    rootNode_->SetName("MultiX");
-    pickupType_ = PT_MULTIX;
-    initialPosition_ = Vector3::DOWN*42.0f;
-    rootNode_->SetPosition(initialPosition_);
-    model_->SetModel(MC->GetModel("X"));
-    model_->SetMaterial(MC->GetMaterial("BlueGlowEnvmap")->Clone());
+URHO3D_EVENT(E_ENTERLOBBY, EnterLobby)
+URHO3D_EVENT(E_ENTERPLAY, EnterPlay)
 
-    rigidBody_->SetMass(2.0f);
+#endif // HEXONEVENTS
 
-    Vector<ColorFrame> colorFrames;
-    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.0f));
-    colorFrames.Push(ColorFrame(Color(0.05f, 0.23f, 0.75f, 0.42f), 0.1f));
-    colorFrames.Push(ColorFrame(Color(0.0f, 0.0f, 0.0f, 0.0f), 0.4f));
-    particleEmitter_->GetEffect()->SetColorFrames(colorFrames);
-    particleEmitter_->SetMaterial(MC->GetMaterial("Rift")->Clone());
-
-    Disable();
-}

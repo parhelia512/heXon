@@ -22,6 +22,7 @@
 #include <Urho3D/Urho3D.h>
 
 #include "mastercontrol.h"
+#include "controllable.h"
 
 // Define events to be bound
 //URHO3D_EVENT(MENU_BUTTON_DOWN, MenuButtonDown) // MouseDown, KeyDown, ControllerButtonDown, MouseWheel
@@ -46,30 +47,51 @@
 //    URHO3D_PARAM(P_DELTA, Delta);	// float
 //}
 
+enum class MasterInputAction { UP, RIGHT, DOWN, LEFT, CONFIRM, CANCEL, PAUSE, MENU, SCREENSHOT };
+enum class PlayerInputAction { MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, RUN,
+                               FIRE_N, FIRE_NE, FIRE_E, FIRE_SE,
+                               FIRE_S, FIRE_SW, FIRE_W, FIRE_NW };
+
+struct InputActions {
+    Vector<MasterInputAction> master_;
+    HashMap<int, Vector<PlayerInputAction>> player_;
+};
+
 class InputMaster : public Object
 {
     URHO3D_OBJECT(InputMaster, Object);
 public:
-    InputMaster();
+    InputMaster(Context* context);
+    void SetPlayerControl(int player, Controllable* controllable);
+    Player *GetPlayerByControllable(Controllable* controllable);
+    Controllable*  GetControllableByPlayer(int playerId);
+    Vector<Controllable*>  GetControllables() { return controlledByPlayer_.Values(); }
+private:
+    HashMap<int, MasterInputAction> keyBindingsMaster_;
+    HashMap<int, MasterInputAction> buttonBindingsMaster_;
+    HashMap<int, HashMap<int, PlayerInputAction>> keyBindingsPlayer_;
+    HashMap<int, HashMap<int, PlayerInputAction>> buttonBindingsPlayer_;
 
-    void Init();
+    Vector<int> pressedKeys_;
+    HashMap<int, Vector<LucKey::SixaxisButton>> pressedJoystickButtons_;
+    HashMap<int, Vector2> leftStickPosition_;
+    HashMap<int, Vector2> rightStickPosition_;
 
-    void SubscribeToEvents();
+    HashMap<int, Controllable*> controlledByPlayer_;
 
-    void HandleMouseButtonDown(StringHash eventType, VariantMap &eventData);
+    void HandleUpdate(StringHash eventType, VariantMap &eventData);
     void HandleKeyDown(StringHash eventType, VariantMap &eventData);
-    void HandleMouseUp(StringHash eventType, VariantMap &eventData);
-    void HandleJoystickButtonDown(Urho3D::StringHash eventType, Urho3D::VariantMap &eventData);
-    void HandleJoystickButtonUp(Urho3D::StringHash eventType, Urho3D::VariantMap &eventData);
-    void HandleJoystickAxisMove(Urho3D::StringHash eventType, Urho3D::VariantMap &eventData);
-    void HandleMouseMove(StringHash eventType, VariantMap &eventData);
-    void HandleMouseWheel(StringHash eventType, VariantMap &eventData);
     void HandleKeyUp(StringHash eventType, VariantMap &eventData);
-    void HandleMouseButtonUp(StringHash eventType, VariantMap &eventData);
+    void HandleJoystickButtonDown(StringHash eventType, VariantMap &eventData);
+    void HandleJoystickButtonUp(StringHash eventType, VariantMap &eventData);
+    void HandleJoystickAxisMove(StringHash eventType, VariantMap& eventData);
+
+    void HandleActions(const InputActions &actions);
+    void HandlePlayerAction(PlayerInputAction action, int playerId);
+    Vector3 GetMoveFromActions(Vector<PlayerInputAction>* actions);
+    Vector3 GetAimFromActions(Vector<PlayerInputAction>* actions);
     void Screenshot();
 
-    bool MultipleJoysticks();
-private:
     void PauseButtonPressed();
     void EjectButtonPressed(int playerID);
 };

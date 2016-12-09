@@ -22,7 +22,7 @@
 #include <Urho3D/Urho3D.h>
 
 #include "explosion.h"
-#include "tilemaster.h"
+#include "arena.h"
 
 #include "sceneobject.h"
 
@@ -41,20 +41,22 @@ class Enemy : public SceneObject
     friend class SpawnMaster;
     URHO3D_OBJECT(Enemy, SceneObject);
 public:
-    Enemy();
+    Enemy(Context* context);
+    virtual void OnNodeSet(Node* node);
+
     float GetHealth() const { return health_; }
+    int GetWorth() const { return worth_; }
     float GetPanic() const { return panic_; }
     Vector3 GetLinearVelocity() const { return rigidBody_->GetLinearVelocity(); }
-    void Hit(const float damage, const int ownerID);
-    void Set(const Vector3 position);
+    virtual void Hit(const float damage, const int colorSet);
+    virtual void Set(const Vector3 position);
+    virtual void Update(float timeStep);
 protected:
     float panicTime_;
     float health_;
     float initialHealth_;
     float panic_;
     int worth_;
-    bool bonus_;
-    int firstHitBy_;
     int lastHitBy_;
 
     float sinceLastWhack_;
@@ -68,7 +70,9 @@ protected:
     StaticModel* centerModel_;
     Color color_;
 
-    virtual void HandleCollision(StringHash eventType, VariantMap &eventData);
+    HashMap<int, float> damagePerColorSet_;
+
+    virtual void HandleNodeCollision(StringHash eventType, VariantMap &eventData);
     void SetHealth(const float health);
     virtual void CheckHealth();
     Color GetGlowColor() const;
@@ -76,7 +80,6 @@ protected:
 private:
     Vector<SharedPtr<Sound> > samples_;
     SharedPtr<SoundSource> soundSource_;
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
 };
 
 #endif // ENEMY_H

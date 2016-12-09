@@ -18,21 +18,24 @@
 
 #include "sceneobject.h"
 
-#include "tilemaster.h"
+#include "arena.h"
 #include "spawnmaster.h"
 #include "bullet.h"
+#include "flash.h"
 
-SceneObject::SceneObject():
-    Object(MC->GetContext()),
+SceneObject::SceneObject(Context* context):
+    LogicComponent(context),
     blink_{true},
     big_{true}
 {
-    rootNode_ = MC->world.scene->CreateChild("SceneObject");
+}
 
-    flashSample_ = CACHE->GetResource<Sound>("Samples/Flash.ogg");
-    flashSample_->SetLooped(false);
+void SceneObject::OnNodeSet(Node *node)
+{ (void)node;
+
+    flashSample_ = MC->GetSample("Flash");
     for (int i{0}; i < 5; ++i){
-        SharedPtr<SoundSource> sampleSource = SharedPtr<SoundSource>(rootNode_->CreateComponent<SoundSource>());
+        SharedPtr<SoundSource> sampleSource{ SharedPtr<SoundSource>(node_->CreateComponent<SoundSource>()) };
         sampleSource->SetSoundType(SOUND_EFFECT);
         sampleSources_.Push(sampleSource);
     }
@@ -41,16 +44,20 @@ SceneObject::SceneObject():
 void SceneObject::Set(const Vector3 position)
 {
     StopAllSound();
-    rootNode_->SetEnabledRecursive(true);
-    rootNode_->SetPosition(position);
+    node_->SetEnabledRecursive(true);
+    node_->SetPosition(position);
     if (blink_)
         SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(SceneObject, BlinkCheck));
+}
+void SceneObject::Set(const Vector3 position, const Quaternion rotation){
+    node_->SetRotation(rotation);
+    Set(position);
 }
 
 void SceneObject::Disable()
 {
-    MC->tileMaster_->RemoveFromAffectors(rootNode_);
-    rootNode_->SetEnabledRecursive(false);
+    MC->arena_->RemoveFromAffectors(node_);
+    node_->SetEnabledRecursive(false);
     if (blink_)
         UnsubscribeFromEvent(E_POSTRENDERUPDATE);
     UnsubscribeFromEvent(E_NODECOLLISIONSTART);
@@ -78,10 +85,11 @@ bool SceneObject::IsPlayingSound()
 }
 
 void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
-{
+{ (void)eventType; (void)eventData;
+
     if (MC->IsPaused()) return;
 
-    Vector3 flatPosition{LucKey::Scale(rootNode_->GetPosition(), Vector3::ONE-Vector3::UP)};
+    Vector3 flatPosition{LucKey::Scale(node_->GetPosition(), Vector3::ONE-Vector3::UP)};
     float radius{20.0f};
     if (flatPosition.Length() > radius){
         Vector3 hexantNormal{Vector3::FORWARD};
@@ -93,17 +101,21 @@ void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
         }
         float boundsCheck{flatPosition.Length() * LucKey::Cosine(M_DEGTORAD * flatPosition.Angle(hexantNormal))};
         if (boundsCheck > radius){
-            if (rootNode_->GetNameHash() == N_BULLET){
-                MC->spawnMaster_->SpawnHitFX(GetPosition(), 0, false);
+            if (node_->HasComponent<Bullet>()){
+                HitFX* hitFx{ GetSubsystem<SpawnMaster>()->Create<HitFX>() };
+                hitFx->Set(GetPosition(), 0, false);
                 Disable();
 
             } else if (blink_){
-                MC->spawnMaster_->SpawnFlash(rootNode_->GetPosition(), big_);
+                GetSubsystem<SpawnMaster>()->Create<Flash>()
+                        ->Set(GetPosition(), big_);
 
-                Vector3 newPosition{rootNode_->GetPosition()-(1.995f*radius)*hexantNormal};
-                rootNode_->SetPosition(newPosition);
+                Vector3 newPosition{node_->GetPosition() - (1.995f * radius) * hexantNormal};
+                node_->SetPosition(newPosition);
 
-                MC->spawnMaster_->SpawnFlash(newPosition, big_);
+                GetSubsystem<SpawnMaster>()->Create<Flash>()
+                        ->Set(newPosition, big_);
+
 
                 PlaySample(flashSample_, 0.16f);
             }
@@ -114,7 +126,7 @@ void SceneObject::BlinkCheck(StringHash eventType, VariantMap &eventData)
 void SceneObject::Emerge(const float timeStep)
 {
     if (!IsEmerged())
-        rootNode_->Translate(2.3f * Vector3::UP * timeStep *
-                             (0.23f - rootNode_->GetPosition().y_),
+        node_->Translate(2.3f * Vector3::UP * timeStep *
+                             (0.023f - node_->GetPosition().y_),
                              TS_WORLD);
 }

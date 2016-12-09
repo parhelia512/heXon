@@ -22,7 +22,7 @@
 #include <Urho3D/Urho3D.h>
 
 #include "hitfx.h"
-#include "tilemaster.h"
+#include "arena.h"
 
 #include "effect.h"
 
@@ -40,10 +40,12 @@ class Explosion : public Effect
     friend class Enemy;
     URHO3D_OBJECT(Explosion, Effect);
 public:
-    Explosion();
+    Explosion(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
+    virtual void Update(float timeStep);
 
-    void UpdateExplosion(StringHash eventType, VariantMap &eventData);
-    void Set(const Vector3 position, const Color color, const float size, int playerID);
+    void Set(const Vector3 position, const Color color, const float size, int colorSet);
     void Disable();
 protected:
     SharedPtr<RigidBody> rigidBody_;

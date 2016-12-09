@@ -16,18 +16,28 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef MULTIX_H
-#define MULTIX_H
+#ifndef LOBBY_H
+#define LOBBY_H
 
 #include <Urho3D/Urho3D.h>
 
-#include "pickup.h"
+#include "luckey.h"
+#include "mastercontrol.h"
 
-class MultiX : public Pickup
+class Highest;
+
+class Lobby : public LogicComponent
 {
-    URHO3D_OBJECT(MultiX, Pickup);
+    URHO3D_OBJECT(Lobby, LogicComponent);
 public:
-    MultiX();
+    Lobby(Context* context);
+    static void RegisterObject(Context* context);
+    virtual void OnNodeSet(Node* node);
+    virtual void Update(float timeStep);
+    void EnterLobby(StringHash eventType, VariantMap &eventData);
+    void EnterPlay(StringHash eventType, VariantMap &eventData);
+private:
+    Highest* highest_;
 };
 
-#endif // MULTIX_H
+#endif // LOBBY_H

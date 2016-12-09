@@ -23,20 +23,19 @@
 
 #include "sceneobject.h"
 
-#define CHAOINTERVAL Random(23.0f, 100.0f)
-
 class Pickup : public SceneObject
 {
     URHO3D_OBJECT(Pickup, SceneObject);
 public:
-    Pickup();
+    Pickup(Context* context);
+    void OnNodeSet(Node* node);
     void Set(Vector3 position);
     void Respawn(bool restart = false);
-    void Deactivate();
     PickupType GetPickupType() { return pickupType_; }
+    virtual void Update(float timeStep);
+    void Deactivate();
 protected:
     PickupType pickupType_;
-    float chaoInterval_;
     Vector3 initialPosition_;
     SharedPtr<Node> triggerNode_;
     SharedPtr<RigidBody> rigidBody_;
@@ -45,9 +44,6 @@ protected:
     SharedPtr<ParticleEmitter> particleEmitter_;
 
     void HandleTriggerStart(StringHash otherNode, VariantMap &eventData);
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-private:
-    float sinceLastPickup_;
 };
 
 #endif // PICKUP_H
