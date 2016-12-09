@@ -512,9 +512,9 @@ void Ship::Think()
     Pair<float, Vector3> target{};
     for (Razor* r : MC->GetComponentsRecursive<Razor>()){
         if (r->IsEnabled() && r->GetPosition().y_ > (-playerFactor * 0.1f)){
-            float distance = LucKey::Distance(this->GetPosition(), r->GetPosition());
-            float panic = r->GetPanic();
-            float weight = (5.0f * panic) - (distance / playerFactor) + 42.0f;
+            float distance{ LucKey::Distance(this->GetPosition(), r->GetPosition()) };
+            float panic{ r->GetPanic() };
+            float weight{ (5.0f * panic) - (distance / playerFactor) + 42.0f };
             if (weight > target.first_){
                 target.first_ = weight;
                 target.second_ = r->GetPosition() + r->GetLinearVelocity() * 0.42f;
