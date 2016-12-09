@@ -300,6 +300,8 @@ void InputMaster::EjectButtonPressed(int playerId)
 
     Ship* ship1{ MC->GetPlayer(1)->GetShip() };
     Ship* ship2{ MC->GetPlayer(2)->GetShip() };
+    Ship* ship3{ MC->GetPlayer(3)->GetShip() };
+    Ship* ship4{ MC->GetPlayer(4)->GetShip() };
 
     //Keyboard
     if (playerId == 0) {
@@ -307,6 +309,10 @@ void InputMaster::EjectButtonPressed(int playerId)
             ship1->Eject();
         } else if (ship2->IsEnabled()){
             ship2->Eject();
+        } else if (ship3->IsEnabled()){
+            ship3->Eject();
+        } else if (ship4->IsEnabled()){
+            ship4->Eject();
         }/*
     //Joysticks
     } else if (playerId == 1) {

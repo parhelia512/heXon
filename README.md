@@ -1,10 +1,8 @@
 [:four_leaf_clover:] (http://www.luckeyproductions.nl/) ![hēXōn logo](https://raw.githubusercontent.com/LucKeyProductions/heXon/master/Docs/Guide/images/heXonBanner.png)
 ### Summary
-<<<<<<< HEAD
-hēXōn is a free and open source twin-stick-shooter created using the [Urho3D](http://urho3d.github.io) game engine.  
-=======
-hēXōn is a free and open source twin-stick-shooter created using the [Urho3D](http://urho3d.github.io) game engine.
->>>>>>> custom-components
+
+heXon is a free and open source twin-stick-shooter created using the [Urho3D](http://urho3d.github.io) game engine.
+
 To score high you must fly well, avoiding the Notyous and destroying them with your Whack-o-Slack blast battery. Your firepower can be increased by collecting five apples. Picking up five hearts in a row will charge your shield.  
 All edges of the hexagonal arena are connected to its opposite like portals, making for a puzzlingly dangerous playing field that might take some experience to wrap your head around.
 
@@ -35,7 +33,7 @@ Touching the edge of the net will send most object to the opposite side.
 
 ### Controls
 #### Controller
-hēXōn is best played with a controller that has at least two analog sticks. These days, most controllers work perfectly well out-of-the-box on Linux. Make sure it is connected before you start the game.
+heXon is best played with a controller that has at least two analog sticks. These days, most controllers work perfectly well out-of-the-box on Linux. Make sure it is connected before you start the game.
 #### Keyboard
 * Movement / WASD
 * Firing / Numpad or IJKL
@@ -43,7 +41,7 @@ hēXōn is best played with a controller that has at least two analog sticks. Th
 
 ### Platforms of development
 * Xubuntu GNU/Linux 64-bit
-* ...
+* Linux Mint 64-bit
 
 ### Tools
 [Urho3D](http://urho3d.github.io), [QtCreator](http://wiki.qt.io/Category:Tools::QtCreator), [Blender](http://www.blender.org/), [Inkscape](http://inkscape.org/), [GIMP](http://gimp.org), [SuperCollider](http://supercollider.github.io/), [Audacity](http://web.audacityteam.org/)
