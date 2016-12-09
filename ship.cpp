@@ -143,7 +143,7 @@ void Ship::EnterPlay(StringHash eventType, VariantMap &eventData)
     Pickup(PT_RESET);
 
     rigidBody_->SetMass(1.0f);
-    rigidBody_->ApplyImpulse(node_->GetDirection() * 23.0f);
+    rigidBody_->ApplyImpulse(node_->GetDirection() * 13.0f);
     particleEmitter_->SetEmitting(true);
     /*model_->SetMaterial(0, colorSet_ == 2 ? MC->GetMaterial("PurpleGlowEnvmap")
                                           : MC->GetMaterial("GreenGlowEnvmap"));
