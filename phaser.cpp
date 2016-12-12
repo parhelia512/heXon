@@ -62,7 +62,7 @@ void Phaser::Update(float timeStep)
     if (age_ > 2.0f){
 
         Disable();
-        for (Controllable* c : GetSubsystem<InputMaster>()->GetControllables())
+        for (Controllable* c : GetSubsystem<InputMaster>()->GetControlled())
             if (c->IsEnabled())
                 return;
 

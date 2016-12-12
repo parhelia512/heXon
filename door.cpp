@@ -90,18 +90,23 @@ void Door::Close(StringHash eventType, VariantMap& eventData)
     }
 }
 
-bool Door::HidesAllPilots() const
+bool Door::HidesAllPilots(bool onlyHuman) const
 {
-    Vector<Controllable*> controllables{ GetSubsystem<InputMaster>()->GetControllables() };
+    Vector<Controllable*> controllables{ GetSubsystem<InputMaster>()->GetControlled() };
+
     for (Controllable* c : controllables) {
-        if (c)
 
             if (c->IsInstanceOf<Pilot>()) {
-                if (c->GetPosition().z_ < node_->GetPosition().z_ + 0.5f)
+
+                if (c->GetPosition().z_ < node_->GetPosition().z_) {
+
+                    if (c->GetPlayer()->IsHuman() || !onlyHuman)
                     return false;
+                }
+
             } else return false;
     }
-    return model_->GetMorphWeight(0) < 0.0023f;
+    return model_->GetMorphWeight(0) < 0.0023f || onlyHuman;
 }
 
 void Door::Update(float timeStep)

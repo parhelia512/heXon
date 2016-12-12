@@ -36,6 +36,8 @@ public:
     virtual void OnNodeSet(Node* node);
     void Set(const Vector3 position, const Quaternion rotation);
     virtual void Update(float timeStep);
+
+    virtual void HandleSetControlled();
     void EnterPlay(StringHash eventType, VariantMap &eventData);
     void EnterLobby(StringHash eventType, VariantMap &eventData);
 

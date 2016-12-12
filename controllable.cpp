@@ -21,6 +21,7 @@
 #include "controllable.h"
 
 Controllable::Controllable(Context* context) : SceneObject(context),
+    path_{},
     controlled_{false},
     move_{},
     aim_{},
@@ -81,6 +82,11 @@ void Controllable::SetAim(Vector3 aim)
     aim_ = aim.Normalized();
 }
 
+void Controllable::HandleSetControlled()
+{
+
+}
+
 void Controllable::SetActions(std::bitset<4> actions)
 {
     if (actions == actions_)
@@ -133,7 +139,18 @@ void Controllable::ClampPitch(Quaternion& rot)
 
 void Controllable::ClearControl()
 {
+    path_.Clear();
     ResetInput();
+}
+
+void Controllable::Think()
+{
+    if (!path_.Size())
+        return;
+    else if (LucKey::Distance(node_->GetPosition(), path_[0]) < (0.1f + 0.23f * (path_.Size() > 1)))
+        path_.Erase(0);
+    else
+        SetMove(path_[0] - node_->GetPosition());
 }
 
 Player* Controllable::GetPlayer()

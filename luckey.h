@@ -63,6 +63,8 @@
 #include <Urho3D/Math/Sphere.h>
 #include <Urho3D/Math/Vector2.h>
 #include <Urho3D/Math/Vector3.h>
+#include <Urho3D/Navigation/NavigationMesh.h>
+#include <Urho3D/Navigation/Navigable.h>
 #include <Urho3D/Physics/CollisionShape.h>
 #include <Urho3D/Physics/Constraint.h>
 #include <Urho3D/Physics/PhysicsEvents.h>

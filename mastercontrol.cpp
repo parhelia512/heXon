@@ -182,6 +182,7 @@ void MasterControl::SubscribeToEvents()
 {
     //Subscribe scene update event.
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(MasterControl, HandleSceneUpdate));
+    SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(MasterControl, HandlePostRenderUpdate));
 }
 
 void MasterControl::CreateConsoleAndDebugHud()
@@ -311,17 +312,6 @@ void MasterControl::CreateScene()
     //Construct lobby
     Node* lobbyNode{ scene_->CreateChild("Lobby") };
     lobby_ = lobbyNode->CreateComponent<Lobby>();
-
-    for (int p : {1, 2, 3, 4}){
-        players_.Push(SharedPtr<Player>(new Player(p, context_)));
-
-        Node* pilotNode{ scene_->CreateChild("Pilot") };
-        pilotNode->Rotate(Quaternion(180.0f, Vector3::UP));
-        Pilot* pilot{ pilotNode->CreateComponent<Pilot>() };
-
-        GetSubsystem<InputMaster>()->SetPlayerControl(p, pilot);
-        pilot->Initialize( p );
-    }
     //Create ships
 //    for (float x : { -4.2f, 4.2f }) {
 //        GetSubsystem<SpawnMaster>()->Create<Ship>()
@@ -339,6 +329,24 @@ void MasterControl::CreateScene()
     heart_ = heartNode->CreateComponent<Heart>();
     Node* chaoBallNode{ scene_->CreateChild("ChaoBall") };
     chaoBall_ = chaoBallNode->CreateComponent<ChaoBall>();
+
+    NavigationMesh* navMesh{ scene_->CreateComponent<NavigationMesh>() };
+    navMesh->SetAgentRadius(0.42f);
+    navMesh->SetPadding(Vector3::UP);
+    navMesh->SetAgentMaxClimb(0.05f);
+    navMesh->SetCellSize(0.05f);
+    navMesh->Build();
+
+    for (int p : {1, 2, 3, 4}){
+        players_.Push(SharedPtr<Player>(new Player(p, context_)));
+
+        Node* pilotNode{ scene_->CreateChild("Pilot") };
+        pilotNode->Rotate(Quaternion(180.0f, Vector3::UP));
+        Pilot* pilot{ pilotNode->CreateComponent<Pilot>() };
+
+        GetSubsystem<InputMaster>()->SetPlayerControl(p, pilot);
+        pilot->Initialize( p );
+    }
 }
 
 void MasterControl::SetGameState(const GameState newState)
@@ -414,7 +422,7 @@ void MasterControl::Eject()
 
 bool MasterControl::AllReady(bool onlyHuman)
 {
-    for (Controllable* c : GetSubsystem<InputMaster>()->GetControllables()) {
+    for (Controllable* c : GetSubsystem<InputMaster>()->GetControlled()) {
 
         if (c){
             if (c->IsInstanceOf<Pilot>()){
@@ -450,8 +458,8 @@ void MasterControl::HandleSceneUpdate(StringHash eventType, VariantMap &eventDat
     switch (currentState_) {
     case GS_LOBBY: {
 
-        for (Door* d : GetComponentsRecursive<Door>()){
-            if (d->HidesAllPilots())
+        for (Door* d : GetComponentsInScene<Door>()){
+            if (d->HidesAllPilots(false))
                 Exit();
         }
 
@@ -553,7 +561,7 @@ Player* MasterControl::GetPlayer(int playerID) const
 }
 Player* MasterControl::GetPlayerByColorSet(int colorSet)
 {
-    for (Ship* s : GetComponentsRecursive<Ship>()) {
+    for (Ship* s : GetComponentsInScene<Ship>()) {
 
         if (s->GetColorSet() == colorSet)
             return s->GetPlayer();
@@ -575,6 +583,31 @@ Player* MasterControl::GetNearestPlayer(Vector3 pos)
     }
     return nearest;
 }
+bool MasterControl::AllPlayersAtZero(bool onlyHuman)
+{
+    for (Player* p : players_)
+        if ((p->IsHuman() || !onlyHuman) && p->GetScore() != 0)
+            return false;
+
+    return true;
+}
+
+Ship* MasterControl::GetShipByColorSet(int colorSet_)
+{
+    for (Ship* s : GetComponentsInScene<Ship>())
+        if (s->GetColorSet() == colorSet_)
+            return s;
+
+    return nullptr;
+}
+
+Door *MasterControl::GetDoor()
+{
+    for (Door* d : GetComponentsInScene<Door>())
+        return d;
+
+    return nullptr;
+}
 
 bool MasterControl::NoHumans()
 {
@@ -583,3 +616,10 @@ bool MasterControl::NoHumans()
             return false;
     return true;
 }
+
+void MasterControl::HandlePostRenderUpdate(StringHash eventType, VariantMap& eventData)
+{
+//    physicsWorld_->DrawDebugGeometry(true);
+//    scene_->GetComponent<NavigationMesh>()->DrawDebugGeometry(false);
+}
+

@@ -145,7 +145,7 @@ public:
     float Sine(const float freq, const float min, const float max, const float shift = 0.0f);
     float Cosine(const float freq, const float min, const float max, const float shift = 0.0f);
 
-    template <class T> Vector<T*> GetComponentsRecursive()
+    template <class T> Vector<T*> GetComponentsInScene()
     {
         PODVector<Node*> matchingNodes;
 
@@ -157,9 +157,13 @@ public:
 
         return matchingComponents;
     }
+    Ship* GetShipByColorSet(int colorSet_);
+    Door* GetDoor();
 
     bool AllReady(bool onlyHuman);
+    bool AllPlayersAtZero(bool onlyHuman);
 
+    void HandlePostRenderUpdate(StringHash eventType, VariantMap &eventData);
 private:
     static MasterControl* instance_;
 

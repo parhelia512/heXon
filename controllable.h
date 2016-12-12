@@ -37,15 +37,18 @@ public:
 
     void SetMove(Vector3 move);
     void SetAim(Vector3 aim);
+    virtual void HandleSetControlled();
     virtual void ClearControl();
 
     virtual void EnterLobby(StringHash eventType, VariantMap &eventData) {}
     virtual void EnterPlay(StringHash eventType, VariantMap &eventData) {}
-    virtual void Think() {}
+    virtual void Think();
 
     Player* GetPlayer();
 protected:
 //    float randomizer_;
+    PODVector<Vector3> path_;
+
     bool controlled_;
     Vector3 move_;
     Vector3 aim_;

@@ -96,6 +96,7 @@ void Ship::OnNodeSet(Node *node)
     rigidBody_->SetCollisionLayerAndMask(1, M_MAX_UNSIGNED);
 
     collisionShape_->SetSphere(2.0f);
+    node_->CreateComponent<Navigable>();
 
     MC->arena_->AddToAffectors(WeakPtr<Node>(node_), WeakPtr<RigidBody>(rigidBody_));
     SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(Ship, BlinkCheck));
@@ -145,10 +146,6 @@ void Ship::EnterPlay(StringHash eventType, VariantMap &eventData)
     rigidBody_->SetMass(1.0f);
     rigidBody_->ApplyImpulse(node_->GetDirection() * 13.0f);
     particleEmitter_->SetEmitting(true);
-    /*model_->SetMaterial(0, colorSet_ == 2 ? MC->GetMaterial("PurpleGlowEnvmap")
-                                          : MC->GetMaterial("GreenGlowEnvmap"));
-    model_->SetMaterial(1, colorSet_ == 2 ? MC->GetMaterial("PurpleEnvmap")
-                                          : MC->GetMaterial("GreenEnvmap"));*/
 
     SetTailsEnabled(true);
 
@@ -165,8 +162,6 @@ void Ship::EnterLobby(StringHash eventType, VariantMap &eventData)
     Set(initialPosition_, initialRotation_);
     rigidBody_->SetMass(0.0f);
     particleEmitter_->SetEmitting(false);
-//    model_->SetMaterial(0, colorSet_ == 2 ? MC->GetMaterial("PurpleGlow") : MC->GetMaterial("GreenGlow"));
-//    model_->SetMaterial(1, colorSet_ == 2 ? MC->GetMaterial("Purple") : MC->GetMaterial("Green"));
 
     SetTailsEnabled(false);
 }
@@ -434,7 +429,7 @@ void Ship::Explode()
 
     for (Player* p : MC->GetPlayers())
     {
-        if (p->IsAlive())
+        if (p->GetShip()->IsEnabled())
             return;
     }
     MC->SetGameState(GS_DEAD);
@@ -510,7 +505,7 @@ void Ship::Think()
     //Pick firing target
     bool fire{false};
     Pair<float, Vector3> target{};
-    for (Razor* r : MC->GetComponentsRecursive<Razor>()){
+    for (Razor* r : MC->GetComponentsInScene<Razor>()){
         if (r->IsEnabled() && r->GetPosition().y_ > (-playerFactor * 0.1f)){
             float distance{ LucKey::Distance(this->GetPosition(), r->GetPosition()) };
             float panic{ r->GetPanic() };
@@ -522,7 +517,7 @@ void Ship::Think()
             }
         }
     }
-    for (Spire* s : MC->GetComponentsRecursive<Spire>()){
+    for (Spire* s : MC->GetComponentsInScene<Spire>()){
         if (s->IsEnabled() && s->GetPosition().y_ > (-playerFactor * 0.23f) && GetPlayer()->GetFlightScore() != 0){
             float distance{ LucKey::Distance(this->GetPosition(), s->GetPosition()) };
             float panic{ s->GetPanic() };
@@ -605,4 +600,10 @@ Vector3 Ship::Sniff(float playerFactor, Vector3& move, bool taste)
         smell *= 1.0f + (0.5f * scentEffect);
     }
     return smell / whiskers;
+}
+
+void Ship::HandleSetControlled()
+{
+    GetPlayer()->gui3d_ = gui3d_;
+    Player::colorSets_[GetPlayer()->GetPlayerId()] = colorSet_;
 }

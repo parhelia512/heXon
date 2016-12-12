@@ -78,7 +78,6 @@ protected:
     Color GetGlowColor() const;
     void Disable();
 private:
-    Vector<SharedPtr<Sound> > samples_;
     SharedPtr<SoundSource> soundSource_;
 };
 

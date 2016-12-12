@@ -124,9 +124,12 @@ void InputMaster::SetPlayerControl(int player, Controllable* controllable)
     if (controlledByPlayer_.Contains(player)){
         if (controlledByPlayer_[player] == controllable)
             return;
-        controlledByPlayer_[player]->ClearControl();
+        else
+            controlledByPlayer_[player]->ClearControl();
     }
+
     controlledByPlayer_[player] = controllable;
+    controllable->HandleSetControlled();
 }
 
 Player* InputMaster::GetPlayerByControllable(Controllable* controllable)

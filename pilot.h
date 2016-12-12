@@ -23,19 +23,22 @@
 
 #include "controllable.h"
 
+class Ship;
+
 enum PilotColor { PC_SKIN, PC_SHIRT, PC_PANTS, PC_SHOES, PC_HAIR, PC_ALL };
 enum Hair{HAIR_BALD, HAIR_SHORT, HAIR_MOHAWK, HAIR_SEAGULL, HAIR_MUSTAIN, HAIR_FROTOAD, HAIR_FLATTOP, HAIR_ALL};
 
-
 class Pilot : public Controllable
 {
-#define SPAWNPOS Vector3(playerId_ * 0.88f - 2.3f - Random(0.23f), 0.0f, 5.666f - Random(0.42f))
+#define SPAWNPOS Vector3(playerId_ * 0.88f - 2.3f - Random(0.05f), 0.0f, 5.0f - Random(0.42f))
 
     URHO3D_OBJECT(Pilot, Controllable);
     friend class Player;
     friend class MasterControl;
 public:
     Pilot(Context* context);
+    Ship* pickedShip_;
+
     static void RegisterObject(Context* context);
     virtual void OnNodeSet(Node* node);
     virtual void Update(float timeStep);
@@ -45,7 +48,6 @@ public:
     int GetPlayerId() { return playerId_; }
     unsigned GetScore() const { return score_; }
     void Upload();
-    void Trip(bool rightFoot);
     virtual void ClearControl();
     void HandleNodeCollisionStart(StringHash eventType, VariantMap& eventData);
     void EnterLobbyFromShip();
@@ -70,6 +72,7 @@ private:
     void Die();
     void Revive();
     void EnterLobbyThroughDoor();
+    bool ShipPicked(Ship *ship);
 };
 
 #endif // PILOT_H

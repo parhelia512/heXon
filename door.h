@@ -34,7 +34,7 @@ public:
     virtual void OnNodeSet(Node* node);
     virtual void Update(float timeStep);
 
-    bool HidesAllPilots() const;
+    bool HidesAllPilots(bool onlyHuman) const;
 private:
     AnimatedModel* model_;
 

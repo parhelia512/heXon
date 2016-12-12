@@ -65,7 +65,7 @@ public:
     void SetPlayerControl(int player, Controllable* controllable);
     Player *GetPlayerByControllable(Controllable* controllable);
     Controllable*  GetControllableByPlayer(int playerId);
-    Vector<Controllable*>  GetControllables() { return controlledByPlayer_.Values(); }
+    Vector<Controllable*>  GetControlled() { return controlledByPlayer_.Values(); }
 private:
     HashMap<int, MasterInputAction> keyBindingsMaster_;
     HashMap<int, MasterInputAction> buttonBindingsMaster_;

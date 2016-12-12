@@ -78,13 +78,6 @@ void Enemy::OnNodeSet(Node *node)
     collider->SetSphere(2.0f);
     collider->SetPosition(Vector3::UP * 0.23f);
 
-    for (int s{1}; s <= 5; ++s) {
-        samples_.Push(SharedPtr<Sound>(CACHE->GetResource<Sound>("Samples/Melee"+String(s)+".ogg")));
-    }
-    for (SharedPtr<Sound> s : samples_) {
-        s->SetLooped(false);
-    }
-
     Node* soundNode{MC->scene_->CreateChild("SoundSource")};
     soundSource_ = soundNode->CreateComponent<SoundSource>();
     soundSource_->SetGain(0.1f);
@@ -190,6 +183,9 @@ void Enemy::HandleNodeCollision(StringHash eventType, VariantMap &eventData)
     Ship* ship{ static_cast<Node*>(eventData[NodeCollision::P_OTHERNODE].GetPtr())->GetComponent<Ship>() };
     if (ship && sinceLastWhack_ > whackInterval_) {
 
+        HitFX* hitFx{ GetSubsystem<SpawnMaster>()->Create<HitFX>() };
+        hitFx->Set(eventData[NodeCollision::P_CONTACTS].GetVector3() + GetPosition());
+        PlaySample(MC->GetSample("Melee"+String(Random(5)+1)), 0.16f);
         ship->Hit(meleeDamage_, true);
         sinceLastWhack_ = 0.0f;
 
@@ -200,7 +196,6 @@ void Enemy::HandleNodeCollision(StringHash eventType, VariantMap &eventData)
         for (RigidBody* r : collidingBodies) {
             StringHash otherNameHash = r->GetNode()->GetNameHash();
             if (otherNameHash == N_PLAYER) {
-                PlaySample(samples_[Random(static_cast<int>(samples_.Size()))], 0.16f);
 
                 Player* hitPlayer{MC->players_[r->GetNode()->GetID()]};
 

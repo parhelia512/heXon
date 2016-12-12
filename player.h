@@ -25,16 +25,16 @@
 class GUI3D;
 class Ship;
 
+
 class Player : public Object
 {
     URHO3D_OBJECT(Player, Object);
 public:
     Player(int playerId, Context* context);
-//    static void RegisterObject(Context* context);
-//    virtual void OnNodeSet(Node* node);
+    static HashMap< int, int > colorSets_;
 
     Vector3 GetPosition();
-    Ship *GetShip();
+    Ship* GetShip();
 
     int GetPlayerId() const { return playerId_; }
     void AddScore(int points);
@@ -51,6 +51,7 @@ public:
 
     GUI3D* gui3d_;
 private:
+
     int playerId_;
     bool autoPilot_;
     bool alive_;
@@ -61,53 +62,6 @@ private:
 
 
     void SetScore(int points);
-    Vector3 Sniff(float playerFactor, bool taste);
-
-    /*
-    ChaoFlash* chaoFlash_;
-    Vector3 lastHitDirection_;
-    RigidBody* rigidBody_;
-    CollisionShape* collisionShape_;
-    AnimationController* animCtrl_;
-
-    Node* guiNode_;
-    Node* scoreNode_;
-    Node* healthBarNode_;
-    StaticModel* healthBarModel_;
-    Node* shieldBarNode_;
-    StaticModel* shieldBarModel_;
-
-    Node* appleCounterRoot_;
-    Node* appleCounter_[4];
-    Node* heartCounterRoot_;
-    Node* heartCounter_[4];
-    Node* scoreDigits_[10];
-
-    Vector<SharedPtr<TailGenerator> > tailGens_;
-
-    SharedPtr<Muzzle> muzzle_;
-
-    SharedPtr<SoundSource> deathSource_;
-    SharedPtr<Sound> shot_s;
-    SharedPtr<Sound> shieldHit_s;
-    SharedPtr<Sound> death_s;
-    Vector<SharedPtr<Sound>> pickup_s;
-    SharedPtr<Sound> powerup_s;
-    SharedPtr<Sound> multix_s;
-    SharedPtr<Sound> chaoball_s;
-    Vector<SharedPtr<Sound> > seekerHits_s;
-
-    void HandleSceneUpdate(StringHash eventType, VariantMap &eventData);
-    void Shoot(Vector3 fire);
-    void FireBullet(Vector3 direction);
-    Color HealthToColor(float health);
-    void CreateGUI();
-    void SetPilotMode(bool pilotMode);
-    void MoveMuzzle();
-    void LoadPilot();
-    void Think();
-    Vector3 Sniff(float playerFactor, bool taste = false);
-    void CountScore();*/
 };
 
 #endif // PLAYER_H

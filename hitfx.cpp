@@ -38,20 +38,9 @@ void HitFX::OnNodeSet(Node *node)
 
 void HitFX::Set(const Vector3 position, int colorSet, const bool sound)
 {
-/*
-    ParticleEffect* effect{ nullptr };
-    switch (colorSet) {
-    case 1: effect = CACHE->GetResource<ParticleEffect>("Particles/GreenHitFX.xml");
-        break;
-    case 2: effect = CACHE->GetResource<ParticleEffect>("Particles/PurpleHitFX.xml");
-        break;
-    default: effect = ;
-        break;
-    }
-*/
     particleEmitter_->SetEffect(MC->colorSets_[colorSet].hitFx_);
+    Effect::Set(position);
 
     if (sound) PlaySample(sample_, 0.23f);
 
-    Effect::Set(position);
 }

@@ -20,7 +20,9 @@
 
 #include "effectmaster.h"
 #include "inputmaster.h"
+#include "player.h"
 #include "ship.h"
+#include "door.h"
 #include "splatterpillar.h"
 
 #include "pilot.h"
@@ -31,6 +33,7 @@ void Pilot::RegisterObject(Context *context)
 }
 
 Pilot::Pilot(Context* context) : Controllable(context),
+    pickedShip_{ nullptr },
     male_{ false },
     alive_{ true },
     deceased_{ 0.0f },
@@ -52,6 +55,7 @@ void Pilot::OnNodeSet(Node *node)
     Node* hairNode{ head->CreateChild("Hair") };
     hairModel_ = hairNode->CreateComponent<AnimatedModel>();
     hairModel_->SetCastShadows(true);
+    rigidBody_->SetFriction(0.0f);
     rigidBody_->SetMass(1.0f);
     rigidBody_->SetRestitution(0.0f);
     rigidBody_->SetLinearFactor(Vector3::ONE - Vector3::UP);
@@ -272,7 +276,7 @@ void Pilot::Upload()
 {
     GetSubsystem<EffectMaster>()->TranslateTo(node_, node_->GetPosition() + 2.0f * Vector3::UP, 0.1f);
     GetSubsystem<EffectMaster>()->ScaleTo(node_, Vector3::ONE - Vector3::UP * 0.9f, 0.125f);
-    alive_ = false;
+    Die();
     animCtrl_->SetSpeed("Models/WalkRelax.ani", 0.0f);
     animCtrl_->SetSpeed("Models/IdleRelax.ani", 0.0f);
     rigidBody_->SetKinematic(true);
@@ -281,6 +285,8 @@ void Pilot::Upload()
 void Pilot::Die()
 {
     alive_ = false;
+    path_.Clear();
+    pickedShip_ = nullptr;
 }
 
 void Pilot::EnterLobbyThroughDoor()
@@ -288,17 +294,23 @@ void Pilot::EnterLobbyThroughDoor()
     node_->SetEnabledRecursive(true);
 
     node_->SetPosition(SPAWNPOS);
-    node_->SetRotation(Quaternion::IDENTITY);
-    rigidBody_->ApplyImpulse(Vector3::BACK * 4.2f);
+    node_->SetRotation(Quaternion::IDENTITY.Inverse());
+    rigidBody_->ApplyImpulse(Vector3::BACK * 2.3f);
 }
 void Pilot::EnterLobbyFromShip()
 {
     node_->SetEnabledRecursive(true);
 
-    node_->SetPosition(Vector3(node_->GetPosition().x_ < 0.0f ? -2.7f : 2.7f, 0.0f, 0.0f));
-    node_->SetRotation(Quaternion::IDENTITY);
-    rigidBody_->ApplyImpulse(node_->GetPosition().x_ < 0.0f ? Vector3::RIGHT
-                                                            : Vector3::LEFT);
+    for (Ship* s : MC->GetComponentsInScene<Ship>()) {
+
+        if (s->GetColorSet() == Player::colorSets_[playerId_]) {
+
+            Set(LucKey::Scale(s->GetPosition(), Vector3(1.7f, 0.0f, 1.7f)),
+                s->GetNode()->GetRotation());
+            rigidBody_->ApplyImpulse(node_->GetDirection());
+        }
+    }
+
 }
 
 void Pilot::Revive()
@@ -322,16 +334,6 @@ void Pilot::Revive()
     EnterLobbyThroughDoor();
 }
 
-//Will make pilot fall over when colliding with door edge or occasionally on the grate
-void Pilot::Trip(bool rightFoot)
-{
-    if (rightFoot) {
-        //trip at right foot
-    } else {
-        //trip at left foot
-    }
-}
-
 void Pilot::ClearControl()
 {
     Controllable::ClearControl();
@@ -342,51 +344,99 @@ void Pilot::ClearControl()
 void Pilot::HandleNodeCollisionStart(StringHash eventType, VariantMap& eventData)
 { (void)eventType;
 
+    path_.Clear();
     Node* otherNode{ static_cast<Node*>(eventData[NodeCollisionStart::P_OTHERNODE].GetPtr()) };
 
     Ship* ship{ otherNode->GetComponent<Ship>() };
-    if (ship && !ship->GetPlayer())
-    {
+    if (ship) {
+
+        for (int p : Player::colorSets_.Keys()){
+            //Don't get in if the pilot has a ship and this is not the pilot's ship
+            if (p == playerId_) {
+
+                if ( Player::colorSets_[p] != ship->GetColorSet()) {
+                    return;
+                }
+
+            //Don't get in if the ship is taken by another player
+            } else if (Player::colorSets_[p] == ship->GetColorSet()) {
+                return;
+            }
+        }
+
         GetSubsystem<InputMaster>()->SetPlayerControl(playerId_, ship);
-        MC->GetPlayer(playerId_)->gui3d_ = ship->gui3d_;
+        //Indicate ready
         ship->SetHealth(10.0f);
     }
 }
 
 void Pilot::Think()
 {
-    Player* otherPlayer{ MC->GetPlayer(GetPlayer()->GetPlayerId() == 1 ? 2 : 1) };
+    Controllable::Think();
+
+    //Walk if there are pathnodes left
+    if (path_.Size())
+        return;
+
+    NavigationMesh* navMesh{ MC->scene_->GetComponent<NavigationMesh>() };
 
     SplatterPillar* splatterPillar{};
-    for (SplatterPillar* s : MC->GetComponentsRecursive<SplatterPillar>())
+    for (SplatterPillar* s : MC->GetComponentsInScene<SplatterPillar>())
         splatterPillar = s;
 
-    bool splatterPillarsIdle{ splatterPillar->IsIdle() };
-    Vector3 toPillar{ splatterPillar->GetPosition() - GetPosition() * static_cast<float>(splatterPillar->IsIdle()) };
-    Ship* pickedShip{};
-    for (Ship* ship : MC->GetComponentsRecursive<Ship>())
-        if (!ship->GetPlayer()){
-            pickedShip = ship;
-            break;
+    bool splatterPillarIdle{ splatterPillar->IsIdle() };
+
+    if (Player::colorSets_.Contains(GetPlayerId())) {
+
+        pickedShip_ = MC->GetShipByColorSet(Player::colorSets_[GetPlayerId()]);
+
+    } else {
+        for (Ship* ship : MC->GetComponentsInScene<Ship>()) {
+
+            if (ShipPicked(ship))
+                continue;
+
+            if (!Player::colorSets_.Values().Contains(ship->GetColorSet())) {
+
+                pickedShip_ = ship;
+                break;
+            }
         }
+    }
 
-//    if (MC->NoHumans()){
+    //Pick a destination
 
-        //Enter play
-    if ((MC->NoHumans() && GetPlayer()->GetScore() == 0 && otherPlayer->GetScore() == 0 && splatterPillarsIdle)
-            || MC->AllReady(true))
-        SetMove(pickedShip->GetPosition() - node_->GetWorldPosition());
+    //Enter play
+    if ( pickedShip_ && ((MC->NoHumans() && MC->AllPlayersAtZero(false))
+                      || MC->AllReady(true))) {
+
+        navMesh->FindPath(path_, node_->GetPosition(), pickedShip_->GetPosition());
+        path_.Push(pickedShip_->GetPosition());
+
     //Reset Score
-    else if (GetPlayer()->GetScore() != 0 && otherPlayer->GetScore() == 0)
-        SetMove(toPillar);
-    //Stay put)
-    else
-        SetMove(Vector3::ZERO);
-    //    }
-    //Reset Score
+    } else if (GetPlayer()->GetScore() != 0 && (MC->NoHumans() || MC->AllPlayersAtZero(true))
+            && splatterPillarIdle) {
+
+        navMesh->FindPath(path_, node_->GetPosition(), splatterPillar->GetPosition());
+
     //Exit
-//    else if (DOOR->HidesPlayer() == 0.0f && OTHERDOOR->HidesPlayer() > 0.1f * playerFactor)
-//        move_ = Vector3::FORWARD;
+    } else if (!MC->NoHumans() && MC->GetDoor()->HidesAllPilots(true)) {
+
+        navMesh->FindPath(path_, node_->GetPosition(), SPAWNPOS);
+        path_.Push(SPAWNPOS + Vector3::FORWARD * 2.3f);
+
+    //Stay put
+    } else
+        SetMove(Vector3::ZERO);
+
     SetAim(Vector3::ZERO);
-             //Decide which pickup to pick up
+}
+
+bool Pilot::ShipPicked(Ship* ship)
+{
+    for (Pilot* p : MC->GetComponentsInScene<Pilot>())
+        if (p != this && p->pickedShip_ == ship)
+            return true;
+
+    return false;
 }
