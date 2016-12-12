@@ -41,7 +41,7 @@ void Lobby::OnNodeSet(Node *node)
     chamberModel->SetModel(MC->GetModel("Chamber"));
     chamberModel->SetMaterial(0, MC->GetMaterial("Marble"));
     chamberModel->SetMaterial(1, MC->GetMaterial("PitchBlack"));
-    chamberModel->SetMaterial(2, MC->GetMaterial("Metal"));
+    chamberModel->SetMaterial(2, MC->GetMaterial("BlueGlowEnvmap"));
     chamberModel->SetMaterial(3, MC->GetMaterial("Drain"));
     chamberModel->SetCastShadows(true);
 

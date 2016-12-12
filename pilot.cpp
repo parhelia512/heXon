@@ -407,8 +407,8 @@ void Pilot::Think()
     //Pick a destination
 
     //Enter play
-    if ( pickedShip_ && ((MC->NoHumans() && MC->AllPlayersAtZero(false))
-                      || MC->AllReady(true))) {
+    if ( pickedShip_ && (MC->AllPlayersAtZero(false) && MC->NoHumans())
+                     || (MC->AllReady(true) && !MC->NoHumans())) {
 
         navMesh->FindPath(path_, node_->GetPosition(), pickedShip_->GetPosition());
         path_.Push(pickedShip_->GetPosition());

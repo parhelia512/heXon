@@ -195,7 +195,7 @@ void GUI3D::SetScore(unsigned score)
 }
 void GUI3D::CountScore()
 {
-    int threshold{ 256 };
+    int threshold{ 1024 / Max(MC->GetPlayers().Size(), 1) };
     int lines{ GetSubsystem<SpawnMaster>()->CountActive<Line>() };
 
     while (toCount_ > 0 && lines < threshold) {
@@ -218,22 +218,13 @@ void GUI3D::EnterLobby(StringHash eventType, VariantMap &eventData)
     node_->SetPosition(Vector3::UP);
     node_->SetScale(MC->GetAspectRatio() > 1.6f ? 1.0f
                                                 : 0.85f);
-//    scoreNode_->SetWorldScale(1.0f);
-//    scoreNode_->SetPosition(Vector3(playerId_ == 2 ? 5.94252f : -5.94252f, 0.9f, 0.82951f));
+
 }
 void GUI3D::EnterPlay(StringHash eventType, VariantMap &eventData)
 {
-//    node_->GetChild("Sub")->SetScale();
     node_->SetPosition(Vector3::DOWN * 1.23f);
     node_->SetScale(MC->GetAspectRatio() > 1.6f ? 3.6f
                                                 : 3.23f);
-    /*scoreNode_->SetPosition(Vector3(playerId_ == 2 ? 23.5f : -23.5f, 2.23f, 1.23f));
-    if (MC->GetAspectRatio() > 1.5f)
-        scoreNode_->SetWorldScale(4.2f);
-    else {
-        scoreNode_->SetWorldScale(3.666f);
-        scoreNode_->Translate((playerId_ == 2 ? Vector3::LEFT : Vector3::RIGHT) * 2.3f);
-    }*/
 }
 
 Color GUI3D::HealthToColor(float health)
