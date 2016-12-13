@@ -90,7 +90,7 @@ void Pilot::Update(float timeStep)
     }
 
     //Apply movement
-    Vector3 force{ move_ * thrust_ * timeStep };
+    Vector3 force{ move_.Length() < 0.05f ? Vector3::ZERO : move_ * thrust_ * timeStep };
     if ( rigidBody_->GetLinearVelocity().Length() < maxSpeed_
      || (rigidBody_->GetLinearVelocity().Normalized() + force.Normalized()).Length() < 1.4142f )
     {
