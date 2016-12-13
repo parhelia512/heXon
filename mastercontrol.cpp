@@ -335,9 +335,10 @@ void MasterControl::CreateScene()
     navMesh->SetPadding(Vector3::UP);
     navMesh->SetAgentMaxClimb(0.05f);
     navMesh->SetCellSize(0.05f);
+    navMesh->SetTileSize(256);
     navMesh->Build();
 
-    for (int p : {1, 2, 3, 4}){
+    for (int p{1}; p <= Max(INPUT->GetNumJoysticks(), 2); ++p){
         players_.Push(SharedPtr<Player>(new Player(p, context_)));
 
         Node* pilotNode{ scene_->CreateChild("Pilot") };
@@ -566,6 +567,7 @@ Player* MasterControl::GetPlayerByColorSet(int colorSet)
         if (s->GetColorSet() == colorSet)
             return s->GetPlayer();
     }
+    return nullptr;
 }
 Player* MasterControl::GetNearestPlayer(Vector3 pos)
 {

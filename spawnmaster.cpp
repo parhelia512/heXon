@@ -79,6 +79,7 @@ void SpawnMaster::Clear()
             }
         }
     }
+    MC->chaoBall_->Disable();
 }
 
 void SpawnMaster::Restart()
@@ -88,6 +89,9 @@ void SpawnMaster::Restart()
     sinceRazorSpawn_    = 0.0f;
     spireInterval_      = 23.0f;
     sinceSpireSpawn_    = 0.0f;
+
+    sinceLastChaoPickup_ = 0.0f;
+    chaoInterval_ = CHAOINTERVAL;
     Activate();
 }
 

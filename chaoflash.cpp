@@ -94,7 +94,7 @@ void ChaoFlash::Update(float timeStep)
 
 void ChaoFlash::Set(const Vector3 position, int colorSet)
 {
-    Player* owner{ MC->GetPlayer(colorSet) };
+    Player* owner{ MC->GetPlayerByColorSet(colorSet) };
     Vector<Ship*> ships{};
     bool caughtApple{ false };
     bool caughtHeart{ false };

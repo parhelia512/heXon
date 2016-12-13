@@ -209,7 +209,9 @@ void GUI3D::CountScore()
 
 void GUI3D::EnterLobby(StringHash eventType, VariantMap &eventData)
 {
+    node_->SetEnabledRecursive(true);
     SetHeartsAndApples(0, 0);
+    SetScore(score_);
 
     health_ = 0.0f;
     healthIndicator_->SetMorphWeight(0, 1.0f);
@@ -222,6 +224,13 @@ void GUI3D::EnterLobby(StringHash eventType, VariantMap &eventData)
 }
 void GUI3D::EnterPlay(StringHash eventType, VariantMap &eventData)
 {
+    if (!MC->GetPlayerByColorSet(colorSet_)){
+        node_->SetEnabledRecursive(false);
+        return;
+    }
+    SetHeartsAndApples(0, 0);
+    SetScore(score_);
+
     node_->SetPosition(Vector3::DOWN * 1.23f);
     node_->SetScale(MC->GetAspectRatio() > 1.6f ? 3.6f
                                                 : 3.23f);

@@ -137,6 +137,7 @@ void Ship::EnterPlay(StringHash eventType, VariantMap &eventData)
     if (!GetPlayer()) {
 
         node_->SetEnabledRecursive(false);
+        gui3d_->GetNode()->SetEnabledRecursive(false);
         return;
     }
 
@@ -158,7 +159,6 @@ void Ship::EnterLobby(StringHash eventType, VariantMap &eventData)
     shotInterval_ = initialShotInterval_;
     sinceLastShot_ = 0.0f;
 
-    node_->SetEnabledRecursive(true);
     Set(initialPosition_, initialRotation_);
     rigidBody_->SetMass(0.0f);
     particleEmitter_->SetEmitting(false);

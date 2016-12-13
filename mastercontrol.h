@@ -120,8 +120,8 @@ public:
     Sound* GetSample(String name) const;
 
     Player* GetPlayer(int playerID) const;
-    Player *GetPlayerByColorSet(int colorSet);
-    Player*GetNearestPlayer(Vector3 pos);
+    Player* GetPlayerByColorSet(int colorSet);
+    Player* GetNearestPlayer(Vector3 pos);
     Vector< SharedPtr<Player> > GetPlayers() { return players_; }
 
     float SinceLastReset() const { return scene_->GetElapsedTime() - world.lastReset; }
